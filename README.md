@@ -61,9 +61,25 @@ with the following consistent changes:
 
 ```python
 import ants
-img = ants.image_read( ants.get_ants_data('mni') )
+img = ants.image_read( ants.get_ants_data('r16') )
 print(img)
 ```
+
+### Image Properties
+
+Image properties are pythonic and easy to get/set:
+
+```python
+import ants
+img = ants.image_read( ants.get_ants_data('r16') )
+
+print(img.spacing)
+img.set_spacing( (2., 2.) )
+
+print(img.origin)
+img.set_origin( (100,100) )
+```
+
 
 ### Converting to Numpy
 
