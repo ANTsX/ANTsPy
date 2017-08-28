@@ -21,7 +21,8 @@ cd ANTsPy
 python setup.py develop # note `develop` instead of `install` here.. IMPORTANT!
 ```
 
-By default, ANTsPy will search for an existing ITK build. If that is not
+By default, ANTsPy will search for an existing ITK build by checking if the `ITK_DIR`
+environment variable is set. If that is not
 found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
 ITK. If you want to use 3D visualization tools
 such as `ants.Surf` or `ants.Vol`, you need to build VTK on your own right now.
