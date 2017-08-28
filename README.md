@@ -98,8 +98,8 @@ new_img3 = ants.from_numpy(img_array, spacing=img.spacing,
 ```
 
 ### Chaining Commands
-As in ANTsR you can use the `%>%` command to chain operations, you can do this automatically
-in ANTsPy! Amazing stuff..
+In ANTsR you can use the `%>%` command to chain operations. That's real nice. In ANTsPy, you can 
+do this automatically on ANTsImages. Amazing stuff..
 
 ```python
 import ants
