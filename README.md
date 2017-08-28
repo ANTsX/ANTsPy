@@ -21,9 +21,9 @@ cd ANTsPy
 python setup.py develop
 ```
 
-By default, ANTsPy will search for an existing ITK installation. If that is not
-found, it will install it for you. If you want to use 3D visualization tools
-such as `ants.Surf` or `ants.Vol`, you need to install VTK on your own right now.
+By default, ANTsPy will search for an existing ITK build. If that is not
+found, it will build it for you. If you want to use 3D visualization tools
+such as `ants.Surf` or `ants.Vol`, you need to build VTK on your own right now.
 
 ## ANTsR Comparison
 
