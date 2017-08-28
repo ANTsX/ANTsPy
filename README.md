@@ -37,6 +37,8 @@ such as `ants.Surf` or `ants.Vol`, you need to install VTK on your own right now
 Here are a few example to get you up-and-running if coming from ANTsR:
 
 ### Example 1
+
+ANTsR code:
 ```R
 library(ANTsR)
 img <- antsImageRead( getANTsRData("r16") , 2 )
@@ -45,6 +47,7 @@ mask <- getMask(img)
 segs1 <- atropos( a = img, m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
 ```
 
+ANTsPy code:
 ```python     
 import ants
 img = ants.image_read(ants.get_ants_data('r16'))
