@@ -18,7 +18,7 @@ To install, run the following:
 ```bash
 git clone https://github.com/ANTsConsortium/ANTsPy.git
 cd ANTsPy
-python setup.py develop # not `develop` instead of `install` here.. IMPORTANT!
+python setup.py develop # note `develop` instead of `install` here.. IMPORTANT!
 ```
 
 By default, ANTsPy will search for an existing ITK build. If that is not
