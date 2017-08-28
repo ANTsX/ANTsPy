@@ -64,6 +64,13 @@ import ants
 img = ants.image_read( ants.get_ants_data('mni') )
 print(img)
 ```
+### Chaining Commands
+As in ANTsR you can use the `%>%` command to chain operations, you can do this automatically
+in ANTsPy! Amazing stuff..
 
-
+```python
+import ants
+img = ants.image_read(ants.get_ants_data('r16'))
+img = img.resample_image((64,64), 1, 0).get_mask().atropos(m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
+```
 
