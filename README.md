@@ -9,6 +9,16 @@ How can we expect to teach children to analyze brain images, if they can't
 even fit in the building? <br>
 It needs to be at least... three times bigger than this. <br>
 
+## What is ANTsPy?
+
+ANTsPy -- pronounced "ant-spy" like an ant who is a secret agent -- is a Python library which
+wraps much of the medical image processing functionality of ANTs, 
+provides much of the statistical capabilities of ANTsR, and allows seemless integration
+with Numpy and the greater Python community. 
+
+The engine underlying AntsPy and ANTsPy is the same, so you can generally expect exactly the same results
+between the two packages <b>given that the algorithm in question is itself deterministic</b>.
+
 ## Installation
 
 To install, run the following:
