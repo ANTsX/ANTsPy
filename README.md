@@ -63,7 +63,7 @@ ANTsPy functions and classes are generally faithful to the respective ANTsR vers
 with the following consistent changes in naming convention:<br>
 * camel case in ANTsR is underscore case in ANTsPy
     * e.g. resampleImage -> resample_image
-* anything preceeded by `ants` in ANTsR is removed and in the general `ants` namespace
+* anything preceeded by `ants` or `antsr` in ANTsR is removed since ANTsPy uses namespaces already
     * e.g. antsImageRead -> ants.image_read
 
 ### Read an Image
