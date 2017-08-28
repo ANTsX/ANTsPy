@@ -21,3 +21,23 @@ python setup.py develop
 By default, ANTsPy will search for an existing ITK installation. If that is not
 found, it will install it for you. If you want to use 3D visualization tools
 such as `ants.Surf` or `ants.Vol`, you need to install VTK on your own right now.
+
+
+## Quick Tutorial
+
+ANTsPy functions and classes are generally faithful to the respective ANTsR versions,
+with the following consistent changes:
+    - camel case in ANTsR is underscore case in ANTsPy
+        - e.g. resampleImage -> resample_image
+    - anything preceeded by `ants` in ANTsR is removed and in the general `ants` namespace
+        - e.g. antsImageRead -> ants.image_read
+
+### Read an Image
+
+```python
+import ants
+img = ants.image_read( ants.get_ants_data('mni') )
+print(img)
+```
+
+
