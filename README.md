@@ -1,11 +1,16 @@
 
 # Advanced Normalization Tools in Python
 
+What is this, a center for ANTs? <br>
+How can we expect to teach children to analyze brain images, if they can't
+even fit in the building? <br>
+It needs to be at least... three times bigger than this. <br>
+
 ## Installation
 
 To install, run the following:
 ```bash
-git clone https://github.com/ncullen93/ANTsPy.git
+git clone https://github.com/ANTsConsortium/ANTsPy.git
 cd ANTsPy-master
 python setup.py develop
 ```
