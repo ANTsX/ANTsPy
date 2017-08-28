@@ -4,7 +4,7 @@
 Welcome to the Derek Zoolander Center for Kids who cant analyze brain images, and 
 wanna learn how to do other stuff good, too. <br>
 
-[img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif)
+![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif)
 
 <br>
 What is this, a center for ANTs? <br>
