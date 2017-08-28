@@ -69,5 +69,5 @@ cmake \
     -D ITKGroup_Registration=ON \
     -D ITKGroup_Segmentation=ON ../itksource/
 make -j 3
-make install
+#make install
 cd ../
