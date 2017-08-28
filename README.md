@@ -27,9 +27,13 @@ such as `ants.Surf` or `ants.Vol`, you need to install VTK on your own right now
 
 ANTsPy functions and classes are generally faithful to the respective ANTsR versions,
 with the following consistent changes:
+    
     - camel case in ANTsR is underscore case in ANTsPy
+        
         - e.g. resampleImage -> resample_image
+    
     - anything preceeded by `ants` in ANTsR is removed and in the general `ants` namespace
+       
         - e.g. antsImageRead -> ants.image_read
 
 ### Read an Image
