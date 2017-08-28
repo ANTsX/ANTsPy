@@ -1,6 +1,9 @@
 
 # Advanced Normalization Tools in Python
 
+Welcome to the Derek Zoolander Center for Kids who cant analyze brain images, and 
+wanna learn how to do other stuff good, too. <br>
+<br>
 What is this, a center for ANTs? <br>
 How can we expect to teach children to analyze brain images, if they can't
 even fit in the building? <br>
