@@ -65,6 +65,7 @@ with the following consistent changes in naming convention:<br>
     * e.g. resampleImage -> resample_image
 * anything preceeded by `ants` or `antsr` in ANTsR is removed since ANTsPy uses namespaces already
     * e.g. antsImageRead -> ants.image_read
+    * e.g. antsrSurf -> ants.Surf
 
 ### Read an Image
 
