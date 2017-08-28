@@ -1,9 +1,7 @@
 
 # Advanced Normalization Tools in Python
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) <br>
-How can we expect to teach children how to analyze brain images, if they can't
-even fit inside the building? <br> It needs to be at least... three times bigger than this. 
-<br>
+
 ## What is ANTsPy?
 
 ANTsPy -- pronounced "ant-spy" like an ant who is a secret agent -- is a Python library which
