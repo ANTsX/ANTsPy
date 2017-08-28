@@ -1,9 +1,6 @@
 
 # Advanced Normalization Tools in Python
-
-<div style="float:left;margin:0 10px 10px 0" markdown="1">
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) 
-</div>
 How can we expect to teach children how to analyze brain images, if they can't
 even fit inside the building? <br> It needs to be at least... three times bigger than this. <br> |
 <br><br>
