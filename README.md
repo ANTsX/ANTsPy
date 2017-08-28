@@ -132,3 +132,9 @@ img = ants.image_read(ants.get_ants_data('r16'))
 img = img.resample_image((64,64), 1, 0).get_mask().atropos(m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
 ```
 
+## Frequently Asked Questions
+
+* What are the chances this project builds and installs correctly on the first shot?
+    * 72%
+
+
