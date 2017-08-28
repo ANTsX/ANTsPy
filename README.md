@@ -60,7 +60,7 @@ seg1 = ants.atropos(a = img, m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x =
 ## Quick Tutorial
 
 ANTsPy functions and classes are generally faithful to the respective ANTsR versions,
-with the following consistent changes in naming convention:
+with the following consistent changes in naming convention:<br>
     * camel case in ANTsR is underscore case in ANTsPy
         * e.g. resampleImage -> resample_image
     * anything preceeded by `ants` in ANTsR is removed and in the general `ants` namespace
