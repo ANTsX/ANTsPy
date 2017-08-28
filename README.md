@@ -64,6 +64,39 @@ import ants
 img = ants.image_read( ants.get_ants_data('mni') )
 print(img)
 ```
+
+### Converting to Numpy
+
+ANTsPy provides seamless conversions to Numpy arrays. Through the use
+of memory buffers directly in the C++ api, these calls are instantaneous and essentially free.
+
+```python
+import ants
+img = ants.image_read( ants.get_ants_data('mni') )
+img_array = img.numpy()
+```
+
+Do operations directly in numpy if you want, then simply make an ANTsImage right back
+from the numpy array (again instantaneous and "free"):
+
+```python
+import ants
+img = ants.image_read( ants.get_ants_data('mni') )
+img_array = img.numpy()
+
+img_array += 5
+
+# copies image information and just changes the data
+new_img1 = img.new_image_like(img_array)
+
+# doesnt copy any information
+new_img2 = ants.from_numpy(img_array)
+
+# verbose way to copy information
+new_img3 = ants.from_numpy(img_array, spacing=img.spacing,
+                           origin=img.origin, direction=img.direction)
+```
+
 ### Chaining Commands
 As in ANTsR you can use the `%>%` command to chain operations, you can do this automatically
 in ANTsPy! Amazing stuff..
