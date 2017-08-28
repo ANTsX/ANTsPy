@@ -14,7 +14,7 @@ It needs to be at least... three times bigger than this. <br>
 To install, run the following:
 ```bash
 git clone https://github.com/ANTsConsortium/ANTsPy.git
-cd ANTsPy-master
+cd ANTsPy
 python setup.py develop
 ```
 
