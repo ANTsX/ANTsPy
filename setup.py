@@ -77,8 +77,10 @@ else:
 
 print('ITK_DIR: ' , os.getenv('ITK_DIR'))
 
-if not os.path.exists(os.path.join(setup_py_dir,'ants/lib/pybind11/')):
-    subprocess.check_call(['./configure_antspy.sh'], cwd=setup_py_dir)
+if os.path.exists(os.path.join(setup_py_dir,'ants/lib/pybind11/')):
+    os.remove(os.path.join(setup_py_dir,'ants/lib/pybind11/'))
+
+subprocess.check_call(['./configure_antspy.sh'], cwd=setup_py_dir)
 
 setup(
     name='ants',
