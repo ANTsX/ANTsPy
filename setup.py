@@ -70,7 +70,7 @@ if os.getenv('ITK_DIR'):
 elif os.path.exists(os.path.join(setup_py_dir, 'itkbuild')):
     os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
 else:
-    print('Couldnt find Local ITK Installation...')
+    print('No Local ITK Installation Found...')
     print('Building ITK now...')
     subprocess.check_call(['./configure_itk.sh'], cwd=setup_py_dir)
     os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
@@ -78,7 +78,10 @@ else:
 print('ITK_DIR: ' , os.getenv('ITK_DIR'))
 
 if os.path.exists(os.path.join(setup_py_dir,'ants/lib/pybind11/')):
-    os.remove(os.path.join(setup_py_dir,'ants/lib/pybind11/'))
+    try:
+        os.rmdir(os.path.join(setup_py_dir,'ants/lib/pybind11/'))
+    except:
+        pass
 
 subprocess.check_call(['./configure_antspy.sh'], cwd=setup_py_dir)
 
