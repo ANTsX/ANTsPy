@@ -27,6 +27,9 @@ found, it will build it for you. It does <b>NOT</b> require the Python wrappings
 ITK. If you want to use 3D visualization tools
 such as `ants.Surf` or `ants.Vol`, you need to build VTK on your own right now.
 
+ANTsPy is known to install on MacOS and Ubuntu, both with Python3.6. It's unlikely that
+it will work with Python2.7.
+
 ## ANTsR Comparison
 
 Here are a few example to get you up-and-running if coming from ANTsR:
@@ -128,8 +131,9 @@ img = img.resample_image((64,64), 1, 0).get_mask().atropos(m = '[0.2,1x1]', c = 
 ```
 
 ## Frequently Asked Questions
-
-* What are the chances this project builds and installs correctly on the first shot?
-    * 72%
+* How long does ANTsPy take to install?
+    * 15-20 minutes if you don't have a local ITK build
+* What are the chances this project builds and installs correctly on the first try?
+    * 83%
 
 
