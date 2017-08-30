@@ -138,10 +138,11 @@ All common mathematical operators are overloaded to work directly on ANTsImages:
 
 ```python
 import ants
+import numpy as np
 img = ants.image_read( ants.get_ants_data('mni') )
 img2 = img.clone()
 img3 = img + img2
-print(np.allclose(img.numpy()+img2.numpy(), img3))
+print(np.allclose(img.numpy()+img2.numpy(), img3.numpy())) # same as if done in numpy
 ```
 
 ### Chaining Commands
