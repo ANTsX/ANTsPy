@@ -127,7 +127,7 @@ Images can be indexed (getting and setting) exactly as if they were arrays.
 import ants
 img = ants.image_read( ants.get_ants_data('mni') )
 
-slice = img[200,:,:] # get a slice
+vals = img[200,:,:] # get a slice
 
 img[100,:,:] = 1 # set a slice
 ```
