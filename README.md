@@ -158,7 +158,5 @@ img = img.resample_image((64,64), 1, 0).get_mask().atropos(m = '[0.2,1x1]', c = 
 ## Frequently Asked Questions
 * How long does ANTsPy take to install?
     * 15-20 minutes if you don't have a local ITK build
-* What are the chances this project builds and installs correctly on the first try?
-    * 83%
 
 
