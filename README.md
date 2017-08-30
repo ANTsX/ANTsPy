@@ -120,6 +120,30 @@ new_img3 = ants.from_numpy(img_array, spacing=img.spacing,
                            origin=img.origin, direction=img.direction)
 ```
 
+### Indexing 
+
+Images can be indexed (getting and setting) exactly as if they were arrays.
+```python
+import ants
+img = ants.image_read( ants.get_ants_data('mni') )
+
+slice = img[200,:,:] # get a slice
+
+img[100,:,:] = 1 # set a slice
+```
+
+### Operator Overloading
+
+All common mathematical operators are overloaded to work directly on ANTsImages:
+
+```python
+import ants
+img = ants.image_read( ants.get_ants_data('mni') )
+img2 = img.clone()
+img3 = img + img2
+print(np.allclose(img.numpy()+img2.numpy(), img3))
+```
+
 ### Chaining Commands
 In ANTsR you can use the `%>%` command to chain operations. That's real nice. In ANTsPy, you can 
 do this automatically on ANTsImages. Amazing stuff..
