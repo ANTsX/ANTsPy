@@ -133,7 +133,7 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     else:
         arrays = [data[...,i].copy() for i in range(data.shape[-1])]
         data_shape = arrays[0].shape
-        ants_images = [iio.ANTsImage(from_numpy_fn(arrays[i], data_shape, origin, spacing, direction)) for i in range(len(arrays))]
+        ants_images = [iio.ANTsImage(from_numpy_fn(arrays[i], data_shape[::-1], origin, spacing, direction)) for i in range(len(arrays))]
         ants_image = utils.merge_channels(ants_images)
 
     return ants_image
