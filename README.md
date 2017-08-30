@@ -87,6 +87,14 @@ print(img.origin)
 img.set_origin( (100,100) )
 ```
 
+However, we still try to keep most of the associated ANTsR functions which are stand-alone, e.g:
+
+```python
+ants.get_spacing(img) # versus the pythonic `img.spacing`
+ants.set_spacing(img, (2.,2.)) # versus `img.set_spacing`
+
+imgclone = ants.image_clone(img) # versus img.clone()
+```
 
 ### Converting to Numpy
 
