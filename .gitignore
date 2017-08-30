@@ -1,5 +1,6 @@
 # custom ignores
 sandbox/
+softwareVersions.csv
 
 itkbuild/
 itksource/

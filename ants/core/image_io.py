@@ -11,7 +11,8 @@ __all__ = ['image_header_info',
            'images_from_matrix',
            'images_to_matrix',
            'matrix_from_images',
-           'from_numpy']
+           'from_numpy',
+           '_from_numpy']
 
 import os
 import numpy as np
@@ -101,13 +102,14 @@ _unsupported_ptypes = {'char', 'unsigned short', 'short', 'int'}
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
     """
     Create an ANTsImage object from a numpy array
+    """
+    return _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
 
-    Dev Note
-    --------
-    It's unclear if data.shape should be reversed when passed into `from_numpy_fn`
-    as it is in WrapITK's `itk.GetImageFromArray` function. 
-    If it ever turns out that an image's dims are wrongly reversed after using
-    this function, then data.shape might indeed need to be reversed.
+
+def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
+    """
+    Internal function for creating an ANTsImage from a numpy array which doesnt have
+    any data copy
     """
     ndim = data.ndim
     if has_components:
@@ -126,7 +128,7 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     from_numpy_fn = _from_numpy_dict[dtype][ndim]
 
     if not has_components:
-        itk_image = from_numpy_fn(data, data.shape, origin, spacing, direction)
+        itk_image = from_numpy_fn(data, data.shape[::-1], origin, spacing, direction)
         ants_image = iio.ANTsImage(itk_image)
     else:
         arrays = [data[...,i].copy() for i in range(data.shape[-1])]
@@ -218,7 +220,7 @@ def image_clone(img, dtype=None):
     return img.clone(dtype=dtype)
 
 
-def image_read(filename, pixeltype='float'):
+def image_read(filename, pixeltype='float', dimension=None):
     """
     Read an ANTsImage from file
     """
@@ -230,6 +232,8 @@ def image_read(filename, pixeltype='float'):
     ptype = hinfo['pixeltype']
     pclass = hinfo['pixelclass']
     ndim = hinfo['nDimensions']
+    if dimension is not None:
+        ndim = dimension
 
     if ptype in _unsupported_ptypes:
         ptype = _unsupported_ptype_map[ptype]

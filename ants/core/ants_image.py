@@ -81,11 +81,11 @@ class ANTsImage(object):
 
     def view(self):
         dtype = self.dtype
-        shape = self.shape
+        shape = self.shape[::-1]
         if self.components > 1:
             shape = list(shape) + [self.components]
         memview = self._img.numpy()
-        return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray)
+        return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
     def numpy(self):
         return np.array(self.view(), copy=True)
@@ -100,10 +100,8 @@ class ANTsImage(object):
                 data = data.astype(dtype)
             else:
                 raise ValueError('dtype arg %s not understood' % str(dtype))
-
-        return io.from_numpy(data=data, origin=self.origin, 
-            spacing=self.spacing, direction=self.direction,
-            has_components=self.has_components)
+        
+        return self.new_image_like(data)
 
     def new_image_like(self, data):
         return io.from_numpy(data, origin=self.origin, 
