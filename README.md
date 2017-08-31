@@ -25,11 +25,11 @@ cd ANTsPy
 python setup.py install
 ```
 
-Option 2: Developer Installation. Here, you only create a package link to the source code and
-dont fully install it in site-packages. Use this method if you think you'll be changing
-the code base yourself locally, since any changes in the code will be instantly reflected.
-Note however that using this method means the package will not load if you delete or move
-the folder containing the source code.
+Option 2: Developer Installation. Here, you only create a package link to the source code. 
+Use this method if you think you'll be changing
+the code base yourself locally, since any changes in the code will be instantly reflected
+without having to reinstall the package. Note however that using this method means
+the package will not load if you delete or move the folder containing the source code.
 ```bash
 git clone https://github.com/ANTsConsortium/ANTsPy.git
 cd ANTsPy
