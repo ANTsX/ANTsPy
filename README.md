@@ -14,12 +14,32 @@ between the two packages <b>given that the algorithm in question is itself deter
 
 ## Installation
 
-To install, run the following:
+To install, you have to options. 
+
+Option 1: Standard Installation. In this method, you install the package exactly 
+as if you were installing any other python package. This is recommended if you dont think
+you'll be making any changes to the code yourself. 
 ```bash
 git clone https://github.com/ANTsConsortium/ANTsPy.git
 cd ANTsPy
-python setup.py develop # note `develop` instead of `install` here.. IMPORTANT!
+python setup.py install
 ```
+
+Option 2: Developer Installation. Here, you only create a package link to the source code and
+dont fully install it in site-packages. Use this method if you think you'll be changing
+the code base yourself locally, since any changes in the code will be instantly reflected.
+Note however that using this method means the package will not load if you delete or move
+the folder containing the source code.
+```bash
+git clone https://github.com/ANTsConsortium/ANTsPy.git
+cd ANTsPy
+python setup.py develop
+```
+
+Look up the difference between `python setup.py install` and `python setup.py develop` for
+more information.
+
+#### Insight Toolkit (ITK)
 
 By default, ANTsPy will search for an existing ITK build by checking if the `ITK_DIR`
 environment variable is set. If that is not
