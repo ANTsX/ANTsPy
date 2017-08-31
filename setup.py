@@ -90,13 +90,13 @@ setup(
     name='ants',
     version='0.1.2',
     author='Nicholas C. Cullen',
-    author_email='nickmarch31@yahoo.com',
+    author_email='ncullen at seas dot upenn dot edu',
     description='Advanced Normalization Tools in Python',
     long_description='',
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     packages=find_packages(),
-    package_data={'ants':['ants/lib/*.so*','lib/*.so*']}
+    package_data={'ants':['ants/lib/*.so*','data/*','lib/*.so*']}
 )
 

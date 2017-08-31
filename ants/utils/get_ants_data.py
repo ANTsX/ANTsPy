@@ -6,7 +6,8 @@ __all__ = ['get_ants_data']
 
 import os 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-data_path = os.path.join('/'.join(dir_path.split('/')[:-2]), 'data')
+#data_path = os.path.join('/'.join(dir_path.split('/')[:-2]), 'data')
+data_path = os.path.expanduser('~/.antspy/')
 
 def get_ants_data(name): 
     if name == 'r16':
