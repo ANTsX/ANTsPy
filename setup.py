@@ -4,6 +4,7 @@ import sys
 import platform
 import subprocess
 
+from setuptools import find_packages
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
@@ -95,5 +96,7 @@ setup(
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
+    packages=find_packages(),
+    package_data={'ants':['ants/lib/*.so*','lib/*.so*']}
 )
 
