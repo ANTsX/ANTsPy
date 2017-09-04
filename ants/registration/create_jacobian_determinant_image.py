@@ -14,8 +14,25 @@ from .. import lib
 
 def create_jacobian_determinant_image(domain_img, tx, do_log=False, geom=False):
     """
-    Create Jacobian Determinant image
+    Compute the jacobian determinant from a transformation file
+   
+    ANTsR function: `createJacobianDeterminantImage`
+
+    Arguments
+    ---------
+    domain_img : ANTsImage
+        image that defines transformation domain
+    tx : string
+        deformation transformation file name
+    do_log : boolean
+        return the log jacobian
+    geom : bolean
+        use the geometric jacobian calculation (boolean)
     
+    Returns
+    -------
+    ANTsImage
+
     Example
     -------
     >>> import ants

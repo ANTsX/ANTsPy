@@ -10,9 +10,20 @@ from .apply_transforms import apply_transforms
 from ..core import image_io as iio
 
 
-def symimg(img, gs=0.25):
+def symimg(img):
     """
-    Symmetrize an image
+    Use registration and reflection to make an image symmetric
+
+    ANTsR function: N/A
+
+    Arguments
+    ---------
+    img : ANTsImage
+        image to make symmetric
+
+    Returns
+    -------
+    ANTsImage
 
     Example
     -------

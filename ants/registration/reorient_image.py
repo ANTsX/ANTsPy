@@ -2,7 +2,7 @@
  
 
 __all__ = ['reorient_image',
-           'center_of_mass']
+           'get_center_of_mass']
 
 import os
 import numpy as np
@@ -29,8 +29,36 @@ _center_of_mass_dict = {
 }
 
 
-def reorient_image(img, axis1, axis2=None, doreflection=0, doscale=0, txfn=None):
+def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=None):
     """
+    Align image along a specified axis
+
+    ANTsR function: `reorientImage`
+    
+    Arguments
+    ---------
+    img : ANTsImage
+        image to reorient
+    
+    axis1 : list/tuple of integers
+        vector of size dim, might need to play w/axis sign
+    
+    axis2 : list/tuple of integers
+        vector of size dim for 3D
+    
+    doreflection : boolean
+        whether to reflect
+    
+    doscale : scalar value
+         1 allows automated estimate of scaling
+    
+    txfn : string
+        file name for transformation
+    
+    Returns
+    -------
+    ANTsImage
+
     Example
     -------
     >>> import ants
@@ -87,9 +115,28 @@ def reorient_image(img, axis1, axis2=None, doreflection=0, doscale=0, txfn=None)
             'txfn':txfn}
 
 
-def center_of_mass(img):
+def get_center_of_mass(img):
     """
-    Calculate the Center of Mass for an ANTsImage
+    Compute an image center of mass in physical space which is defined 
+    as the mean of the intensity weighted voxel coordinate system.
+
+    ANTsR function: `getCenterOfMass`
+    
+    Arguments
+    ---------
+    img : ANTsImage
+        image from which center of mass will be computed
+
+    Returns
+    -------
+    scalar
+
+    Example
+    -------
+    >>> fi = ants.image_read( ants.get_ants_data("r16"))
+    >>> com1 = ants.get_center_of_mass( fi )
+    >>> fi = ants.image_read( ants.get_ants_data("r64"))
+    >>> com2 = ants.get_center_of_mass( fi )
     """
     if img.pixeltype != 'float':
         img = img.clone('float')

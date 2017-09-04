@@ -9,6 +9,22 @@ from .. import lib
 
 def image_mutual_information(img1, img2):
     """
+    Compute mutual information between two ANTsImage types
+
+    ANTsR function: `antsImageMutualInformation`
+    
+    Arguments
+    ---------
+    img1 : ANTsImage
+        image 1
+
+    img2 : ANTsImage
+        image 2
+
+    Returns
+    -------
+    scalar
+
     Example
     -------
     >>> import ants

@@ -9,19 +9,33 @@ from .. import utils
 
 def kmeans_segmentation(img, k, kmask=None, mrf=0.1):
     """
-    Perform k-means segmentation on an ANTsImage
+    K-means image segmentation that is a wrapper around `ants.atropos`
+
+    ANTsR function: `kmeansSegmentation`
+    
+    Arguments
+    ---------
+    img : ANTsImage 
+        input image
+    
+    k : integer
+        integer number of classes
+    
+    kmask : ANTsImage (optional)   
+        segment inside this mask
+    
+    mrf : scalar
+        smoothness, higher is smoother
+
+    Returns
+    -------
+    ANTsImage
 
     Example
     -------
-        fi<-antsImageRead( getANTsRData("r16") ,2)
-        fi<-n3BiasFieldCorrection(fi,2)
-        seg<-kmeansSegmentation( fi, 3 )
-        invisible(plot(seg$segmentation))
-    Python:
-        fi = ants.image_read(ants.get_ants_data('r16'), 'float')
-        fi = ants.n3_bias_field_correction(fi, 2)
-        seg = ants.kmeans_segmentation(fi, 3)
-        
+    >>> fi = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> fi = ants.n3_bias_field_correction(fi, 2)
+    >>> seg = ants.kmeans_segmentation(fi, 3)
     """
     dim = img.dimension
     kmimg = utils.iMath(img, 'Normalize')
@@ -33,3 +47,5 @@ def kmeans_segmentation(img, k, kmask=None, mrf=0.1):
     kmimg = atropos(a = kmimg, m = mrf, c = '[5,0]', i = 'kmeans[%s]'%(str(k)), x = kmask)
     kmimg['segmentation'] = kmimg['segmentation'].clone(img.pixeltype)
     return kmimg
+
+

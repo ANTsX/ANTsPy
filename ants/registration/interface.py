@@ -31,7 +31,112 @@ def registration(fixed=None,
                  verbose=False,
                  **kwargs):
     """
-    Perform registration with ANTsImages
+    Register a pair of images either through the full or simplified 
+    interface to the ANTs registration method.
+    
+    ANTsR function: `antsRegistration`
+
+    Arguments
+    ---------
+    fixed : ANTsImage
+        fixed image to which we register the moving image.
+    
+    moving : ANTsImage
+        moving image to be mapped to fixed space.
+    
+    type_of_transform : string
+        A linear or non-linear registration type. Mutual information metric by default. 
+        See Notes below for more.
+    
+    initial_transform : list of strings (optional)  
+        transforms to prepend
+    
+    outprefix : string
+        output will be named with this prefix.
+    
+    mask : ANTsImage (optional)
+        mask the registration.
+    
+    grad_step : scalar
+        gradient step size (not for all tx)
+    
+    flow_sigma : scalar  
+        smoothing for update field
+    
+    total_sigma : scalar 
+        smoothing for total field
+    
+    aff_metric : string  
+        the metric for the affine part (GC, mattes, meansquares)
+    
+    aff_sampling : scalar
+        the nbins or radius parameter for the syn metric
+    
+    syn_metric : string  
+        the metric for the syn part (CC, mattes, meansquares, demons)
+    
+    syn_sampling : scalar
+        the nbins or radius parameter for the syn metric
+    
+    reg_iterations : list/tuple of integers  
+        vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
+    
+    verbose : boolean
+        request verbose output (useful for debugging)
+    
+    kwargs : keyword args
+        extra arguments 
+    
+    Returns
+    -------
+    dict containing follow key/value pairs:
+        `warpedmovout`: Moving image warped to space of fixed image.
+        `warpedfixout`: Fixed image warped to space of moving image.
+        `fwdtransforms`: Transforms to move from moving to fixed image.
+        `invtransforms`: Transforms to move from fixed to moving image.
+
+    Notes
+    -----
+    typeofTransform can be one of:
+        - "Translation": Translation transformation.
+        - "Rigid": Rigid transformation: Only rotation and translation.
+        - "Similarity": Similarity transformation: scaling, rotation and translation.
+        - "QuickRigid": Rigid transformation: Only rotation and translation. 
+                        May be useful for quick visualization fixes.'
+        - "DenseRigid": Rigid transformation: Only rotation and translation. 
+                        Employs dense sampling during metric estimation.'
+        - "BOLDRigid": Rigid transformation: Parameters typical for BOLD to 
+                        BOLD intrasubject registration'.'
+        - "Affine": Affine transformation: Rigid + scaling.
+        - "AffineFast": Fast version of Affine.
+        - "BOLDAffine": Affine transformation: Parameters typical for BOLD to 
+                        BOLD intrasubject registration'.'
+        - "TRSAA": translation, rigid, similarity, affine (twice). please set 
+                    regIterations if using this option. this would be used in 
+                    cases where you want a really high quality affine mapping 
+                    (perhaps with mask).
+        - "ElasticSyN": Symmetric normalization: Affine + deformable 
+                        transformation, with mutual information as optimization 
+                        metric and elastic regularization.
+        - "SyN": Symmetric normalization: Affine + deformable transformation, 
+                    with mutual information as optimization metric.
+        - "SyNRA": Symmetric normalization: Rigid + Affine + deformable 
+                    transformation, with mutual information as optimization metric.
+        - "SyNOnly": Symmetric normalization: no initial transformation, 
+                    with mutual information as optimization metric. Assumes 
+                    images are aligned by an inital transformation. Can be 
+                    useful if you want to run an unmasked affine followed by 
+                    masked deformable registration.
+        - "SyNCC": SyN, but with cross-correlation as the metric.
+        - "SyNabp": SyN optimized for abpBrainExtraction.
+        - "SyNBold": SyN, but optimized for registrations between BOLD and T1 images.
+        - "SyNBoldAff": SyN, but optimized for registrations between BOLD 
+                        and T1 images, with additional affine step.
+        - "SyNAggro": SyN, but with more aggressive registration 
+                        (fine-scale matching and more deformation). 
+                        Takes more time than SyN.
+        - "TVMSQ": time-varying diffeomorphism with mean square metric
+        - "TVMSQC": time-varying diffeomorphism with mean square metric for very large deformation
 
     Example
     -------
