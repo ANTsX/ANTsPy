@@ -7,6 +7,31 @@ from .. import lib
 
 
 def weingarten_image_curvature(img, sigma=1.0, opt='mean'):
+    """
+    Uses the weingarten map to estimate image mean or gaussian curvature
+
+    ANTsR function: `weingartenImageCurvature`
+    
+    Arguments
+    ---------
+    image : ANTsImage
+        image from which curvature is calculated
+    
+    sigma : scalar
+        smoothing parameter
+    
+    opt : string
+        mean by default, otherwise `gaussian` or `characterize`
+    
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> img = ants.image_read(ants.get_ants_data('mni'))
+    >>> imgcurv = ants.weingarten_image_curvature(img)
+    """
     if img.dimension not in {2,3}:
         raise ValueError('image must be 2D or 3D')
 

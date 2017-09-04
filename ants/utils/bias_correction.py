@@ -15,6 +15,25 @@ from .. import lib
 def n3_bias_field_correction(img, downsample_factor=3):
     """
     N3 Bias Field Correction
+
+    ANTsR function: `n3BiasFieldCorrection`
+
+    Arguments
+    ---------
+    img : ANTsImage
+        image to be bias corrected
+
+    downsample_factor : scalar
+        how much to downsample image before performing bias correction
+
+    Returns
+    -------
+    ANTsImage
+    
+    Example
+    -------
+    >>> img = ants.image_read( ants.get_ants_data('r16') )
+    >>> img_n3 = ants.n3_bias_field_correction(img)
     """
     outimg = img.clone()
     args = [img.dimension, img, outimg, downsample_factor]
@@ -28,6 +47,41 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
                              spline_param=200, verbose=False, weight_mask=None):
     """
     N4 Bias Field Correction
+
+    ANTsR function: `n4BiasFieldCorrection`
+
+    Arguments
+    ---------
+    img : ANTsImage
+        image to bias correct
+    
+    mask : ANTsImage   
+        input mask, if one is not passed one will be made
+    
+    shrink_factor : scalar   
+        Shrink factor for multi-resolution correction, typically integer less than 4
+    
+    convergence : dict w/ keys `iters` and `tol`
+        iters : vector of maximum number of iterations for each shrinkage factor
+        tol : the convergence tolerance.
+    
+    spline_param : integer
+        Parameter controlling number of control points in spline. Either single value, indicating how many control points, or vector with one entry per dimension of image, indicating the spacing in each direction.
+    
+    verbose : boolean
+        enables verbose output.
+    
+    weight_mask : ANTsImage (optional)
+        antsImage of weight mask
+
+    Returns
+    -------
+    ANTsImage
+    
+    Example
+    -------
+    >>> img = ants.image_read( ants.get_ants_data('r16') )
+    >>> img_n4 = ants.n4_bias_field_correction(img)
     """
     iters = convergence['iters']
     tol = convergence['tol']

@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 
 
 def plot(img, title=None, margin=0.05, dpi=80):
+    """
+    Plot an ANTsImage
+    """
     #nda = sitk.GetArrayViewFromImage(img)
     nda= img.numpy()
     spacing = img.spacing

@@ -20,13 +20,53 @@ def render_surface_function(surfimg, funcimg=None, alphasurf=0.2, alphafunc=1.0,
                             isosurf=0.5, isofunc=0.5, smoothsurf=None, smoothfunc=None,
                             cmapsurf='grey', cmapfunc='red', filename=None, notebook=False):
     """
-    Render an ANTsImage as a base surface and an optional collection of other ANTsImages
+    Render an image as a base surface and an optional collection of other image.
+
+    ANTsR function: `renderSurfaceFunction`
+        NOTE: The ANTsPy version of this function is actually completely different
+        than the ANTsR version, although they should produce similar results.
 
     Arguments
     ---------
     surfimg : ANTsImage
+        Input image to use as rendering substrate.
+    
+    funcimg : ANTsImage
+        Input list of images to use as functional overlays.
+    
+    alphasurf : scalar
+        alpha for the surface contour
+    
+    alphafunc : scalar
+        alpha value for functional blobs
 
-    funcimg : ANTsImage or tuple/list of ANTsImages
+    isosurf : scalar
+        intensity level that defines lower threshold for surface image
+    
+    isofunc : scalar
+        intensity level that defines lower threshold for functional image
+    
+    smoothsurf  : scalar (optional)
+        smoothing for the surface image
+    
+    smoothfunc : scalar (optional)
+        smoothing for the functional image
+    
+    cmapsurf : string
+        color map for surface image
+    
+    cmapfunc : string   
+        color map for functional image
+    
+    filename : string   
+        where to save rendering. if None, will plot interactively
+    
+    notebook : boolean
+        whether you're in a jupyter notebook.
+    
+    Returns
+    -------
+    N/A
 
     Example
     -------
@@ -34,19 +74,6 @@ def render_surface_function(surfimg, funcimg=None, alphasurf=0.2, alphafunc=1.0,
     >>> mnit = ants.image_read('~/desktop/mnit.nii.gz')
     >>> mnia = ants.image_read('~/desktop/mnia.nii.gz')
     >>> ants.render_surface_function(mnit, mnia, alphasurf=0.1)
-
-    Dev Notes
-    ---------
-    camera = dict(
-        up=dict(x=0, y=0, z=1),
-        center=dict(x=0, y=0, z=0),
-        eye=dict(x=0.1, y=0.1, z=2.5)
-    )
-
-    surffig['layout'].update(
-        scene=dict(camera=camera),
-        title='blah blah'
-    )
     """
     cmap_dict = {
         'grey': 'Greys',

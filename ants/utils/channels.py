@@ -58,7 +58,19 @@ _split_channels_dict = {
 
 def merge_channels(img_list):
     """
-    Merge channels of multiple Scalar ANTsImage's into one Vector ANTsImage
+    Merge channels of multiple scalar ANTsImage types into one 
+    multi-channel ANTsImage
+    
+    ANTsR function: `mergeChannels`
+
+    Arguments
+    ---------
+    img_list : list/tuple of ANTsImage types
+        scalar images to merge
+    
+    Returns
+    -------
+    ANTsImage
 
     Example
     -------
@@ -82,8 +94,18 @@ def merge_channels(img_list):
 
 def split_channels(img):
     """
-    Split channels of a Vector ANTsImage
+    Split channels of a multi-channel ANTsImage into a collection
+    of scalar ANTsImage types
     
+    Arguments
+    ---------
+    img : ANTsImage
+        multi-channel image to split
+
+    Returns
+    -------
+    list of ANTsImage types
+
     Example
     -------
     >>> import ants

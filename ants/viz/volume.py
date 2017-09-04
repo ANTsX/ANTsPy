@@ -1,5 +1,5 @@
 
-__all__ = ['Vol']
+__all__ = ['vol']
 
 import os
 import numpy as np
@@ -28,7 +28,7 @@ def convert_scalar_image_to_rgb(dimension, img, outimg, mask, colormap='red', cu
     lib.ConvertScalarImageToRGB(processed_args)
 
 
-def Vol(volume, overlays=None,
+def vol(volume, overlays=None,
         quantlimits=(0.1,0.9),
         colormap='jet',
         rotation_params=(90,0,270),
@@ -40,6 +40,10 @@ def Vol(volume, overlays=None,
     """
     Render an ANTsImage as a volume with optional ANTsImage functional overlay.
     This function is beautiful, and runs very fast. It requires VTK.
+    
+    ANTsR function: `antsrVol`
+        NOTE: the ANTsPy version of this function does NOT make a function call
+        to ANTs, unlike the ANTsR version, so you don't have to worry about paths.
 
     Arguments
     ---------

@@ -5,11 +5,30 @@ Get local ANTsPy data
 __all__ = ['get_ants_data']
 
 import os 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-#data_path = os.path.join('/'.join(dir_path.split('/')[:-2]), 'data')
 data_path = os.path.expanduser('~/.antspy/')
 
-def get_ants_data(name): 
+def get_ants_data(name):
+    """
+    Get ANTsPy test data filename
+
+    ANTsR function: `getANTsRData`
+    
+    Arguments
+    ---------
+    name : string
+        name of test image tag to retrieve
+        Options:
+            - 'r16'
+            - 'r27'
+            - 'r64'
+            - 'r85'
+            - 'mni'
+            - 'surf'
+    Returns
+    -------
+    string
+        filepath of test image
+    """
     if name == 'r16':
         datapath = os.path.join(data_path, 'r16slice.jpg')
     elif name == 'r27':

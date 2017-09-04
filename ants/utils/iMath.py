@@ -11,7 +11,24 @@ _iMathOps = []
 
 def iMath(img, operation, *args):
     """
-    iMath interface to perform various mathematical operations on ANTsImages
+    Perform various (often mathematical) operations on the input image/s. 
+    Additional parameters should be specific for each operation. 
+    See the the full iMath in ANTs, on which this function is based.    
+    
+    ANTsR function: `iMath`
+
+    Arguments
+    ---------
+    img : ANTsImage
+        input object, usually antsImage
+    
+    operation   
+        a string e.g. "GetLargestComponent" ... the special case of "GetOperations" 
+        or "GetOperationsFull" will return a list of operations and brief 
+        description. Some operations may not be valid (WIP), but most are.
+    
+    *args : non-keyword arguments
+        additional parameters specific to the operation
     """
     #if operation not in _iMathOps:
     #    raise ValueError('Operation not recognized')

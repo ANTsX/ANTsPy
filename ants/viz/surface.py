@@ -1,5 +1,5 @@
 
-__all__ = ['Surf']
+__all__ = ['surf']
 
 import os
 import numpy as np
@@ -28,7 +28,7 @@ def convert_scalar_image_to_rgb(dimension, img, outimg, mask, colormap='red', cu
     lib.ConvertScalarImageToRGB(processed_args)
 
 
-def Surf(x, y=None, z=None,
+def surf(x, y=None, z=None,
          quantlimits=(0.1,0.9),
          colormap='jet',
          alpha=None,
@@ -39,7 +39,59 @@ def Surf(x, y=None, z=None,
          filename=None,
          verbose=False):
     """
-    Render surface
+    Render a function onto a surface.
+
+    ANTsR function: `antsrSurf`
+        NOTE: the ANTsPy version of this function does NOT make a function call
+        to ANTs, unlike the ANTsR version, so you don't have to worry about paths.
+
+    Arguments
+    ---------
+    x : ANTsImage   
+        input image defining the surface on which to render
+    
+    y : ANTsImage
+        input image list defining the function to render on the surface. 
+        these image(s) should be in the same space as x.
+    
+    z : ANTsImage
+        input image list mask for each y function to render on the surface. 
+        these image(s) should be in the same space as y.
+    
+    quantlimits : tuple/list
+        lower and upper quantile limits for overlay
+    
+    colormap : string
+        one of: grey, red, green, blue, copper, jet, hsv, spring, summer, 
+        autumn, winter, hot, cool, overunder, custom
+    
+    alpha : scalar  
+        transparency vector for underlay and each overlay, default zero
+    
+    inflation_factor : integer
+        number of inflation iterations to run
+    
+    smoothing_sigma : scalar
+        gaussian smooth the overlay by this sigma
+    
+    rotation_params : tuple/list/ndarray 
+        3 Rotation angles expressed in degrees or a matrix of rotation 
+        parameters that will be applied in sequence.
+    
+    overlay_limits : tuple (optional)
+        absolute lower and upper limits for functional overlay. this parameter 
+        will override quantlimits. Currently, this will set levels above 
+        overlayLimits[2] to overlayLimits[1]. Can be a list of length of y.
+    
+    filename : string
+        prefix filename for output pngs
+    
+    verbose : boolean
+        prints the command used to call antsSurf
+    
+    Returns
+    -------
+    N/A
 
     Example
     -------

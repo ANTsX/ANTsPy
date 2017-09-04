@@ -18,7 +18,24 @@ _crop_image_dict = {
 
 def crop_image(image, label_image=None, label=1):
     """
-    Crop an image using a label ANTsImage.
+    Use a label image to crop a smaller ANTsImage from within a larger ANTsImage
+
+    ANTsR function: `cropImage`
+    
+    Arguments
+    ---------
+    image : ANTsImage  
+        image to crop
+    
+    label_image : ANTsImage
+        imge with label values. If not supplied, estimated from data.
+    
+    label : integer   
+        the label value to use
+
+    Returns
+    -------
+    ANTsImage
 
     Example
     -------
@@ -26,12 +43,6 @@ def crop_image(image, label_image=None, label=1):
     >>> fi = ants.image_read( ants.get_ants_data('r16') )
     >>> cropped = ants.crop_image(fi)
     >>> cropped = ants.crop_image(fi, fi, 100 )
-
-    Dev Note
-    --------
-    - Validated w/ ANTsR that it returns the same result,
-      but plotting the resulting image in ANTsPy looks like
-      gibberish. Need to understanding the plotting tricks used.
     """
     inpixeltype = image.pixeltype
     if image.pixeltype != 'float':
@@ -49,6 +60,36 @@ def crop_image(image, label_image=None, label=1):
 
 
 def crop_indices(image, lowerind, upperind):
+    """
+    Create a proper ANTsImage sub-image by indexing the image with indices. 
+    This is similar to but different from array sub-setting in that 
+    the resulting sub-image can be decropped back into its place without 
+    having to store its original index locations explicitly.
+    
+    ANTsR function: `cropIndices`
+
+    Arguments
+    ---------
+    image : ANTsImage  
+        image to crop
+    
+    lowerind : list/tuple of integers  
+        vector of lower index, should be length image dimensionality
+    
+    upperind : list/tuple of integers
+        vector of upper index, should be length image dimensionality
+    
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> fi = ants.image_read( ants.get_ants_data("r16"))
+    >>> cropped = ants.crop_indices( fi, (10,10), (100,100) )
+    >>> cropped = ants.smooth_image( cropped, 5 )
+    >>> decropped = ants.decrop_image( cropped, fi )
+    """
     if image.pixeltype != 'float':
         inpixeltype = image.pixeltype
         image = image.clone('float')
@@ -63,6 +104,22 @@ def crop_indices(image, lowerind, upperind):
 
 def decrop_image(cropped_image, full_image):
     """
+    The inverse function for `ants.crop_image`
+
+    ANTsR function: `decropImage`
+    
+    Arguments
+    ---------
+    cropped_image : ANTsImage
+        cropped image
+
+    full_image : ANTsImage
+        image in which the cropped image will be put back
+
+    Returns
+    -------
+    ANTsImage
+
     Example
     -------
     >>> fi = ants.image_read(ants.get_ants_data('r16'))
