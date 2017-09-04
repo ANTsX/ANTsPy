@@ -64,6 +64,11 @@ _matrix_offset_dict = {
 
 
 def new_ants_transform(precision='float', dimension=3, transform_type='AffineTransform', parameters=None):
+    """
+    Create a new ANTsTransform
+
+    ANTsR function: None
+    """
     new_ants_transform_fn = _new_ants_transform_dict[precision][dimension]
 
     itk_tx = new_ants_transform_fn(precision, dimension, transform_type)
@@ -87,6 +92,49 @@ def create_ants_transform(transform_type='AffineTransform',
                           displacement_field=None,
                           supported_types=False):
     """
+    Create and initialize an ANTsTransform
+
+    ANTsR function: `createAntsrTransform`
+
+    Arguments
+    ---------
+    transform_type : string   
+        type of transform(s)
+    
+    precision : string
+        numerical precision
+    
+    dimension : integer
+        spatial dimension of transform
+    
+    matrix : ndarray
+        matrix for linear transforms
+    
+    offset : tuple/list
+        offset for linear transforms
+    
+    center : tuple/list
+        center for linear transforms
+    
+    translation : tuple/list
+        translation for linear transforms
+    
+    parameters : ndarray/list
+        array of parameters
+    
+    fixed_parameters : ndarray/list   
+        array of fixed parameters
+    
+    displacement_field : ANTsImage
+        multichannel ANTsImage for non-linear transform
+    
+    supported_types : boolean
+        flag that returns array of possible transforms types
+
+    Returns
+    -------
+    ANTsTransform or list of ANTsTransform types
+
     Example
     -------
     >>> import ants
@@ -160,7 +208,7 @@ def create_ants_transform(transform_type='AffineTransform',
 
     # If displacement field
     if displacement_field is not None:
-        pass
+        raise ValueError('Displacement field transform not currently supported')
     #    itk_tx = ants_transform_from_displacement_field(displacement_field)
     #    return tio.ants_transform(itk_tx)
 
@@ -182,11 +230,46 @@ def create_ants_transform(transform_type='AffineTransform',
 
 
 def ants_transform_from_displacement_field(field):
-    pass
+    """
+    Convert deformation field (multiChannel image) to ANTsTransform
+
+    ANTsR function: `antsrTransformFromDisplacementField`
+
+    Arguments
+    ---------
+    field : ANTsImage
+        deformation field as multi-channel ANTsImage
+
+    Returns
+    -------
+    ANTsImage
+    """
+    raise ValueError('Displacement field transforms not currently supported')
 
 
 def read_transform(filename, dimension=3, precision='float'):
     """
+    Read a transform from file
+
+    ANTsR function: `readAntsrTransform`
+
+    Arguments
+    ---------
+    filename : string
+        filename of transform
+
+    dimension : integer
+        spatial dimension of transform
+
+    precision : string
+        numerical precision of transform
+    
+    Returns
+    -------
+    ANTsTransform
+
+    Example
+    -------
     >>> import ants
     >>> tx = ants.new_ants_transform(dimension=2)
     >>> tx.set_parameters((0.9,0,0,1.1,10,11))
@@ -201,6 +284,24 @@ def read_transform(filename, dimension=3, precision='float'):
 
 def write_transform(transform, filename):
     """
+    Write ANTsTransform to file
+
+    ANTsR function: `writeAntsrTransform`
+
+    Arguments
+    ---------
+    transform : ANTsTransform
+        transform to save
+
+    filename : string
+        filename of transform (file extension is ".mat" for affine transforms)
+    
+    Returns
+    -------
+    N/A
+
+    Example
+    -------
     >>> import ants
     >>> tx = ants.new_ants_transform(dimension=2)
     >>> tx.set_parameters((0.9,0,0,1.1,10,11))

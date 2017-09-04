@@ -32,7 +32,14 @@ class ANTsTransform(object):
 
     def __init__(self, tx):
         """
-        Initialize an ANTsTransform object
+        NOTE: This class should never be initialized directly by the user.
+
+        Initialize an ANTsTransform object.
+
+        Arguments
+        ---------
+        tx : Cpp-ANTsTransform object
+            underlying cpp class which this class just wraps
         """
         self._tx = tx
         self.precision = tx.precision
@@ -42,26 +49,35 @@ class ANTsTransform(object):
 
     @property
     def parameters(self):
+        """ Get parameters of transform """
         return np.asarray(self._tx.get_parameters())
 
     def set_parameters(self, parameters):
+        """ Set parameters of transform """
         if isinstance(parameters, np.ndarray):
             parameters = parameters.tolist()
         self._tx.set_parameters(parameters)
 
     @property
     def fixed_parameters(self):
+        """ Get fixed parameters of transform """
         return np.asarray(self._tx.get_fixed_parameters())
 
     def set_fixed_parameters(self, parameters):
+        """ Set fixed parameters of transform """
         if isinstance(parameters, np.ndarray):
             parameters = parameters.tolist()
         self._tx.set_fixed_parameters(parameters)
 
     def invert(self):
+        """ Invert the transform """
         return ANTsTransform(self._tx.inverse())
 
     def apply(self, data, data_type='point', reference=None, **kwargs):
+        """
+        Apply transform to data
+
+        """
         if data_type == 'point':
             return self.apply_to_point(data)
         elif data_type == 'vector':
@@ -70,14 +86,57 @@ class ANTsTransform(object):
             return self.apply_to_image(data, reference, **kwargs)
 
     def apply_to_point(self, point):
+        """ 
+        Apply transform to a point
+
+        Arguments
+        ---------
+        point : list/tuple
+            point to which the transform will be applied
+
+        Returns
+        -------
+        list : transformed point
+        """
         return tuple(self._tx.transform_point(point))
 
     def apply_to_vector(self, vector):
+        """ 
+        Apply transform to a vector
+        
+        Arguments
+        ---------
+        vector : list/tuple
+            vector to which the transform will be applied
+
+        Returns
+        -------
+        list : transformed vector
+        """
         if isinstance(vector, np.ndarray):
             vector = vector.tolist()
         return np.asarray(self._tx.transform_vector(vector))
 
     def apply_to_image(self, image, reference, interpolation='linear'):
+        """ 
+        Apply transform to an image 
+
+        Arguments
+        ---------
+        image : ANTsImage
+            image to which the transform will be applied
+
+        reference : ANTsImage
+            target space for transforming image
+
+        interpolation : string
+            type of interpolation to use
+
+        Returns
+        -------
+        list : transformed vector
+
+        """
         if image.pixeltype == 'unsigned char':
             tform_fn = self._tx.transform_imageUC
         elif image.pixeltype == 'char':
@@ -102,24 +161,89 @@ class ANTsTransform(object):
 
 # verbose functions for ANTsR compatibility
 def set_ants_transform_parameters(transform, parameters):
+    """
+    Set parameters of an ANTsTransform
+
+    ANTsR function: `setAntsrTransformParameters`
+    """
     transform.set_parameters(parameters)
 
 def get_ants_transform_parameters(transform):
+    """
+    Get parameters of an ANTsTransform
+    
+    ANTsR function: `getAntsrTransformParameters`
+    """
     return transform.get_parameters()
 
-def get_ants_transform_fixed_parameters(transform):
-    return transform.get_fixed_parameters()
-
 def set_ants_transform_fixed_parameters(transform, parameters):
+    """
+    Set fixed parameters of an ANTsTransform
+    
+    ANTsR function: `setAntsrTransformFixedParameters`
+    """
     transform.set_fixed_parameters(parameters)
+
+def get_ants_transform_fixed_parameters(transform):
+    """
+    Get fixed parameters of an ANTsTransform
+    
+    ANTsR function: `getAntsrTransformFixedParameters`
+    """
+    return transform.get_fixed_parameters()
 
 
 def apply_ants_transform(transform, data, data_type="point", reference=None, **kwargs):
+    """
+    Apply ANTsTransform to data
+    
+    ANTsR function: `applyAntsrTransform`
+
+    Arguments
+    ---------
+    transform : ANTsTransform
+        transform to apply to image
+
+    data : ndarray/list/tuple
+        data to which transform will be applied
+
+    data_type : string
+        type of data
+        Options :
+            'point'
+            'vector'
+            'image'
+
+    reference : ANTsImage
+        target space for transforming image
+
+    kwargs : kwargs
+        additional options passed to `apply_ants_transform_to_image`
+
+    Returns
+    -------
+    ANTsImage if data_type == 'point'
+    OR
+    tuple if data_type == 'point' or data_type == 'vector'
+    """
     return transform.apply_transform(data, data_type, reference, **kwargs)
 
 
 def apply_ants_transform_to_point(transform, point):
-    """
+    """   
+    Apply transform to a point
+    
+    ANTsR function: `applyAntsrTransformToPoint`
+
+    Arguments
+    ---------
+    point : list/tuple
+        point to which the transform will be applied
+
+    Returns
+    -------
+    tuple : transformed point
+        
     Example
     -------
     >>> import ants
@@ -132,17 +256,44 @@ def apply_ants_transform_to_point(transform, point):
 
 
 def apply_ants_transform_to_vector(transform, vector):
+    """
+    Apply transform to a vector
+    
+    ANTsR function: `applyAntsrTransformToVector`
+
+    Arguments
+    ---------
+    vector : list/tuple
+        vector to which the transform will be applied
+
+    Returns
+    -------
+    tuple : transformed vector
+    """
     return transform.apply_to_vector(vector)
 
 
 def apply_ants_transform_to_image(transform, image, reference, interpolation='linear'):
     """
-    Apply an ANTsTransform to an ANTsImage
+    Apply transform to an image
+    
+    ANTsR function: `applyAntsrTransformToImage`
 
     Arguments
     ---------
-    transform : ANTsTransform object
+    image : ANTsImage
+        image to which the transform will be applied
 
+    reference : ANTsImage
+        reference image
+
+    interpolation : string
+        type of interpolation to use
+
+    Returns
+    -------
+    list : transformed vector
+    
     Example
     -------
     >>> import ants
@@ -156,6 +307,12 @@ def apply_ants_transform_to_image(transform, image, reference, interpolation='li
 
 def invert_ants_transform(transform):
     """
+    Invert ANTsTransform
+    
+    ANTsR function: `invertAntsrTransform`
+
+    Example
+    -------
     >>> import ants
     >>> img = ants.image_read(ants.get_ants_data("r16")).clone('float')
     >>> tx = ants.new_ants_transform(dimension=2)
@@ -168,6 +325,22 @@ def invert_ants_transform(transform):
 
 def compose_ants_transforms(transform_list):
     """
+    Compose multiple ANTsTransform's together
+
+    ANTsR function: `composeAntsrTransforms`
+
+    Arguments
+    ---------
+    transform_list : list/tuple of ANTsTransform object
+        list of transforms to compose together
+
+    Returns
+    -------
+    ANTsTransform
+        one transform that contains all given transforms
+    
+    Example
+    -------
     >>> import ants
     >>> img = ants.image_read(ants.get_ants_data("r16")).clone('float')
     >>> tx = ants.new_ants_transform(dimension=2)

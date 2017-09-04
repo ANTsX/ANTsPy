@@ -39,7 +39,9 @@ class ANTsImage(object):
 
     def __init__(self, img):
         """
-        Create an ANTsImage
+        NOTE: This class should never be initialized directly by the user.
+
+        Initialize an ANTsImage
 
         Arguments
         ---------
@@ -274,13 +276,31 @@ class ANTsImage(object):
         """
         Write the ANTsImage to file
 
-        Argument
-        --------
+        Args
+        ----
         filename : string
             filepath to which the image will be written
         """
         filename = os.path.expanduser(filename)
         return self._img.toFile(filename)
+
+    def apply(self, fn):
+        """
+        Apply an arbitrary function to ANTsImage.
+
+        Args
+        ----
+        fn : python function or lambda
+            function to apply to ENTIRE image at once
+
+        Returns
+        -------
+        ANTsImage
+            image with function applied to it
+        """
+        this_array = self.numpy()
+        new_array = fn(this_array)
+        return self.new_image_like(new_array)
 
     ## NUMPY FUNCTIONS ##
     def mean(self, axis=None):
@@ -473,6 +493,8 @@ for k, v in _viz_partial_dict.items():
 def copy_image_info(reference, target):
     """
     Copy origin, direction, and spacing from one antsImage to another
+    
+    ANTsR function: `antsCopyImageInfo`
 
     Arguments
     ---------   
@@ -492,27 +514,52 @@ def copy_image_info(reference, target):
     return target
 
 def set_origin(img, origin):
-    """ Set origin of ANTsImage """
+    """ 
+    Set origin of ANTsImage 
+    
+    ANTsR function: `antsSetOrigin`
+    """
     img.set_origin(origin)
 
 def get_origin(img):
-    """ Get origin of ANTsImage """
+    """ 
+    Get origin of ANTsImage
+
+    ANTsR function: `antsGetOrigin`
+    """
+
     return img.origin
 
 def set_direction(img, direction):
-    """ Set direction of ANTsImage """
+    """ 
+    Set direction of ANTsImage 
+
+    ANTsR function: `antsSetDirection`
+    """
     img.set_direction(direction)
 
 def get_direction(img):
-    """ Get direction of ANTsImage """
+    """ 
+    Get direction of ANTsImage 
+    
+    ANTsR function: `antsGetDirection`
+    """
     return img.direction
 
 def set_spacing(img, spacing):
-    """ Set spacing of ANTsImage """
+    """ 
+    Set spacing of ANTsImage 
+    
+    ANTsR function: `antsSetSpacing`
+    """
     img.set_spacing(spacing)
 
 def get_spacing(img):
-    """ Get spacing of ANTsImage """
+    """ 
+    Get spacing of ANTsImage 
+    
+    ANTsR function: `antsGetSpacing`
+    """
     return img.spacing
 
 
@@ -520,6 +567,8 @@ def image_physical_space_consistency(*imgs, tolerance=1e-2, data_type=False):
     """
     Check if two or more ANTsImage objects occupy the same physical space
     
+    ANTsR function: `antsImagePhysicalSpaceConsistency`
+
     Arguments
     ---------
     *imgs : ANTsImages
@@ -578,6 +627,8 @@ def image_type_cast(image_list, pixeltype=None):
     """
     Cast a list of images to the highest pixeltype present in the list
     or all to a specified type
+    
+    ANTsR function: `antsImageTypeCast`
 
     Arguments
     ---------

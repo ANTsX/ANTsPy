@@ -102,14 +102,37 @@ _unsupported_ptypes = {'char', 'unsigned short', 'short', 'int'}
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
     """
     Create an ANTsImage object from a numpy array
+    
+    ANTsR function: `as.antsImage`
+
+    Arguments
+    ---------
+    data : ndarray
+        image data array
+
+    origin : tuple/list
+        image origin
+
+    spacing : tuple/list
+        image spacing
+
+    direction : list/ndarray
+        image direction
+
+    has_components : boolean
+        whether the image has components
+
+    Returns
+    -------
+    ANTsImage
+        image with given data and any given information 
     """
     return _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
 
 
 def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
     """
-    Internal function for creating an ANTsImage from a numpy array which doesnt have
-    any data copy
+    Internal function for creating an ANTsImage
     """
     ndim = data.ndim
     if has_components:
@@ -140,6 +163,38 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
 
 
 def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, has_components=False, pixeltype='float'):
+    """
+    Make an image with given size and voxel value or given a mask and vector
+    
+    ANTsR function: `makeImage`
+
+    Arguments
+    ---------
+    imagesize : tuple/ANTsImage 
+        input image size or mask
+    
+    voxval : scalar
+        input image value or vector, size of mask
+    
+    spacing : tuple/list
+        image spatial resolution
+    
+    origin  : tuple/list
+        image spatial origin
+    
+    direction : list/ndarray 
+        direction matrix to convert from index to physical space
+    
+    components : boolean 
+        whether there are components per pixel or not
+    
+    pixeltype : float
+        data type of image values
+
+    Returns
+    -------
+    ANTsImage
+    """
     if isinstance(imagesize, iio.ANTsImage):
         img = imagesize.clone()
         sel = imagesize > 0
@@ -157,6 +212,26 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
 
 
 def matrix_to_images(data_matrix, mask):
+    """
+    Unmasks rows of a matrix and writes as images
+    
+    ANTsR function: `matrixToImages`
+
+    Arguments
+    ---------
+    data_matrix : ndarray
+        each row corresponds to an image
+        array should have number of columns equal to non-zero voxels in the mask
+    
+    mask : ANTsImage
+        image containing a binary mask. Rows of the matrix are 
+        unmasked and written as images. The mask defines the output image space
+
+    Returns
+    -------
+    list of ANTsImages
+    """
+
     if data_matrix.ndim > 2:
         data_matrix = data_matrix.reshape(data_matrix.shape[0], -1)
 
@@ -177,6 +252,31 @@ images_from_matrix = matrix_to_images
 
 def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
     """
+    Read images into rows of a matrix, given a mask - much faster for 
+    large datasets as it is based on C++ implementations.
+    
+    ANTsR function: `imagesToMatrix`
+
+    Arguments
+    ---------
+    image_list : list of ANTsImage's
+        images to convert to ndarray
+
+    mask : ANTsImage (optional)
+        image containing binary mask. voxels in the mask are placed in the matrix
+
+    sigma : scaler (optional)
+        smoothing factor
+
+    epsilon : scalar
+        threshold for mask
+
+    Returns
+    -------
+    ndarray
+        array with a row for each image
+        shape = (N_IMAGES, N_VOXELS)
+
     Example
     -------
     >>> import ants
@@ -209,6 +309,20 @@ matrix_from_images = images_to_matrix
 
 
 def image_header_info(filename):
+    """
+    Read file info from image header
+    
+    ANTsR function: `antsImageHeaderInfo`
+
+    Arguments
+    ---------
+    filename : string
+        name of image file from which info will be read
+
+    Returns
+    -------
+    dict
+    """
     if not os.path.exists(filename):
         raise Exception('filename does not exist')
 
@@ -217,12 +331,51 @@ def image_header_info(filename):
 
 
 def image_clone(img, dtype=None):
+    """
+    Clone an ANTsImage
+
+    ANTsR function: `antsImageClone`
+    
+    Arguments
+    ---------
+    img : ANTsImage
+        image to clone
+
+    dtype : string (optional)
+        new datatype for image
+
+    Returns
+    -------
+    ANTsImage
+    """
     return img.clone(dtype=dtype)
 
 
-def image_read(filename, pixeltype='float', dimension=None):
+def image_read(filename, dimension=None, pixeltype='float'):
     """
     Read an ANTsImage from file
+
+    ANTsR function: `antsImageRead`
+
+    Arguments
+    ---------
+    filename : string
+        Name of the file to read the image from.
+    
+    dimension : integer (optional)
+        Number of dimensions of the image read. This need not be the same as 
+        the dimensions of the image in the file. Allowed values: 2, 3, 4. 
+        If not provided, the dimension is obtained from the image file
+    
+    pixeltype : string
+        C++ datatype to be used to represent the pixels read. This datatype 
+        need not be the same as the datatype used in the file. 
+        Options: 
+            'double', 'float', 'unsigned int', 'unsigned char'
+
+    Returns
+    -------
+    ANTsImage
     """
     filename = os.path.expanduser(filename)
     if not os.path.exists(filename):
@@ -249,6 +402,19 @@ def image_read(filename, pixeltype='float', dimension=None):
 
 
 def image_write(img, filename):
+    """
+    Write an ANTsImage to file
+    
+    ANTsR function: `antsImageWrite`
+    
+    Arguments
+    ---------
+    img : ANTsImage
+        image to save to file
+
+    filename : string
+        name of file to which image will be saved
+    """
     img.to_file(filename)
 
 
