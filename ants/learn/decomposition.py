@@ -37,7 +37,94 @@ def sparse_decom2(inmatrix,
                     max_based=False,
                     version=1):
     """
-    Sparse Decomposition of two data views - aka Sparse CCA
+    Decomposes two matrices into paired sparse eigenevectors to 
+    maximize canonical correlation - aka Sparse CCA.
+    Note: we do not scale the matrices internally. We leave 
+    scaling choices to the user.
+    
+    ANTsR function: `sparseDecom2`
+
+    Arguments
+    ---------
+    inmatrix : 2-tuple of ndarrays 
+        input as inmatrix=(mat1,mat2). n by p input matrix and n by q input matrix , spatial variable lies along columns.
+    
+    inmask : 2-tuple of ANTsImage types (optional - one or both)
+        optional pair of image masks
+    
+    sparseness : tuple
+        a pair of float values e.g c(0.01,0.1) enforces an unsigned 99 percent and 90 percent sparse solution for each respective view
+    
+    nvecs : integer
+        number of eigenvector pairs
+    
+    its : integer
+        number of iterations, 10 or 20 usually sufficient
+    
+    cthresh : 2-tuple
+        cluster threshold pair
+    
+    statdir : string (optional)
+        temporary directory if you want to look at full output
+    
+    perms : integer
+        number of permutations. settings permutations greater than 0 will estimate significance per vector empirically. For small datasets, these may be conservative. p-values depend on how one scales the input matrices.
+    
+    uselong : boolean
+        enforce solutions of both views to be the same - requires matrices to be the same size
+    
+    z : float
+        subject space (low-dimensional space) sparseness value
+    
+    smooth : float
+        smooth the data (only available when mask is used)
+    
+    robust : boolean 
+        rank transform input matrices
+    
+    mycoption : integer
+        enforce 1 - spatial orthogonality, 2 - low-dimensional orthogonality or 0 - both
+    
+    initialization_list : list
+        initialization for first view
+    
+    initialization_list2 : list
+        initialization for 2nd view
+    
+    ell1 : float
+        gradient descent parameter, if negative then l0 otherwise use l1
+    
+    prior_weight : scalar
+        Scalar value weight on prior between 0 (prior is weak) and 1 (prior is strong). Only engaged if initialization is used
+    
+    verbose : boolean
+        activates verbose output to screen
+    
+    rejector : scalar
+        rejects small correlation solutions
+    
+    max_based : boolean 
+        whether to choose max-based thresholding
+
+    Returns
+    -------
+    dict w/ following key/value pairs:
+        
+        `projections` : ndarray
+            X projections
+        
+        `projections2` : ndarray
+            Y projections
+        
+        `eig1` : ndarray
+            X components
+        
+        `eig2` : ndarray
+            Y components
+        
+        `summary` : pd.DataFrame
+            first column is canonical correlations,
+            second column is p-values (these are `None` if perms > 0)
 
     Example
     -------
@@ -46,19 +133,9 @@ def sparse_decom2(inmatrix,
     >>> mat = np.random.randn(20, 100)
     >>> mat2 = np.random.randn(20, 90)
     >>> mydecom = ants.sparse_decom2(inmatrix = (mat,mat2), 
-        sparseness=(0.1,0.3), nvecs=3, its=3, perms=0)
+                                    sparseness=(0.1,0.3), nvecs=3, 
+                                    its=3, perms=0)
 
-    Example2
-    --------
-    >>> import numpy as np
-    >>> import pandas as pd
-    >>> import ants
-    >>> trainingImageData = np.load('/users/ncullen/desktop/trainingImageData.npy')
-    >>> trainingAgeMatrix = pd.read_csv('~/desktop/trainingAgeMatrix.csv',index_col=0).values
-    >>> grayMatterMask = ants.image_read('~/desktop/grayMatterMask.nii.gz')
-    >>> res = ants.sparse_decom2(inmatrix=(trainingImageData,trainingAgeMatrix), 
-            sparseness=(0.01,0.9), inmask=(grayMatterMask,None),
-            nvecs=2,mycoption=0,cthresh=(1000,0),ell1=10,smooth=0)
     """
     if inmatrix[0].shape[0] != inmatrix[1].shape[0]:
         raise ValueError('Matrices must have same number of rows (samples)')
@@ -172,6 +249,11 @@ def sparse_decom2(inmatrix,
 
 def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smoothing=0):
     """
+    InitializeEigenanatomy is a helper function to initialize sparseDecom 
+    and sparseDecom2. Can be used to estimate sparseness parameters per 
+    eigenvector. The user then only chooses nvecs and optional 
+    regularization parameters.
+
     Arguments
     ---------
     initmat : np.ndarray or ANTsImage 
@@ -189,6 +271,18 @@ def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smooth
     
     smoothing : float
         if using an initial label image, optionally smooth each roi
+    
+    Returns
+    -------
+    dict w/ the following key/value pairs:
+        `initlist` : list of ANTsImage types
+            initialization list(s) for sparseDecom(2) 
+        
+        `mask` : ANTsImage
+            mask(s) for sparseDecom(2)
+        
+        `enames` : list of strings
+            string names of components for sparseDecom(2)
 
     Example
     -------
@@ -268,6 +362,10 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
     
     smooth : float
         smooth the input data first by this value
+
+    Returns
+    -------
+    ANTsImage
 
     Example
     -------
