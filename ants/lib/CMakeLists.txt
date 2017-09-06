@@ -22,6 +22,7 @@ pybind11_add_module(antsImageHeaderInfo antsImageHeaderInfo.cxx)
 
 # SEGMENTATION
 pybind11_add_module(Atropos Atropos.cxx)
+pybind11_add_module(KellyKapowski KellyKapowski.cxx)
 
 # REGISTRATION
 pybind11_add_module(antsRegistration antsRegistration.cxx)
@@ -74,6 +75,7 @@ target_link_libraries(DenoiseImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(reorientImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(weingartenImageCurvature PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(labelStats PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(KellyKapowski PRIVATE ${ITK_LIBRARIES})
 
 if(NOT VTK)
     message("VTK library not found... not building ants.Surf or ants.Vol")

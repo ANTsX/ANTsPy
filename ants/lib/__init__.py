@@ -17,6 +17,7 @@ from .sccaner import *
 from .ResampleImage import *
 from .SmoothImage import *
 from .antsRegistration import *
+from .KellyKapowski import *
 
 from .antsImageMutualInformation import *
 from .antsApplyTransforms import *

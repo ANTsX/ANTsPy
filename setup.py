@@ -69,6 +69,7 @@ setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 if os.getenv('ITK_DIR'):
     print('Using Local ITK Installation at:\n %s' % os.getenv('ITK_DIR'))
 elif os.path.exists(os.path.join(setup_py_dir, 'itkbuild')):
+    print('Using local ITK already built for this package')
     os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
 else:
     print('No Local ITK Installation Found...')
