@@ -15,7 +15,7 @@ between the two packages <b>given that the algorithm in question is itself deter
 ## Installation
 
 ```bash
-git clone https://github.com/ANTsConsortium/ANTsPy.git
+git clone https://github.com/ANTsX/ANTsPy.git
 cd ANTsPy
 python setup.py install
 ```
