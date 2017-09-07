@@ -232,7 +232,7 @@ def registration(fixed=None,
                     mask_scale = mask - mask.min()
                     mask_scale = mask_scale / mask_scale.max() * 255.
                     charmask = mask_scale.clone('unsigned char')
-                    maskout = '[%s,NA]' % (utils.get_pointer_string(charmask))
+                    maskopt = '[%s,NA]' % (utils.get_pointer_string(charmask))
                 else:
                     maskopt = None
                 if initx is None:

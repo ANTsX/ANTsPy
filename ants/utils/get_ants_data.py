@@ -29,19 +29,11 @@ def get_ants_data(name):
     string
         filepath of test image
     """
-    if name == 'r16':
-        datapath = os.path.join(data_path, 'r16slice.jpg')
-    elif name == 'r27':
-        datapath = os.path.join(data_path, 'r27slice.jpg')
-    elif name == 'r64':
-        datapath = os.path.join(data_path, 'r64slice.jpg')
-    elif name == 'r85':
-        datapath = os.path.join(data_path, 'r85slice.jpg')
-    elif name == 'mni':
-        datapath = os.path.join(data_path, 'mni.nii.gz')
-    elif name == 'surf':
-        datapath = os.path.join(data_path, 'surf.nii.gz')
-    else:
-        raise ValueError('data file not found')
+    datapath = None
+    for fname in os.listdir(data_path):
+        if name in fname:
+            datapath = os.path.join(data_path, fname)
 
+    if datapath is None:
+        raise ValueError('File doesnt exist. Options: ' , os.listdir(data_path))
     return datapath

@@ -229,7 +229,7 @@ def matrix_to_images(data_matrix, mask):
 
     Returns
     -------
-    list of ANTsImages
+    list of ANTsImage types
     """
 
     if data_matrix.ndim > 2:
@@ -259,7 +259,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
 
     Arguments
     ---------
-    image_list : list of ANTsImage's
+    image_list : list of ANTsImage types
         images to convert to ndarray
 
     mask : ANTsImage (optional)
@@ -305,6 +305,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
         else:
             data_matrix[i,:] = listfunc(img)
     return data_matrix
+#image_list_to_matrix = images_to_matrix
 matrix_from_images = images_to_matrix
 
 
