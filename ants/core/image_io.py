@@ -385,13 +385,15 @@ def image_read(filename, dimension=None, pixeltype='float'):
         if os.path.exists(filename.replace('.npy', '.json')):
             with open(filename.replace('.npy', '.json')) as json_data:
                 img_header = json.load(json_data)
+            ants_image = from_numpy(img_array,
+                                    origin=img_header.get('origin', None), 
+                                    spacing=img_header.get('spacing', None), 
+                                    direction=np.asarray(img_header.get('direction',None)), 
+                                    has_components=img_header.get('components',1)>1)
         else:
             img_header = {}
-        ants_image = from_numpy(img_array,
-                                origin=img_header.get('origin', None), 
-                                spacing=img_header.get('spacing', None), 
-                                direction=np.asarray(img_header.get('direction',None)), 
-                                has_components=img_header.get('components',None)>1)
+            ants_image = from_numpy(img_array)
+
     else:
         filename = os.path.expanduser(filename)
         if not os.path.exists(filename):
