@@ -15,6 +15,7 @@ __all__ = ['image_header_info',
            '_from_numpy']
 
 import os
+import json
 import numpy as np
 
 from . import ants_image as iio
@@ -378,26 +379,40 @@ def image_read(filename, dimension=None, pixeltype='float'):
     -------
     ANTsImage
     """
-    filename = os.path.expanduser(filename)
-    if not os.path.exists(filename):
-        raise ValueError('File does not exist!')
+    if filename.endswith('.npy'):
+        filename = os.path.expanduser(filename)
+        img_array = np.load(filename)
+        if os.path.exists(filename.replace('.npy', '.json')):
+            with open(filename.replace('.npy', '.json')) as json_data:
+                img_header = json.load(json_data)
+        else:
+            img_header = {}
+        ants_image = from_numpy(img_array,
+                                origin=img_header.get('origin', None), 
+                                spacing=img_header.get('spacing', None), 
+                                direction=np.asarray(img_header.get('direction',None)), 
+                                has_components=img_header.get('components',None)>1)
+    else:
+        filename = os.path.expanduser(filename)
+        if not os.path.exists(filename):
+            raise ValueError('File does not exist!')
 
-    hinfo = image_header_info(filename)
-    ptype = hinfo['pixeltype']
-    pclass = hinfo['pixelclass']
-    ndim = hinfo['nDimensions']
-    if dimension is not None:
-        ndim = dimension
+        hinfo = image_header_info(filename)
+        ptype = hinfo['pixeltype']
+        pclass = hinfo['pixelclass']
+        ndim = hinfo['nDimensions']
+        if dimension is not None:
+            ndim = dimension
 
-    if ptype in _unsupported_ptypes:
-        ptype = _unsupported_ptype_map[ptype]
+        if ptype in _unsupported_ptypes:
+            ptype = _unsupported_ptype_map[ptype]
 
-    read_fn = _image_read_dict[pclass][ptype][ndim]
-    itk_ants_image = read_fn(filename)
-    ants_image = iio.ANTsImage(itk_ants_image)
+        read_fn = _image_read_dict[pclass][ptype][ndim]
+        itk_ants_image = read_fn(filename)
+        ants_image = iio.ANTsImage(itk_ants_image)
 
-    if pixeltype is not None:
-        ants_image = ants_image.clone(pixeltype)
+        if pixeltype is not None:
+            ants_image = ants_image.clone(pixeltype)
 
     return ants_image
 
@@ -416,6 +431,14 @@ def image_write(img, filename):
     filename : string
         name of file to which image will be saved
     """
-    img.to_file(filename)
+    if filename.endswith('.npy'):
+        img_array = img.numpy()
+        img_header = img.header
+
+        np.save(filename, img_array)
+        with open(filename.replace('.npy','.json'), 'w') as outfile:
+            json.dump(img_header, outfile)
+    else:
+        img.to_file(filename)
 
 

@@ -49,11 +49,55 @@ class ANTsImage(object):
             underlying cpp class which this class just wraps
         """
         self._img = img
-        self.pixeltype = img.pixeltype
-        self.dtype = img.dtype
-        self.dimension = img.dimension
-        self.components = img.components
-        self.pointer = img.pointer
+
+    @property
+    def pixeltype(self):
+        """
+        ITK pixel representation
+        """
+        return self._img.pixeltype
+
+    @property
+    def dtype(self):
+        """
+        Numpy pixel representation
+        """
+        return self._img.dtype
+
+    @property
+    def dimension(self):
+        """
+        Number of dimensions in the image
+        """
+        return self._img.dimension
+
+    @property
+    def components(self):
+        """
+        Number of components in the image
+        """
+        return self._img.components
+
+    @property
+    def pointer(self):
+        """
+        Pointer to ITK image object
+        """
+        return self._img.pointer
+
+    @property
+    def header(self):
+        """
+        Get basic image header information
+        """
+        return {
+            'pixel type': self.pixeltype,
+            'components': self.components,
+            'dimensions': self.shape,
+            'spacing': self.spacing,
+            'origin': self.origin,
+            'direction': self.direction.tolist()
+        }
 
     @property
     def spacing(self):
