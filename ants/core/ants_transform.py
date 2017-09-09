@@ -42,10 +42,22 @@ class ANTsTransform(object):
             underlying cpp class which this class just wraps
         """
         self._tx = tx
-        self.precision = tx.precision
-        self.dimension = tx.dimension
-        self.type = tx.type
-        self.pointer = tx.pointer
+
+    @property
+    def precision(self):
+        return self._tx.precision
+
+    @property
+    def dimension(self):
+        return self._tx.dimension
+
+    @property
+    def type(self):
+        return self._tx.type
+
+    @property
+    def pointer(self):
+        return self._tx.pointer
 
     @property
     def parameters(self):
