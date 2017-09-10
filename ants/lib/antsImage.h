@@ -118,7 +118,7 @@ template <typename ImageType>
 typename ImageType::Pointer as( ANTsImage<ImageType> & image )
 {
     void *ptr = image.pointer;
-    typename ImageType::Pointer * real  = reinterpret_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
+    typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
 
     return *real;
 }
