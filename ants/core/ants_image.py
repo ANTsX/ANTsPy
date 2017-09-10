@@ -11,6 +11,7 @@ __all__ = ['copy_image_info',
            'image_type_cast']
 
 import os
+import gc
 import numpy as np
 from functools import partial, partialmethod
 import inspect
@@ -49,6 +50,9 @@ class ANTsImage(object):
             underlying cpp class which this class just wraps
         """
         self._img = img
+
+    def __del__(self):
+        gc.collect()
 
     @property
     def pixeltype(self):
