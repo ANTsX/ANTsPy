@@ -72,7 +72,7 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
     new_ants_transform_fn = _new_ants_transform_dict[precision][dimension]
 
     itk_tx = new_ants_transform_fn(precision, dimension, transform_type)
-    ants_tx = tio.ants_transform(itk_tx)
+    ants_tx = tio.ANTsTransform(itk_tx)
 
     if parameters is not None:
         ants_tx.set_parameters(parameters)
@@ -224,7 +224,7 @@ def create_ants_transform(transform_type='AffineTransform',
                                   translation,
                                   parameters,
                                   fixed_parameters)
-        return tio.ants_transform(itk_tx)
+        return tio.ANTsTransform(itk_tx)
     else:
         raise ValueError('transform_type not supported or unkown error happened')
 
@@ -279,7 +279,7 @@ def read_transform(filename, dimension=3, precision='float'):
     filename = os.path.expanduser(filename)
     read_transform_fn = _read_transform_dict[precision][dimension]
     itk_tx = read_transform_fn(filename, dimension, precision)
-    return tio.ants_transform(itk_tx)
+    return tio.ANTsTransform(itk_tx)
 
 
 def write_transform(transform, filename):
