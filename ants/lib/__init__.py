@@ -8,7 +8,6 @@ from .antsTransform import *
 from .readTransform import *
 from .antsImageToImageMetric import *
 from .antsImageHeaderInfo import *
-from .antsImageDestructor import *
 ## -------------
 
 from .N3BiasFieldCorrection import *

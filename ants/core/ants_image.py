@@ -8,11 +8,9 @@ __all__ = ['copy_image_info',
            'set_spacing',
            'get_spacing',
            'image_physical_space_consistency',
-           'image_type_cast',
-           'destroy_image']
+           'image_type_cast']
 
 import os
-import gc
 import numpy as np
 from functools import partial, partialmethod
 import inspect
@@ -36,12 +34,6 @@ _npy_to_itk_map = {
     'float32': 'float',
     'float64': 'double'}
 
-
-def destroy_image(image):
-    if image.dimension == 2:
-        lib.destroy_imageF2(image._img)
-    else:
-        lib.destroy_imageF3(image._img)
 
 class ANTsImage(object):
 
