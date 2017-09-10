@@ -51,6 +51,8 @@ def resample_image(img, resample_params, use_voxels=False, interp_type=1):
         processed_args = utils._int_antsProcessArguments(args)
         lib.ResampleImage(processed_args)
         outimg = outimg.clone(img.pixeltype)
+        del inimg
+        del img
         return outimg
     else:
         raise ValueError('images with more than 1 component not currently supported')

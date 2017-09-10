@@ -1,11 +1,14 @@
 
- 
 
+## -------------
+## CORE ##
 from .antsImage import *
 from .readImage import *
 from .antsTransform import *
 from .readTransform import *
+from .antsImageToImageMetric import *
 from .antsImageHeaderInfo import *
+## -------------
 
 from .N3BiasFieldCorrection import *
 from .N4BiasFieldCorrection import *

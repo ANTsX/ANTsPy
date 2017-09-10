@@ -17,7 +17,7 @@ import inspect
 
 from .. import lib
 from .. import utils, registration, segmentation, viz
-from . import image_io as io
+from . import image_io as iio2
 
 _npy_type_set = {'uint8', 'uint32', 'float32', 'float64'}
 _itk_type_set = {'unsigned char', 'unsigned int', 'float', 'double'}
@@ -312,7 +312,7 @@ class ANTsImage(object):
         if data.shape != self.shape:
             raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
 
-        return io.from_numpy(data, origin=self.origin, 
+        return iio2.from_numpy(data, origin=self.origin, 
             spacing=self.spacing, direction=self.direction, 
             has_components=self.has_components)
 
