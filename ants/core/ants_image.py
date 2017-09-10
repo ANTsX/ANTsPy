@@ -51,9 +51,6 @@ class ANTsImage(object):
         """
         self._img = img
 
-    def __del__(self):
-        gc.collect()
-
     @property
     def pixeltype(self):
         """
