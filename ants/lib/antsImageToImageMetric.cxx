@@ -23,7 +23,7 @@
 
 namespace py = pybind11;
 
-template <typename MetricType>
+template <typename MetricType, unsigned int Dimension>
 void wrapANTsImageToImageMetric(py::module & m, std::string const & suffix) {
     py::class_<ANTsImageToImageMetric<MetricType>, std::shared_ptr<ANTsImageToImageMetric<MetricType>>>(m, ("ANTsImageToImageMetric" + suffix).c_str())
         //.def(py::init<>())
@@ -33,13 +33,19 @@ void wrapANTsImageToImageMetric(py::module & m, std::string const & suffix) {
         .def_readonly("metrictype", &ANTsImageToImageMetric<MetricType>::metrictype)
         .def_readonly("dimension", &ANTsImageToImageMetric<MetricType>::dimension)
         .def_readonly("isVector", &ANTsImageToImageMetric<MetricType>::isVector)
-        .def_readonly("pointer", &ANTsImageToImageMetric<MetricType>::pointer);
+        .def_readonly("pointer", &ANTsImageToImageMetric<MetricType>::pointer)
+
+        .def("setFixedImage", &ANTsImageToImageMetric<MetricType>::template setFixedImage<itk::Image<float, Dimension>>)
+        .def("setMovingImage", &ANTsImageToImageMetric<MetricType>::template setMovingImage<itk::Image<float, Dimension>>)
+        .def("setSampling", &ANTsImageToImageMetric<MetricType>::setSampling)
+        .def("initialize", &ANTsImageToImageMetric<MetricType>::initialize)
+        .def("getValue", &ANTsImageToImageMetric<MetricType>::getValue);
 
 }
 
 PYBIND11_MODULE(antsImageToImageMetric, m) {
-    wrapANTsImageToImageMetric<itk::ImageToImageMetricv4<itk::Image<float, 2>,itk::Image<float,2>>>(m, "F2");
-    wrapANTsImageToImageMetric<itk::ImageToImageMetricv4<itk::Image<float, 3>,itk::Image<float,3>>>(m, "F3");
+    wrapANTsImageToImageMetric<itk::ImageToImageMetricv4<itk::Image<float, 2>,itk::Image<float,2>>,2>(m, "F2");
+    wrapANTsImageToImageMetric<itk::ImageToImageMetricv4<itk::Image<float, 3>,itk::Image<float,3>>,3>(m, "F3");
 
     m.def("new_ants_metricF2", &new_ants_metric<itk::ImageToImageMetricv4<itk::Image<float, 2>,itk::Image<float,2>>,2>);
     m.def("new_ants_metricF3", &new_ants_metric<itk::ImageToImageMetricv4<itk::Image<float, 3>,itk::Image<float,3>>,3>);

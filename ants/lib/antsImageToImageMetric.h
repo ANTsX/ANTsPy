@@ -32,7 +32,20 @@ public:
     std::string metrictype;
     unsigned int isVector;
     py::capsule pointer;
+
+    template <typename MyImageType>
+    void setFixedImage( ANTsImage<MyImageType>&, bool);
+    
+    template <typename MyImageType>
+    void setMovingImage( ANTsImage<MyImageType>&, bool);
+
+    void setSampling(std::string, double);
+    void initialize();
+    float getValue();
+
 };
+
+
 
 
 template <typename MetricType>
@@ -61,6 +74,158 @@ typename MetricType::Pointer as_metric( ANTsImageToImageMetric<MetricType> & met
     return *real;
 }
 
+
+template <typename MetricType>
+template <typename MyImageType>
+void ANTsImageToImageMetric< MetricType >::setFixedImage( ANTsImage<MyImageType> & antsImage, 
+                                                          bool isMask )
+{
+  typedef typename MetricType::FixedImageType   ImageType;
+  typedef typename ImageType::Pointer           ImagePointerType;
+  typedef typename MetricType::Pointer          MetricPointerType;
+  typedef itk::ImageMaskSpatialObject<ImageType::ImageDimension>  ImageMaskSpatialObjectType;
+  typedef typename ImageMaskSpatialObjectType::ImageType          MaskImageType;
+
+  MetricPointerType metric = as_metric< MetricType >( *this );
+  ImagePointerType image = as< ImageType >( antsImage );
+
+  if ( isMask ) {
+    typename ImageMaskSpatialObjectType::Pointer mask = ImageMaskSpatialObjectType::New();
+    typedef itk::CastImageFilter<ImageType,MaskImageType> CastFilterType;
+    typename CastFilterType::Pointer cast = CastFilterType::New();
+    cast->SetInput( image );
+    cast->Update();
+    mask->SetImage( cast->GetOutput() );
+    metric->SetMovingImageMask(mask);
+  }
+  else {
+    metric->SetFixedImage(image);
+  }
+}
+
+
+template <typename MetricType>
+template <typename MyImageType>
+void ANTsImageToImageMetric< MetricType >::setMovingImage( ANTsImage<MyImageType> & antsImage, 
+                                                          bool isMask )
+{
+  typedef typename MetricType::MovingImageType  ImageType;
+  typedef typename ImageType::Pointer           ImagePointerType;
+  typedef typename MetricType::Pointer          MetricPointerType;
+  typedef itk::ImageMaskSpatialObject<ImageType::ImageDimension>  ImageMaskSpatialObjectType;
+  typedef typename ImageMaskSpatialObjectType::ImageType          MaskImageType;
+
+
+  MetricPointerType metric = as_metric< MetricType >( *this );
+  ImagePointerType image = as< ImageType >( antsImage );
+
+  if ( isMask ) {
+    typename ImageMaskSpatialObjectType::Pointer mask = ImageMaskSpatialObjectType::New();
+    typedef itk::CastImageFilter<ImageType,MaskImageType> CastFilterType;
+    typename CastFilterType::Pointer cast = CastFilterType::New();
+    cast->SetInput( image );
+    cast->Update();
+    mask->SetImage( cast->GetOutput() );
+    metric->SetMovingImageMask(mask);
+  }
+  else {
+    metric->SetMovingImage(image);
+  }
+}
+
+template< class MetricType >
+float ANTsImageToImageMetric< MetricType >::getValue()
+{
+  //Rcpp::Rcout << "antsrImageToImageMetric_GetValue<MetricType>()" << std::endl;
+  typedef typename MetricType::Pointer          MetricPointerType;
+  MetricPointerType metric = as_metric< MetricType >( *this );
+  return metric->GetValue();
+}
+
+template< class MetricType >
+void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, double percentage )
+{
+  typedef typename MetricType::MovingImageType  ImageType;
+  typedef typename MetricType::Pointer          MetricPointerType;
+
+  typedef typename MetricType::FixedSampledPointSetType MetricSamplePointSetType;
+  typedef typename MetricSamplePointSetType::PointType  SamplePointType;
+
+  typename MetricSamplePointSetType::Pointer samplePointSet = MetricSamplePointSetType::New();
+  samplePointSet->Initialize();
+
+  MetricPointerType metric = as_metric< MetricType >( *this );
+
+  typedef typename itk::Statistics::MersenneTwisterRandomVariateGenerator RandomizerType;
+  typename RandomizerType::Pointer randomizer = RandomizerType::New();
+  randomizer->SetSeed( 1234 );
+
+  const typename ImageType::SpacingType oneThirdVirtualSpacing = metric->GetFixedImage()->GetSpacing() / 3.0;
+  unsigned long index = 0;
+
+  if ( strategy == "regular" )
+    {
+    const unsigned long sampleCount = static_cast<unsigned long>( std::ceil( 1.0 / percentage ) );
+    unsigned long count = sampleCount; //Start at sampleCount to keep behavior backwards identical, using first element.
+    itk::ImageRegionConstIteratorWithIndex<ImageType> It( metric->GetFixedImage(), metric->GetFixedImage()->GetRequestedRegion() );
+    for( It.GoToBegin(); !It.IsAtEnd(); ++It )
+      {
+      if( count == sampleCount )
+        {
+        count = 0; //Reset counter
+        SamplePointType point;
+        metric->GetFixedImage()->TransformIndexToPhysicalPoint( It.GetIndex(), point );
+
+        // randomly perturb the point within a voxel (approximately)
+        for( unsigned int d = 0; d < ImageType::ImageDimension; d++ )
+          {
+          point[d] += randomizer->GetNormalVariate() * oneThirdVirtualSpacing[d];
+          }
+        if( !metric->GetFixedImageMask() || metric->GetFixedImageMask()->IsInside( point ) )
+          {
+          samplePointSet->SetPoint( index, point );
+          ++index;
+          }
+        }
+      ++count;
+      }
+      metric->SetFixedSampledPointSet( samplePointSet );
+      metric->SetUseFixedSampledPointSet( true );
+    }
+    else if (strategy == "random")
+      {
+      const unsigned long totalVirtualDomainVoxels = metric->GetFixedImage()->GetRequestedRegion().GetNumberOfPixels();
+      const unsigned long sampleCount = static_cast<unsigned long>( static_cast<float>( totalVirtualDomainVoxels ) * percentage );
+      itk::ImageRandomConstIteratorWithIndex<ImageType> ItR( metric->GetFixedImage(), metric->GetFixedImage()->GetRequestedRegion() );
+      ItR.SetNumberOfSamples( sampleCount );
+      for( ItR.GoToBegin(); !ItR.IsAtEnd(); ++ItR )
+        {
+        SamplePointType point;
+        metric->GetFixedImage()->TransformIndexToPhysicalPoint( ItR.GetIndex(), point );
+
+        // randomly perturb the point within a voxel (approximately)
+        for ( unsigned int d = 0; d < ImageType::ImageDimension; d++ )
+          {
+          point[d] += randomizer->GetNormalVariate() * oneThirdVirtualSpacing[d];
+          }
+        if( !metric->GetFixedImageMask() || metric->GetFixedImageMask()->IsInside( point ) )
+          {
+          samplePointSet->SetPoint( index, point );
+          ++index;
+          }
+        }
+        metric->SetFixedSampledPointSet( samplePointSet );
+        metric->SetUseFixedSampledPointSet( true );
+      }
+}
+
+template< class MetricType >
+void ANTsImageToImageMetric< MetricType >::initialize()
+{
+  typedef typename MetricType::Pointer          MetricPointerType;
+  MetricPointerType metric = as_metric< MetricType >( *this );
+  metric->Initialize();
+}
 
 template <typename MetricType, unsigned int Dimension>
 ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsigned int dimension, std::string metrictype )
