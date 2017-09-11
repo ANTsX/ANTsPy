@@ -1,9 +1,9 @@
 
 from .ants_image import *
-from .ants_transform import *
+from .ants_image_io import *
 
-from .image_io import *
-from .transform_io import *
+from .ants_transform import *
+from .ants_transform_io import *
 
 from .ants_metric import *
-from .metric_io import *
+from .ants_metric_io import *

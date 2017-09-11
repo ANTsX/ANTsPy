@@ -1,7 +1,8 @@
 """
 """
 __all__ = ['new_ants_metric',
-           'create_ants_metric']
+           'create_ants_metric',
+           'supported_metrics']
 
 
 import os
@@ -27,6 +28,9 @@ _supported_metrics = {'MeanSquares',
                     'Demons',
                     'JointHistogramMutualInformation'}
 
+
+def supported_metrics():
+    return _supported_metrics
 
 def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     if metric_type not in _supported_metrics:

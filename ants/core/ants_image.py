@@ -17,7 +17,7 @@ import inspect
 
 from .. import lib
 from .. import utils, registration, segmentation, viz
-from . import image_io as iio2
+from . import ants_image_io as iio2
 
 _npy_type_set = {'uint8', 'uint32', 'float32', 'float64'}
 _itk_type_set = {'unsigned char', 'unsigned int', 'float', 'double'}

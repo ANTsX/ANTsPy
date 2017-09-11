@@ -12,7 +12,7 @@ import inspect
 from .. import lib
 from .. import utils, registration, segmentation, viz
 
-from . import metric_io as mio
+from . import ants_metric_io as mio
 from . import ants_image as iio
 
 

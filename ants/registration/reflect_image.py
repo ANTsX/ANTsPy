@@ -5,7 +5,7 @@ __all__ = ['reflect_image']
 from tempfile import mktemp
 
 from ..core import ants_image as iio
-from ..core import image_io as iio2
+from ..core import ants_image_io as iio2
 
 from .. import utils
 from .. import lib
