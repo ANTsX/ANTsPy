@@ -10,7 +10,7 @@ import os
 import glob
 from tempfile import mktemp
 
-from ..core import image_io
+from ..core import ants_image_io as iio2
 from .. import lib
 from .. import utils
 
@@ -91,7 +91,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             if ct < 10:
                 probchar = '0%s' % probchar
             tempfn = probs.replace('%02d', 'probchar')
-            image_io.image_write(i[ct], tempfn)
+            iio2.image_write(i[ct], tempfn)
             ct += 1
         i = 'PriorProbabilityImages[%s, %s, %s]' % (str(len(i)), probs, str(priorweight))
 
@@ -138,9 +138,9 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     lib.Atropos(processed_args)
     
     probsout = glob.glob(os.path.join(tdir,'*'+searchpattern))
-    probimgs = [image_io.image_read(probsout[0])]
+    probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
-        probimgs.append(image_io.image_read(probsout[idx]))
+        probimgs.append(iio2.image_read(probsout[idx]))
 
     outimg = outimg.clone('float')
     return {'segmentation': outimg,

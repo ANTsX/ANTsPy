@@ -19,16 +19,27 @@ _new_ants_metric_dict = {
 _create_ants_metric_dict = {
     2: lib.create_ants_metricF2
 }
+
+_supported_metrics = {'MeanSquares',
+                    'MattesMutualInformation',
+                    'ANTsNeighborhoodCorrelation',
+                    'Correlation',
+                    'Demons',
+                    'JointHistogramMutualInformation'}
+
+
 def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
+    if metric_type not in _supported_metrics:
+        raise ValueError('metric_type must be one of %s' % _supported_metrics)
 
     new_ants_metric_fn = _new_ants_metric_dict[dimension]
     itk_tx = new_ants_metric_fn(precision, dimension, metric_type)
-    ants_metric = mio.ANTsImageToImageMetric(itk_tx)
 
+    ants_metric = mio.ANTsImageToImageMetric(itk_tx)
     return ants_metric
 
 
-def create_ants_metric( fixed, 
+def create_ants_metric(fixed, 
                         moving,
                         metric_type='MeanSquares',
                         fixed_mask=None,
@@ -57,14 +68,8 @@ def create_ants_metric( fixed,
     >>> metric_type = 'Correlation'
     >>> metric = ants.create_ants_metric(fixed, moving, metric_type)
     """
-    supported_metrics = {'MeanSquares',
-                        'MattesMutualInformation',
-                        'ANTsNeighborhoodCorrelation',
-                        'Correlation',
-                        'Demons',
-                        'JointHistogramMutualInformation'}
-    if metric_type not in supported_metrics:
-        raise ValueError('metric_type must be one of %s' % supported_metrics)
+    if metric_type not in _supported_metrics:
+        raise ValueError('metric_type must be one of %s' % _supported_metrics)
     dimension = fixed.dimension
     pixeltype = 'float'
 
@@ -88,12 +93,10 @@ def create_ants_metric( fixed,
     else:
         raise ValueError('invalid moving image')
 
-
     create_ants_metric_fn = _create_ants_metric_dict[dimension]
     metric = create_ants_metric_fn(pixeltype, dimension, metric_type, is_vector, fixed._img, moving._img)
 
     ants_metric = mio.ANTsImageToImageMetric(metric)
-
     return ants_metric
 
 

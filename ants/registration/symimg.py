@@ -7,7 +7,7 @@ from tempfile import mktemp
 from .reflect_image import reflect_image
 from .interface import registration
 from .apply_transforms import apply_transforms
-from ..core import image_io as iio
+from ..core import ants_image_io as iio
 
 
 def symimg(img):

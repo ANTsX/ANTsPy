@@ -14,7 +14,7 @@ import re
 from .. import utils
 from .. import lib
 from ..core import ants_image as iio
-from ..core import image_io as iio2
+from ..core import ants_image_io as iio2
 
 
 def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,

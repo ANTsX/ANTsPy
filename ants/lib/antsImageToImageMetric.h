@@ -230,7 +230,67 @@ void ANTsImageToImageMetric< MetricType >::initialize()
 template <typename MetricType, unsigned int Dimension>
 ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsigned int dimension, std::string metrictype )
 {
-    //if ( metricmetrictype == "MeanSquares" )
+    if ( metrictype == "MeanSquares" )
+    {
+      typedef itk::Image<float, Dimension> ImageType;
+      typedef itk::MeanSquaresImageToImageMetricv4<ImageType, ImageType> SpecificMetricType;
+      typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
+
+      typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
+      typedef typename MetricBaseType::Pointer  MetricBasePointerType;
+
+      MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
+      return wrap_metric< MetricType >( basePointer );
+    }
+    else if ( metrictype == "Correlation" ) 
+    {
+      typedef itk::Image<float, Dimension> ImageType;
+      typedef itk::CorrelationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
+      typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
+
+      typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
+      typedef typename MetricBaseType::Pointer  MetricBasePointerType;
+
+      MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
+      return wrap_metric< MetricType >( basePointer ); 
+    }
+    else if ( metrictype == "ANTSNeighborhoodCorrelation" ) 
+    {
+      typedef itk::Image<float, Dimension> ImageType;
+      typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
+      typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
+      
+      typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
+      typedef typename MetricBaseType::Pointer  MetricBasePointerType;
+
+      MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
+      return wrap_metric< MetricType >( basePointer ); 
+    }
+    else if ( metrictype == "Demons" ) 
+    {
+      typedef itk::Image<float, Dimension> ImageType;
+      typedef itk::DemonsImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
+      typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
+      
+      typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
+      typedef typename MetricBaseType::Pointer  MetricBasePointerType;
+
+      MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
+      return wrap_metric< MetricType >( basePointer ); 
+    }
+    else if ( metrictype == "JointHistogramMutualInformation" ) 
+    {
+      typedef itk::Image<float, Dimension> ImageType;
+      typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
+      typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
+      typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
+      typedef typename MetricBaseType::Pointer  MetricBasePointerType;
+
+      MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
+      return wrap_metric< MetricType >( basePointer ); 
+    }
+    // should never reach this
+    typedef itk::Image<float, Dimension> ImageType;
     typedef itk::MeanSquaresImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> SpecificMetricType;
     typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
 
@@ -238,7 +298,6 @@ ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsig
     typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 
     MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
-
     return wrap_metric< MetricType >( basePointer );
 }
 
@@ -330,8 +389,8 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
 
   typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType,ImageType> MetricType;
   typename MetricType::Pointer metric = MetricType::New();
-    MetricBasePointerType baseMetric = dynamic_cast<MetricBaseType *>( metric.GetPointer() );
-    return( wrap_metric< MetricBaseType >( baseMetric ) );
+  MetricBasePointerType baseMetric = dynamic_cast<MetricBaseType *>( metric.GetPointer() );
+  return( wrap_metric< MetricBaseType >( baseMetric ) );
 }
 
 
