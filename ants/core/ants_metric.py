@@ -61,7 +61,7 @@ class ANTsImageToImageMetric(object):
 
         self._metric.setFixedImage(image._img, False)
 
-    def set_fixed_image_mask(self, image):
+    def set_fixed_mask(self, image):
         """
         Set Fixed ANTsImage Mask for metric
         """
@@ -85,7 +85,7 @@ class ANTsImageToImageMetric(object):
 
         self._metric.setMovingImage(image._img, False)
 
-    def set_moving_image_mask(self, image):
+    def set_moving_mask(self, image):
         """
         Set Fixed ANTsImage Mask for metric
         """
@@ -98,6 +98,10 @@ class ANTsImageToImageMetric(object):
         self._metric.setMovingImage(image._img, True)
 
     def set_sampling(self, strategy='regular', percentage=1.):
+        if strategy is None:
+            strategy = 'regular'
+        if percentage is None:
+            percentage = 1.
         self._metric.setSampling(strategy, percentage)
 
     def initialize(self):
@@ -108,6 +112,23 @@ class ANTsImageToImageMetric(object):
         if not self._is_initialized:
             self.initialize()
         return self._metric.getValue()
+
+    def __call__(self, fixed, moving, fixed_mask=None, moving_mask=None, sampling_strategy=None, sampling_percentage=None):
+        self.set_fixed_image(fixed)
+        self.set_moving_image(moving)
+
+        if fixed_mask is not None:
+            self.set_fixed_mask(fixed_mask)
+
+        if moving_mask is not None:
+            self.set_moving_mask(moving_mask)
+
+        if (sampling_strategy is not None) or (sampling_percentage is not None):
+            self.set_sampling(sampling_strategy, sampling_percentage)
+
+        self.initialize()
+
+        return self.get_value()
 
     def __repr__(self):
         s = "ANTsImageToImageMetric\n" +\
