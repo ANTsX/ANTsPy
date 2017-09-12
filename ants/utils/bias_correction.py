@@ -6,9 +6,10 @@ __all__ = ['n3_bias_field_correction',
 
 
 from . import process_args as pargs
+from .get_mask import get_mask
+from .iMask import iMask
 
 from ..core import ants_image as iio
-from .get_mask import get_mask
 from .. import lib
 
 
@@ -117,5 +118,20 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
     processed_args = pargs._int_antsProcessArguments(kwargs)
     lib.N4BiasFieldCorrection(processed_args)
     return outimg
+
+
+def abp_n4(img, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
+    if len(intensity_truncation) != 3:
+        raise ValueError('intensity_truncation must have 3 values')
+
+    outimg = iMask(img, 'TruncateIntensity', 
+            intensity_truncation[0], intensity_truncation[1], intensity_truncation[2])
+    if usen3 == True:
+        outimg = n3_bias_field_correction(outimg, 4)
+        outimg = n3_bias_field_correction(outimg, 2)
+        return outimg
+    else:
+        outimg = n4_bias_field_correction(outimg, mask)
+        return outimg
 
 
