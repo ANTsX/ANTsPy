@@ -2,12 +2,13 @@
  
 
 __all__ = ['n3_bias_field_correction',
-           'n4_bias_field_correction']
+           'n4_bias_field_correction',
+           'abp_n4']
 
 
 from . import process_args as pargs
 from .get_mask import get_mask
-from .iMask import iMask
+from .iMath import iMath
 
 from ..core import ants_image as iio
 from .. import lib
@@ -121,10 +122,37 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
 
 
 def abp_n4(img, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
+    """
+    Truncate outlier intensities and bias correct with the N4 algorithm.
+
+    Arguments
+    ---------
+    img : ANTsImage
+        image to correct and truncate
+
+    intensity_truncation : 3-tuple
+        quantiles for intensity truncation
+
+    mask : ANTsImage (optional)
+        mask for bias correction
+
+    usen3 : boolean
+        if True, use N3 bias correction instead of N4
+
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.image_read(ants.get_ants_data('r16'))
+    >>> img2 = ants.abp_n4(img)
+    """
     if len(intensity_truncation) != 3:
         raise ValueError('intensity_truncation must have 3 values')
 
-    outimg = iMask(img, 'TruncateIntensity', 
+    outimg = iMath(img, 'TruncateIntensity', 
             intensity_truncation[0], intensity_truncation[1], intensity_truncation[2])
     if usen3 == True:
         outimg = n3_bias_field_correction(outimg, 4)
