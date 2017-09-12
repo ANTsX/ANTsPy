@@ -2,11 +2,13 @@
 __all__ = ['create_ants_transform',
            'new_ants_transform',
            'read_transform',
-           'write_transform']
+           'write_transform',
+           'transform_from_displacement_field']
 
 import os
 import numpy as np
 
+from . import ants_image as iio
 from . import ants_transform as tio
 from .. import lib
 
@@ -209,7 +211,7 @@ def create_ants_transform(transform_type='AffineTransform',
     # If displacement field
     if displacement_field is not None:
         raise ValueError('Displacement field transform not currently supported')
-    #    itk_tx = ants_transform_from_displacement_field(displacement_field)
+    #    itk_tx = transform_from_displacement_field(displacement_field)
     #    return tio.ants_transform(itk_tx)
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
@@ -229,7 +231,7 @@ def create_ants_transform(transform_type='AffineTransform',
         raise ValueError('transform_type not supported or unkown error happened')
 
 
-def ants_transform_from_displacement_field(field):
+def transform_from_displacement_field(field):
     """
     Convert deformation field (multiChannel image) to ANTsTransform
 
@@ -243,8 +245,26 @@ def ants_transform_from_displacement_field(field):
     Returns
     -------
     ANTsImage
+
+    Example
+    -------
+    >>> import ants
+    >>> fi = ants.image_read(ants.get_ants_data('r16') )
+    >>> mi = ants.image_read(ants.get_ants_data('r64') )
+    >>> fi = ants.resample_image(fi,(60,60),1,0)
+    >>> mi = ants.resample_image(mi,(60,60),1,0) # speed up
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
+    >>> compfield = ants.compose_transforms_to_field( fi, mytx['fwd'] )
+    >>> atx = ants.transform_from_displacement_field( compfield )
     """
-    raise ValueError('Displacement field transforms not currently supported')
+    if not isinstance(field, iio.ANTsImage):
+        raise ValueError('field must be ANTsImage type')
+    if field.dimension == 2:
+        field = field.clone('float')
+        return tio.ANTsTransform(lib.antsTransformFromDisplacementFieldF2(field._img))
+    elif field.dimension == 3:
+        field = field.clone('float')
+        return tio.ANTsTransform(lib.antsrTransformFromDisplacementFieldF3(field._img))
 
 
 def read_transform(filename, dimension=3, precision='float'):

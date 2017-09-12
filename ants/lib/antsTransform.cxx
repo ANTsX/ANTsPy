@@ -61,6 +61,66 @@
 
 namespace py = pybind11;
 
+template <typename TransformType, typename VectorImageType, typename PrecisionType, unsigned int Dimension>
+ANTsTransform<TransformType> antsTransformFromDisplacementField( ANTsImage< VectorImageType > field )
+{
+
+  //typedef itk::Transform<PrecisionType,Dimension,Dimension>                  TransformType;
+  typedef typename TransformType::Pointer                                    TransformPointerType;
+  typedef typename itk::DisplacementFieldTransform<PrecisionType, Dimension> DisplacementFieldTransformType;
+  typedef typename DisplacementFieldTransformType::DisplacementFieldType     DisplacementFieldType;
+  typedef typename DisplacementFieldType::PixelType                          VectorType;
+
+  // Displacement field is an itk::Image with vector pixels, while in ANTsR we use the
+  // itk::VectorImage class for multichannel data. So we must copy the field
+  // and pass it to the transform
+  //typedef itk::VectorImage<PrecisionType, Dimension> AntsrFieldType;
+  //typedef typename AntsrFieldType::Pointer           AntsrFieldPointerType;
+  typedef typename VectorImageType::Pointer VectorImagePointerType;
+  VectorImagePointerType antsrField = as< VectorImageType >( field );
+
+  typename DisplacementFieldType::Pointer itkField = DisplacementFieldType::New();
+  itkField->SetRegions( antsrField->GetLargestPossibleRegion() );
+  itkField->SetSpacing( antsrField->GetSpacing() );
+  itkField->SetOrigin( antsrField->GetOrigin() );
+  itkField->SetDirection( antsrField->GetDirection() );
+  itkField->Allocate();
+
+  typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType> IteratorType;
+  IteratorType it( itkField, itkField->GetLargestPossibleRegion() );
+  while ( !it.IsAtEnd() )
+  {
+    typename VectorImageType::PixelType vec = antsrField->GetPixel( it.GetIndex() );
+    VectorType dvec;
+    for ( unsigned int i=0; i<Dimension; i++)
+      {
+      dvec[i] = vec[i];
+      }
+    itkField->SetPixel(it.GetIndex(), dvec);
+    ++it;
+  }
+
+  typename DisplacementFieldTransformType::Pointer displacementTransform =
+    DisplacementFieldTransformType::New();
+  displacementTransform->SetDisplacementField( itkField );
+
+  /*
+  TransformPointerType transform = dynamic_cast<TransformType *>( displacementTransform.GetPointer() );
+
+  Rcpp::S4 antsrTransform( "antsrTransform" );
+  antsrTransform.slot("dimension") = Dimension;
+  antsrTransform.slot("precision") = precision;
+  std::string type = displacementTransform->GetNameOfClass();
+  antsrTransform.slot("type") = type;
+  TransformPointerType * rawPointer = new TransformPointerType( transform );
+  Rcpp::XPtr<TransformPointerType> xptr( rawPointer, true );
+  antsrTransform.slot("pointer") = xptr;
+
+  return antsrTransform;
+  */
+  return wrap_transform< TransformType >( displacementTransform.GetPointer() );
+
+}
 
 template <typename TransformType, unsigned int Dim>
 void wrapANTsTransform(py::module & m, std::string const & suffix) {
@@ -126,5 +186,11 @@ PYBIND11_MODULE(antsTransform, m) {
     m.def("matrixOffsetD3", &matrixOffset<itk::Transform<double, 3, 3>, double, 3>);
     m.def("matrixOffsetD4", &matrixOffset<itk::Transform<double, 4, 4>, double, 4>);
 
+    //
+    m.def("antsTransformFromDisplacementFieldF2",&antsTransformFromDisplacementField<itk::Transform<float,2,2>, itk::VectorImage<float,2>,float,2>);
+    m.def("antsTransformFromDisplacementFieldF3", &antsTransformFromDisplacementField<itk::Transform<float,3,3>, itk::VectorImage<float,3>,float,3>);
 
 }
+
+
+

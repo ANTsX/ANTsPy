@@ -309,8 +309,12 @@ class ANTsImage(object):
         """
         if not isinstance(data, np.ndarray):
             raise ValueError('data must be a numpy array')
-        if data.shape != self.shape:
-            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
+        if not self.has_components:
+            if data.shape != self.shape:
+                raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
+        else:
+            if (data.shape[0] != self.components) and (data.shape[1:] != self.shape):
+                raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
 
         return iio2.from_numpy(data, origin=self.origin, 
             spacing=self.spacing, direction=self.direction, 

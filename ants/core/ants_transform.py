@@ -170,7 +170,12 @@ class ANTsTransform(object):
 
         return ants_image.ANTsImage(tform_fn(image._img, reference._img, interpolation))
 
-
+    def __repr__(self):
+        s = "ANTsTransform\n" +\
+            '\t {:<10} : {}\n'.format('Type', self.type)+\
+            '\t {:<10} : {}\n'.format('Dimension', self.dimension)+\
+            '\t {:<10} : {}\n'.format('Precision', self.precision)
+        return s
 # verbose functions for ANTsR compatibility
 def set_ants_transform_parameters(transform, parameters):
     """

@@ -153,8 +153,11 @@ def registration(fixed=None,
         lib.antsRegistration(processed_args)
         return 0
 
-    if len(type_of_transform) == '':
+    if type_of_transform == '':
         type_of_transform = 'SyN'
+    if isinstance(type_of_transform, (tuple,list)) and (len(type_of_transform) == 1):
+        type_of_transform = type_of_transform[0]
+
     if len(outprefix) == 0:
         outprefix = mktemp()
 
