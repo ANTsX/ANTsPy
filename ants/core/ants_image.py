@@ -43,17 +43,18 @@ _short_ptype_map = {
 }
 
 _image_clone_dict = {}
-for ndim in {2,3,4}:
-    _image_clone_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        _image_clone_dict[ndim][d1] = {}
-        for d2 in _supported_ptypes:
-            d1a = _short_ptype_map[d1]
-            d2a = _short_ptype_map[d2]
-            try:
-                _image_clone_dict[ndim][d1][d2] = lib.__dict__['antsImageClone%s%i%s%i'%(d1a,ndim,d2a,ndim)]
-            except:
-                pass
+for impx in {'','V'}:
+    for ndim in {2,3,4}:
+        _image_clone_dict[ndim] = {}
+        for d1 in _supported_ptypes:
+            _image_clone_dict[ndim][d1] = {}
+            for d2 in _supported_ptypes:
+                d1a = _short_ptype_map[d1]
+                d2a = _short_ptype_map[d2]
+                try:
+                    _image_clone_dict[ndim][d1][d2] = lib.__dict__['antsImageClone%s%s%i%s%s%i'%(impx,d1a,ndim,impx,d2a,ndim)]
+                except:
+                    pass
 
 
 class ANTsImage(object):
@@ -303,7 +304,7 @@ class ANTsImage(object):
         """
         if pixeltype is None:
             pixeltype = self.pixeltype
-        
+
         ndim = self.dimension
         d1 = self.pixeltype
         d2 = pixeltype
