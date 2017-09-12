@@ -532,7 +532,6 @@ static void antsRegistrationInitializeCommandLineOptions( itk::ants::CommandLine
 
 // entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to
 // 'main()'
-
 int antsRegistrationEntry( std::vector<std::string> args /*out_stream = NULL */ )
 {
   try
