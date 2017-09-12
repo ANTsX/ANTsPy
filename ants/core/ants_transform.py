@@ -151,16 +151,8 @@ class ANTsTransform(object):
         """
         if image.pixeltype == 'unsigned char':
             tform_fn = self._tx.transform_imageUC
-        elif image.pixeltype == 'char':
-            tform_fn = self._tx.transform_imageC
-        elif image.pixeltype == 'unsigned short':
-            tform_fn = self._tx.transform_imageUS
-        elif image.pixeltype == 'short':
-            tform_fn = self._tx.transform_imageS
         elif image.pixeltype == 'unsigned int':
             tform_fn = self._tx.transform_imageUI
-        elif image.pixeltype == 'int':
-            tform_fn = self._tx.transform_imageI
         elif image.pixeltype == 'float':
             tform_fn = self._tx.transform_imageF
         elif image.pixeltype == 'double':
