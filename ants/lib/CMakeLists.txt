@@ -27,6 +27,7 @@ pybind11_add_module(antsImageToImageMetric antsImageToImageMetric.cxx)
 pybind11_add_module(Atropos Atropos.cxx)
 pybind11_add_module(KellyKapowski KellyKapowski.cxx)
 pybind11_add_module(antsJointFusion antsJointFusion.cxx)
+pybind11_add_module(LabelGeometryMeasures LabelGeometryMeasures.cxx)
 
 ## REGISTRATION
 pybind11_add_module(antsRegistration antsRegistration.cxx)
@@ -69,6 +70,7 @@ target_link_libraries(antsImageToImageMetric PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(Atropos PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(KellyKapowski PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsJointFusion PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(LabelGeometryMeasures PRIVATE ${ITK_LIBRARIES})
 
 ## REGISTRATION
 target_link_libraries(antsRegistration PRIVATE ${ITK_LIBRARIES} ${ITKIOImageBase_LIBRARIES} ${ITKZLIB_LIBRARIES})

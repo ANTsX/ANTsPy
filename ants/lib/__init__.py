@@ -9,33 +9,40 @@ from .readTransform import *
 from .antsImageToImageMetric import *
 from .antsImageHeaderInfo import *
 ## -------------
+## SEGMENTATION ##
+from .Atropos import *
+from .antsJointFusion import *
+from .KellyKapowski import *
+from .LabelGeometryMeasures import *
 
+## -------------
+## REGISTRATION ##
+from .antsAffineInitializer import *
+from .antsRegistration import *
+from .antsApplyTransforms import *
+from .ResampleImage import *
+from .CreateJacobianDeterminantImage import *
+from .reflectionMatrix import *
+from .reorientImage import *
+
+## -------------
+## UTILS ##
 from .N3BiasFieldCorrection import *
 from .N4BiasFieldCorrection import *
 from .ThresholdImage import *
 from .iMath import *
 from .LabelClustersUniquely import *
-from .Atropos import *
 from .sccaner import *
-from .ResampleImage import *
 from .SmoothImage import *
-from .antsRegistration import *
-from .KellyKapowski import *
-from .antsJointFusion import *
-from .antsAffineInitializer import *
-
 from .antsImageMutualInformation import *
-from .antsApplyTransforms import *
-from .CreateJacobianDeterminantImage import *
-from .reflectionMatrix import *
 from .cropImage import *
 from .mergeChannels import *
 from .DenoiseImage import *
-from .reorientImage import *
 from .weingartenImageCurvature import *
-
 from .labelStats import *
 
+## -------------
+## VIZ ##
 try:
     from .antsSurf import *
 except:
@@ -51,3 +58,5 @@ try:
     from .ConvertScalarImageToRGB import *
 except:
     pass
+
+## -------------
