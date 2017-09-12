@@ -14,8 +14,8 @@ from .. import lib
 from ..core import ants_image as iio
 
 
-def registration(fixed=None,
-                 moving=None,
+def registration(fixed,
+                 moving,
                  type_of_transform='SyN',
                  initial_transform=None,
                  outprefix='',
@@ -154,12 +154,17 @@ def registration(fixed=None,
 
     if type_of_transform == '':
         type_of_transform = 'SyN'
+
     if isinstance(type_of_transform, (tuple,list)) and (len(type_of_transform) == 1):
         type_of_transform = type_of_transform[0]
 
-    if len(outprefix) == 0:
+    if (outprefix == '') or len(outprefix) == 0:
         outprefix = mktemp()
 
+    if (np.sum(np.isnan(fixed.numpy())) > 0):
+        raise ValueError('fixed image has NaNs - replace these')
+    if (np.sum(np.isnan(moving.numpy())) > 0):
+        raise ValueError('moving image has NaNs - replace these')
     #----------------------------
 
     args = [fixed, moving, type_of_transform, outprefix]

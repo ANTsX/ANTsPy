@@ -43,18 +43,17 @@ _short_ptype_map = {
 }
 
 _image_clone_dict = {}
-for impx in {'','V'}:
-    for ndim in {2,3,4}:
-        _image_clone_dict[ndim] = {}
-        for d1 in _supported_ptypes:
-            _image_clone_dict[ndim][d1] = {}
-            for d2 in _supported_ptypes:
-                d1a = _short_ptype_map[d1]
-                d2a = _short_ptype_map[d2]
-                try:
-                    _image_clone_dict[ndim][d1][d2] = lib.__dict__['antsImageClone%s%s%i%s%s%i'%(impx,d1a,ndim,impx,d2a,ndim)]
-                except:
-                    pass
+for ndim in {2,3,4}:
+    _image_clone_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        _image_clone_dict[ndim][d1] = {}
+        for d2 in _supported_ptypes:
+            d1a = _short_ptype_map[d1]
+            d2a = _short_ptype_map[d2]
+            try:
+                _image_clone_dict[ndim][d1][d2] = lib.__dict__['antsImageClone%s%i%s%i'%(d1a,ndim,d2a,ndim)]
+            except:
+                pass
 
 
 class ANTsImage(object):
@@ -302,16 +301,21 @@ class ANTsImage(object):
         -------
         ANTsImage
         """
-        if pixeltype is None:
-            pixeltype = self.pixeltype
+        if self.has_components:
+            comp_imgs = utils.split_channels(self)
+            comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
+            return utils.merge_channels(comp_imgs_cloned)
+        else:
+            if pixeltype is None:
+                pixeltype = self.pixeltype
 
-        ndim = self.dimension
-        d1 = self.pixeltype
-        d2 = pixeltype
+            ndim = self.dimension
+            d1 = self.pixeltype
+            d2 = pixeltype
 
-        image_clone_fn = _image_clone_dict[ndim][d1][d2]
-        img_cloned = ANTsImage(image_clone_fn(self._img)) 
-        return img_cloned
+            image_clone_fn = _image_clone_dict[ndim][d1][d2]
+            img_cloned = ANTsImage(image_clone_fn(self._img)) 
+            return img_cloned
 
     def new_image_like(self, data):
         """
