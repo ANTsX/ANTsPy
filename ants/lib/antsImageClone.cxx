@@ -109,6 +109,73 @@ PYBIND11_MODULE(antsImageClone, m)
   wrapantsImageClone<itk::Image<double,4>,itk::Image<float,4>>(m, "D4F4");
   wrapantsImageClone<itk::Image<double,4>,itk::Image<double,4>>(m, "D4D4");
 
+  // VectorImage
+  // dim = 2
+  wrapantsImageClone<itk::VectorImage<unsigned char,2>,itk::VectorImage<unsigned char,2>>(m, "VUC2VUC2");
+  wrapantsImageClone<itk::VectorImage<unsigned char,2>,itk::VectorImage<unsigned int,2>>(m, "VUC2VUI2");
+  wrapantsImageClone<itk::VectorImage<unsigned char,2>,itk::VectorImage<float,2>>(m, "VUC2VF2");
+  wrapantsImageClone<itk::VectorImage<unsigned char,2>,itk::VectorImage<double,2>>(m, "UC2D2");
+
+  wrapantsImageClone<itk::VectorImage<unsigned int,2>,itk::VectorImage<unsigned char,2>>(m, "UI2UC2");
+  wrapantsImageClone<itk::VectorImage<unsigned int,2>,itk::VectorImage<unsigned int,2>>(m, "UI2UI2");
+  wrapantsImageClone<itk::VectorImage<unsigned int,2>,itk::VectorImage<float,2>>(m, "UI2F2");
+  wrapantsImageClone<itk::VectorImage<unsigned int,2>,itk::VectorImage<double,2>>(m, "UI2D2");
+
+  wrapantsImageClone<itk::VectorImage<float,2>,itk::VectorImage<unsigned char,2>>(m, "F2UC2");
+  wrapantsImageClone<itk::VectorImage<float,2>,itk::VectorImage<unsigned int,2>>(m, "F2UI2");
+  wrapantsImageClone<itk::VectorImage<float,2>,itk::VectorImage<float,2>>(m, "F2F2");
+  wrapantsImageClone<itk::VectorImage<float,2>,itk::VectorImage<double,2>>(m, "F2D2");
+
+  wrapantsImageClone<itk::VectorImage<double,2>,itk::VectorImage<unsigned char,2>>(m, "D2UC2");
+  wrapantsImageClone<itk::VectorImage<double,2>,itk::VectorImage<unsigned int,2>>(m, "D2UI2");
+  wrapantsImageClone<itk::VectorImage<double,2>,itk::VectorImage<float,2>>(m, "D2F2");
+  wrapantsImageClone<itk::VectorImage<double,2>,itk::VectorImage<double,2>>(m, "D2D2");
+
+
+  // dim = 3
+  wrapantsImageClone<itk::VectorImage<unsigned char,3>,itk::VectorImage<unsigned char,3>>(m, "UC3UC2");
+  wrapantsImageClone<itk::VectorImage<unsigned char,3>,itk::VectorImage<unsigned int,3>>(m, "UC3UI3");
+  wrapantsImageClone<itk::VectorImage<unsigned char,3>,itk::VectorImage<float,3>>(m, "UC3F3");
+  wrapantsImageClone<itk::VectorImage<unsigned char,3>,itk::VectorImage<double,3>>(m, "UC3D3");
+
+  wrapantsImageClone<itk::VectorImage<unsigned int,3>,itk::VectorImage<unsigned char,3>>(m, "UI3UC3");
+  wrapantsImageClone<itk::VectorImage<unsigned int,3>,itk::VectorImage<unsigned int,3>>(m, "UI3UI3");
+  wrapantsImageClone<itk::VectorImage<unsigned int,3>,itk::VectorImage<float,3>>(m, "UI3F3");
+  wrapantsImageClone<itk::VectorImage<unsigned int,3>,itk::VectorImage<double,3>>(m, "UI3D3");
+
+  wrapantsImageClone<itk::VectorImage<float,3>,itk::VectorImage<unsigned char,3>>(m, "F3UC3");
+  wrapantsImageClone<itk::VectorImage<float,3>,itk::VectorImage<unsigned int,3>>(m, "F3UI3");
+  wrapantsImageClone<itk::VectorImage<float,3>,itk::VectorImage<float,3>>(m, "F3F3");
+  wrapantsImageClone<itk::VectorImage<float,3>,itk::VectorImage<double,3>>(m, "F3D3");
+
+  wrapantsImageClone<itk::VectorImage<double,3>,itk::VectorImage<unsigned char,3>>(m, "D3UC3");
+  wrapantsImageClone<itk::VectorImage<double,3>,itk::VectorImage<unsigned int,3>>(m, "D3UI3");
+  wrapantsImageClone<itk::VectorImage<double,3>,itk::VectorImage<float,3>>(m, "D3F3");
+  wrapantsImageClone<itk::VectorImage<double,3>,itk::VectorImage<double,3>>(m, "D3D3");
+
+  // dim = 4
+  wrapantsImageClone<itk::VectorImage<unsigned char,4>,itk::VectorImage<unsigned char,4>>(m, "UC4UC4");
+  wrapantsImageClone<itk::VectorImage<unsigned char,4>,itk::VectorImage<unsigned int,4>>(m, "UC4UI4");
+  wrapantsImageClone<itk::VectorImage<unsigned char,4>,itk::VectorImage<float,4>>(m, "UC4F4");
+  wrapantsImageClone<itk::VectorImage<unsigned char,4>,itk::VectorImage<double,4>>(m, "UC4D4");
+
+  wrapantsImageClone<itk::VectorImage<unsigned int,4>,itk::VectorImage<unsigned char,4>>(m, "UI4UC4");
+  wrapantsImageClone<itk::VectorImage<unsigned int,4>,itk::VectorImage<unsigned int,4>>(m, "UI4UI4");
+  wrapantsImageClone<itk::VectorImage<unsigned int,4>,itk::VectorImage<float,4>>(m, "UI4F4");
+  wrapantsImageClone<itk::VectorImage<unsigned int,4>,itk::VectorImage<double,4>>(m, "UI4D4");
+
+  wrapantsImageClone<itk::VectorImage<float,4>,itk::VectorImage<unsigned char,4>>(m, "F4UC4");
+  wrapantsImageClone<itk::VectorImage<float,4>,itk::VectorImage<unsigned int,4>>(m, "F4UI4");
+  wrapantsImageClone<itk::VectorImage<float,4>,itk::VectorImage<float,4>>(m, "F4F4");
+  wrapantsImageClone<itk::VectorImage<float,4>,itk::VectorImage<double,4>>(m, "F4D4");
+
+  wrapantsImageClone<itk::VectorImage<double,4>,itk::VectorImage<unsigned char,4>>(m, "D4UC4");
+  wrapantsImageClone<itk::VectorImage<double,4>,itk::VectorImage<unsigned int,4>>(m, "D4UI4");
+  wrapantsImageClone<itk::VectorImage<double,4>,itk::VectorImage<float,4>>(m, "D4F4");
+  wrapantsImageClone<itk::VectorImage<double,4>,itk::VectorImage<double,4>>(m, "D4D4");
+
+  // vector image, dim = 2
+
 }
 
 
