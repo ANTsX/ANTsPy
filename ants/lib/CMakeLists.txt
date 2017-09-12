@@ -22,6 +22,7 @@ pybind11_add_module(readTransform readTransform.cxx)
 pybind11_add_module(antsTransform antsTransform.cxx)
 pybind11_add_module(antsImageHeaderInfo antsImageHeaderInfo.cxx)
 pybind11_add_module(antsImageToImageMetric antsImageToImageMetric.cxx)
+pybind11_add_module(antsImageClone antsImageClone.cxx)
 
 ## SEGMENTATION
 pybind11_add_module(Atropos Atropos.cxx)
@@ -65,6 +66,7 @@ target_link_libraries(readTransform PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsTransform PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsImageHeaderInfo PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsImageToImageMetric PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsImageClone PRIVATE ${ITK_LIBRARIES})
 
 ## SEGMENTATION
 target_link_libraries(Atropos PRIVATE ${ITK_LIBRARIES})

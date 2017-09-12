@@ -88,6 +88,15 @@ _from_numpy_dict = {
     }
 }
 
+_short_ptype_map = {
+    'unsigned char' : 'UC',
+    'unsigned int': 'UI',
+    'float': 'F',
+    'double' : 'D'
+}
+
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_unsupported_ptypes = {'char', 'unsigned short', 'short', 'int'}
 # if image is an unsupported pixeltype, 
 # it will be up-mapped to closest supported type
 _unsupported_ptype_map = {
@@ -96,8 +105,6 @@ _unsupported_ptype_map = {
     'short': 'float',
     'int': 'float',
 }
-
-_unsupported_ptypes = {'char', 'unsigned short', 'short', 'int'}
 
 
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
@@ -332,7 +339,7 @@ def image_header_info(filename):
     return ret
 
 
-def image_clone(img, dtype=None):
+def image_clone(img, pixeltype=None):
     """
     Clone an ANTsImage
 
@@ -350,7 +357,7 @@ def image_clone(img, dtype=None):
     -------
     ANTsImage
     """
-    return img.clone(dtype=dtype)
+    return img.clone(pixeltype)
 
 
 def image_read(filename, dimension=None, pixeltype='float'):

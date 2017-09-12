@@ -8,6 +8,7 @@ from .antsTransform import *
 from .readTransform import *
 from .antsImageToImageMetric import *
 from .antsImageHeaderInfo import *
+from .antsImageClone import *
 ## -------------
 ## SEGMENTATION ##
 from .Atropos import *

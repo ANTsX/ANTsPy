@@ -34,6 +34,27 @@ _npy_to_itk_map = {
     'float32': 'float',
     'float64': 'double'}
 
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_short_ptype_map = {
+    'unsigned char' : 'UC',
+    'unsigned int': 'UI',
+    'float': 'F',
+    'double' : 'D'
+}
+
+_image_clone_dict = {}
+for ndim in {2,3,4}:
+    _image_clone_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        _image_clone_dict[ndim][d1] = {}
+        for d2 in _supported_ptypes:
+            d1a = _short_ptype_map[d1]
+            d2a = _short_ptype_map[d2]
+            try:
+                _image_clone_dict[ndim][d1][d2] = lib.__dict__['antsImageClone%s%i%s%i'%(d1a,ndim,d2a,ndim)]
+            except:
+                pass
+
 
 class ANTsImage(object):
 
@@ -258,7 +279,7 @@ class ANTsImage(object):
         """
         return np.array(self.view(), copy=True)
 
-    def clone(self, dtype=None):
+    def clone(self, pixeltype=None):
         """
         Create a copy of the given ANTsImage with the same data and info, possibly with
         a different data type for the image data. Only supports casting to
@@ -280,17 +301,16 @@ class ANTsImage(object):
         -------
         ANTsImage
         """
-        data = self.numpy()
-        if dtype is not None:
-            if dtype in _npy_type_set:
-                data = data.astype(dtype)
-            elif dtype in _itk_type_set:
-                dtype = _itk_to_npy_map[dtype]
-                data = data.astype(dtype)
-            else:
-                raise ValueError('dtype arg %s not understood' % str(dtype))
+        if pixeltype is None:
+            pixeltype = self.pixeltype
         
-        return self.new_image_like(data)
+        ndim = self.dimension
+        d1 = self.pixeltype
+        d2 = pixeltype
+
+        image_clone_fn = _image_clone_dict[ndim][d1][d2]
+        img_cloned = ANTsImage(image_clone_fn(self._img)) 
+        return img_cloned
 
     def new_image_like(self, data):
         """
