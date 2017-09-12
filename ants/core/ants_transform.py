@@ -176,6 +176,7 @@ class ANTsTransform(object):
             '\t {:<10} : {}\n'.format('Dimension', self.dimension)+\
             '\t {:<10} : {}\n'.format('Precision', self.precision)
         return s
+
 # verbose functions for ANTsR compatibility
 def set_ants_transform_parameters(transform, parameters):
     """
