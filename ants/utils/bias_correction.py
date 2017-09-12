@@ -124,6 +124,8 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
 def abp_n4(img, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
     """
     Truncate outlier intensities and bias correct with the N4 algorithm.
+    
+    ANTsR function: `abpN4`
 
     Arguments
     ---------

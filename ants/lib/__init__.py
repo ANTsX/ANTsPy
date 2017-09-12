@@ -22,6 +22,7 @@ from .SmoothImage import *
 from .antsRegistration import *
 from .KellyKapowski import *
 from .antsJointFusion import *
+from .antsAffineInitializer import *
 
 from .antsImageMutualInformation import *
 from .antsApplyTransforms import *

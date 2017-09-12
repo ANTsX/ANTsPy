@@ -7,7 +7,9 @@ def mask_image(img, mask, level=1, binarize=False):
     """
     Mask an input image by a mask image.  If the mask image has multiple labels,
     it is possible to specify which label(s) to mask at.
-
+    
+    ANTsR function: `maskImage`
+    
     Arguments
     ---------
     img : ANTsImage
