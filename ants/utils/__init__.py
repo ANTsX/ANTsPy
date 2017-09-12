@@ -9,6 +9,7 @@ from .iMath import *
 from .label_clusters import *
 from .label_stats import *
 from .morphology import *
+from .mask_image import *
 from .process_args import *
 from .smooth_image import *
 from .threshold_image import *

@@ -377,6 +377,9 @@ class ANTsImage(object):
     def nonzero(self):
         """ Return non-zero indices of image """
         return self.numpy().nonzero()
+    def unique(self):
+        """ Return unique set of values in image """
+        return self.numpy().unique()
 
     ## OVERLOADED OPERATORS ##
     def __add__(self, other):
@@ -487,6 +490,17 @@ class ANTsImage(object):
             other = other.numpy()
 
         new_array = this_array == other
+        return self.new_image_like(new_array.astype('uint8'))
+
+    def __ne__(self, other):
+        this_array = self.numpy()
+
+        if isinstance(other, ANTsImage):
+            if not image_physical_space_consistency(self, other):
+                raise ValueError('images do not occupy same physical space')
+            other = other.numpy()
+
+        new_array = this_array != other
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
