@@ -31,6 +31,7 @@ from .reorientImage import *
 from .N3BiasFieldCorrection import *
 from .N4BiasFieldCorrection import *
 from .ThresholdImage import *
+from .invariantImageSimilarity import *
 from .iMath import *
 from .LabelClustersUniquely import *
 from .sccaner import *

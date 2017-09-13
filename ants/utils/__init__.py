@@ -7,6 +7,7 @@ from .get_ants_data import *
 from .get_mask import *
 from .image_similarity import *
 from .iMath import *
+from .invariant_image_similarity import *
 from .label_clusters import *
 from .label_stats import *
 from .morphology import *
