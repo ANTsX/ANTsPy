@@ -101,8 +101,15 @@ def create_ants_metric(fixed,
     metric = create_ants_metric_fn(pixeltype, dimension, metric_type, is_vector, fixed._img, moving._img)
 
     ants_metric = mio.ANTsImageToImageMetric(metric)
+
+    if isinstance(fixed_mask, iio.ANTsImage):
+        ants_metric.set_fixed_mask(fixed_mask)
+
+    if isinstance(moving_mask, iio.ANTsImage):
+        ants_metric.set_moving_mask(moving_mask)
+
+    ants_metric.set_sampling(sampling_strategy, sampling_percentage)
+    ants_metric.initialize()
+
     return ants_metric
-
-
-
 
