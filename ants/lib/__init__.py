@@ -9,6 +9,8 @@ from .readTransform import *
 from .antsImageToImageMetric import *
 from .antsImageHeaderInfo import *
 from .antsImageClone import *
+from .getNeighborhoodMatrix import *
+
 ## -------------
 ## SEGMENTATION ##
 from .Atropos import *
