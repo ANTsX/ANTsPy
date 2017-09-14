@@ -9,7 +9,8 @@ __all__ = ['copy_image_info',
            'get_spacing',
            'image_physical_space_consistency',
            'image_type_cast',
-           'get_neighborhood_in_mask']
+           'get_neighborhood_in_mask',
+           'get_neighborhood_at_voxel']
 
 import os
 import numpy as np
@@ -53,7 +54,7 @@ for ndim in {2,3,4}:
             d1a = _short_ptype_map[d1]
             d2a = _short_ptype_map[d2]
             try:
-                _image_clone_dict[ndim][d1][d2] = lib.__dict__['antsImageClone%s%i%s%i'%(d1a,ndim,d2a,ndim)]
+                _image_clone_dict[ndim][d1][d2] = 'antsImageClone%s%i%s%i'%(d1a,ndim,d2a,ndim)
             except:
                 pass
 
@@ -64,9 +65,21 @@ for ndim in {2,3,4}:
     for d1 in _supported_ptypes:
         d1a = _short_ptype_map[d1]
         try:
-            _get_neighborhood_matrix_dict[ndim][d1] = lib.__dict__['getNeighborhoodMatrix%s%i'%(d1a,ndim)]
+            _get_neighborhood_matrix_dict[ndim][d1] = 'getNeighborhoodMatrix%s%i'%(d1a,ndim)
         except:
             pass
+
+# pick up lib.getNeighborhoodX functions
+_get_neighborhood_at_voxel_dict = {}
+for ndim in {2,3,4}:
+    _get_neighborhood_at_voxel_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        d1a = _short_ptype_map[d1]
+        try:
+            _get_neighborhood_at_voxel_dict[ndim][d1] = 'getNeighborhood%s%i'%(d1a,ndim)
+        except:
+            pass
+
 
 
 class ANTsImage(object):
@@ -326,7 +339,7 @@ class ANTsImage(object):
             d1 = self.pixeltype
             d2 = pixeltype
 
-            image_clone_fn = _image_clone_dict[ndim][d1][d2]
+            image_clone_fn = lib.__dict__[_image_clone_dict[ndim][d1][d2]]
             img_cloned = ANTsImage(image_clone_fn(self._img)) 
             return img_cloned
 
@@ -809,10 +822,21 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
     Returns
     -------
     if spatial_info is False:
-        ndarray
-            an array of pixel values where the number of rows is the size of the 
-            neighborhood and there is a column for each voxel
-    
+        if get_gradient is False:
+            ndarray
+                an array of pixel values where the number of rows is the size of the 
+                neighborhood and there is a column for each voxel
+
+        else if get_gradient is True:
+            dictionary w/ following key-value pairs:
+                values : ndarray
+                    array of pixel values where the number of rows is the size of the 
+                    neighborhood and there is a column for each voxel.
+
+                gradients : ndarray
+                    array providing the gradients at the center voxel of each 
+                    neighborhood
+        
     else if spatial_info is True:
         dictionary w/ following key-value pairs:
             values : ndarray
@@ -847,7 +871,7 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
     elif boundary_condition == 'mean':
         boundary = 2
     
-    get_neighborhood_matrix_fn = _get_neighborhood_matrix_dict[image.dimension][image.pixeltype]
+    get_neighborhood_matrix_fn = lib.__dict__[_get_neighborhood_matrix_dict[image.dimension][image.pixeltype]]
     retvals = get_neighborhood_matrix_fn(image._img, 
                                         mask._img, 
                                         list(radius),
@@ -868,5 +892,70 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
 
 
     return retvals
+
+
+def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False):
+    """
+    Get a hypercube neighborhood at a voxel. Get the values in a local 
+    neighborhood of an image.
+    
+    ANTsR function: `getNeighborhoodAtVoxel`
+
+    Arguments
+    ---------
+    image : ANTsImage
+        image to get values from.
+    
+    center : tuple/list
+        indices for neighborhood center
+    
+    kernel : tuple/list
+        either a collection of values for neighborhood radius (in voxels) or 
+        a binary collection of the same dimension as the image, specifying the shape of the neighborhood to extract
+    
+    physical_coordinates : boolean
+        whether voxel indices and offsets should be in voxel 
+        or physical coordinates
+
+    Returns
+    -------
+    dictionary w/ following key-value pairs:
+        values : ndarray
+            array of neighborhood values at the voxel
+
+        indices : ndarray
+            matrix providing the coordinates for each value
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.image_read(ants.get_ants_data('r16'))
+    >>> center = (2,2)
+    >>> radius = (3,3)
+    >>> retval = ants.get_neighborhood_at_voxel(img, center, radius)
+    """
+    if not isinstance(image, ANTsImage):
+        raise ValueError('image must be ANTsImage type')
+
+    if (not isinstance(center, (tuple,list))) or (len(center) != image.dimension):
+        raise ValueError('center must be tuple or list with length == image.dimension')
+
+    if (not isinstance(kernel, (tuple,list))) or (len(kernel) != image.dimension):
+        raise ValueError('kernel must be tuple or list with length == image.dimension')
+
+    radius = [int((k-1)/2) for k in kernel]
+
+    get_neighborhood_at_voxel_fn = lib.__dict__[_get_neighborhood_at_voxel_dict[image.dimension][image.pixeltype]]
+    retvals = get_neighborhood_at_voxel_fn(image._img, 
+                                            list(center), 
+                                            list(kernel), 
+                                            list(radius), 
+                                            int(physical_coordinates))
+    for k in retvals.keys():
+        retvals[k] = np.asarray(retvals[k])
+    return retvals
+
+
+
 
 

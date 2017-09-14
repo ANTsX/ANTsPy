@@ -323,6 +323,106 @@ py::dict getNeighborhoodMatrix( ANTsImage<itk::Image<PixelType,Dimension>> ants_
   return py::dict("values"_a=matrix, "indices"_a=indices, "offsets"_a=offsets);
 }
 
+
+template< class PixelType , unsigned int Dimension >
+py::dict getNeighborhood( ANTsImage<itk::Image<PixelType,Dimension>> ants_image,
+                          std::vector<float> index, 
+                          std::vector<float> kernel, 
+                          std::vector<int> radius, 
+                          int physicalFlag )
+{
+
+  typedef itk::Image<PixelType, Dimension> ImageType;
+  typedef typename ImageType::Pointer      ImagePointerType;
+  typedef typename ImageType::RegionType   RegionType;
+  typedef typename ImageType::IndexType    IndexType;
+
+  ImagePointerType image = as< ImageType >( ants_image );
+
+  //Rcpp::NumericVector kernel( r_kernel );
+  //Rcpp::NumericVector radius( r_radius );
+  //Rcpp::NumericVector index( r_index );
+  //int physicalFlag = Rcpp::as<int>( physical );
+
+  unsigned long maxSize = 0;
+  std::vector<int> offsets;
+  for ( unsigned int i=0; i<kernel.size(); i++ )
+    {
+    if ( kernel[i] > 1.e-6 ) // use epsilon instead of zero
+      {
+      offsets.push_back(i);
+      ++maxSize;
+      }
+    }
+
+  //Rcpp::NumericVector pixels(maxSize);
+  std::vector<float> pixels(maxSize);
+  std::vector<IndexType> indexList;
+  indexList.reserve(maxSize);
+
+  RegionType region;
+  typename itk::NeighborhoodIterator<ImageType>::SizeType nRadius;
+
+  for ( unsigned int i=0; i<Dimension; i++ )
+    {
+    nRadius[i] = radius[i];
+    region.SetSize(i, 1);
+    region.SetIndex(i, index[i]-1); // R-to-ITK index conversion
+    }
+
+  RegionType imageSize = image->GetLargestPossibleRegion();
+  itk::NeighborhoodIterator<ImageType> nit( nRadius, image, region );
+
+  unsigned int idx = 0;
+  for (unsigned int i = 0; i < offsets.size(); i++ )
+    {
+    //Rcpp::Rcout << nit.GetIndex(i) << ":" << offsets[i] << "=" << kernel[offsets[i]] << std::endl;
+    if ( kernel[offsets[i]] > 1e-6 )
+      {
+      if ( imageSize.IsInside( nit.GetIndex(offsets[i]) ) )
+        {
+        pixels[idx] = nit.GetPixel(offsets[i]);
+        }
+      else
+        {
+        pixels[idx] = 0.0;
+        }
+      indexList.push_back( nit.GetIndex(offsets[i]) );
+      ++idx;
+      }
+    }
+
+  //Rcpp::NumericMatrix indices( pixels.size(), Dimension );
+  std::vector<std::vector<float> > indices(pixels.size(), std::vector<float>(Dimension));
+
+  for ( unsigned int i=0; i<pixels.size(); i++)
+    {
+    typename ImageType::PointType pt;
+    if ( physicalFlag )
+      {
+      image->TransformIndexToPhysicalPoint( indexList[i], pt );
+      }
+
+    for ( unsigned int j=0; j<Dimension; j++)
+      {
+      if ( !physicalFlag )
+        {
+        indices[i][j] = indexList[i][j] + 1; // ITK-to-R index conversion
+        }
+      else
+        {
+        indices[i][j] = pt[j];
+        }
+      }
+    }
+
+  //return Rcpp::List::create( Rcpp::Named("values") = pixels,
+  //                           Rcpp::Named("indices") = indices );
+  return py::dict("values"_a=pixels, "indices"_a=indices);
+
+}
+
+
 PYBIND11_MODULE(getNeighborhoodMatrix, m)
 {
     m.def("getNeighborhoodMatrixUC2", &getNeighborhoodMatrix<unsigned char,2>);
@@ -340,6 +440,22 @@ PYBIND11_MODULE(getNeighborhoodMatrix, m)
     m.def("getNeighborhoodMatrixD2", &getNeighborhoodMatrix<double,2>);
     m.def("getNeighborhoodMatrixD3", &getNeighborhoodMatrix<double,3>);
     m.def("getNeighborhoodMatrixD4", &getNeighborhoodMatrix<double,4>);
+
+    m.def("getNeighborhoodUC2", &getNeighborhood<unsigned char,2>);
+    m.def("getNeighborhoodUC3", &getNeighborhood<unsigned char,3>);
+    m.def("getNeighborhoodUC4", &getNeighborhood<unsigned char,4>);
+
+    m.def("getNeighborhoodUI2", &getNeighborhood<unsigned int,2>);
+    m.def("getNeighborhoodUI3", &getNeighborhood<unsigned int,3>);
+    m.def("getNeighborhoodUI4", &getNeighborhood<unsigned int,4>);
+    
+    m.def("getNeighborhoodF2", &getNeighborhood<float,2>);
+    m.def("getNeighborhoodF3", &getNeighborhood<float,3>);
+    m.def("getNeighborhoodF4", &getNeighborhood<float,4>);
+    
+    m.def("getNeighborhoodD2", &getNeighborhood<double,2>);
+    m.def("getNeighborhoodD3", &getNeighborhood<double,3>);
+    m.def("getNeighborhoodD4", &getNeighborhood<double,4>);
 }
 
 
