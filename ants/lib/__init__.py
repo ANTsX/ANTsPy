@@ -27,6 +27,7 @@ from .ResampleImage import *
 from .CreateJacobianDeterminantImage import *
 from .reflectionMatrix import *
 from .reorientImage import *
+from .fsl2antstransform import *
 
 ## -------------
 ## UTILS ##

@@ -38,6 +38,7 @@ pybind11_add_module(antsApplyTransforms antsApplyTransforms.cxx)
 pybind11_add_module(CreateJacobianDeterminantImage CreateJacobianDeterminantImage.cxx)
 pybind11_add_module(ResampleImage ResampleImage.cxx)
 pybind11_add_module(antsAffineInitializer antsAffineInitializer.cxx)
+pybind11_add_module(fsl2antstransform fsl2antstransform.cxx)
 
 ## LEARN
 pybind11_add_module(sccaner sccaner.cxx)
@@ -84,6 +85,7 @@ target_link_libraries(antsApplyTransforms PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(CreateJacobianDeterminantImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsAffineInitializer PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(fsl2antstransform PRIVATE ${ITK_LIBRARIES})
 
 ## LEARN
 target_link_libraries(sccaner PRIVATE ${ITK_LIBRARIES})
