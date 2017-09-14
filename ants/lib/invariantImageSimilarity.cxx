@@ -529,6 +529,27 @@ std::vector<std::vector<float> > invariantImageSimilarity(ANTsImage<itk::Image<f
     }
 }
 
+
+template <class PixelType, unsigned int Dimension>
+ANTsImage<itk::Image<PixelType,Dimension>> convolveImage( ANTsImage<itk::Image<PixelType,Dimension>> ants_image,
+                                    ANTsImage<itk::Image<PixelType,Dimension>> ants_kernel )
+{
+  typedef itk::Image<PixelType,Dimension> ImageType;
+  typedef typename ImageType::Pointer ImagePointerType;
+  ImagePointerType image = as< ImageType >( ants_image );
+  ImagePointerType kernel = as< ImageType >( ants_kernel );
+
+  typedef itk::ConvolutionImageFilter<ImageType> FilterType;
+  typename FilterType::Pointer convolutionFilter = FilterType::New();
+  convolutionFilter->SetInput( image );
+  convolutionFilter->SetKernelImage( kernel );
+  convolutionFilter->Update();
+
+  ANTsImage<ImageType> convOutput = wrap< ImageType >( convolutionFilter->GetOutput() );
+  return convOutput;
+
+}
+
 PYBIND11_MODULE(invariantImageSimilarity, m)
 {
   // whichTx : 0=affine, 1 = similarity, 2 = rigid
@@ -538,6 +559,11 @@ PYBIND11_MODULE(invariantImageSimilarity, m)
   m.def("invariantImageSimilarity_Similarity3D", &invariantImageSimilarity<itk::Similarity3DTransform<double>,3>);
   m.def("invariantImageSimilarity_Rigid2D", &invariantImageSimilarity<itk::Euler2DTransform<double>,2>);
   m.def("invariantImageSimilarity_Rigid3D", &invariantImageSimilarity<itk::Euler3DTransform<double>,3>);
+
+  m.def("convolveImageF2", &convolveImage<float, 2>);
+  m.def("convolveImageF3", &convolveImage<float, 3>);
+  m.def("convolveImageF4", &convolveImage<float, 4>);
+
 }
 
 

@@ -214,6 +214,8 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
             raise ValueError('Num given voxels %i not same as num positive values %i in `imagesize`' % (len(voxval), np.sum(sel)))
         return img
     else:
+        if isinstance(voxval, (tuple,list,np.ndarray)):
+            voxval = np.asarray(voxval).reshape(imagesize)
         array = np.zeros(imagesize) + voxval
         image = from_numpy(array, origin=origin, spacing=spacing, direction=direction, has_components=has_components)
         return image.clone(pixeltype)

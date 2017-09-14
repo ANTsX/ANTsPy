@@ -1,5 +1,6 @@
 
-__all__ = ['invariant_image_similarity']
+__all__ = ['invariant_image_similarity',
+           'convolve_image']
 
 import math
 from tempfile import mktemp
@@ -9,7 +10,7 @@ import pandas as pd
 
 from .. import lib
 from .. import utils
-
+from ..core import ants_image as iio
 
 _invariant_image_similarity_dict = {
     2 : {
@@ -23,6 +24,21 @@ _invariant_image_similarity_dict = {
         'Rigid': lib.invariantImageSimilarity_Rigid3D
     }
 }
+
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_short_ptype_map = {
+    'unsigned char' : 'UC',
+    'unsigned int': 'UI',
+    'float': 'F',
+    'double' : 'D'
+}
+
+
+# pick up lib.convolveImageX functions
+_convolve_image_dict = {}
+for ndim in {2,3,4}:
+    _convolve_image_dict[ndim] = 'convolveImageF%i' % ndim
+
 
 def invariant_image_similarity(in_image1, in_image2, 
                                 local_search_iterations=0, metric='MI', 
@@ -210,7 +226,61 @@ def invariant_image_similarity(in_image1, in_image2,
             return r4, txfn4
 
 
+def convolve_image(image, kernel_image, crop=True):
+    """
+    Convolve one image with another
 
+    ANTsR function: `convolveImage`
+
+    Arguments
+    ---------
+    image : ANTsImage
+        image to convolve
+
+    kernel_image : ANTsImage
+        image acting as kernel
+
+    crop : boolean
+        whether to automatically crop kernel_image
+
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> import ants
+    >>> fi = ants.image_reead(ants.get_ants_data('r16'))
+    >>> convimg = ants.make_image( (3,3), (1,0,1,0,-4,0,1,0,1) )
+    >>> convout = ants.convolve_image( fi, convimg )
+    >>> convimg2 = ants.make_image( (3,3), (0,1,0,1,0,-1,0,-1,0) )
+    >>> convout2 = ants.convolve_image( fi, convimg2 )
+    """
+    if not isinstance(image, iio.ANTsImage):
+        raise ValueError('image must be ANTsImage type')
+    if not isinstance(kernel_image, iio.ANTsImage):
+        raise ValueError('kernel must be ANTsImage type')
+    
+    orig_ptype = image.pixeltype
+    if image.pixeltype != 'float':
+        image = image.clone('float')
+    if kernel_image.pixeltype != 'float':
+        kernel_image = kernel_image.clone('float')
+
+    if crop:
+        kernel_image_mask = utils.get_mask(kernel_image)
+        kernel_image = utils.crop_image(kernel_image, kernel_image_mask)
+        kernel_image_mask = utils.crop_image(kernel_image_mask, kernel_image_mask)
+        kernel_image[kernel_image_mask==0] = kernel_image[kernel_image_mask==1].mean()
+
+    convolve_image_fn = lib.__dict__[_convolve_image_dict[image.dimension]]
+    conv_itk_image = convolve_image_fn(image._img, kernel_image._img)
+    conv_ants_image = iio.ANTsImage(conv_itk_image)
+
+    if orig_ptype != 'float':
+        conv_ants_image = conv_ants_image.clone(orig_ptype)
+
+    return conv_ants_image
 
 
 
