@@ -62,6 +62,7 @@ def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
 
     Example
     -------
+    >>> import ants
     >>> img = ants.image_read(ants.get_ants_data('simple'))
     >>> img = ants.n3_bias_field_correction(img, 4)
     >>> img = ants.n3_bias_field_correction(img, 2)
@@ -77,7 +78,7 @@ def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
         vesselopt = 'none'
 
     idim = img[0].dimension
-    mrfterm = '[%s,%s]' % (str(mrfval), 'x'.join([1]*idim))
+    mrfterm = '[%s,%s]' % (str(mrfval), 'x'.join(['1']*idim))
     atroposits = '[%s,0]' % (str(atroposits))
 
     # 1 vessels via bright / dark
