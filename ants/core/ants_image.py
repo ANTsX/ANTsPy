@@ -588,6 +588,7 @@ class ANTsImage(object):
         return s
 
 
+# Set partial class methods for any functions which take an ANTsImage as the first argument
 _utils_partial_dict = {k:v for k,v in utils.__dict__.items() if callable(v) and (inspect.getargspec(getattr(utils,k)).args[0] in {'img','image'})}
 _reg_partial_dict = {k:v for k,v in registration.__dict__.items() if callable(v) and (inspect.getargspec(getattr(registration,k)).args[0] in {'img','image'})}
 _seg_partial_dict = {k:v for k,v in segmentation.__dict__.items() if callable(v) and (inspect.getargspec(getattr(segmentation,k)).args[0] in {'img','image'})}
