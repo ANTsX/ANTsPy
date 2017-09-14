@@ -77,7 +77,6 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     >>> img = ants.resample_image(img, (64,64), 1, 0)
     >>> mask = ants.get_mask(img)
     >>> ants.atropos( a = img, m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
-
     """
     probs = mktemp(prefix='antsr', suffix='prob%02d.nii.gz')
     tdir = probs.replace(os.path.basename(probs),'')
@@ -86,7 +85,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
 
     ct = 0
     if isinstance(i, (list,tuple)) and (len(i) > 1):
-        while ct <= len(i):
+        while ct < len(i):
             probchar = str(ct)
             if ct < 10:
                 probchar = '0%s' % probchar
