@@ -9,6 +9,7 @@ __all__ = ['image_header_info',
            'make_image',
            'matrix_to_images',
            'images_from_matrix',
+           'image_list_to_matrix',
            'images_to_matrix',
            'matrix_from_images',
            'from_numpy',
@@ -315,7 +316,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
         else:
             data_matrix[i,:] = listfunc(img)
     return data_matrix
-#image_list_to_matrix = images_to_matrix
+image_list_to_matrix = images_to_matrix
 matrix_from_images = images_to_matrix
 
 
