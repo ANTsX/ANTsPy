@@ -18,6 +18,7 @@ __all__ = ['image_header_info',
 import os
 import json
 import numpy as np
+import weakref
 
 from . import ants_image as iio
 from . import ants_transform as tio
@@ -29,63 +30,63 @@ from .. import registration as reg
 _image_read_dict = {
     'scalar' : {
         'unsigned char': {
-            2: lib.imageReadUC2,
-            3: lib.imageReadUC3
+            2: 'imageReadUC2',
+            3: 'imageReadUC3'
         },
         'unsigned int': {
-            2: lib.imageReadUI2,
-            3: lib.imageReadUI3
+            2: 'imageReadUI2',
+            3: 'imageReadUI3'
         },
         'float': {
-            2: lib.imageReadF2,
-            3: lib.imageReadF3
+            2: 'imageReadF2',
+            3: 'imageReadF3'
         },
         'double': {
-            2: lib.imageReadD2,
-            3: lib.imageReadD3
+            2: 'imageReadD2',
+            3: 'imageReadD3'
         }
     },
     'vector' : {
         'unsigned char': {
-            2: lib.imageReadVUC2,
-            3: lib.imageReadVUC3
+            2: 'imageReadVUC2',
+            3: 'imageReadVUC3'
         },
         'unsigned int': {
-            2: lib.imageReadVUI2,
-            3: lib.imageReadVUI3
+            2: 'imageReadVUI2',
+            3: 'imageReadVUI3'
         },
         'float': {
-            2: lib.imageReadVF2,
-            3: lib.imageReadVF3
+            2: 'imageReadVF2',
+            3: 'imageReadVF3'
         },
         'double': {
-            2: lib.imageReadVD2,
-            3: lib.imageReadVD3
+            2: 'imageReadVD2',
+            3: 'imageReadVD3'
         }
     },
     'rgb' : {
         'unsigned char': {
-            3: lib.imageReadRGBUC3
+            3: 'imageReadRGBUC3'
         }
     }
 }
 
 _from_numpy_dict = {
     'uint8': {
-        2: lib.fromNumpyUC2,
-        3: lib.fromNumpyUC3
+        2: 'fromNumpyUC2',
+        3: 'fromNumpyUC3'
     },
     'uint32': {
-        2: lib.fromNumpyUI2,
-        3: lib.fromNumpyUI3
+        2: 'fromNumpyUI2',
+        3: 'fromNumpyUI3'
     },
     'float32': {
-        2: lib.fromNumpyF2,
-        3: lib.fromNumpyF3
+        2: 'fromNumpyF2',
+        3: 'fromNumpyF3'
     },
     'float64': {
-        2: lib.fromNumpyD2,
-        3: lib.fromNumpyD3
+        2: 'fromNumpyD2',
+        3: 'fromNumpyD3'
     }
 }
 
@@ -157,7 +158,7 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     if direction is None:
         direction = np.eye(ndim)
 
-    from_numpy_fn = _from_numpy_dict[dtype][ndim]
+    from_numpy_fn = lib.__dict__[_from_numpy_dict[dtype][ndim]]
 
     if not has_components:
         itk_image = from_numpy_fn(data, data.shape[::-1], origin, spacing, direction)
@@ -419,7 +420,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
         if ptype in _unsupported_ptypes:
             ptype = _unsupported_ptype_map[ptype]
 
-        read_fn = _image_read_dict[pclass][ptype][ndim]
+        read_fn = lib.__dict__[_image_read_dict[pclass][ptype][ndim]]
         itk_ants_image = read_fn(filename)
         ants_image = iio.ANTsImage(itk_ants_image)
 
