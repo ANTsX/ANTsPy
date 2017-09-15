@@ -8,6 +8,7 @@ from .get_mask import *
 from .image_similarity import *
 from .image_to_cluster_images import *
 from .iMath import *
+from .impute import *
 from .invariant_image_similarity import *
 from .label_clusters import *
 from .label_stats import *

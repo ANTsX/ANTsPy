@@ -1,5 +1,7 @@
 
 
+
+
 ## -------------
 ## CORE ##
 from .antsImage import *
@@ -45,6 +47,10 @@ from .mergeChannels import *
 from .DenoiseImage import *
 from .weingartenImageCurvature import *
 from .labelStats import *
+
+## -------------
+## EXPERIMENTAL
+#from .destroyImage import *
 
 ## -------------
 ## VIZ ##
