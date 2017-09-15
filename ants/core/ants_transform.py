@@ -408,27 +408,7 @@ def transform_index_to_physical_point(img, index):
     if len(index) != img.dimension:
         raise ValueError('len(index) != img.dimension')
 
-    return img.transform_index_to_physical_point(index)
-
-
-
-    if (class(x)[1] != "antsImage") {
-        stop("Input must be of class 'antsImage'")
-    }
-    if ((class(index) != "numeric") && (class(index) != "matrix")) {
-        stop("index must be of class 'numeric' or 'matrix'")
-    }
-    if (class(index) == "numeric") {
-        index <- t(as.matrix(index))
-    }
-    imgdim <- length(dim(x))
-    if (dim(index)[2] != imgdim) {
-        stop(paste("Index matrix must be of size N x", imgdim))
-    }
-    return(.Call("antsImage_TransformIndexToPhysicalPoint", x, 
-        index, PACKAGE = "ANTsRCore"))
-}
-
+    #return img.transform_index_to_physical_point(index)
 
 
 

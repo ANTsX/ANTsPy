@@ -12,6 +12,7 @@ from .impute import *
 from .invariant_image_similarity import *
 from .label_clusters import *
 from .label_stats import *
+from .labels_to_matrix import *
 from .morphology import *
 from .mask_image import *
 from .mni2tal import *
