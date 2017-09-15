@@ -77,7 +77,7 @@ void testPrint( py::object &myImage )
 template <typename ImageType>
 void wrapReadImage(py::module & m, std::string const & suffix) {
     m.def(("imageRead" + suffix).c_str(), &imageRead<ImageType>,
-         "Read ANTsImage from file", py::return_value_policy::reference_internal);
+         "Read ANTsImage from file");
 }
 
 

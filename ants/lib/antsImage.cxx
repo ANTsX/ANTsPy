@@ -57,7 +57,7 @@ std::string ptrstr(py::capsule c)
 
 template <typename ImageType, unsigned int ndim>
 void wrapANTsImage(py::module & m, std::string const & suffix) {
-    py::class_<ANTsImage<ImageType>, std::shared_ptr<ANTsImage<ImageType>>>(m, ("ANTsImage" + suffix).c_str())
+    py::class_<ANTsImage<ImageType>>(m, ("ANTsImage" + suffix).c_str())
         //.def(py::init<>())
 
         // read only properties
