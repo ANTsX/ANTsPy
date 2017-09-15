@@ -5,13 +5,14 @@
 ## -------------
 ## CORE ##
 from .antsImage import *
-from .readImage import *
-from .antsTransform import *
-from .readTransform import *
-from .antsImageToImageMetric import *
-from .antsImageHeaderInfo import *
 from .antsImageClone import *
+from .antsImageHeaderInfo import *
+from .antsImageToImageMetric import *
+from .antsImageUtils import *
+from .antsTransform import *
 from .getNeighborhoodMatrix import *
+from .readImage import *
+from .readTransform import *
 
 ## -------------
 ## SEGMENTATION ##

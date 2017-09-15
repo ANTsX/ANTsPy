@@ -12,7 +12,7 @@ __all__ = ['set_ants_transform_parameters',
            'invert_ants_transform',
            'compose_ants_transforms']
 
-from . import ants_image
+from . import ants_image as iio
 from .. import lib
 
 _compose_transforms_dict = {
@@ -160,7 +160,7 @@ class ANTsTransform(object):
 
         reference = reference.clone(image.pixeltype)
 
-        return ants_image.ANTsImage(tform_fn(image._img, reference._img, interpolation))
+        return iio.ANTsImage(tform_fn(image._img, reference._img, interpolation))
 
     def __repr__(self):
         s = "ANTsTransform\n" +\
@@ -373,6 +373,70 @@ def compose_ants_transforms(transform_list):
 
     itk_composed_tx = compose_transform_fn(transform_list, precision, dimension)
     return ANTsTransform(itk_composed_tx)
+
+
+def transform_index_to_physical_point(img, index):
+    """
+    Get spatial point from index of an image.
+
+    ANTsR function: `antsTransformIndexToPhysicalPoint`
+    
+    Arguments
+    ---------
+    img : ANTsImage
+        image to get values from
+
+    index : tuple/list
+        location in image
+
+    Returns
+    -------
+    tuple
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.make_image((10,10),np.random.randn(100))
+    >>> pt = ants.transform_index_to_physical_point(img, (2,2))
+    """
+    if not isinstance(img, iio.ANTsImage):
+        raise ValueError('img must be ANTsImage type')
+
+    if not isinstance(index, (tuple,list)):
+        raise ValueError('index must be tuple or list')
+
+    if len(index) != img.dimension:
+        raise ValueError('len(index) != img.dimension')
+
+    return img.transform_index_to_physical_point(index)
+
+
+
+    if (class(x)[1] != "antsImage") {
+        stop("Input must be of class 'antsImage'")
+    }
+    if ((class(index) != "numeric") && (class(index) != "matrix")) {
+        stop("index must be of class 'numeric' or 'matrix'")
+    }
+    if (class(index) == "numeric") {
+        index <- t(as.matrix(index))
+    }
+    imgdim <- length(dim(x))
+    if (dim(index)[2] != imgdim) {
+        stop(paste("Index matrix must be of size N x", imgdim))
+    }
+    return(.Call("antsImage_TransformIndexToPhysicalPoint", x, 
+        index, PACKAGE = "ANTsRCore"))
+}
+
+
+
+
+
+
+
+
+
 
 
 

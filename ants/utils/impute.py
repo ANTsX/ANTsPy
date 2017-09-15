@@ -14,6 +14,8 @@ except:
 def impute(data, method='mean', value=None, nan_value=np.nan):
     """
     Impute missing values on a numpy ndarray in a column-wise manner.
+    
+    ANTsR function: `antsrimpute`
 
     Arguments
     ---------
