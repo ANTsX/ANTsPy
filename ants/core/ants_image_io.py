@@ -340,7 +340,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
     filename : string
         Name of the file to read the image from.
     
-    dimension : integer (optional)
+    dimension : int
         Number of dimensions of the image read. This need not be the same as 
         the dimensions of the image in the file. Allowed values: 2, 3, 4. 
         If not provided, the dimension is obtained from the image file
@@ -348,8 +348,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
     pixeltype : string
         C++ datatype to be used to represent the pixels read. This datatype 
         need not be the same as the datatype used in the file. 
-        Options: 
-            'double', 'float', 'unsigned int', 'unsigned char'
+        Options: unsigned char, unsigned int, float, double
 
     Returns
     -------
