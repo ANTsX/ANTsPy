@@ -10,7 +10,9 @@ __all__ = ['set_ants_transform_parameters',
            'apply_ants_transform_to_vector',
            'apply_ants_transform_to_image',
            'invert_ants_transform',
-           'compose_ants_transforms']
+           'compose_ants_transforms',
+           'transform_index_to_physical_point',
+           'transform_physical_point_to_index']
 
 from . import ants_image as iio
 from .. import lib
@@ -422,6 +424,7 @@ def transform_index_to_physical_point(img, index):
     Example
     -------
     >>> import ants
+    >>> import numpy as np
     >>> img = ants.make_image((10,10),np.random.randn(100))
     >>> pt = ants.transform_index_to_physical_point(img, (2,2))
     """
@@ -434,11 +437,12 @@ def transform_index_to_physical_point(img, index):
     if len(index) != img.dimension:
         raise ValueError('len(index) != img.dimension')
 
+    index = [i+1 for i in index]
     d = img.dimension
     p = img.pixeltype
     tx_fn = lib.__dict__[_transform_index_to_physical_point_dict[d][p]]
-    point = tx_fn(img._img, list(index))
-    return point
+    point = tx_fn(img._img, [list(index)])
+    return point[0]
 
 
 def transform_physical_point_to_index(img, point):
@@ -462,8 +466,11 @@ def transform_physical_point_to_index(img, point):
     Example
     -------
     >>> import ants
+    >>> import numpy as np
     >>> img = ants.make_image((10,10),np.random.randn(100))
     >>> idx = ants.transform_physical_point_to_index(img, (2,2))
+    >>> img.set_spacing((2,2))
+    >>> idx2 = ants.transform_physical_point_to_index(img, (4,4))
     """
     if not isinstance(img, iio.ANTsImage):
         raise ValueError('img must be ANTsImage type')
@@ -477,7 +484,8 @@ def transform_physical_point_to_index(img, point):
     d = img.dimension
     p = img.pixeltype
     tx_fn = lib.__dict__[_transform_physical_point_to_index_dict[d][p]]
-    index = tx_fn(img._img, list(point))
+    index = tx_fn(img._img, [list(point)])
+    index = [i-1 for i in index[0]]
     return index
 
 
