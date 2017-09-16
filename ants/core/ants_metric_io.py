@@ -53,7 +53,6 @@ def create_ants_metric(fixed,
     """
     Arguments
     ---------
-
     metric_type : string
         which metric to use
         options:
