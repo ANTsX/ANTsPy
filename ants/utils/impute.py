@@ -19,10 +19,10 @@ def impute(data, method='mean', value=None, nan_value=np.nan):
 
     Arguments
     ---------
-    data : ndarray
+    data : numpy.ndarray
         data to impute
 
-    method : string or scalar
+    method : string or float
         type of imputation method to use
         Options:
             mean

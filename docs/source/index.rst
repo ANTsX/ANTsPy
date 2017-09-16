@@ -8,7 +8,7 @@
 ANTsPy documentation
 ===================================
 
-PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
+ANTsPy is an optimized and validated medical imaging library for Python.
 
 
 .. toctree::

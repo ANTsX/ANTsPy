@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# PyTorch documentation build configuration file, created by
+# ANTsPy documentation build configuration file, created by
 # sphinx-quickstart on Fri Dec 23 13:31:47 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -21,6 +21,7 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 import ants
+import numpy as np
 import sphinx_rtd_theme
 
 
@@ -60,9 +61,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'PyTorch'
-copyright = '2017, Torch Contributors'
-author = 'Torch Contributors'
+project = 'ANTsPy'
+copyright = '2017, ANTs Contributors'
+author = 'ANTs Contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -131,7 +132,7 @@ html_context = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PyTorchdoc'
+htmlhelp_basename = 'ANTsPydoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -157,10 +158,11 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, 'pytorch.tex', 'PyTorch Documentation',
-     'Torch Contributors', 'manual'),
-]
+#latex_documents = [
+#    (master_doc, 'pytorch.tex', 'PyTorch Documentation',
+#     'Torch Contributors', 'manual'),
+#]
+latex_documents = []
 
 
 # -- Options for manual page output ---------------------------------------
@@ -168,7 +170,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'PyTorch', 'PyTorch Documentation',
+    (master_doc, 'ANTsPy', 'ANTsPy Documentation',
      [author], 1)
 ]
 
@@ -179,8 +181,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PyTorch', 'PyTorch Documentation',
-     author, 'PyTorch', 'One line description of project.',
+    (master_doc, 'ANTsPy', 'ANTsPy Documentation',
+     author, 'ANTsPy', 'One line description of project.',
      'Miscellaneous'),
 ]
 
