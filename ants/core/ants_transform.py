@@ -15,18 +15,44 @@ __all__ = ['set_ants_transform_parameters',
 from . import ants_image as iio
 from .. import lib
 
-_compose_transforms_dict = {
-    'float': {
-        2: lib.composeTransformsF2,
-        3: lib.composeTransformsF3,
-        4: lib.composeTransformsF4
-    },
-    'double': {
-        2: lib.composeTransformsD2,
-        3: lib.composeTransformsD3,
-        4: lib.composeTransformsD4
-    }
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_short_ptype_map = {
+    'unsigned char' : 'UC',
+    'unsigned int': 'UI',
+    'float': 'F',
+    'double' : 'D'
 }
+
+
+_compose_transforms_dict = {}
+for ndim in {2,3,4}:
+    _compose_transforms_dict[ndim] = {}
+    for d1 in {'float', 'double'}:
+        d1a = _short_ptype_map[d1]
+        try:
+            _compose_transforms_dict[ndim][d1] = 'ComposeTransforms%s%i'%(d1a,ndim)
+        except:
+            pass
+
+_transform_index_to_physical_point_dict = {}
+for ndim in {2,3,4}:
+    _transform_index_to_physical_point_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        d1a = _short_ptype_map[d1]
+        try:
+            _transform_index_to_physical_point_dict[ndim][d1] = 'TransformIndexToPhysicalPoint%s%i'%(d1a,ndim)
+        except:
+            pass
+
+_transform_physical_point_to_index_dict = {}
+for ndim in {2,3,4}:
+    _transform_physical_point_to_index_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        d1a = _short_ptype_map[d1]
+        try:
+            _transform_physical_point_to_index_dict[ndim][d1] = 'TransformPhysicalPointToIndex%s%i'%(d1a,ndim)
+        except:
+            pass
 
 class ANTsTransform(object):
 
@@ -369,7 +395,7 @@ def compose_ants_transforms(transform_list):
             raise ValueError('All transforms must have the same dimension')
 
     transform_list = list(reversed([tf._tx for tf in transform_list]))
-    compose_transform_fn = _compose_transforms_dict[precision][dimension]
+    compose_transform_fn = lib.__dict__[_compose_transforms_dict[dimension][precision]]
 
     itk_composed_tx = compose_transform_fn(transform_list, precision, dimension)
     return ANTsTransform(itk_composed_tx)
@@ -408,10 +434,51 @@ def transform_index_to_physical_point(img, index):
     if len(index) != img.dimension:
         raise ValueError('len(index) != img.dimension')
 
-    #return img.transform_index_to_physical_point(index)
+    d = img.dimension
+    p = img.pixeltype
+    tx_fn = lib.__dict__[_transform_index_to_physical_point_dict[d][p]]
+    point = tx_fn(img._img, list(index))
+    return point
 
 
+def transform_physical_point_to_index(img, point):
+    """
+    Get index from spatial point of an image.
 
+    ANTsR function: `antsTransformPhysicalPointToIndex`
+    
+    Arguments
+    ---------
+    img : ANTsImage
+        image to get values from
+
+    point : tuple/list
+        point in image
+
+    Returns
+    -------
+    tuple
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.make_image((10,10),np.random.randn(100))
+    >>> idx = ants.transform_physical_point_to_index(img, (2,2))
+    """
+    if not isinstance(img, iio.ANTsImage):
+        raise ValueError('img must be ANTsImage type')
+
+    if not isinstance(point, (tuple,list)):
+        raise ValueError('point must be tuple or list')
+
+    if len(point) != img.dimension:
+        raise ValueError('len(index) != img.dimension')
+
+    d = img.dimension
+    p = img.pixeltype
+    tx_fn = lib.__dict__[_transform_physical_point_to_index_dict[d][p]]
+    index = tx_fn(img._img, list(point))
+    return index
 
 
 
