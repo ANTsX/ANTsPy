@@ -27,86 +27,51 @@ from .. import utils
 from .. import registration as reg
 
 
-_image_read_dict = {
-    'scalar' : {
-        'unsigned char': {
-            2: 'imageReadUC2',
-            3: 'imageReadUC3'
-        },
-        'unsigned int': {
-            2: 'imageReadUI2',
-            3: 'imageReadUI3'
-        },
-        'float': {
-            2: 'imageReadF2',
-            3: 'imageReadF3'
-        },
-        'double': {
-            2: 'imageReadD2',
-            3: 'imageReadD3'
-        }
-    },
-    'vector' : {
-        'unsigned char': {
-            2: 'imageReadVUC2',
-            3: 'imageReadVUC3'
-        },
-        'unsigned int': {
-            2: 'imageReadVUI2',
-            3: 'imageReadVUI3'
-        },
-        'float': {
-            2: 'imageReadVF2',
-            3: 'imageReadVF3'
-        },
-        'double': {
-            2: 'imageReadVD2',
-            3: 'imageReadVD3'
-        }
-    },
-    'rgb' : {
-        'unsigned char': {
-            3: 'imageReadRGBUC3'
-        }
-    }
-}
-
-_from_numpy_dict = {
-    'uint8': {
-        2: 'fromNumpyUC2',
-        3: 'fromNumpyUC3'
-    },
-    'uint32': {
-        2: 'fromNumpyUI2',
-        3: 'fromNumpyUI3'
-    },
-    'float32': {
-        2: 'fromNumpyF2',
-        3: 'fromNumpyF3'
-    },
-    'float64': {
-        2: 'fromNumpyD2',
-        3: 'fromNumpyD3'
-    }
-}
-
-_short_ptype_map = {
-    'unsigned char' : 'UC',
-    'unsigned int': 'UI',
-    'float': 'F',
-    'double' : 'D'
-}
-
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_supported_ntypes = {'uint8', 'uint32', 'float32', 'float64'}
 _unsupported_ptypes = {'char', 'unsigned short', 'short', 'int'}
-# if image is an unsupported pixeltype, 
-# it will be up-mapped to closest supported type
 _unsupported_ptype_map = {
     'char': 'float',
     'unsigned short': 'unsigned int',
     'short': 'float',
     'int': 'float',
 }
+_image_type_map = {
+    'scalar': '',
+    'vector': 'V',
+    'rgb': 'RGB'
+}
+_ptype_type_map = {
+    'unsigned char': 'UC',
+    'unsigned int': 'UI',
+    'float': 'F',
+    'double': 'D'
+}
+_ntype_type_map = {
+    'uint8': 'UC',
+    'uint32': 'UI',
+    'float32': 'F',
+    'float64': 'D'
+}
+
+_image_read_dict = {}
+for itype in {'scalar', 'vector', 'rgb'}:
+    _image_read_dict[itype] = {}
+    for p in _supported_ptypes:
+        _image_read_dict[itype][p] = {}
+        for d in {2,3}:
+            ita = _image_type_map[itype]
+            pa = _ptype_type_map[p]
+            _image_read_dict[itype][p][d] = 'imageRead%s%s%i' % (ita,pa,d)
+
+_from_numpy_dict = {}
+for p in _supported_ntypes:
+    _from_numpy_dict[p] = {}
+    for d in {2,3}:
+        ita = _image_type_map[itype]
+        pa = _ntype_type_map[p]
+        _from_numpy_dict[p][d] = 'fromNumpy%s%i' % (pa,d)
+
 
 
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
