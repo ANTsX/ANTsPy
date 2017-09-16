@@ -1,4 +1,4 @@
-Vis
+Visualization
 ===================================
 .. automodule:: ants
 

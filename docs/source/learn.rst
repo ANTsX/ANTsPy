@@ -1,4 +1,4 @@
-Learn
+Statistical Learning
 ===================================
 .. automodule:: ants
 
