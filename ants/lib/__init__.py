@@ -1,7 +1,4 @@
 
-
-
-
 ## -------------
 ## CORE ##
 from .antsImage import *
@@ -55,16 +52,17 @@ from .labelStats import *
 
 ## -------------
 ## VIZ ##
+from .CreateTiledMosaic import *
+
 try:
     from .antsSurf import *
 except:
     pass
-    #print('cant import antsSurf')
+
 try:
     from .antsVol import *
 except:
     pass
-    #print('cant import antsVol')
 
 try:
     from .ConvertScalarImageToRGB import *

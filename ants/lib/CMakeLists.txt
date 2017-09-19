@@ -60,6 +60,9 @@ pybind11_add_module(reorientImage reorientImage.cxx)
 pybind11_add_module(weingartenImageCurvature weingartenImageCurvature.cxx)
 pybind11_add_module(labelStats labelStats.cxx)
 
+## VISUALIZATION
+pybind11_add_module(CreateTiledMosaic CreateTiledMosaic.cxx)
+
 ## EXPERIMENTAL
 # pybind11_add_module(destroyImage destroyImage.cxx)
 
@@ -110,6 +113,9 @@ target_link_libraries(DenoiseImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(reorientImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(weingartenImageCurvature PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(labelStats PRIVATE ${ITK_LIBRARIES})
+
+## VISUALIZATION
+target_link_libraries(CreateTiledMosaic PRIVATE ${ITK_LIBRARIES})
 
 ## EXPERIMENTAL
 # target_link_libraries(destroyImage PRIVATE ${ITK_LIBRARIES})
