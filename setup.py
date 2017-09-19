@@ -102,6 +102,8 @@ setup(
     classifiers=['Programming Language :: Python :: 3.6']
 )
 
+# add this second setup command as a temporary fix for when
+# the compiled libraries do not get found initially
 setup(
     name='ants',
     version='0.1.2',
