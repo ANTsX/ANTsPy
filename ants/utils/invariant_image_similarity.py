@@ -12,18 +12,7 @@ from .. import lib
 from .. import utils
 from ..core import ants_image as iio
 
-_invariant_image_similarity_dict = {
-    2 : {
-        'Affine': lib.invariantImageSimilarity_Affine2D,
-        'Similarity': lib.invariantImageSimilarity_Similarity2D,
-        'Rigid': lib.invariantImageSimilarity_Rigid2D
-    },
-    3 : {
-        'Affine': lib.invariantImageSimilarity_Affine3D,
-        'Similarity': lib.invariantImageSimilarity_Similarity3D,
-        'Rigid': lib.invariantImageSimilarity_Rigid3D
-    }
-}
+
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _short_ptype_map = {
@@ -33,6 +22,18 @@ _short_ptype_map = {
     'double' : 'D'
 }
 
+_invariant_image_similarity_dict = {
+    2 : {
+        'Affine': 'invariantImageSimilarity_Affine2D',
+        'Similarity': 'invariantImageSimilarity_Similarity2D',
+        'Rigid': 'invariantImageSimilarity_Rigid2D'
+    },
+    3 : {
+        'Affine': 'invariantImageSimilarity_Affine3D',
+        'Similarity': 'invariantImageSimilarity_Similarity3D',
+        'Rigid': 'invariantImageSimilarity_Rigid3D'
+    }
+}
 
 # pick up lib.convolveImageX functions
 _convolve_image_dict = {}
@@ -129,7 +130,7 @@ def invariant_image_similarity(in_image1, in_image2,
     fpname = ['FixedParam%i'%i for i in range(1,idim+1)]
 
     if not do_reflection:
-        invariant_image_similarity_fn = _invariant_image_similarity_dict[idim][transform]
+        invariant_image_similarity_fn = lib.__dict__[_invariant_image_similarity_dict[idim][transform]]
         r1 = invariant_image_similarity_fn(in_image1._img, 
                                             in_image2._img,
                                             list(thetain), 
@@ -153,7 +154,7 @@ def invariant_image_similarity(in_image1, in_image2,
         txfn3 = mktemp(suffix='.mat')
         txfn4 = mktemp(suffix='.mat')
 
-        invariant_image_similarity_fn = _invariant_image_similarity_dict[idim][transform]
+        invariant_image_similarity_fn = lib.__dict__[_invariant_image_similarity_dict[idim][transform]]
 
         ## R1 ##
         r1 = invariant_image_similarity_fn(in_image1._img,

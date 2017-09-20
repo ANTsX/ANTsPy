@@ -14,17 +14,17 @@ from .. import lib
 
 _reorient_image_dict = {
     'float': {
-        2: lib.reorientImageF2,
-        3: lib.reorientImageF3,
-        4: lib.reorientImageF4
+        2: 'reorientImageF2',
+        3: 'reorientImageF3',
+        4: 'reorientImageF4'
     } 
 }
 
 _center_of_mass_dict = {
     'float': {
-        2: lib.centerOfMassF2,
-        3: lib.centerOfMassF3,
-        4: lib.centerOfMassF4
+        2: 'centerOfMassF2',
+        3: 'centerOfMassF3',
+        4: 'centerOfMassF4'
     }
 }
 
@@ -104,7 +104,7 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
     if len(doscale) == 1:
         doscale = [doscale[0]]*img.dimension
 
-    reorient_image_fn = _reorient_image_dict[img.pixeltype][img.dimension]
+    reorient_image_fn = lib.__dict__[_reorient_image_dict[img.pixeltype][img.dimension]]
     reorient_image_fn(img._img, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
     img2 = apply_transforms(img, img, transformlist=[txfn])
 
@@ -141,7 +141,7 @@ def get_center_of_mass(img):
     if img.pixeltype != 'float':
         img = img.clone('float')
 
-    center_of_mass_fn = _center_of_mass_dict[img.pixeltype][img.dimension]
+    center_of_mass_fn = lib.__dict__[_center_of_mass_dict[img.pixeltype][img.dimension]]
     com = center_of_mass_fn(img._img)
 
     return tuple(com)

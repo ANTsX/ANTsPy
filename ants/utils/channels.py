@@ -8,52 +8,29 @@ from ..core import ants_image as iio
 from .. import lib
 
 
-_merge_channels_dict = {
-    'unsigned char' : {
-        2: lib.mergeChannelsUC2,
-        3: lib.mergeChannelsUC3,
-        4: lib.mergeChannelsUC4
-    },
-    'unsigned int' : {
-        2: lib.mergeChannelsUI2,
-        3: lib.mergeChannelsUI3,
-        4: lib.mergeChannelsUI4
-    },
-    'float' : {
-        2: lib.mergeChannelsF2,
-        3: lib.mergeChannelsF3,
-        4: lib.mergeChannelsF4
-    },
-    'double' : {
-        2: lib.mergeChannelsD2,
-        3: lib.mergeChannelsD3,
-        4: lib.mergeChannelsD4
-    }
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_short_ptype_map = {
+    'unsigned char' : 'UC',
+    'unsigned int': 'UI',
+    'float': 'F',
+    'double' : 'D'
 }
 
+# pick up lib.mergeChannelsX functions
+_merge_channels_dict = {}
+for ndim in {2,3,4}:
+    _merge_channels_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        d1a = _short_ptype_map[d1]
+        _merge_channels_dict[ndim][d1] = 'mergeChannels%s%i'%(d1a,ndim)
 
-_split_channels_dict = {
-    'unsigned char' : {
-        2: lib.splitChannelsUC2,
-        3: lib.splitChannelsUC3,
-        4: lib.splitChannelsUC4
-    },
-    'unsigned int' : {
-        2: lib.splitChannelsUI2,
-        3: lib.splitChannelsUI3,
-        4: lib.splitChannelsUI4
-    },
-    'float' : {
-        2: lib.splitChannelsF2,
-        3: lib.splitChannelsF3,
-        4: lib.splitChannelsF4
-    },
-    'double' : {
-        2: lib.splitChannelsD2,
-        3: lib.splitChannelsD3,
-        4: lib.splitChannelsD4
-    }
-}
+# pick up lib.splitChannelsX functions
+_split_channels_dict = {}
+for ndim in {2,3,4}:
+    _split_channels_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        d1a = _short_ptype_map[d1]
+        _split_channels_dict[ndim][d1] = 'splitChannels%s%i'%(d1a,ndim)
 
 
 def merge_channels(img_list):
@@ -87,7 +64,7 @@ def merge_channels(img_list):
         if img.pixeltype != inpixeltype:
             raise ValueError('all images must have the same pixeltype')
 
-    merge_channels_fn = _merge_channels_dict[img_list[0].pixeltype][img_list[0].dimension]
+    merge_channels_fn = lib.__dict__[_merge_channels_dict[img_list[0].pixeltype][img_list[0].dimension]]
     img = merge_channels_fn([img._img for img in img_list])
     return iio.ANTsImage(img)
 
@@ -117,7 +94,7 @@ def split_channels(img):
     >>> len(imgs_unmerged) == 2
     >>> imgs_unmerged[0].components == 1
     """
-    split_channels_fn = _split_channels_dict[img.pixeltype][img.dimension]
+    split_channels_fn = lib.__dict__[_split_channels_dict[img.pixeltype][img.dimension]]
     itkimgs = split_channels_fn(img._img)
     antsimgs = [iio.ANTsImage(itkimg) for itkimg in itkimgs]
     return antsimgs

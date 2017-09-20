@@ -11,9 +11,9 @@ from ..core import ants_image as iio
 
 
 _smooth_image_dict = {
-    2: lib.SmoothImage2D,
-    3: lib.SmoothImage3D,
-    4: lib.SmoothImage4D
+    2: 'SmoothImage2D',
+    3: 'SmoothImage3D',
+    4: 'SmoothImage4D'
 }
 
 
@@ -31,7 +31,7 @@ def _smooth_image_helper(img, sigma, sigma_in_physical_coordinates=True, FWHM=Fa
 
     max_kernel_width = int(math.ceil(max_kernel_width))
 
-    smooth_image_fn = _smooth_image_dict[img.dimension]
+    smooth_image_fn = lib.__dict__[_smooth_image_dict[img.dimension]]
     outimg = smooth_image_fn(img_float._img, sigma, sigma_in_physical_coordinates, max_kernel_width)
     ants_outimg = iio.ANTsImage(outimg)
     return ants_outimg
