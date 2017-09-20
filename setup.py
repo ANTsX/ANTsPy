@@ -86,7 +86,7 @@ long_description = open('README.md').read()
 
 setup(
     name='antspy',
-    version='0.1.3.dev4',
+    version='0.1.3.dev5',
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',
@@ -102,7 +102,7 @@ setup(
 
 setup(
     name='antspy',
-    version='0.1.3.dev4',
+    version='0.1.3.dev5',
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',

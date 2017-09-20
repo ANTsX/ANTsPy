@@ -13,4 +13,5 @@ include configure_VTK.sh
 include ants/lib/*
 
 #misc
-include LICENSE.txt
+include *.md
+include *.txt
