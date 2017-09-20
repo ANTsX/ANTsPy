@@ -66,26 +66,34 @@ class CMakeBuild(build_ext):
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
 
+## Find or Configure ITK ##
 if os.getenv('ITK_DIR'):
     print('Using Local ITK Installation at:\n %s' % os.getenv('ITK_DIR'))
 elif os.path.exists(os.path.join(setup_py_dir, 'itkbuild')):
     print('Using local ITK already built for this package')
     os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
 else:
-    print('No Local ITK Installation Found...')
-    print('Building ITK now...')
-    subprocess.check_call(['./configure_itk.sh'], cwd=setup_py_dir)
+    print('No local ITK installation found... Building ITK now...')
+    subprocess.check_call(['./configure_ITK.sh'], cwd=setup_py_dir)
     os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
 
+## FIND or Configure VTK ##
+#if os.getenv('VTK_DIR'):
+#    print('Using Local VTK Installation at:\n %s' % os.getenv('VTK_DIR'))
+#elif os.path.exists(os.path.join(setup_py_dir, 'vtkbuild')):
+#    print('Using local VTK already built for this package')
+#    os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
+#else:
+#    print('No local VTK installation found... Building VTK now...')
+#    subprocess.check_call(['./configure_VTK.sh'], cwd=setup_py_dir)
+#    os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
+
+
+## Find or Configure ANTsPy library (ANTs Core, etc) ##
+subprocess.check_call(['./configure_ANTsPy.sh'], cwd=setup_py_dir)
+
 print('ITK_DIR: ' , os.getenv('ITK_DIR'))
-
-if os.path.exists(os.path.join(setup_py_dir,'ants/lib/pybind11/')):
-    try:
-        os.rmdir(os.path.join(setup_py_dir,'ants/lib/pybind11/'))
-    except:
-        pass
-
-subprocess.check_call(['./configure_antspy.sh'], cwd=setup_py_dir)
+#print('VTK_DIR: ' , os.getenv('VTK_DIR'))
 
 setup(
     name='ants',

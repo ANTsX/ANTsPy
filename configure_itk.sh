@@ -35,10 +35,10 @@ cd ../
 #if [[ ! -d ../data/ ]] ; then
 #  mkdir -p ../data
 #fi
-#echo "Dependency;GitTag" > ../data/softwareVersions.csv
-#echo "ITK;${itktag}" >> ../data/softwareVersions.csv
-echo "Dependency;GitTag" > softwareVersions.csv
-echo "ITK;${itktag}" >> softwareVersions.csv
+
+echo "Dependency;GitTag" > ./data/softwareVersions.csv
+echo "ITK;${itktag}" >> ./data/softwareVersions.csv
+
 mkdir -p itkbuild
 cd itkbuild
 compflags=" -fPIC -O2  "

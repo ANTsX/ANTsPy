@@ -25,6 +25,8 @@ cp data/* ~/.antspy/
 antsgit=https://github.com/ANTsX/ANTs.git
 antstag=fb874ebe977b84b57b7c5a2b124608f748e8e1e2 # pixeltype in resampleImage
 
+echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
+
 cd ants/lib # go to lib dir
 
 # if antscore doesnt exist, create it
