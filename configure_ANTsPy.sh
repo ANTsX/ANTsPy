@@ -4,19 +4,18 @@
 # clone pybind11 into library directory
 
 cd ants/lib # go to lib dir
-if [[ -d ~/pybind11 ]]; then
-    rm rf ~/pybind11
+if [[ ! -d ~/pybind11 ]]; then
+    git clone https://github.com/ncullen93/pybind11.git
 fi 
-git clone https://github.com/ncullen93/pybind11.git
 cd ../../ # go back to main dir
 
 # ---------------------------------------------
 # create local ~/.antspy dir and move package data to it
 
-if [[ -d ~/.antspy ]]; then 
-    rm rf ~/.antspy
+if [[ ! -d ~/.antspy ]]; then 
+    mkdir ~/.antspy
 fi
-mkdir ~/.antspy
+
 cp data/* ~/.antspy/
 
 # ---------------------------------------------
