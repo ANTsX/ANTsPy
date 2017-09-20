@@ -9,6 +9,8 @@ include configure_ITK.sh
 include configure_ANTsPy.sh
 include configure_VTK.sh
 
+#lib
+include ants/lib/*
+
 #misc
-include CHANGES.txt
 include LICENSE.txt

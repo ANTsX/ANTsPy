@@ -85,7 +85,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='antspy',
-    version='0.1.2',
+    version='0.1.3',
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',
