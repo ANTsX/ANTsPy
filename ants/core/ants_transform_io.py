@@ -12,57 +12,29 @@ from . import ants_image as iio
 from . import ants_transform as tio
 from .. import lib
 
-_new_ants_transform_dict = {
-    'float': {
-        2: lib.new_ants_transformF2,
-        3: lib.new_ants_transformF3,
-        4: lib.new_ants_transformF4
-    },
-    'double': {
-        2: lib.new_ants_transformD2,
-        3: lib.new_ants_transformD3,
-        4: lib.new_ants_transformD4
-    }
-}
+_new_ants_transform_dict = {}
+for ttype,tabbrev in zip(['float','double'],['F','D']):
+    _new_ants_transform_dict[ttype] = {}
+    for d in {2,3,4}:
+        _new_ants_transform_dict[ttype][d] = 'new_ants_transform%s%i' % (tabbrev, d)
 
-_read_transform_dict = {
-    'float': {
-        2: lib.readTransformF2,
-        3: lib.readTransformF3,
-        4: lib.readTransformF4
-    },
-    'double': {
-        2: lib.readTransformD2,
-        3: lib.readTransformD3,
-        4: lib.readTransformD4
-    }
-}
+_read_transform_dict = {}
+for ttype,tabbrev in zip(['float','double'],['F','D']):
+    _read_transform_dict[ttype] = {}
+    for d in {2,3,4}:
+        _read_transform_dict[ttype][d] = 'readTransform%s%i' % (tabbrev, d)
 
-_write_transform_dict = {
-    'float': {
-        2: lib.writeTransformF2,
-        3: lib.writeTransformF3,
-        4: lib.writeTransformF4
-    },
-    'double': {
-        2: lib.writeTransformD2,
-        3: lib.writeTransformD3,
-        4: lib.writeTransformD4
-    }    
-}
+_write_transform_dict = {}
+for ttype,tabbrev in zip(['float','double'],['F','D']):
+    _write_transform_dict[ttype] = {}
+    for d in {2,3,4}:
+        _write_transform_dict[ttype][d] = 'writeTransform%s%i' % (tabbrev, d)
 
-_matrix_offset_dict = {
-    'float': {
-        2: lib.matrixOffsetF2,
-        3: lib.matrixOffsetF3,
-        4: lib.matrixOffsetF4
-    },
-    'double': {
-        2: lib.matrixOffsetD2,
-        3: lib.matrixOffsetD3,
-        4: lib.matrixOffsetD4
-    }   
-}
+_matrix_offset_dict = {}
+for ttype,tabbrev in zip(['float','double'],['F','D']):
+    _matrix_offset_dict[ttype] = {}
+    for d in {2,3,4}:
+        _matrix_offset_dict[ttype][d] = 'matrixOffset%s%i' % (tabbrev, d)
 
 
 def new_ants_transform(precision='float', dimension=3, transform_type='AffineTransform', parameters=None):
@@ -71,7 +43,7 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
 
     ANTsR function: None
     """
-    new_ants_transform_fn = _new_ants_transform_dict[precision][dimension]
+    new_ants_transform_fn = lib.__dict__[_new_ants_transform_dict[precision][dimension]]
 
     itk_tx = new_ants_transform_fn(precision, dimension, transform_type)
     ants_tx = tio.ANTsTransform(itk_tx)
@@ -216,7 +188,7 @@ def create_ants_transform(transform_type='AffineTransform',
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     elif transform_type in matrix_offset_types:
-        matrix_offset_fn = _matrix_offset_dict[precision][dimension]
+        matrix_offset_fn = lib.__dict__[_matrix_offset_dict[precision][dimension]]
         itk_tx = matrix_offset_fn(transform_type,
                                   precision,
                                   dimension,
@@ -297,7 +269,7 @@ def read_transform(filename, dimension=3, precision='float'):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    read_transform_fn = _read_transform_dict[precision][dimension]
+    read_transform_fn = lib.__dict__[_read_transform_dict[precision][dimension]]
     itk_tx = read_transform_fn(filename, dimension, precision)
     return tio.ANTsTransform(itk_tx)
 
@@ -329,5 +301,7 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    write_transform_fn = _write_transform_dict[transform.precision][transform.dimension]
+    write_transform_fn = lib.__dict__[_write_transform_dict[transform.precision][transform.dimension]]
     write_transform_fn(transform._tx, filename)
+
+

@@ -8,6 +8,12 @@ itksource/
 *itksource/
 pybind11/
 *pybind11/
+antscore/
+*antscore/
+antsrepo/
+*antsrepo
+ants-repo/
+*ants-repo/
 tests/data/*.nii.gz
 tests/data/
 

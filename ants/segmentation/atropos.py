@@ -8,6 +8,7 @@ __all__ = ['atropos']
 
 import os
 import glob
+import warnings
 from tempfile import mktemp
 
 from ..core import ants_image_io as iio2
@@ -134,7 +135,10 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             myargs['a-MULTINAME-%i'%aa_idx] = aa
 
     processed_args = utils._int_antsProcessArguments(myargs)
-    lib.Atropos(processed_args)
+    retval = lib.Atropos(processed_args)
+    
+    if retval != 0:
+        warnings.warn('ERROR: Non-zero exit status!')
     
     probsout = glob.glob(os.path.join(tdir,'*'+searchpattern))
     probimgs = [iio2.image_read(probsout[0])]

@@ -14,24 +14,20 @@ from .interface import registration
 from .apply_transforms import apply_transforms
 
 
-_reflection_matrix_dict = {
-    'unsigned char': {
-        2: lib.reflectionMatrixUC2,
-        3: lib.reflectionMatrixUC3
-    },
-    'unsigned int': {
-        2: lib.reflectionMatrixUI2,
-        3: lib.reflectionMatrixUI3
-    },
-    'float': {
-        2: lib.reflectionMatrixF2,
-        3: lib.reflectionMatrixF3
-    },
-    'double': {
-        2: lib.reflectionMatrixD2,
-        3: lib.reflectionMatrixD3
-    }
-}
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_short_ptype_map = {'unsigned char' : 'UC',
+                    'unsigned int': 'UI',
+                    'float': 'F',
+                    'double' : 'D'}
+
+# pick up lib.reflectionMatrix functions
+_reflection_matrix_dict = {}
+for ndim in {2,3}:
+    _reflection_matrix_dict[ndim] = {}
+    for d1 in _supported_ptypes:
+        d1a = _short_ptype_map[d1]
+        _reflection_matrix_dict[ndim][d1] = 'reflectionMatrix%s%i'%(d1a,ndim)
+
 
 def reflect_image(img, axis=None, tx=None, metric='mattes'):
     """
@@ -73,7 +69,7 @@ def reflect_image(img, axis=None, tx=None, metric='mattes'):
 
     rflct = mktemp(suffix='.mat')
 
-    reflection_matrix_fn = _reflection_matrix_dict[img.pixeltype][img.dimension]
+    reflection_matrix_fn = lib.__dict__[_reflection_matrix_dict[img.pixeltype][img.dimension]]
     reflection_matrix_fn(img._img, axis, rflct)
 
     if tx is not None:

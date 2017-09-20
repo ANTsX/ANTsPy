@@ -26,37 +26,8 @@
 #include "itkCastImageFilter.h"
 #include <sys/stat.h>
 
-#include "antsImage.h"
+extern bool ANTSFileExists(const std::string & strFilename);
 
-namespace py = pybind11;
-
-//extern bool ANTSFileExists(const std::string & strFilename);
-
-bool ANTSFileExists(const std::string & strFilename)
-{
-
-  // Attempt to get the file attributes
-  struct stat stFileInfo;
-  const int intStat = stat(strFilename.c_str(), &stFileInfo);
-  bool blnReturn;
-  if( intStat == 0 )
-    {
-    // We were able to get the file attributes
-    // so the file obviously exists.
-    blnReturn = true;
-    }
-  else
-    {
-    // We were not able to get the file attributes.
-    // This may mean that we don't have permission to
-    // access the folder which contains this file. If you
-    // need to do that level of checking, lookup the
-    // return values of stat which will give you
-    // more details on why stat failed.
-    blnReturn = false;
-    }
-  return blnReturn;
-}
 // Nifti stores DTI values in lower tri format but itk uses upper tri
 // currently, nifti io does nothing to deal with this. if this changes
 // the function below should be modified/eliminated.
@@ -249,7 +220,6 @@ bool ReadImage(itk::SmartPointer<TImageType> & target, const char *file)
 
   std::string comparetype1 = std::string( "0x" );
   std::string comparetype2 = std::string( file );
-
   comparetype2 = comparetype2.substr( 0, 2 );
   // Read the image files begin
   if(  comparetype1 == comparetype2  )
@@ -257,9 +227,7 @@ bool ReadImage(itk::SmartPointer<TImageType> & target, const char *file)
     typedef TImageType RImageType;
     void* ptr;
     sscanf(file, "%p", (void **)&ptr);
-
-    typename RImageType::Pointer Rimage = *( reinterpret_cast<typename RImageType::Pointer *>( ptr ) );
-
+    typename RImageType::Pointer Rimage = *( static_cast<typename RImageType::Pointer *>( ptr ) );
     /** more needs to be done here to cast the pointer to an image type --- this is a work-around */
     typedef itk::CastImageFilter<RImageType, TImageType> CastFilterType;
     typename CastFilterType::Pointer caster = CastFilterType::New();
@@ -305,7 +273,7 @@ bool ReadImage(itk::SmartPointer<TImageType> & target, const char *file)
 template <class ImageType>
 typename ImageType::Pointer ReadImage(char* fn )
 {
-    // Read the image files begin
+  // Read the image files begin
   typedef itk::ImageFileReader<ImageType> FileSourceType;
 
   typename FileSourceType::Pointer reffilter = FileSourceType::New();
