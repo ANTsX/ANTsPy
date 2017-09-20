@@ -14,6 +14,14 @@ between the two packages <b>given that the algorithm in question is itself deter
 
 ## Installation
 
+To install the latest stable release from PyPI:
+
+```bash
+pip install -v antspy
+```
+
+To install the latest version of the code from source:
+
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
 cd ANTsPy

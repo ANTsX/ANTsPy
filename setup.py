@@ -82,6 +82,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
+long_description = open('README.md').read()
 
 setup(
     name='antspy',
@@ -89,7 +90,7 @@ setup(
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',
-    long_description='',
+    long_description=long_description,
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
     cmdclass={'build_ext':CMakeBuild},
     zip_safe=False,
@@ -105,7 +106,7 @@ setup(
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',
-    long_description='',
+    long_description=long_description,
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
     cmdclass={'build_ext':CMakeBuild},
     zip_safe=False,
