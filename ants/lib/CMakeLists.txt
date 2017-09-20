@@ -8,6 +8,8 @@ set(PYBIND11_CPP_STANDARD -std=c++14)
 SET ( CMAKE_C_FLAGS     " ${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG " )
 SET ( CMAKE_CXX_FLAGS   " ${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  " )
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
@@ -31,28 +33,6 @@ target_link_libraries(antsUtilities ${ITK_LIBRARIES} )
 
 # ------------------------------------------------------------
 # MODULES
-
-## LOCAL ##
-pybind11_add_module(antsImage LOCAL_antsImage.cxx)
-pybind11_add_module(antsImageClone LOCAL_antsImageClone.cxx)
-pybind11_add_module(antsImageHeaderInfo LOCAL_antsImageHeaderInfo.cxx)
-pybind11_add_module(antsImageMutualInformation LOCAL_antsImageMutualInformation.cxx)
-pybind11_add_module(antsImageToImageMetric LOCAL_antsImageToImageMetric.cxx)
-pybind11_add_module(antsImageUtils LOCAL_antsImageUtils.cxx)
-pybind11_add_module(antsTransform LOCAL_antsTransform.cxx)
-pybind11_add_module(cropImage LOCAL_cropImage.cxx)
-pybind11_add_module(fsl2antstransform LOCAL_fsl2antstransform.cxx)
-pybind11_add_module(getNeighborhoodMatrix LOCAL_getNeighborhoodMatrix.cxx)
-pybind11_add_module(invariantImageSimilarity LOCAL_invariantImageSimilarity.cxx)
-pybind11_add_module(labelStats LOCAL_labelStats.cxx)
-pybind11_add_module(mergeChannels LOCAL_mergeChannels.cxx)
-pybind11_add_module(readImage LOCAL_readImage.cxx)
-pybind11_add_module(readTransform LOCAL_readTransform.cxx)
-pybind11_add_module(reflectionMatrix LOCAL_reflectionMatrix.cxx)
-pybind11_add_module(reorientImage LOCAL_reorientImage.cxx)
-pybind11_add_module(sccaner LOCAL_sccaner.cxx)
-pybind11_add_module(SmoothImage LOCAL_SmoothImage.cxx)
-pybind11_add_module(weingartenImageCurvature LOCAL_weingartenImageCurvature.cxx)
 
 ## WRAP ##
 pybind11_add_module(antsAffineInitializer antscore/antsAffineInitializer.cxx WRAP_antsAffineInitializer.cxx)
@@ -79,33 +59,32 @@ pybind11_add_module(ResampleImage antscore/ResampleImage.cxx WRAP_ResampleImage.
 pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdImage.cxx)
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
 pybind11_add_module(TimeSCCAN antscore/TimeSCCAN.cxx WRAP_TimeSCCAN.cxx)
-
 pybind11_add_module(antsRegistration antscore/antsRegistration.cxx WRAP_antsRegistration.cxx)
 
-# -----------------------------------------------------------------
 ## LOCAL ##
-target_link_libraries(antsImage PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsImageClone PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsImageHeaderInfo PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsImageMutualInformation PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsImageToImageMetric PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsImageUtils PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsTransform PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(antsTransform PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(cropImage PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(fsl2antstransform PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(getNeighborhoodMatrix PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(invariantImageSimilarity PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(labelStats PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(mergeChannels PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(readImage PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(readTransform PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(reflectionMatrix PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(reorientImage PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(sccaner PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(SmoothImage PRIVATE ${ITK_LIBRARIES})
-target_link_libraries(weingartenImageCurvature PRIVATE ${ITK_LIBRARIES})
+pybind11_add_module(antsImage LOCAL_antsImage.cxx)
+pybind11_add_module(antsImageClone LOCAL_antsImageClone.cxx)
+pybind11_add_module(antsImageHeaderInfo LOCAL_antsImageHeaderInfo.cxx)
+pybind11_add_module(antsImageMutualInformation LOCAL_antsImageMutualInformation.cxx)
+pybind11_add_module(antsImageToImageMetric LOCAL_antsImageToImageMetric.cxx)
+pybind11_add_module(antsImageUtils LOCAL_antsImageUtils.cxx)
+pybind11_add_module(antsTransform LOCAL_antsTransform.cxx)
+pybind11_add_module(cropImage LOCAL_cropImage.cxx)
+pybind11_add_module(fsl2antstransform LOCAL_fsl2antstransform.cxx)
+pybind11_add_module(getNeighborhoodMatrix LOCAL_getNeighborhoodMatrix.cxx)
+pybind11_add_module(invariantImageSimilarity LOCAL_invariantImageSimilarity.cxx)
+pybind11_add_module(labelStats LOCAL_labelStats.cxx)
+pybind11_add_module(mergeChannels LOCAL_mergeChannels.cxx)
+pybind11_add_module(readImage LOCAL_readImage.cxx)
+pybind11_add_module(readTransform LOCAL_readTransform.cxx)
+pybind11_add_module(reflectionMatrix LOCAL_reflectionMatrix.cxx)
+pybind11_add_module(reorientImage LOCAL_reorientImage.cxx)
+pybind11_add_module(sccaner LOCAL_sccaner.cxx)
+pybind11_add_module(SmoothImage LOCAL_SmoothImage.cxx)
+pybind11_add_module(weingartenImageCurvature LOCAL_weingartenImageCurvature.cxx)
 
+
+# -----------------------------------------------------------------
 ## WRAP ##
 target_link_libraries(antsAffineInitializer PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(antsApplyTransforms PRIVATE ${ITK_LIBRARIES} antsUtilities)
@@ -131,8 +110,31 @@ target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TimeSCCAN PRIVATE ${ITK_LIBRARIES} antsUtilities)
-
 target_link_libraries(antsRegistration PRIVATE ${ITK_LIBRARIES} antsUtilities)
+
+## LOCAL ##
+target_link_libraries(antsImage PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsImageClone PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsImageHeaderInfo PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsImageMutualInformation PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsImageToImageMetric PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsImageUtils PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsTransform PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(antsTransform PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(cropImage PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(fsl2antstransform PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(getNeighborhoodMatrix PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(invariantImageSimilarity PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(labelStats PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(mergeChannels PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(readImage PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(readTransform PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(reflectionMatrix PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(reorientImage PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(sccaner PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(SmoothImage PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(weingartenImageCurvature PRIVATE ${ITK_LIBRARIES})
+
 
 # -----------------------------------------------------------------
 ## VIZ ##
