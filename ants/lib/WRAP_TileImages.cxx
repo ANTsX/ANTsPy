@@ -2,16 +2,16 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "antscore/TileImage.h"
+#include "antscore/TileImages.h"
 
 namespace py = pybind11;
 
-int TileImage( std::vector<std::string> instring )
+int TileImages( std::vector<std::string> instring )
 {
-    return ants::TileImage(instring, NULL);
+    return ants::TileImages(instring, NULL);
 }
 
-PYBIND11_MODULE(TileImage, m)
+PYBIND11_MODULE(TileImages, m)
 {
-  m.def("TileImage", &TileImage);
+  m.def("TileImages", &TileImages);
 }

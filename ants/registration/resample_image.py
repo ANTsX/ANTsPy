@@ -42,8 +42,8 @@ def resample_image(img, resample_params, use_voxels=False, interp_type=1):
     >>> filin = ants.resample_image(fi,(1.5,1.5),False,1)
     """
     if img.components == 1:
-        inimg = img.clone('double')
-        outimg = img.clone('double')
+        inimg = img.clone('float')
+        outimg = img.clone('float')
         rsampar = 'x'.join([str(rp) for rp in resample_params])
 
         args = [img.dimension, inimg, outimg, rsampar, int(use_voxels), interp_type]

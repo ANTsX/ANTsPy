@@ -2,7 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "antscore/Math.h"
+#include "antscore/iMath.h"
 
 namespace py = pybind11;
 
