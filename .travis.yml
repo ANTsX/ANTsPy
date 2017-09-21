@@ -7,6 +7,7 @@ os:
   - osx
 
 compiler: clang
+osx_image: xcode8.2
 
 install:
   - travis_retry pip install --upgrade pip setuptools wheel
