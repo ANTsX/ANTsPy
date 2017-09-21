@@ -21,6 +21,10 @@ matrix:
         - brew install python3
         - virtualenv env -p python3
         - source env/bin/activate
+    - language: python
+      os: linux
+  allow_failures:
+    - os: osx
 
 script:
     - ./tests/run_tests.sh
