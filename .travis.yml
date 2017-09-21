@@ -12,7 +12,7 @@ matrix:
       sudo: required
       language: generic
 
-#  Manually install python on osx
+# Manually install python on osx
 install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
