@@ -6,10 +6,10 @@ import subprocess
 
 import setuptools
 from setuptools import find_packages
-from setuptools import setup, Extension
+from setuptools import Extension#,setup, 
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
-from setuptools import setup, Extension, distutils, Command, find_packages
+from setuptools import distutils, Command, find_packages
 import setuptools.command.build_ext
 import setuptools.command.install
 import setuptools.command.develop
@@ -17,6 +17,9 @@ import setuptools.command.build_py
 import distutils.unixccompiler
 import distutils.command.build
 import distutils.command.clean
+
+from distutils.core import setup
+
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
 class CMakeExtension(Extension):
@@ -79,7 +82,7 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j1']
+            build_args += ['--', '-j3']
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} {} -DVERSION_INFO=\\"{}\\"'.format("-Wno-inconsistent-missing-override",
@@ -107,7 +110,7 @@ setup(
     packages=find_packages(),
     package_data={'ants':['ants/lib/*.so*','ants/lib/*.so','lib/*.so*']},
     url='https://github.com/ANTsX/ANTsPy',
-    classifiers=['Programming Language :: Python :: 3.6']
+    classifiers=['Programming Language :: Python :: 3.6'],
 )
 
 
