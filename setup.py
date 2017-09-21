@@ -16,6 +16,8 @@ import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
+VERSION = '0.1.3.dev9'
+
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
@@ -25,7 +27,28 @@ class install(setuptools.command.install.install):
     def run(self):
         setuptools.command.install.install.run(self)
 
-class CMakeBuild(build_ext):
+class build_py(setuptools.command.build_py.build_py):
+
+    def run(self):
+        self.create_version_file()
+        setuptools.command.build_py.build_py.run(self)
+
+    @staticmethod
+    def create_version_file():
+        global version, setup_py_dir
+        print('-- Building version ' + version)
+        version_path = os.path.join(setup_py_dir, 'ants', 'version.py')
+        with open(version_path, 'w') as f:
+            f.write("__version__ = '{}'\n".format(version))
+
+
+class BuildExtFirst(setuptools.command.install.install):
+    def run(self):
+        self.run_command("build_ext")
+        return setuptools.command.install.install.run(self)
+
+
+class CMakeBuild(setuptools.command.build_py.build_py):
     def run(self):
         ## Find or Configure ITK ##
         print('Configuring ITK')
@@ -99,23 +122,7 @@ setup(
     description='Advanced Normalization Tools in Python',
     long_description=long_description,
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
-    cmdclass={'build_ext':CMakeBuild, 'install':install},
-    zip_safe=False,
-    packages=find_packages(),
-    include_package_data=True,
-    url='https://github.com/ANTsX/ANTsPy',
-    classifiers=['Programming Language :: Python :: 3.6'],
-)
-
-setup(
-    name='antspy',
-    version='0.1.3.dev9',
-    author='Nicholas C. Cullen',
-    author_email='nickmarch31@yahoo.com',
-    description='Advanced Normalization Tools in Python',
-    long_description=long_description,
-    ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
-    cmdclass={'build_ext':CMakeBuild, 'install':install},
+    cmdclass={'build_py':build_py, 'build_ext': CMakeBuild, 'install':BuildExtFirst},
     zip_safe=False,
     packages=find_packages(),
     include_package_data=True,
