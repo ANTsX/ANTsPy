@@ -259,6 +259,9 @@ class ANTsImage(object):
         -------
         None
         """
+        if isinstance(new_direction, np.ndarray):
+            new_direction = new_direction.tolist()
+
         if not isinstance(new_direction, (tuple, list)):
             raise ValueError('arg must be tuple or list')
         if len(new_direction) != self.dimension:
