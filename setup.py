@@ -126,7 +126,6 @@ setup(
     zip_safe=False,
     packages=find_packages(),
     package_data={'ants':['ants/lib/*.so*', 'lib/*.so*', 'ants/lib/*.so', 'lib/*.so']},
-    include_package_data=True,
     url='https://github.com/ANTsX/ANTsPy',
     classifiers=['Programming Language :: Python :: 3.6'],
 )
