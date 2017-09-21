@@ -106,19 +106,3 @@ setup(
     url='https://github.com/ANTsX/ANTsPy',
     classifiers=['Programming Language :: Python :: 3.6'],
 )
-
-setup(
-    name='antspy',
-    version='0.1.3.dev9',
-    author='Nicholas C. Cullen',
-    author_email='nickmarch31@yahoo.com',
-    description='Advanced Normalization Tools in Python',
-    long_description=long_description,
-    ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
-    cmdclass={'build_ext':CMakeBuild, 'install':install},
-    zip_safe=False,
-    packages=find_packages(),
-    include_package_data=True,
-    url='https://github.com/ANTsX/ANTsPy',
-    classifiers=['Programming Language :: Python :: 3.6'],
-)
