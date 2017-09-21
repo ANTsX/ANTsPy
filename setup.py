@@ -56,8 +56,7 @@ class CMakeBuild(build_ext):
         extdir = os.path.join(setup_py_dir, 'ants/lib/')
 
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable,
-                      "-Wno-inconsistent-missing-override"]
+                      '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
