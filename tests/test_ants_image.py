@@ -27,6 +27,14 @@ class TestClass_ANTsImage(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_set_direction(self):
+        img1 = ants.image_read(ants.get_ants_data('r16'))
+
+        new_direction = np.eye(2)*3
+        img1.set_direction(new_direction)
+
+        self.assertEqual(img1.direction, new_direction)
+
 
 class TestModule_ants_image(unittest.TestCase):
 
