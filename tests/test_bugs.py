@@ -34,12 +34,12 @@ class Test_bugs(unittest.TestCase):
         image of type DOUBLE
         """
         img2d = ants.image_read(ants.get_ants_data('r16'))
-        img2dr = ants.resample_image(img2d, (2,2), 1, 0)
+        img2dr = ants.resample_image(img2d, (2,2), 0, 0)
 
         self.assertTrue(np.sum(np.isnan(img2dr.numpy())) == 0)
 
         img3d = ants.image_read(ants.get_ants_data('mni'))
-        img3dr = ants.resample_image(img3d, (2,2), 1, 0)
+        img3dr = ants.resample_image(img3d, (2,2,2), 0, 0)
 
         self.assertTrue(np.sum(np.isnan(img3dr.numpy())) == 0)
 

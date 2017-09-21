@@ -13,9 +13,5 @@ install:
   - travis_retry pip install -r requirements.txt --only-binary=scipy
   - python setup.py install
 
-notifications:
-  email:
-    recipients:
-    - nickmarch31@yahoo.com
-    on_success: change
-    on_failure: always
+script:
+    - ./tests/run_tests.sh
