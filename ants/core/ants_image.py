@@ -251,7 +251,7 @@ class ANTsImage(object):
 
         Arguments
         ---------
-        new_direction : tuple or list
+        new_direction : numpy.ndarray or tuple or list
             updated direction for the image.
             should have one value for each dimension
 
@@ -259,11 +259,11 @@ class ANTsImage(object):
         -------
         None
         """
-        if isinstance(new_direction, np.ndarray):
-            new_direction = new_direction.tolist()
+        if isinstance(new_direction, (tuple,list)):
+            new_direction = np.asarray(new_direction)
 
-        if not isinstance(new_direction, (tuple, list)):
-            raise ValueError('arg must be tuple or list')
+        if not isinstance(new_direction, np.ndarray):
+            raise ValueError('arg must be np.ndarray or tuple or list')
         if len(new_direction) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
