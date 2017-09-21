@@ -1,4 +1,6 @@
 
+https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master
+
 # Advanced Normalization Tools in Python
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) <br>
 
