@@ -2,8 +2,10 @@ language: python
 python:
   - 3.6
 
+os:
+  - linux
+
 compiler: clang
-osx_image: xcode8.2
 
 install:
   - travis_retry pip install --upgrade pip setuptools wheel
@@ -19,8 +21,6 @@ matrix:
         - brew install python3
         - virtualenv env -p python3
         - source env/bin/activate
-    - language: python
-      os: linux
 
 script:
     - ./tests/run_tests.sh
