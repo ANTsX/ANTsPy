@@ -16,19 +16,46 @@ between the two packages <b>given that the algorithm in question is itself deter
 
 ## Installation
 
-To install the latest stable release from PyPI:
+### Method 1 (preferred)
+The fastest method is to install the pre-compiled binaries (takes ~1 min):
+
+If you have MacOS:
+```bash
+pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.3/antspy-0.1.3.dev12-cp36-cp36m-macosx_10_7_x86_64.whl
+```
+
+If you have Linux:
+```bash
+pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.3/antspy-0.1.3.dev12-cp36-cp36m-linux_x86_64.whl
+```
+
+------------------------------------------------------------------------------
+
+### Method 2
+If this doesn't work, you should install the latest stable source release from PyPI (takes ~45 min):
 
 ```bash
 pip install -v antspy
 ```
 
-To install the latest version of the code from source:
+------------------------------------------------------------------------------
+### Method 3
+If you want the latest code, you can install directly from source (takes ~45 min):
 
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
 cd ANTsPy
 python setup.py install
 ```
+
+If you want to develop code for ANTsPy, you should install as follows (takes ~45 min):
+
+```bash
+git clone https://github.com/ANTsX/ANTsPy.git
+cd ANTsPy
+python setup.py develop
+```
+------------------------------------------------------------------------------
 
 #### Insight Toolkit (ITK)
 
