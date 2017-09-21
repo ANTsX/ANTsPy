@@ -16,7 +16,7 @@ import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
-version = '0.1.3.dev10'
+version = '0.1.3.dev11'
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -125,6 +125,7 @@ setup(
     cmdclass={'build_py':build_py, 'build_ext': CMakeBuild, 'install':BuildExtFirst},
     zip_safe=False,
     packages=find_packages(),
+    package_data={'ants':['ants/lib/*.so*', 'lib/*.so*', 'ants/lib/*.so', 'lib/*.so']},
     include_package_data=True,
     url='https://github.com/ANTsX/ANTsPy',
     classifiers=['Programming Language :: Python :: 3.6'],
