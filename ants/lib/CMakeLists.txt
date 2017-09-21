@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(ants)
 
 #set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(PYBIND11_CPP_STANDARD -std=c++14)
+#set(PYBIND11_CPP_STANDARD -std=c++14)
 
 #SET ( CMAKE_C_FLAGS     " ${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG " )
 #SET ( CMAKE_CXX_FLAGS   " ${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  " )
