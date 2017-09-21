@@ -1,6 +1,8 @@
 # custom ignores
 sandbox/
 softwareVersions.csv
+ants/version.py
+version.py
 
 itkbuild/
 itksource/

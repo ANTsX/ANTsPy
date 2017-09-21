@@ -1,12 +1,9 @@
 
 
- 
-
-# import shared libraries from pybind
-#from .antsImage import *
-#from .readImge import *
-
-## IMPORT PYTHON MODULES
+try:
+    from .version import __version__
+except:
+    pass
 
 from .core import *
 from .utils import *
