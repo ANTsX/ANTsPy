@@ -9,16 +9,13 @@ self.assertTrue
 
 import os
 import unittest
-
 from common import run_tests
 from context import ants
 
 import numpy as np
 import numpy.testing as nptest
 
-
-
-
+import ants
 
 class Test_ANTsImage(unittest.TestCase):
     """
