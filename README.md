@@ -16,7 +16,7 @@ between the two packages <b>given that the algorithm in question is itself deter
 
 ## Installation
 
-### Method 1 (preferred)
+### Method 1: Pre-Compiled Binaries (preferred)
 The fastest method is to install the pre-compiled binaries (takes ~1 min):
 
 If you have MacOS:
@@ -31,7 +31,7 @@ pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.3/antspy-0.1.
 
 ------------------------------------------------------------------------------
 
-### Method 2
+### Method 2: PyPI Source Distribution
 If this doesn't work, you should install the latest stable source release from PyPI (takes ~45 min):
 
 ```bash
@@ -39,7 +39,7 @@ pip install -v antspy
 ```
 
 ------------------------------------------------------------------------------
-### Method 3
+### Method 3: Github Master Branch
 If you want the latest code, you can install directly from source (takes ~45 min):
 
 ```bash
