@@ -1,7 +1,9 @@
 
  
 
-__all__ = ['iMath']
+__all__ = ['iMath',
+           'image_math'
+           'multiply_images']
 
 
 from .process_args import _int_antsProcessArguments
@@ -39,6 +41,8 @@ def iMath(img, operation, *args):
     processed_args = _int_antsProcessArguments(args)
     lib.iMath(processed_args)
     return outimg
+image_math = iMath
 
 
-
+def multiply_images(img1, img2):
+    return img1 * img2
