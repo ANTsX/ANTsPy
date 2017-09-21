@@ -6,17 +6,13 @@ import subprocess
 
 import setuptools
 from setuptools import find_packages
-from setuptools import Extension,setup, 
+from setuptools import Extension,setup
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
-from setuptools import distutils, Command, find_packages
 import setuptools.command.build_ext
 import setuptools.command.install
 import setuptools.command.develop
 import setuptools.command.build_py
-import distutils.unixccompiler
-import distutils.command.build
-import distutils.command.clean
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -97,7 +93,7 @@ long_description = open('README.md').read()
 
 setup(
     name='antspy',
-    version='0.1.3.dev8',
+    version='0.1.3.dev9',
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',
