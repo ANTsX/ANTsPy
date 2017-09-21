@@ -34,3 +34,7 @@ install: |
 
 script:
     - ./tests/run_tests.sh
+
+branches:
+  only:
+    - master
