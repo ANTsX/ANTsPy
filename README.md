@@ -1,5 +1,5 @@
 
-https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master
+[![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy)
 
 # Advanced Normalization Tools in Python
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) <br>
