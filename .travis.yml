@@ -1,33 +1,38 @@
 language: python
 python:
-    - 3.6
+  - 3.6
 
 os:
-    - osx
+  - osx
 
 compiler: clang
 osx_image: xcode8.2
 
 before_install:
-    - export CCACHE=ccache
-    - export PROJ_DIR=`basename ${TRAVIS_BUILD_DIR}`  
-    - export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
-    - fname=travis_helpers.sh
-    - wget -O ${fname} http://bit.ly/travis_helpers
-    - cat ${fname}; source ${fname}; rm ${fname}  
-    - x=`export_clang_cxx`; eval ${x}
-    - echo "CC=${CC}, CXX=${CXX}, CXX1X=${CXX1X}"
-    - echo "CXX1XSTD=${CXX1XSTD}, CXX11=${CXX11}"  
-    - clang_cxx
-    - export cmake_version="3.4"
-    - cmake --version
-    - x=`cmake_setup`; echo "${x}"; eval ${x};
-    - cmake --version
+  - export CCACHE=ccache
+  - export PROJ_DIR=`basename ${TRAVIS_BUILD_DIR}`  
+  - export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
+  - fname=travis_helpers.sh
+  - wget -O ${fname} http://bit.ly/travis_helpers
+  - cat ${fname}; source ${fname}; rm ${fname}  
+  - x=`export_clang_cxx`; eval ${x}
+  - echo "CC=${CC}, CXX=${CXX}, CXX1X=${CXX1X}"
+  - echo "CXX1XSTD=${CXX1XSTD}, CXX11=${CXX11}"  
+  - clang_cxx
+  - export cmake_version="3.4"
+  - cmake --version
+  - x=`cmake_setup`; echo "${x}"; eval ${x};
+  - cmake --version
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; 
+    then 
+      brew install ccache; 
+      export PATH="/usr/local/opt/ccache/libexec:$PATH";
+    fi
 
 install:
-    - travis_retry pip install --upgrade pip setuptools wheel
-    - travis_retry pip install -r requirements.txt --only-binary=scipy
-    - python setup.py install
+  - travis_retry pip install --upgrade pip setuptools wheel
+  - travis_retry pip install -r requirements.txt --only-binary=scipy
+  - python setup.py install
 
 notifications:
   email:
