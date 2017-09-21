@@ -16,7 +16,7 @@ import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
-version = '0.1.3.dev9'
+version = '0.1.3.dev10'
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -99,7 +99,7 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j2']
+            build_args += ['--', '-j3']
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} {} -DVERSION_INFO=\\"{}\\"'.format("-Wno-inconsistent-missing-override",
@@ -116,7 +116,7 @@ long_description = open('README.md').read()
 
 setup(
     name='antspy',
-    version='0.1.3.dev9',
+    version=version,
     author='Nicholas C. Cullen',
     author_email='nickmarch31@yahoo.com',
     description='Advanced Normalization Tools in Python',
