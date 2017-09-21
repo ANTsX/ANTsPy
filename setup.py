@@ -30,6 +30,7 @@ class install(setuptools.command.install.install):
 class build_py(setuptools.command.build_py.build_py):
 
     def run(self):
+        self.run_command("build_ext")
         self.create_version_file()
         setuptools.command.build_py.build_py.run(self)
 
@@ -44,7 +45,7 @@ class build_py(setuptools.command.build_py.build_py):
 
 class BuildExtFirst(setuptools.command.install.install):
     def run(self):
-        self.run_command("build_ext")
+        self.run_command("build_py")
         return setuptools.command.install.install.run(self)
 
 
