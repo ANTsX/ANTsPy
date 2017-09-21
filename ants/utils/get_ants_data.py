@@ -40,10 +40,10 @@ def get_ants_data(name):
     return datapath
 
 
-def get_ants_data_files():
+def get_ants_data_files(exclude=''):
     files = []
     for fname in os.listdir(data_path):
-        if fname.endswith('.nii.gz') or fname.endswith('.jpg'):
+        if fname.endswith('.nii.gz') or fname.endswith('.jpg') and (not fname.endswith(exclude)):
             files.append(fname)
     return fname
 

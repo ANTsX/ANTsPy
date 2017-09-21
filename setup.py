@@ -6,7 +6,7 @@ import subprocess
 
 import setuptools
 from setuptools import find_packages
-from setuptools import Extension#,setup, 
+from setuptools import Extension,setup, 
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 from setuptools import distutils, Command, find_packages
@@ -17,8 +17,6 @@ import setuptools.command.build_py
 import distutils.unixccompiler
 import distutils.command.build
 import distutils.command.clean
-
-from distutils.core import setup
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -108,7 +106,8 @@ setup(
     cmdclass={'build_ext':CMakeBuild, 'install':install},
     zip_safe=False,
     packages=find_packages(),
-    package_data={'ants':['ants/lib/*.so*','ants/lib/*.so','lib/*.so*']},
+    #package_data={'ants':['ants/lib/*.so*','ants/lib/*.so','lib/*.so*']},
+    include_package_data=True,
     url='https://github.com/ANTsX/ANTsPy',
     classifiers=['Programming Language :: Python :: 3.6'],
 )
