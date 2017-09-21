@@ -10,7 +10,8 @@ __all__ = ['copy_image_info',
            'image_physical_space_consistency',
            'image_type_cast',
            'get_neighborhood_in_mask',
-           'get_neighborhood_at_voxel']
+           'get_neighborhood_at_voxel',
+           'allclose']
 
 import os
 import numpy as np
@@ -960,6 +961,10 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
     return retvals
 
 
-
+def allclose(img, other_img):
+    """
+    Check if two images have the same array values
+    """
+    return np.allclose(img.numpy(), other_img.numpy())
 
 
