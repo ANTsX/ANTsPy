@@ -16,7 +16,7 @@ import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
-VERSION = '0.1.3.dev9'
+version = '0.1.3.dev9'
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
