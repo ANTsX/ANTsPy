@@ -4,11 +4,19 @@ import sys
 import platform
 import subprocess
 
+import setuptools
 from setuptools import find_packages
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
-
+from setuptools import setup, Extension, distutils, Command, find_packages
+import setuptools.command.build_ext
+import setuptools.command.install
+import setuptools.command.develop
+import setuptools.command.build_py
+import distutils.unixccompiler
+import distutils.command.build
+import distutils.command.clean
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
 class CMakeExtension(Extension):
@@ -16,6 +24,9 @@ class CMakeExtension(Extension):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
 
+class install(setuptools.command.install.install):
+    def run(self):
+        setuptools.command.install.install.run(self)
 
 class CMakeBuild(build_ext):
     def run(self):
@@ -58,7 +69,7 @@ class CMakeBuild(build_ext):
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
-        cfg = 'Debug' if self.debug else 'Release'
+        cfg = 'Release'
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
@@ -74,7 +85,7 @@ class CMakeBuild(build_ext):
         env['CXXFLAGS'] = '{} {} -DVERSION_INFO=\\"{}\\"'.format("-Wno-inconsistent-missing-override",
                                                                     env.get('CXXFLAGS', ''),
                                                                     self.distribution.get_version())
-        env['LINKFlAGS'] = '{}'.format("-Wno-inconsistent-missing-override")
+        env['LINKFLAGS'] = '{}'.format("-Wno-inconsistent-missing-override")
         
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
@@ -91,10 +102,10 @@ setup(
     description='Advanced Normalization Tools in Python',
     long_description=long_description,
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
-    cmdclass={'build_ext':CMakeBuild},
+    cmdclass={'build_ext':CMakeBuild, 'install':install},
     zip_safe=False,
     packages=find_packages(),
-    package_data={'ants':['ants/lib/*.so*','data/*','lib/*.so*']},
+    package_data={'ants':['ants/lib/*.so*','ants/lib/*.so','lib/*.so*']},
     url='https://github.com/ANTsX/ANTsPy',
     classifiers=['Programming Language :: Python :: 3.6']
 )
