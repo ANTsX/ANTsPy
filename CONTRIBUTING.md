@@ -123,6 +123,267 @@ function. The general workflow for wrapping a library calls involves the followi
 - pass those raw arguments through the function `utils._int_antsProcessArguments(args)`
 - pass those processed arguments into the library call (e.g. `lib.Atropos(processed_args)`).
 
+## How do I go from an ANTsImage to an ITK Image?
+
+First off, there are two ANTsImage classes - a core C++ templated ANTsImage class and 
+a python ANTsImage class which stores the C++ object as a property (`self._img`). 
+
+To go from a C++ ANTsImage class to an ITK image, use the following code:
+
+```cpp
+#include "LOCAL_antsImage.h"
+
+template <typename ImageType>
+ImageType::Pointer getITKImage( ANTsImage<ImageType> antsImage )
+{
+    typedef typename ImageType::Pointer ImagePointerType;
+    ImagePointerType itkImage = as<ImageType>( antsImage );
+    return itkImage
+}
+```
+
+Now, say you wrapped this code and wanted to call it from python. You wouldn't pass
+the Python ANTsImage object directly, you would pass in the `self._img` attribute which
+contains the C++ ANTsImage - confusing I know, but you get used to it.
+
+### Example 1 - getOrigin
+
+Let's do a full example where we get the origin of a Python ANTsImage from the 
+underlying ITK image.
+
+We would create the following file `getOrigin.cxx`:
+
+```cpp
+#include <pybind11/pybind11.h> // needed for wrapping
+#include <pybind11/stl.h> // needed for casting from std::vector to python::list
+
+#include "itkImage.h" // any ITK or other includes
+
+#include "LOCAL_antsImage.h" // needed for casting to & from ANTsImage<->ITKImage
+
+// all functions accepted ANTsImage types must be templated
+template <typename ImageType>
+std::vector getOrigin( ANTsImage<ImageType> antsImage )
+{
+    // cast to ITK image as shown above
+    typedef typename ImageType::Pointer ImagePointerType;
+    ImagePointerType itkImage = as<ImageType>( antsImage );
+
+    // do everything else as normal with ITK Imaeg
+    typename ImageType::PointType origin = image->GetOrigin();
+    unsigned int ndim = ImageType::GetImageDimension();
+
+    std::vector originlist;
+    for (int i = 0; i < ndim; i++)
+    {
+        originlist.append( origin[i] );
+    }
+
+    return originlist;
+}
+
+// wrap function above with all possible types
+PYBIND11_MODULE(getOrigin, m)
+{
+    m.def("getOriginUC2", &getOrigin<itk::Image<unsigned char,2>>);
+    m.def("getOriginUC3", &getOrigin<itk::Image<unsigned char,3>>);
+    m.def("getOriginF2", &getOrigin<itk::Image<float,2>>);
+    m.def("getOriginF3", &getOrigin<itk::Image<float,3>>);
+}
+
+```
+
+Now we add the following lines in `ants/lib/CMakeLists.txt` :
+
+```
+pybind11_add_module(getOrigin antscore/getOrigin.cxx)
+target_link_libraries(getOrigin PRIVATE ${ITK_LIBRARIES})
+```
+
+And add the following line in `ants/lib/__init__.py`:
+
+```
+from .getOrigin import *
+```
+
+Finally, we create a wrapper function in python file `get_origin.py`:
+
+```python
+
+from ants import lib # use relative import e.g. "from .. import lib" in package code
+
+# dictionary for storing template-wrapped library function
+_get_origin_dict = {
+    2: {
+        'unsigned char': 'getOriginUC2',
+        'float': 'getOriginF2'
+    },
+    3: {
+        'unsigned char': 'getOriginUC3',
+        'float': 'getOriginF3'
+    }
+}
+
+def get_origin(img):
+    idim = img.dimension
+    ptype = img.pixeltype
+
+    # get the template function corresponding to image dimension and pixeltype
+    _get_origin_fn = lib.__dict__[_get_origin_dict[idim][ptype]]
+
+    # call function - NOTE how we pass in `img._img`, not `img` directly
+    origin = _get_origin_fn(img._img)
+
+    # return as tuple
+    return tuple(origin)
+```
+
+And that's it! For more other return types, you should refer to the pybind11 docs.
+
+## How do I go from an ITK Image to an ANTsImage?
+
+In the previous section, we saw how easy it is to cast from ANTsImage to ITK Image 
+using the `as<ImageType>( antsImage )` function. The same is true for going the other way.
+
+Example:
+
+```cpp
+#include "itkImage.h" // include any other ITK imports as normal
+
+#include "LOCAL_antsImage.h"
+
+
+template <typename ImageType>
+ANTsImage<ImageType> getITKImage( ANTsImage<ImageType> antsImage )
+{
+    // cast from ANTsImage to ITK Image
+    typedef typename ImageType::Pointer ImagePointerType;
+    ImagePointerType itkImage = as<ImageType>( antsImage );
+    
+    // do some stuff on ITK image
+    // ...
+
+    // cast from ITK Image to ANTsImage
+    ANTsImage<ImageType> newAntsImage;
+    newAntsImage = wrap<ImageType>( itkImage );
+
+    return newAntsImage;
+}
+```
+
+So you see we use  `as<ImageType>( antsImage )` to go from ANTsImage to ITK Image
+and `wrap<ImageType>( itkImagePointer)` to go from ITK Image to ANTsImage
+
+### Example 2 - Cloning an Image
+
+In this example, I will show how to clone an ANTsImage directly in ITK.
+First, we create the C++ file `LOCAL_antsImageClone.cxx`:
+
+```cpp
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include "itkImage.h"
+#include "itkImageFileWriter.h"
+
+#include "LOCAL_antsImage.h"
+
+namespace py = pybind11;
+
+template<typename InImageType, typename OutImageType>
+ANTsImage<OutImageType> antsImageClone( ANTsImage<InImageType> antsImage )
+{
+  // ---------------------------------------------
+  // cast from ANTsImage to ITK Image
+  typedef typename InImageType::Pointer InImagePointerType;
+  InImagePointerType in_image = as< InImageType >( antsImage );
+
+  // ---------------------------------------------
+  // do stuff on ITK Image ...
+  typename OutImageType::Pointer out_image = OutImageType::New() ;
+  out_image->SetRegions( in_image->GetLargestPossibleRegion() ) ;
+  out_image->SetSpacing( in_image->GetSpacing() ) ;
+  out_image->SetOrigin( in_image->GetOrigin() ) ;
+  out_image->SetDirection( in_image->GetDirection() );
+  //out_image->CopyInformation( in_image );
+  out_image->Allocate() ;
+
+  itk::ImageRegionConstIterator< InImageType > in_iterator( in_image , in_image->GetLargestPossibleRegion() ) ;
+  itk::ImageRegionIterator< OutImageType > out_iterator( out_image , out_image->GetLargestPossibleRegion() ) ;
+  for( in_iterator.GoToBegin() , out_iterator.GoToBegin() ; !in_iterator.IsAtEnd() ; ++in_iterator , ++out_iterator )
+    {
+    out_iterator.Set( static_cast< typename OutImageType::PixelType >( in_iterator.Get() ) ) ;
+    }
+  // ---------------------------------------------
+  // cast from ITK image to ANTsImage and return that image
+  return wrap< OutImageType >( out_image );
+}
+
+// wrap this function for possible image types
+// this is annoying, but saves on time and eliminates chances for bugs in code
+// NOTE: you need the random `m` there.
+PYBIND11_MODULE(imageCloneModule, m)
+{
+  m.def("antsImageCloneUC2UC2", antsImageClone<itk::Image<unsigned char, 2>, itk::Image<unsigned char, 2>>);
+  m.def("antsImageCloneUI2UI2", antsImageClone<itk::Image<unsigned int, 2>, itk::Image<unsigned int, 2>>);
+  m.def("antsImageCloneF2F2", antsImageClone<itk::Image<float, 2>, itk::Image<float, 2>>);
+  // ... and so on ...
+}
+```
+
+Note above how we have to explicilty wrap every combination of image input and output types. This
+is annoying but ultimately saves on runtime and most importantly reduces possibilities for bugs
+by eliminates the need for massive IF-ELSE statements determining the type of the image 
+in the c++ code.
+
+Next, we add the build lines to `ants/lib/CMakeLists.txt`:
+
+```
+pybind11_add_module(imageCloneModule LOCAL_antsImageClone.cxx)
+target_link_libraries(imageCloneModule PRIVATE ${ITK_LIBRARIES})
+```
+
+And add the following line in `ants/lib/__init__.py`:
+
+```
+from .imageCloneModule import *
+```
+
+Finally, we add the Python wrapping function:
+
+```python
+from ants import lib
+
+_image_clone_dict = {
+    2: {
+        'unsigned char': {
+            'unsigned char': 'antsImageCloneUCUC2'
+        },
+        'unsigned int': {
+            'unsigned int': 'antsImageCloneUI2UI2'
+        },
+        'float': {
+            'float': 'antsImageCloneF2F2'
+        }
+    }
+}
+
+def image_clone(img1, pixeltype=None):
+    idim = img1.dimension
+    ptype1 = img1.pixeltype
+    
+    if pixeltype is None:
+        ptype2 = img1.pixeltype
+    else:
+        ptype2 = pixeltype
+
+    _image_clone_fn = lib.__dict__[_image_clone_dict[idim][ptype1][ptype2]]
+    cloned_image = _image_clone_fn(img1._img)
+    return cloned_image
+```
+
+And that's it!
+
 
 ## Running Tests
 
@@ -143,7 +404,6 @@ class TestMyFunction(unittest.TestCase):
         # examples include loading a bunch of test images
         pass
 
-
     def tearDown(self):
         # add whatever code here to tear down after all the tests
         pass
@@ -162,6 +422,7 @@ class TestMyFunction(unittest.TestCase):
 ```
 Tests are actually carried out through assertion statements such as `self.assertTrue(...)`
 and `self.assertEqual(...)`.
+
 
 
 
