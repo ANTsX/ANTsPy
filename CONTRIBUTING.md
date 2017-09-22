@@ -249,12 +249,10 @@ Example:
 
 ```cpp
 #include "itkImage.h" // include any other ITK imports as normal
-
 #include "LOCAL_antsImage.h"
 
-
 template <typename ImageType>
-ANTsImage<ImageType> getITKImage( ANTsImage<ImageType> antsImage )
+ANTsImage<ImageType> someFunction( ANTsImage<ImageType> antsImage )
 {
     // cast from ANTsImage to ITK Image
     typedef typename ImageType::Pointer ImagePointerType;
@@ -271,13 +269,37 @@ ANTsImage<ImageType> getITKImage( ANTsImage<ImageType> antsImage )
 }
 ```
 
+If the function doesnt return the same image type, you need two template arguments:
+
+```cpp
+#include "itkImage.h" // include any other ITK imports as normal
+#include "LOCAL_antsImage.h"
+
+template <typename InImageType, typename OutImageType>
+ANTsImage<OutImageType> someFunction( ANTsImage<InImageType> antsImage )
+{
+    // cast from ANTsImage to ITK Image of InImageType
+    typedef typename ImageType::Pointer ImagePointerType;
+    ImagePointerType itkImage = as<InImageType>( antsImage );
+    
+    // do some stuff on ITK image
+    // ...
+
+    // cast from ITK Image to ANTsImage of OutImageType
+    ANTsImage<OutImageType> newAntsImage;
+    newAntsImage = wrap<OutImageType>( itkImage );
+
+    return newAntsImage;
+}
+```
+
 So you see we use  `as<ImageType>( antsImage )` to go from ANTsImage to ITK Image
 and `wrap<ImageType>( itkImagePointer)` to go from ITK Image to ANTsImage
 
 ### Example 2 - Cloning an Image
 
 In this example, I will show how to clone an ANTsImage directly in ITK.
-First, we create the C++ file `LOCAL_antsImageClone.cxx`:
+First, we create the C++ file `ants/lib/LOCAL_antsImageClone.cxx`:
 
 ```cpp
 #include <pybind11/pybind11.h>
