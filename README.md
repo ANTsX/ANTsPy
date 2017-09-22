@@ -6,10 +6,9 @@
 
 ## What is ANTsPy?
 
-ANTsPy -- pronounced "ant-spy" like an ant who is a secret agent -- is a Python library which
-wraps much of the medical image processing functionality of ANTs, 
-provides much of the statistical capabilities of ANTsR, and allows seamless integration
-with Numpy and the greater Python community. 
+ANTsPy is a Python library which wraps the biomedical image processing library ANTs,
+matches the statistical capabilities of ANTsR, and allows seamless integration
+with Numpy, Scikit-Learn, and the greater Python community. 
 
 The engine underlying AntsPy and ANTsR is the same, so you can generally expect exactly the same results
 between the two packages <b>given that the algorithm in question is itself deterministic</b>.
