@@ -375,6 +375,7 @@ Finally, we add the Python wrapping function:
 
 ```python
 from ants import lib
+from ants.core import ants_image as iio
 
 _image_clone_dict = {
     2: {
@@ -400,8 +401,14 @@ def image_clone(img1, pixeltype=None):
         ptype2 = pixeltype
 
     _image_clone_fn = lib.__dict__[_image_clone_dict[idim][ptype1][ptype2]]
+    
+    # this function returns a C++ ANTsImage object
     cloned_image = _image_clone_fn(img1._img)
-    return cloned_image
+
+    # we need to wrap the C++ ANTsImage object into a Python ANTsImage object
+    cloned_ants_image = iio.ANTsImage(cloned_image)
+
+    return cloned_ants_image
 ```
 
 And that's it!
