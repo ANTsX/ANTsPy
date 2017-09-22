@@ -33,7 +33,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         new_direction = np.eye(2)*3
         img1.set_direction(new_direction)
 
-        self.assertEqual(img1.direction, new_direction)
+        nptest.assert_allclose(img1.direction, new_direction)
 
 
 class TestModule_ants_image(unittest.TestCase):
