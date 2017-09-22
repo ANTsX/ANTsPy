@@ -628,7 +628,7 @@ def copy_image_info(reference, target):
     """
     target.set_origin(reference.origin)
     target.set_direction(reference.direction)
-    target.set_spacing(target.spacing)
+    target.set_spacing(reference.spacing)
     return target
 
 def set_origin(img, origin):
