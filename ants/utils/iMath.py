@@ -2,7 +2,7 @@
  
 
 __all__ = ['iMath',
-           'image_math'
+           'image_math',
            'multiply_images']
 
 
