@@ -202,8 +202,3 @@ img = ants.image_read(ants.get_ants_data('r16'))
 img = img.resample_image((64,64), 1, 0).get_mask().atropos(m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
 ```
 
-## Frequently Asked Questions
-* How long does ANTsPy take to install?
-    * 15-20 minutes if you don't have a local ITK build
-
-
