@@ -48,7 +48,8 @@ cd ANTsPy
 python setup.py install
 ```
 
-If you want to develop code for ANTsPy, you should install as follows (takes ~45 min):
+If you want to develop code for ANTsPy, you should install the code as follows and
+then refer to the [developer's guide](https://github.com/ANTsX/ANTsPy/blob/master/docs/source/developers_guide.md) 
 
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
