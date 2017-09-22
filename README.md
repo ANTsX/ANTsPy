@@ -13,6 +13,9 @@ with Numpy, Scikit-Learn, and the greater Python community.
 The engine underlying AntsPy and ANTsR is the same, so you can generally expect exactly the same results
 between the two packages <b>given that the algorithm in question is itself deterministic</b>.
 
+If you want to contribute to ANTsPy or simply want to learn about the package architecture
+and wrapping process, please read the extensive [contributor's manual](CONTRIBUTING.md).
+
 ## Installation
 
 ### Method 1: Pre-Compiled Binaries (preferred)
