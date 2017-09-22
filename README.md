@@ -48,8 +48,9 @@ cd ANTsPy
 python setup.py install
 ```
 
-If you want to develop code for ANTsPy, you should install the code as follows and
-then refer to the [developer's guide](https://github.com/ANTsX/ANTsPy/blob/master/docs/source/developers_guide.md) 
+If you want to develop code for ANTsPy, you should install the project as follows and
+then refer to the [contributor's guide](CONTRIBUTING.md) for notes on project structure
+and how to add code.
 
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
