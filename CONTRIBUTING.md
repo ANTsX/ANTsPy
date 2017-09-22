@@ -151,7 +151,7 @@ contains the C++ ANTsImage - confusing I know, but you get used to it.
 Let's do a full example where we get the origin of a Python ANTsImage from the 
 underlying ITK image.
 
-We would create the following file `LOCAL_getOrigin.cxx`:
+We would create the following file `ants/lib/LOCAL_getOrigin.cxx`:
 
 ```cpp
 #include <pybind11/pybind11.h> // needed for wrapping
