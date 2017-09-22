@@ -196,7 +196,7 @@ PYBIND11_MODULE(getOrigin, m)
 Now we add the following lines in `ants/lib/CMakeLists.txt` :
 
 ```
-pybind11_add_module(getOrigin antscore/getOrigin.cxx)
+pybind11_add_module(getOrigin LOCAL_getOrigin.cxx)
 target_link_libraries(getOrigin PRIVATE ${ITK_LIBRARIES})
 ```
 
