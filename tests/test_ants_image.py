@@ -53,7 +53,7 @@ class TestModule_ants_image(unittest.TestCase):
 
         img3 = ants.copy_image_info(reference=img1, target=img2)
 
-        self.assertEqual(img3.spacing, (6.9,6.9))
+        self.assertEqual(img3.spacing, (6.9,9.6))
         self.assertEqual(img3.origin, (3.6,3.6))
 
 
