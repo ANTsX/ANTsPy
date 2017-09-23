@@ -1,4 +1,4 @@
-# ANTsPy Contributor's Guide
+# ANTsPy Contributors Guide
 
 So, you want to contribute to ANTsPy - great! This guide tells you everything
 you need to know to set up an efficient workflow and get started writing code.

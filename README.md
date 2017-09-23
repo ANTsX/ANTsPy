@@ -11,7 +11,7 @@ matches much of the statistical capabilities of <i>ANTsR</i>, and allows seamles
 with Numpy, Scikit-Learn, and the greater Python community. 
 
 If you want to contribute to ANTsPy or simply want to learn about the package architecture
-and wrapping process, please read the extensive [contributor's manual](CONTRIBUTING.md).
+and wrapping process, please read the extensive [contributors guide](CONTRIBUTING.md).
 
 ## Installation
 
