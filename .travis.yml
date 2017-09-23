@@ -13,7 +13,6 @@ before_install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
     then
       brew update;
-
       brew install ccache;
       unset CCACHE_DISABLE;
       export CCACHE_DIR=$HOME/.ccache;
@@ -31,18 +30,23 @@ before_install: |
 #  travis_retry pip install -r requirements.txt --only-binary=scipy
 #  python setup.py install
 
-
 jobs:
   include:
 
-    - stage: make itk
+    - stage: makeITK
       script:
         - ./configure_ITK_External.sh
         - export ITK_DIR=~/itkbuild/itkbuild
       os: linux
       python: 3.6
-    - stage: make itk
+    - stage: makeITK
       script:
+        - brew update;
+        - brew install ccache;
+        - unset CCACHE_DISABLE;
+        - export CCACHE_DIR=$HOME/.ccache;
+        - ccache --show-stats;
+        - export PATH="/usr/local/opt/ccache/libexec:$PATH";
         - ./configure_ITK_External.sh
         - export ITK_DIR=~/itkbuild/itkbuild
       os: osx
@@ -51,6 +55,7 @@ jobs:
 
     - stage: install
       script: |
+        export ITK_DIR=~/itkbuild/itkbuild
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
@@ -58,6 +63,7 @@ jobs:
       python: 3.6
     - stage: install
       script: |
+        export ITK_DIR=~/itkbuild/itkbuild
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
