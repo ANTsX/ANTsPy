@@ -14,7 +14,8 @@ fi
 
 #mkdir $HOME/itkbuild-linux;
 
-cd /home/travis/
+#cd /home/travis/
+cd $TRAVIS_BUILD_DIR
 
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 # itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11

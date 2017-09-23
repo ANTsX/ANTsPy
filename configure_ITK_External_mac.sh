@@ -14,8 +14,8 @@ fi
 
 #mkdir $HOME/itkbuild-mac;
 
-cd /users/travis/
-
+#cd /users/travis/
+cd $TRAVIS_BUILD_DIR
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 # itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11
 itktag=c5138560409c75408ff76bccff938f21e5dcafc6 #4.12
