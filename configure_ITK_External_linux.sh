@@ -12,9 +12,9 @@ if [[ $TRAVIS -eq true ]] ; then
   JTHREADS=2
 fi
 
-#mkdir $HOME/itkbuild;
+#mkdir $HOME/itkbuild-linux;
 
-cd $HOME
+cd /home/travis/
 
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 # itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11
@@ -22,15 +22,15 @@ itktag=c5138560409c75408ff76bccff938f21e5dcafc6 #4.12
 # if ther is a directory but no git,
 # remove it
 
-# if no directory, clone ITK in `itksource` dir
-git clone $itkgit itksource;
-cd itksource;
+# if no directory, clone ITK in `itksource-linux` dir
+git clone $itkgit itksource-linux;
+cd itksource-linux;
 git checkout master;
 git checkout $itktag;
 cd ../
 
-mkdir itkbuild
-cd itkbuild
+mkdir itkbuild-linux
+cd itkbuild-linux
 compflags=" -fPIC -O2  "
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
@@ -60,7 +60,7 @@ cmake \
     -D ITKGroup_Segmentation=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
+    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource-linux/
 make -j 3
 #make install
 cd ../

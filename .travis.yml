@@ -2,8 +2,8 @@ language: python
 
 cache:
     - directories:
-        - $HOME/itkbuild
-        - $HOME/itksource
+        - /home/travis/itkbuild-linux
+        - /users/travis/itkbuild-mac
 
 before_install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
@@ -27,7 +27,7 @@ jobs:
       script: |
         unset CCACHE_DISABLE
         export CCACHE_DIR=$HOME/.ccache
-        ./configure_ITK_External.sh;
+        ./configure_ITK_External_linux.sh;
       os: linux
       python: 3.6
     - stage: makeITK
@@ -38,14 +38,14 @@ jobs:
         export CCACHE_DIR=$HOME/.ccache;
         ccache --show-stats;
         export PATH="/usr/local/opt/ccache/libexec:$PATH";
-        ./configure_ITK_External.sh;
+        ./configure_ITK_External_mac.sh;
       os: osx
       sudo: required
       language: generic
 
     - stage: install
       script: |
-        export ITK_DIR=$HOME/itkbuild
+        export ITK_DIR=/home/travis/itkbuild-linux
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
@@ -54,7 +54,7 @@ jobs:
       sudo: required
     - stage: install
       script: |
-        export ITK_DIR=$HOME/itkbuild
+        export ITK_DIR=/users/travis/itkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
