@@ -35,7 +35,7 @@ jobs:
 
     - stage: makeITK
       script: |
-        - if [[ ! -d $HOME/itkbuild ]];
+        if [[ ! -d $HOME/itkbuild ]];
           then
             ./configure_ITK_External.sh;
             export ITK_DIR=~/itkbuild/itkbuild;
@@ -43,17 +43,17 @@ jobs:
       os: linux
       python: 3.6
     - stage: makeITK
-      script:
-        - brew update;
-        - brew install ccache;
-        - unset CCACHE_DISABLE;
-        - export CCACHE_DIR=$HOME/.ccache;
-        - ccache --show-stats;
-        - if [[ ! -d $HOME/itkbuild ]];
-          then
-            ./configure_ITK_External.sh;
-            export ITK_DIR=~/itkbuild/itkbuild;
-          fi
+      script: |
+        brew update;
+        brew install ccache;
+        unset CCACHE_DISABLE;
+        export CCACHE_DIR=$HOME/.ccache;
+        ccache --show-stats;
+        if [[ ! -d $HOME/itkbuild ]];
+        then
+          ./configure_ITK_External.sh;
+          export ITK_DIR=~/itkbuild/itkbuild;
+        fi
       os: osx
       sudo: required
       language: generic
