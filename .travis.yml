@@ -1,28 +1,17 @@
 language: python
-env:
-  global:
-    - CI=true
+
 
 cache:
     - ccache
     - directories:
         - $HOME/.ccache
+        - $HOME/itkbuild
 
-matrix:
-  include:
-    - os: linux
-      python: 3.6
 
-    - os: osx
-      sudo: required
-      language: generic
-  allow_failures:
-    - os: osx
 
-# Manually install python on osx
-install: |
-  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-
+before_install: |
+  if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
+    then
       brew update;
 
       brew install ccache;
@@ -34,22 +23,47 @@ install: |
       brew install python3;
       python3 -m venv venv;
       source venv/bin/activate;
-
-      travis_retry pip install --upgrade pip setuptools wheel
-      travis_retry pip install -r requirements.txt --only-binary=scipy
-      python setup.py install
-
-  else
-
-      travis_retry pip install --upgrade pip setuptools wheel
-      travis_retry pip install -r requirements.txt --only-binary=scipy
-      python setup.py install
-
   fi
 
-script:
-    - ./tests/run_tests.sh
+# Manually install python on osx
+#install: |
+#  travis_retry pip install --upgrade pip setuptools wheel
+#  travis_retry pip install -r requirements.txt --only-binary=scipy
+#  python setup.py install
+
+
+jobs:
+  include:
+    - stage: make itk
+      script:
+        - ./make_ITK_External.sh
+        - export ITK_DIR=~/itkbuild/itkbuild
+    - stage: install
+      script: |
+        travis_retry pip install --upgrade pip setuptools wheel
+        travis_retry pip install -r requirements.txt --only-binary=scipy
+        python setup.py install
+      os: linux
+      python: 3.6
+    - stage: install
+      script: |
+        travis_retry pip install --upgrade pip setuptools wheel
+        travis_retry pip install -r requirements.txt --only-binary=scipy
+        python setup.py install
+      os: osx
+      sudo: required
+      language: generic
+    - stage: test
+      script:
+        - ./tests/run_test.sh
+  allow_failures:
+    - os: osx
+
+
+#script:
+#   - ./tests/run_tests.sh
 
 branches:
   only:
     - master
+
