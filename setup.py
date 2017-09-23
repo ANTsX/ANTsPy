@@ -60,12 +60,12 @@ class CMakeBuild(build_ext):
             os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
         else:
             print('No local ITK installation found... Building ITK now...')
-            subprocess.check_call(['./configure_ITK.sh'], cwd=setup_py_dir)
+            subprocess.check_call(['./scripts/configure_ITK.sh'], cwd=setup_py_dir)
             os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
 
         ## Find or Configure ANTs ##
         print('Configuring ANTs core')
-        subprocess.check_call(['./configure_ANTsPy.sh'], cwd=setup_py_dir)
+        subprocess.check_call(['./scripts/configure_ANTsPy.sh'], cwd=setup_py_dir)
 
         ## Configure ANTsPy library ##
         print('Configuring ANTsPy library')

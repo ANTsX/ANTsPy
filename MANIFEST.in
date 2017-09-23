@@ -5,6 +5,7 @@ recursive-include docs *
 recursive-include data *
 
 #scripts
+recursive-include scripts *
 include *.sh
 
 #lib
