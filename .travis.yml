@@ -34,10 +34,21 @@ before_install: |
 
 jobs:
   include:
+
     - stage: make itk
       script:
-        - ./make_ITK_External.sh
+        - ./configure_ITK_External.sh
         - export ITK_DIR=~/itkbuild/itkbuild
+      os: linux
+      python: 3.6
+    - stage: make itk
+      script:
+        - ./configure_ITK_External.sh
+        - export ITK_DIR=~/itkbuild/itkbuild
+      os: osx
+      sudo: required
+      language: generic
+
     - stage: install
       script: |
         travis_retry pip install --upgrade pip setuptools wheel
@@ -53,9 +64,19 @@ jobs:
       os: osx
       sudo: required
       language: generic
+
     - stage: test
       script:
         - ./tests/run_test.sh
+      os: osx
+      sudo: required
+      language: generic
+    - stage: test
+      script:
+        - ./tests/run_test.sh
+      os: linux
+      python: 3.6
+
   allow_failures:
     - os: osx
 
