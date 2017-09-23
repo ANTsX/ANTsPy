@@ -45,8 +45,8 @@ jobs:
         brew install ccache;
         unset CCACHE_DISABLE;
         export CCACHE_DIR=$HOME/.ccache;
-        - ccache --show-stats;
-        - ./configure_ITK_External.sh;
+        ccache --show-stats;
+        ./configure_ITK_External.sh;
       os: osx
       sudo: required
       language: generic
