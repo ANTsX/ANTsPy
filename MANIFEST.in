@@ -5,9 +5,7 @@ recursive-include docs *
 recursive-include data *
 
 #scripts
-include configure_ITK.sh
-include configure_ANTsPy.sh
-include configure_VTK.sh
+include *.sh
 
 #lib
 include ants/lib/*
