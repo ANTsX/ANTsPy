@@ -67,13 +67,13 @@ jobs:
 
     - stage: test
       script:
-        - ./tests/run_test.sh
+        - ./tests/run_tests.sh
       os: osx
       sudo: required
       language: generic
     - stage: test
       script:
-        - ./tests/run_test.sh
+        - ./tests/run_tests.sh
       os: linux
       python: 3.6
 
