@@ -53,7 +53,6 @@ before_install: |
 
 jobs:
   include:
-
     - stage: install
       script: |
         travis_retry pip install --upgrade pip setuptools wheel
