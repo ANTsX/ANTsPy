@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # make this where you want to build ITK
-BUILDDIR=~/itkbuild 
+BUILDDIR=$HOME/itkbuild 
 
 CXX_STD=CXX11
 JTHREADS=2
