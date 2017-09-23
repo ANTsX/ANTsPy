@@ -24,58 +24,59 @@ before_install: |
 
 jobs:
   include:
-
-    - stage: makeITK
-      script: |
-        unset CCACHE_DISABLE
-        export CCACHE_DIR=$HOME/.ccache
-        ./scripts/configure_ITK_External_linux.sh;
-      os: linux
-      sudo: required
-      python: 3.6
-    - stage: makeITK
-      script: |
-        brew update;
-        brew install ccache;
-        unset CCACHE_DISABLE;
-        export CCACHE_DIR=$HOME/.ccache;
-        ccache --show-stats;
-        export PATH="/usr/local/opt/ccache/libexec:$PATH";
-        ./scripts/configure_ITK_External_mac.sh;
-      os: osx
-      sudo: required
-      language: generic
-
-    - stage: install
-      script: |
-        export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
-        travis_retry pip install --upgrade pip setuptools wheel
-        travis_retry pip install -r requirements.txt --only-binary=scipy
-        python setup.py install
-      os: linux
-      python: 3.6
-      sudo: required
-    - stage: install
-      script: |
-        export ITK_DIR=$HOME/itkbuild-mac
-        travis_retry pip install --upgrade pip setuptools wheel
-        travis_retry pip install -r requirements.txt --only-binary=scipy
-        python setup.py install
-      os: osx
-      sudo: required
-      language: generic
-
-    - stage: test
-      script:
-        - ./tests/run_test.sh
-      os: osx
-      sudo: required
-      language: generic
-    - stage: test
-      script:
-        - ./tests/run_test.sh
-      os: linux
-      python: 3.6
+    - jobs:
+      - include:
+        - stage: makeITK
+          script: |
+            unset CCACHE_DISABLE
+            export CCACHE_DIR=$HOME/.ccache
+            ./scripts/configure_ITK_External_linux.sh;
+          os: linux
+          sudo: required
+          python: 3.6
+        - stage: install
+          script: |
+            export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
+            travis_retry pip install --upgrade pip setuptools wheel
+            travis_retry pip install -r requirements.txt --only-binary=scipy
+            python setup.py install
+          os: linux
+          python: 3.6
+          sudo: required
+        - stage: test
+          script:
+            - ./tests/run_test.sh
+          os: osx
+          sudo: required
+          language: generic
+    - jobs:
+      - include:
+        - stage: makeITK
+          script: |
+            brew update;
+            brew install ccache;
+            unset CCACHE_DISABLE;
+            export CCACHE_DIR=$HOME/.ccache;
+            ccache --show-stats;
+            export PATH="/usr/local/opt/ccache/libexec:$PATH";
+            ./scripts/configure_ITK_External_mac.sh;
+          os: osx
+          sudo: required
+          language: generic
+        - stage: install
+          script: |
+            export ITK_DIR=$HOME/itkbuild-mac
+            travis_retry pip install --upgrade pip setuptools wheel
+            travis_retry pip install -r requirements.txt --only-binary=scipy
+            python setup.py install
+          os: osx
+          sudo: required
+          language: generic
+        - stage: test
+          script:
+            - ./tests/run_test.sh
+          os: linux
+          python: 3.6
 
   allow_failures:
     - os: osx
