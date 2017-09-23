@@ -4,6 +4,8 @@ cache:
     - directories:
         - $TRAVIS_BUILD_DIR/itkbuild-linux
         - $TRAVIS_BUILD_DIR/itkbuild-mac
+        - $TRAVIS_BUILD_DIR/itksource-linux
+        - $TRAVIS_BUILD_DIR/itksource-mac
 
 before_install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
