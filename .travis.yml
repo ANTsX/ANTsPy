@@ -1,6 +1,7 @@
 language: python
 
 cache:
+    pip
     - directories:
         - $TRAVIS_BUILD_DIR/itkbuild-linux
         - $HOME/itkbuild-mac
@@ -51,7 +52,7 @@ jobs:
         export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
-        python setup.py install
+        pip install .
       os: linux
       python: 3.6
       sudo: required
@@ -60,7 +61,7 @@ jobs:
         export ITK_DIR=$HOME/itkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
-        python setup.py install
+        pip install .
       os: osx
       sudo: required
       language: generic
