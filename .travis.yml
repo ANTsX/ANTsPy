@@ -24,8 +24,8 @@ before_install: |
 
 jobs:
   include:
-    jobs:
-      include:
+    - jobs:
+      - include:
         - stage: makeITK
           script: |
             unset CCACHE_DISABLE
@@ -49,8 +49,8 @@ jobs:
           os: osx
           sudo: required
           language: generic
-    jobs:
-      include:
+    - jobs:
+      - include:
         - stage: makeITK
           script: |
             brew update;
