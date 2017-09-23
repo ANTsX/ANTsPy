@@ -6,6 +6,8 @@ cache:
     - directories:
         - $HOME/.ccache
         - $HOME/itkbuild
+        - $HOME/itkbuild/itkbuild
+        - $HOM/itkbuild/itksource
 
 
 
@@ -34,7 +36,7 @@ jobs:
   include:
     - stage: install
       script: |
-        export ITK_DIR=$HOME/itkbuild/itkbuild
+        export ITK_DIR=$HOME/itkbuild
         ls ITK_DIR
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
@@ -43,7 +45,7 @@ jobs:
       python: 3.6
     - stage: install
       script: |
-        export ITK_DIR=$HOME/itkbuild/itkbuild
+        export ITK_DIR=$HOME/itkbuild
         ls ITK_DIR
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
