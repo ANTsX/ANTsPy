@@ -1,13 +1,9 @@
 language: python
 
 cache:
-    - ccache
     - directories:
-        - $HOME/.ccache
-        - $HOME/itkbuild/
-        - $HOME/itkbuild/itkbuild/
-        - $HOME/itkbuild/itksource/
-
+        - $HOME/itkbuild
+        - $HOME/itksource
 
 before_install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
@@ -23,7 +19,6 @@ before_install: |
       python3 -m venv venv;
       source venv/bin/activate;
   fi
-
 
 jobs:
   include:
@@ -50,7 +45,7 @@ jobs:
 
     - stage: install
       script: |
-        export ITK_DIR=$HOME/itkbuild/itkbuild/
+        export ITK_DIR=$HOME/itkbuild
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
@@ -59,7 +54,7 @@ jobs:
       sudo: required
     - stage: install
       script: |
-        export ITK_DIR=$HOME/itkbuild/itkbuild/
+        export ITK_DIR=$HOME/itkbuild
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install

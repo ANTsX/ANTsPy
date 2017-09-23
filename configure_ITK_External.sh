@@ -12,11 +12,9 @@ if [[ $TRAVIS -eq true ]] ; then
   JTHREADS=2
 fi
 
-if [[ ! -d $HOME/itkbuild ]] ; then
-    mkdir $HOME/itkbuild;
-fi
+#mkdir $HOME/itkbuild;
 
-cd $HOME/itkbuild
+cd $HOME
 
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 # itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11
@@ -31,7 +29,7 @@ git checkout master;
 git checkout $itktag;
 cd ../
 
-mkdir -p itkbuild
+mkdir itkbuild
 cd itkbuild
 compflags=" -fPIC -O2  "
 cmake \
