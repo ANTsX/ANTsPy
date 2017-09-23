@@ -29,6 +29,7 @@ jobs:
         export CCACHE_DIR=$HOME/.ccache
         ./configure_ITK_External_linux.sh;
       os: linux
+      sudo: required
       python: 3.6
     - stage: makeITK
       script: |
