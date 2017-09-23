@@ -34,9 +34,12 @@ jobs:
   include:
 
     - stage: makeITK
-      script:
-        - ./configure_ITK_External.sh
-        - export ITK_DIR=~/itkbuild/itkbuild
+      script: |
+        - if [[ ! -d $HOME/itkbuild ]];
+          then
+            ./configure_ITK_External.sh;
+            export ITK_DIR=~/itkbuild/itkbuild;
+          fi
       os: linux
       python: 3.6
     - stage: makeITK
@@ -46,16 +49,18 @@ jobs:
         - unset CCACHE_DISABLE;
         - export CCACHE_DIR=$HOME/.ccache;
         - ccache --show-stats;
-        - export PATH="/usr/local/opt/ccache/libexec:$PATH";
-        - ./configure_ITK_External.sh
-        - export ITK_DIR=~/itkbuild/itkbuild
+        - if [[ ! -d $HOME/itkbuild ]];
+          then
+            ./configure_ITK_External.sh;
+            export ITK_DIR=~/itkbuild/itkbuild;
+          fi
       os: osx
       sudo: required
       language: generic
 
     - stage: install
       script: |
-        export ITK_DIR=~/itkbuild/itkbuild
+        export ITK_DIR=$HOME/itkbuild/itkbuild
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
@@ -63,7 +68,7 @@ jobs:
       python: 3.6
     - stage: install
       script: |
-        export ITK_DIR=~/itkbuild/itkbuild
+        export ITK_DIR=$HOME/itkbuild/itkbuild
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
