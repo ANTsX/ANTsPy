@@ -3,9 +3,9 @@ language: python
 cache:
     - directories:
         - $TRAVIS_BUILD_DIR/itkbuild-linux
-        - $TRAVIS_BUILD_DIR/itkbuild-mac
+        - $HOME/itkbuild-mac
         - $TRAVIS_BUILD_DIR/itksource-linux
-        - $TRAVIS_BUILD_DIR/itksource-mac
+        - $HOME/itksource-mac
 
 before_install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
@@ -57,7 +57,7 @@ jobs:
       sudo: required
     - stage: install
       script: |
-        export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-mac
+        export ITK_DIR=$HOME/itkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install

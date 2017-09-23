@@ -15,7 +15,8 @@ fi
 #mkdir $HOME/itkbuild-mac;
 
 #cd /users/travis/
-cd $TRAVIS_BUILD_DIR
+cd $HOME
+
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 # itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11
 itktag=c5138560409c75408ff76bccff938f21e5dcafc6 #4.12
@@ -61,7 +62,7 @@ cmake \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource-mac/
-make -j 6
+make -j 3
 #make install
 cd ../
 
