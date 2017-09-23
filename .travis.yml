@@ -34,26 +34,10 @@ before_install: |
 jobs:
   include:
 
-    - stage: makeITK
-      script: |
-        travis_retry pip install --upgrade pip setuptools wheel
-        travis_retry pip install -r requirements.txt --only-binary=scipy
-        python setup.py install
-      os: linux
-      python: 3.6
-    - stage: makeITK
-      script: |
-        travis_retry pip install --upgrade pip setuptools wheel
-        travis_retry pip install -r requirements.txt --only-binary=scipy
-        python setup.py install
-      os: osx
-      sudo: required
-      language: generic
-
     - stage: install
       script: |
         export ITK_DIR=$HOME/itkbuild/itkbuild
-        ls ITK_DIR
+        ls $ITK_DIR
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
@@ -63,7 +47,7 @@ jobs:
     - stage: install
       script: |
         export ITK_DIR=$HOME/itkbuild/itkbuild
-        ls ITK_DIR
+        ls $ITK_DIR
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         python setup.py install
@@ -94,4 +78,3 @@ jobs:
 branches:
   only:
     - master
-
