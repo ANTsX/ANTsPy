@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # make this where you want to build ITK
-BUILDDIR=$HOME/itkbuild 
 
 CXX_STD=CXX11
 JTHREADS=2
@@ -13,11 +12,11 @@ if [[ $TRAVIS -eq true ]] ; then
   JTHREADS=2
 fi
 
-if [[ ! -d BUILDDIR ]] ; then
-    mkdir BUILDDIR;
+if [[ ! -d $HOME/itkbuild ]] ; then
+    mkdir $HOME/itkbuild;
 fi
 
-cd BUILDDIR
+cd $HOME/itkbuild
 
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 # itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11
