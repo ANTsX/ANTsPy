@@ -58,17 +58,11 @@ class ANTsImage(object):
         self.dimension = dimension
         self.components = components
         self.has_components = self.components > 1
-
+        self.dtype = _itk_to_npy_map[self.pixeltype]
         self._libsuffix = '%s%i' % (_short_ptype_map[self.pixeltype], self.dimension)
-        #self.shape = None #//py::tuple shape;
-        #self._ndarr = None #py::array _ndarr; // needed for creating image from numpy array
 
-    @property
-    def dtype(self):
-        """
-        Numpy pixel representation
-        """
-        return _itk_to_npy_map[self.pixeltype]
+        self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
+        self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
 
     @property
     def spacing(self):
@@ -103,31 +97,6 @@ class ANTsImage(object):
 
         libfn = utils.get_lib_fn('setSpacing%s'%self._libsuffix)
         libfn(self.pointer, new_spacing)
-
-    @property
-    def shape(self):
-        """
-        Get image shape along each axis
-
-        Returns
-        -------
-        tuple
-        """
-        libfn = utils.get_lib_fn('getShape%s'%self._libsuffix)
-        return libfn(self.pointer)
-
-    @property
-    def physical_shape(self):
-        """
-        Get shape of image in physical space. The physical shape is the image
-        array shape multiplied by the spacing
-
-        Returns
-        -------
-        tuple
-        """
-        pshape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
-        return pshape
 
     @property
     def origin(self):
