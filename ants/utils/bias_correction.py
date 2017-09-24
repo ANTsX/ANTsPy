@@ -85,6 +85,8 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
     >>> img = ants.image_read( ants.get_ants_data('r16') )
     >>> img_n4 = ants.n4_bias_field_correction(img)
     """
+    if img.pixeltype != 'float':
+        img = img.clone('float')
     iters = convergence['iters']
     tol = convergence['tol']
     if mask is None:
