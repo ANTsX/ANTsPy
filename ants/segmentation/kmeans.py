@@ -3,7 +3,6 @@
 
 __all__ = ['kmeans_segmentation']
 
-from .. import lib
 from .atropos import atropos
 from .. import utils
 

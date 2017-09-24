@@ -12,7 +12,6 @@ import glob
 import re
 
 from .. import utils
-from .. import lib
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
@@ -194,7 +193,8 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
 
     myprocessedargs = utils._int_antsProcessArguments(myargs)
     
-    rval = lib.antsJointFusion(myprocessedargs)
+    libfn = utils.get_lib_fn('antsJointFusion')
+    rval = libfn(myprocessedargs)
     if rval != 0:
         print('Warning: Non-zero return from antsJointFusion')
 

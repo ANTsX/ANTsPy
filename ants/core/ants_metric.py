@@ -4,15 +4,7 @@ ANTs ImageToImageMetric class
 
 __all__ = []
 
-import os
-import numpy as np
-from functools import partial, partialmethod
-import inspect
 
-from .. import lib
-from .. import utils, registration, segmentation, viz
-
-from . import ants_metric_io as mio
 from . import ants_image as iio
 
 

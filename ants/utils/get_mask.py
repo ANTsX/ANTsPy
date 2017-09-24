@@ -7,7 +7,7 @@ from ..core import ants_image as iio
 from .threshold_image import threshold_image
 from .label_clusters import label_clusters
 from .iMath import iMath
-from .. import lib
+from .. import utils
 
 
 def get_mask(img, low_thresh=None, high_thresh=None, cleanup=2):

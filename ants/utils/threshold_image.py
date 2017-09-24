@@ -4,7 +4,7 @@
 __all__ = ['threshold_image']
 
 from .process_args import _int_antsProcessArguments
-from .. import lib
+from .. import utils
 
 
 def threshold_image(img, low_thresh=None, high_thresh=None, inval=1, outval=0):
@@ -43,5 +43,6 @@ def threshold_image(img, low_thresh=None, high_thresh=None, inval=1, outval=0):
     outimg = img.clone()
     args = [dim, img, outimg, low_thresh, high_thresh, inval, outval]
     processed_args = _int_antsProcessArguments(args)
-    lib.ThresholdImage(processed_args)
+    libfn = utils.get_lib_fn('ThresholdImage')
+    libfn(processed_args)
     return outimg

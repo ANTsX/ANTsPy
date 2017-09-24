@@ -15,10 +15,9 @@ __all__ = ['copy_image_info',
 
 import os
 import numpy as np
-from functools import partial, partialmethod
+from functools import partialmethod
 import inspect
 
-from .. import lib
 from .. import utils, registration, segmentation, viz
 from . import ants_image_io as iio2
 

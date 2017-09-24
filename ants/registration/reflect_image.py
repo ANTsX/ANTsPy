@@ -4,29 +4,9 @@ __all__ = ['reflect_image']
 
 from tempfile import mktemp
 
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-
 from .. import utils
-from .. import lib
-
 from .interface import registration
 from .apply_transforms import apply_transforms
-
-
-_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
-_short_ptype_map = {'unsigned char' : 'UC',
-                    'unsigned int': 'UI',
-                    'float': 'F',
-                    'double' : 'D'}
-
-# pick up lib.reflectionMatrix functions
-_reflection_matrix_dict = {}
-for ndim in {2,3}:
-    _reflection_matrix_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        _reflection_matrix_dict[ndim][d1] = 'reflectionMatrix%s%i'%(d1a,ndim)
 
 
 def reflect_image(img, axis=None, tx=None, metric='mattes'):
@@ -69,8 +49,8 @@ def reflect_image(img, axis=None, tx=None, metric='mattes'):
 
     rflct = mktemp(suffix='.mat')
 
-    reflection_matrix_fn = lib.__dict__[_reflection_matrix_dict[img.pixeltype][img.dimension]]
-    reflection_matrix_fn(img.pointer, axis, rflct)
+    libfn = utils.get_lib_fn('reflectionMatrix%s%i'%(utils.short_type(img.pixeltype),img.dimension))
+    libfn(img.pointer, axis, rflct)
 
     if tx is not None:
         rfi = registration(img, img, type_of_transform=tx,

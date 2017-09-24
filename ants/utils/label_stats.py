@@ -1,13 +1,7 @@
 
 __all__ = ['label_stats']
 
-from .. import lib
-
-_label_stats_dict = {
-    2: 'labelStats2D',
-    3: 'labelStats3D',
-    4: 'labelStats4D'
-}
+from .. import utils
 
 def label_stats(image, label_image):
     """
@@ -37,8 +31,8 @@ def label_stats(image, label_image):
     """
     image_float = image.clone('float')
     label_image_int = label_image.clone('unsigned int')
-    label_stats_fn = _label_stats_dict[image.dimension]
 
-    df = lib.__dict__[label_stats_fn(image_float.pointer, label_image_int.pointer)]
+    libfn = utils.get_lib_fn('labelStats%iD' % image.dimension)
+    df = libfn(image_float.pointer, label_image_int.pointer)
     #df = df[order(df$LabelValue), ]
     return df

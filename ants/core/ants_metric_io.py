@@ -8,18 +8,10 @@ __all__ = ['new_ants_metric',
 import os
 import numpy as np
 
+from .. import utils
 from . import ants_image as iio
 from . import ants_metric as mio
-from .. import lib
 
-_new_ants_metric_dict = {
-    2: 'new_ants_metricF2',
-    3: 'new_ants_metricF3'
-}
-
-_create_ants_metric_dict = {
-    2: 'create_ants_metricF2'
-}
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
@@ -36,8 +28,8 @@ def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     if metric_type not in _supported_metrics:
         raise ValueError('metric_type must be one of %s' % _supported_metrics)
 
-    new_ants_metric_fn = lib.__dict__[_new_ants_metric_dict[dimension]]
-    itk_tx = new_ants_metric_fn(precision, dimension, metric_type)
+    libfn = utils.get_lib_fn('new_ants_metricF%i'%dimension)
+    itk_tx = libfn(precision, dimension, metric_type)
 
     ants_metric = mio.ANTsImageToImageMetric(itk_tx)
     return ants_metric
@@ -96,8 +88,8 @@ def create_ants_metric(fixed,
     else:
         raise ValueError('invalid moving image')
 
-    create_ants_metric_fn = lib.__dict__[_create_ants_metric_dict[dimension]]
-    metric = create_ants_metric_fn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
+    libfn = utils.get_lib_fn('create_ants_metricF%i' % dimension)
+    metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
     ants_metric = mio.ANTsImageToImageMetric(metric)
 

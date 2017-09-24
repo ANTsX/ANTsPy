@@ -5,7 +5,6 @@ __all__ = ['smooth_image']
 
 import math
 
-from .. import lib
 from .. import utils
 from ..core import ants_image as iio
 

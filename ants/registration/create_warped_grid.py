@@ -4,7 +4,6 @@ __all__ = ['create_warped_grid']
 
 import numpy as np
 
-from .. import lib
 from .apply_transforms import apply_transforms
 
 def create_warped_grid(img, grid_step=10, grid_width=2, grid_directions=(True, True),

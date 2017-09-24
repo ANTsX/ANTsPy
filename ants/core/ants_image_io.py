@@ -18,11 +18,8 @@ __all__ = ['image_header_info',
 import os
 import json
 import numpy as np
-import weakref
 
 from . import ants_image as iio
-from . import ants_transform as tio
-from .. import lib
 from .. import utils
 from .. import registration as reg
 
@@ -123,15 +120,15 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     if direction is None:
         direction = np.eye(ndim)
 
-    from_numpy_fn = lib.__dict__[_from_numpy_dict[dtype][ndim]]
+    libfn = utils.get_lib_fn('fromNumpy%s%i' % (_ntype_type_map[dtype], ndim))
 
     if not has_components:
-        itk_image = from_numpy_fn(data, data.shape[::-1], origin, spacing, direction)
+        itk_image = libfn(data, data.shape[::-1], origin, spacing, direction)
         ants_image = iio.ANTsImage(itk_image)
     else:
         arrays = [data[...,i].copy() for i in range(data.shape[-1])]
         data_shape = arrays[0].shape
-        ants_images = [iio.ANTsImage(from_numpy_fn(arrays[i], data_shape[::-1], origin, spacing, direction)) for i in range(len(arrays))]
+        ants_images = [iio.ANTsImage(libfn(arrays[i], data_shape[::-1], origin, spacing, direction)) for i in range(len(arrays))]
         ants_image = utils.merge_channels(ants_images)
 
     return ants_image
@@ -304,8 +301,9 @@ def image_header_info(filename):
     if not os.path.exists(filename):
         raise Exception('filename does not exist')
 
-    ret = lib.antsImageHeaderInfo(filename)
-    return ret
+    libfn = utils.get_lib_fn('antsImageHeaderInfo')
+    retval = libfn(filename)
+    return retval
 
 
 def image_clone(img, pixeltype=None):
@@ -384,8 +382,8 @@ def image_read(filename, dimension=None, pixeltype='float'):
         if ptype in _unsupported_ptypes:
             ptype = _unsupported_ptype_map[ptype]
 
-        read_fn = lib.__dict__[_image_read_dict[pclass][ptype][ndim]]
-        itk_pointer = read_fn(filename)
+        libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
+        itk_pointer = libfn(filename)
         ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_pointer)
 
         #if pixeltype is not None:

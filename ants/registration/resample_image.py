@@ -8,7 +8,6 @@ import os
 
 from ..core import ants_image as iio
 from .. import utils
-from .. import lib
 
 def resample_image(img, resample_params, use_voxels=False, interp_type=1):
     """
@@ -48,7 +47,8 @@ def resample_image(img, resample_params, use_voxels=False, interp_type=1):
 
         args = [img.dimension, inimg, outimg, rsampar, int(use_voxels), interp_type]
         processed_args = utils._int_antsProcessArguments(args)
-        lib.ResampleImage(processed_args)
+        libfn = utils.get_lib_fn('ResampleImage')
+        libfn(processed_args)
         outimg = outimg.clone(img.pixeltype)
         return outimg
     else:
@@ -156,7 +156,8 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             myverb = int(verbose)
 
             processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
-            lib.antsApplyTransforms(processed_args)
+            libfn = utils.get_lib_fn('antsApplyTransforms')
+            libfn(processed_args)
 
             if compose is None:
                 return warpedmovout.clone(inpixeltype)
@@ -169,4 +170,5 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             return 1
     else:
         processed_args = myargs + ['-z', str(1), '--float', str(1), '-e', str(imagetype)]
-        lib.antsApplyTransforms(processed_args)
+        libfn = utils.get_lib_fn('antsApplyTransforms')
+        libfn(processed_args)

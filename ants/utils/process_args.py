@@ -4,6 +4,7 @@
  
 
 __all__ = ['get_pointer_string',
+           'short_ptype',
            '_ptrstr', 
            '_int_antsProcessArguments',
            'get_lib_fn']
@@ -11,13 +12,21 @@ __all__ = ['get_pointer_string',
 from ..core import ants_image as iio
 from .. import lib
 
+_short_ptype_map = {'unsigned char' : 'UC',
+                    'unsigned int': 'UI',
+                    'float': 'F',
+                    'double' : 'D'}
+
+def short_ptype(pixeltype):
+    return _short_ptype_map[pixeltype]
 
 def get_lib_fn(string):
     return lib.__dict__[string]
 
 def _ptrstr(pointer):
     """ get string representation of a py::capsule (aka pointer) """
-    return lib.ptrstr(pointer)
+    libfn = get_lib_fn('ptrstr')
+    return libfn(pointer)
 
 def get_pointer_string(img):
     return _ptrstr(img.pointer)

@@ -7,7 +7,7 @@ __all__ = ['iMath',
 
 
 from .process_args import _int_antsProcessArguments
-from .. import lib
+from .. import utils
 
 _iMathOps = []
 
@@ -39,7 +39,8 @@ def iMath(img, operation, *args):
     outimg = img.clone()
     args = [imgdim, outimg, operation, img] + [a for a in args]
     processed_args = _int_antsProcessArguments(args)
-    lib.iMath(processed_args)
+    libfn = utils.get_lib_fn('iMath')
+    libfn(processed_args)
     return outimg
 image_math = iMath
 

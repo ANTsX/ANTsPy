@@ -9,24 +9,7 @@ import numpy as np
 from tempfile import mktemp
 
 from . import apply_transforms
-from .. import lib
-
-
-_reorient_image_dict = {
-    'float': {
-        2: 'reorientImageF2',
-        3: 'reorientImageF3',
-        4: 'reorientImageF4'
-    } 
-}
-
-_center_of_mass_dict = {
-    'float': {
-        2: 'centerOfMassF2',
-        3: 'centerOfMassF3',
-        4: 'centerOfMassF4'
-    }
-}
+from .. import utils
 
 
 def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=None):
@@ -104,8 +87,8 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
     if len(doscale) == 1:
         doscale = [doscale[0]]*img.dimension
 
-    reorient_image_fn = lib.__dict__[_reorient_image_dict[img.pixeltype][img.dimension]]
-    reorient_image_fn(img.pointer, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
+    libfn = utils.get_lib_fn('reorientImage%s%i' % (utils.short_type(img.pixeltype), img.dimension))
+    libfn(img.pointer, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
     img2 = apply_transforms(img, img, transformlist=[txfn])
 
     if img.pixeltype != inpixeltype:
@@ -141,8 +124,8 @@ def get_center_of_mass(img):
     if img.pixeltype != 'float':
         img = img.clone('float')
 
-    center_of_mass_fn = lib.__dict__[_center_of_mass_dict[img.pixeltype][img.dimension]]
-    com = center_of_mass_fn(img.pointer)
+    libfn = utils.get_lib_fn('centerOfMass%s%i' % (utils.short_type(img.pixeltype), img.dimension))
+    com = libfn(img.pointer)
 
     return tuple(com)
 

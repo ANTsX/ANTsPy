@@ -9,7 +9,6 @@ from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
 from .. import utils
-from .. import lib
 
 
 def create_jacobian_determinant_image(domain_img, tx, do_log=False, geom=False):
@@ -52,7 +51,8 @@ def create_jacobian_determinant_image(domain_img, tx, do_log=False, geom=False):
     dimg = domain_img.clone('double')
     args2 = [dim, txuse, dimg, int(do_log), int(geom)]
     processed_args = utils._int_antsProcessArguments(args2)
-    lib.CreateJacobianDeterminantImage(processed_args)
+    libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
+    libfn(processed_args)
     jimg = args2[2].clone('float')
     
     return jimg

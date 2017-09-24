@@ -4,7 +4,7 @@
 __all__ = ['image_mutual_information']
 
 
-from .. import lib
+from .. import utils
 
 
 def image_mutual_information(img1, img2):
@@ -38,11 +38,5 @@ def image_mutual_information(img1, img2):
     if img1.dimension != img2.dimension:
         raise ValueError('Both images must have same dimension')
 
-    if img1.dimension == 2:
-        return lib.antsImageMutualInformation2D(img1.pointer, img2.pointer)
-    elif img1.dimension == 3:
-        return lib.antsImageMutualInformation2D(img1.pointer, img2.pointer)
-    elif img1.dimension == 4:
-        return lib.antsImageMutualInformation2D(img1.pointer, img2.pointer)
-    else:
-        raise ValueError('Dimension %i not supported' % img1.dimension)
+    libfn = utils.get_lib_fn('antsImageMutualInformation%iD' % img1.dimension)
+    return libfn(img1.pointer, img2.pointer)

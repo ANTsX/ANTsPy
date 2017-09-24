@@ -10,7 +10,6 @@ import glob
 import re
 
 from .. import utils
-from .. import lib
 from ..core import ants_image as iio
 
 
@@ -149,7 +148,8 @@ def registration(fixed,
     """
     if isinstance(fixed, list) and (moving is None):
         processed_args = utils._int_antsProcessArguments(fixed)
-        lib.antsRegistration(processed_args)
+        libfn = utils.get_lib_fn('antsRegistration')
+        libfn(processed_args)
         return 0
 
     if type_of_transform == '':
@@ -644,7 +644,8 @@ def registration(fixed,
                     args.append('1')
 
                 processed_args = utils._int_antsProcessArguments(args)
-                lib.antsRegistration(processed_args)
+                libfn = utils.get_lib_fn('antsRegistration')
+                libfn(processed_args)
                 afffns = glob.glob(outprefix+'*'+'[0-9]GenericAffine.mat')
                 fwarpfns = glob.glob(outprefix+'*'+'[0-9]Warp.nii.gz')
                 iwarpfns = glob.glob(outprefix+'*'+'[0-9]InverseWarp.nii.gz')
@@ -679,6 +680,7 @@ def registration(fixed,
             args.append('-v')
             args.append('1')
             processed_args = utils._int_antsProcessArguments(args)
-            lib.antsRegistration(processed_args)
+            libfn = utils.get_lib_fn('antsRegistration')
+            libfn(processed_args)
             return 0
     

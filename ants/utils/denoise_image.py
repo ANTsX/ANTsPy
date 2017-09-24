@@ -3,7 +3,7 @@
 
 __all__ = ['denoise_image']
 
-from .. import lib
+from .. import utils
 from . import process_args as pargs
 from .get_mask import get_mask
 
@@ -68,5 +68,8 @@ def denoise_image(img, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rician
         'v': 0
     }
     processed_args = pargs._int_antsProcessArguments(myargs)
-    lib.DenoiseImage(processed_args)
+    libfn = utils.get_lib_fn('DenoiseImage')
+    libfn(processed_args)
     return outimg.clone(inpixeltype)
+
+

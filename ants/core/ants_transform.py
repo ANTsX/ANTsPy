@@ -15,7 +15,7 @@ __all__ = ['set_ants_transform_parameters',
            'transform_physical_point_to_index']
 
 from . import ants_image as iio
-from .. import lib
+from .. import utils
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _short_ptype_map = {
@@ -24,37 +24,6 @@ _short_ptype_map = {
     'float': 'F',
     'double' : 'D'
 }
-
-
-_compose_transforms_dict = {}
-for ndim in {2,3,4}:
-    _compose_transforms_dict[ndim] = {}
-    for d1 in {'float', 'double'}:
-        d1a = _short_ptype_map[d1]
-        try:
-            _compose_transforms_dict[ndim][d1] = 'ComposeTransforms%s%i'%(d1a,ndim)
-        except:
-            pass
-
-_transform_index_to_physical_point_dict = {}
-for ndim in {2,3,4}:
-    _transform_index_to_physical_point_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        try:
-            _transform_index_to_physical_point_dict[ndim][d1] = 'TransformIndexToPhysicalPoint%s%i'%(d1a,ndim)
-        except:
-            pass
-
-_transform_physical_point_to_index_dict = {}
-for ndim in {2,3,4}:
-    _transform_physical_point_to_index_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        try:
-            _transform_physical_point_to_index_dict[ndim][d1] = 'TransformPhysicalPointToIndex%s%i'%(d1a,ndim)
-        except:
-            pass
 
 class ANTsTransform(object):
 
@@ -397,9 +366,8 @@ def compose_ants_transforms(transform_list):
             raise ValueError('All transforms must have the same dimension')
 
     transform_list = list(reversed([tf._tx for tf in transform_list]))
-    compose_transform_fn = lib.__dict__[_compose_transforms_dict[dimension][precision]]
-
-    itk_composed_tx = compose_transform_fn(transform_list, precision, dimension)
+    libfn = utils.get_lib_fn('ComposeTransforms%s%i'%(_short_ptype_map[precision],dimension))
+    itk_composed_tx = libfn(transform_list, precision, dimension)
     return ANTsTransform(itk_composed_tx)
 
 
@@ -438,10 +406,10 @@ def transform_index_to_physical_point(img, index):
         raise ValueError('len(index) != img.dimension')
 
     index = [i+1 for i in index]
-    d = img.dimension
-    p = img.pixeltype
-    tx_fn = lib.__dict__[_transform_index_to_physical_point_dict[d][p]]
-    point = tx_fn(img.pointer, [list(index)])
+    ndim = img.dimension
+    ptype = img.pixeltype
+    libfn = utils.get_lib_fn('TransformIndexToPhysicalPoint%s%i' % (_short_ptype_map[ptype], ndim))
+    point = libfn(img.pointer, [list(index)])
     return point[0]
 
 
@@ -481,10 +449,10 @@ def transform_physical_point_to_index(img, point):
     if len(point) != img.dimension:
         raise ValueError('len(index) != img.dimension')
 
-    d = img.dimension
-    p = img.pixeltype
-    tx_fn = lib.__dict__[_transform_physical_point_to_index_dict[d][p]]
-    index = tx_fn(img.pointer, [list(point)])
+    ndim = img.dimension
+    ptype = img.pixeltype
+    libfn = utils.get_lib_fn('TransformPhysicalPointToIndex%s%i'%(_short_ptype_map[ptype],ndim))
+    index = libfn(img.pointer, [list(point)])
     index = [i-1 for i in index[0]]
     return index
 

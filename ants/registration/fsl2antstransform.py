@@ -2,7 +2,7 @@
 
 __all__ = ['fsl2antstransform']
 
-from .. import lib
+from .. import utils
 from ..core import ants_transform as tio
 
 def fsl2antstransform(matrix, reference, moving):
@@ -43,10 +43,11 @@ def fsl2antstransform(matrix, reference, moving):
     if moving.pixeltype != 'float':
         moving = moving.clone('float')
 
-    retvals = lib.fsl2antstransformF3(list(matrix), 
-                                        reference.pointer,
-                                        moving.pointer,
-                                        1)
+    libfn = utils.get_lib_fn('fsl2antstransformF3')
+    retvals = libfn(list(matrix), 
+                    reference.pointer,
+                    moving.pointer,
+                    1)
 
     return tio.ANTsTransform(retvals)
 

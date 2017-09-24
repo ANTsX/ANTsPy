@@ -11,7 +11,7 @@ from .get_mask import get_mask
 from .iMath import iMath
 
 from ..core import ants_image as iio
-from .. import lib
+from .. import utils
 
 
 def n3_bias_field_correction(img, downsample_factor=3):
@@ -40,7 +40,8 @@ def n3_bias_field_correction(img, downsample_factor=3):
     outimg = img.clone()
     args = [img.dimension, img, outimg, downsample_factor]
     processed_args = pargs._int_antsProcessArguments(args)
-    lib.N3BiasFieldCorrection(processed_args)
+    libfn = utils.get_lib_fn('N3BiasFieldCorrection')
+    libfn(processed_args)
     return outimg
 
 
@@ -119,7 +120,8 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
     }
 
     processed_args = pargs._int_antsProcessArguments(kwargs)
-    lib.N4BiasFieldCorrection(processed_args)
+    libfn = utils.get_lib_fn('N4BiasFieldCorrection')
+    libfn(processed_args)
     return outimg
 
 

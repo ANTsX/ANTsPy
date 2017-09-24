@@ -9,9 +9,7 @@ from scipy.stats import pearsonr
 import pandas as pd
 
 from .. import core
-from .. import lib
 from .. import utils
-from .. import viz
 from ..core import ants_image as iio
 
 
@@ -175,15 +173,15 @@ def sparse_decom2(inmatrix,
 
     if idim == 2:
         if version == 1:
-            sccancpp_fn = lib.sccanCpp2D
+            sccancpp_fn = utils.get_lib_fn('sccanCpp2D')
         elif version == 2:
-            sccancpp_fn = lib.sccanCpp2DV2
+            sccancpp_fn = utils.get_lib_fn('sccanCpp2DV2')
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
     elif idim ==3:
         if version == 1:
-            sccancpp_fn = lib.sccanCpp3D
+            sccancpp_fn = utils.get_lib_fn('sccanCpp3D')
         elif version == 2:
-            sccancpp_fn = lib.sccanCpp3DV2
+            sccancpp_fn = utils.get_lib_fn('sccanCpp3DV2')
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
 
     outval = sccancpp_fn(input_matrices[0], input_matrices[1],
