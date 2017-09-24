@@ -1,6 +1,6 @@
 from .antsImage import *
 from .antsImageClone import *
-#from .antsImageHeaderInfo import *
+from .antsImageHeaderInfo import *
 #from .antsImageMutualInformation import *
 #from .antsImageToImageMetric import *
 #from .antsImageUtils import *

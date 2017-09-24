@@ -9,8 +9,8 @@ __all__ = ['copy_image_info',
            'get_spacing',
            'image_physical_space_consistency',
            'image_type_cast',
-           'get_neighborhood_in_mask',
-           'get_neighborhood_at_voxel',
+          #'get_neighborhood_in_mask',
+           #'get_neighborhood_at_voxel',
            'allclose']
 
 import os
@@ -60,6 +60,7 @@ class ANTsImage(object):
         self.components = components
         self.has_components = self.components > 1
 
+        self._libsuffix = '%s%i' % (_short_ptype_map[self.pixeltype], self.dimension)
         #self.shape = None #//py::tuple shape;
         #self._ndarr = None #py::array _ndarr; // needed for creating image from numpy array
 
@@ -214,7 +215,7 @@ class ANTsImage(object):
         shape = self.shape[::-1]
         if self.components > 1:
             shape = list(shape) + [self.components]
-        libfn = utils.get_lib_fn('imageToNumpy%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('toNumpy%s'%self._libsuffix)
         memview = libfn(self.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
@@ -263,7 +264,7 @@ class ANTsImage(object):
             p2_short = _short_ptype_map[pixeltype]
             ndim = self.dimension
             fn_suffix = '%s%i%s%i' % (p1_short,ndim,p2_short,ndim)
-            libfn = utils.get_lib_fn('imageClone%s'%fn_suffix)
+            libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
             pointer_cloned = libfn(self.pointer)
             return ANTsImage(pixeltype=pixeltype, 
                             dimension=self.dimension, 

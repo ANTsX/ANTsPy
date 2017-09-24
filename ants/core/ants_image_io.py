@@ -385,11 +385,11 @@ def image_read(filename, dimension=None, pixeltype='float'):
             ptype = _unsupported_ptype_map[ptype]
 
         read_fn = lib.__dict__[_image_read_dict[pclass][ptype][ndim]]
-        itk_ants_image = read_fn(filename)
-        ants_image = iio.ANTsImage(itk_ants_image)
+        itk_pointer = read_fn(filename)
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_pointer)
 
-        if pixeltype is not None:
-            ants_image = ants_image.clone(pixeltype)
+        #if pixeltype is not None:
+        #    ants_image = ants_image.clone(pixeltype)
 
     return ants_image
 

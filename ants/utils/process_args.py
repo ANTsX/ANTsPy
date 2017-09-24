@@ -5,7 +5,8 @@
 
 __all__ = ['get_pointer_string',
            '_ptrstr', 
-           '_int_antsProcessArguments']
+           '_int_antsProcessArguments',
+           'get_lib_fn']
 
 from ..core import ants_image as iio
 from .. import lib

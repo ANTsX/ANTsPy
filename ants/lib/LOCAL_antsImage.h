@@ -131,16 +131,25 @@ py::capsule wrap( const typename ImageType::Pointer &image )
     return py::capsule(ptr, capsuleDestructor<ImageType>);
 }
 
+/*
 // converts a py::capsule to an ITK image pointer
 template <typename ImageType>
 typename ImageType::Pointer as( py::capsule pointer )
 {
     return static_cast<typename ImageType::Pointer>(pointer);
 }
+*/
+template <typename ImageType>
+typename ImageType::Pointer as( void * ptr )
+{
+    //void *ptr = image.pointer;
+    typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
+    return *real;
+}
 
 
 template <typename ImageType>
-void ToFile( py::capsule myPointer, std::string filename )
+void toFile( py::capsule & myPointer, std::string filename )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType image = ImageType::New();
@@ -170,7 +179,7 @@ py::tuple getShapeHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::tuple getShape( py::capsule myPointer )
+py::tuple getShape( py::capsule & myPointer )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getShapeHelper<ImageType>( itkImage );
@@ -193,7 +202,7 @@ py::tuple getOriginHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::tuple getOrigin( py::capsule myPointer )
+py::tuple getOrigin( py::capsule & myPointer )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getOriginHelper<ImageType>( itkImage );
@@ -212,7 +221,7 @@ void setOriginHelper( typename ImageType::Pointer &itkImage, std::vector<double>
 }
 
 template <typename ImageType>
-void setOrigin( py::capsule myPointer, std::vector<double> new_origin )
+void setOrigin( py::capsule & myPointer, std::vector<double> new_origin )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     setOriginHelper<ImageType>( itkImage, new_origin );
@@ -253,7 +262,7 @@ py::array getDirectionHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::array getDirection( py::capsule myPointer )
+py::array getDirection( py::capsule & myPointer )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getDirectionHelper<ImageType>( itkImage );
@@ -275,7 +284,7 @@ void setDirectionHelper( typename ImageType::Pointer &itkImage, py::array new_di
 }
 
 template <typename ImageType>
-void setDirection( py::capsule myPointer, py::array new_direction )
+void setDirection( py::capsule & myPointer, py::array new_direction )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     setDirectionHelper<ImageType>( itkImage, new_direction );
@@ -294,7 +303,7 @@ void setSpacingHelper( typename ImageType::Pointer &itkImage, std::vector<double
 }
 
 template <typename ImageType>
-void setSpacing( py::capsule myPointer, std::vector<double> new_spacing )
+void setSpacing( py::capsule & myPointer, std::vector<double> new_spacing )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     setSpacingHelper<ImageType>( itkImage, new_spacing );
@@ -316,7 +325,7 @@ py::tuple getSpacingHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::tuple getSpacing( py::capsule myPointer )
+py::tuple getSpacing( py::capsule & myPointer )
 {
     typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getSpacingHelper<ImageType>( itkImage );
