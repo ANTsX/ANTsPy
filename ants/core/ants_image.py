@@ -33,12 +33,6 @@ _npy_to_itk_map = {
     'uint32':'unsigned int',
     'float32': 'float',
     'float64': 'double'}
-_short_ptype_map = {
-    'unsigned char' : 'UC',
-    'unsigned int': 'UI',
-    'float': 'F',
-    'double' : 'D'
-}
 
 
 class ANTsImage(object):
@@ -59,7 +53,7 @@ class ANTsImage(object):
         self.components = components
         self.has_components = self.components > 1
         self.dtype = _itk_to_npy_map[self.pixeltype]
-        self._libsuffix = '%s%i' % (_short_ptype_map[self.pixeltype], self.dimension)
+        self._libsuffix = '%s%i' % (utils.short_type(self.pixeltype), self.dimension)
 
         self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
@@ -228,8 +222,8 @@ class ANTsImage(object):
             if pixeltype is None:
                 pixeltype = self.pixeltype
 
-            p1_short = _short_ptype_map[self.pixeltype]
-            p2_short = _short_ptype_map[pixeltype]
+            p1_short = utils.short_type(self.pixeltype)
+            p2_short = utils.short_type(pixeltype)
             ndim = self.dimension
             fn_suffix = '%s%i%s%i' % (p1_short,ndim,p2_short,ndim)
             libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
