@@ -97,7 +97,7 @@ def create_ants_metric(fixed,
         raise ValueError('invalid moving image')
 
     create_ants_metric_fn = lib.__dict__[_create_ants_metric_dict[dimension]]
-    metric = create_ants_metric_fn(pixeltype, dimension, metric_type, is_vector, fixed._img, moving._img)
+    metric = create_ants_metric_fn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
     ants_metric = mio.ANTsImageToImageMetric(metric)
 

@@ -131,8 +131,8 @@ def invariant_image_similarity(in_image1, in_image2,
 
     if not do_reflection:
         invariant_image_similarity_fn = lib.__dict__[_invariant_image_similarity_dict[idim][transform]]
-        r1 = invariant_image_similarity_fn(in_image1._img, 
-                                            in_image2._img,
+        r1 = invariant_image_similarity_fn(in_image1.pointer, 
+                                            in_image2.pointer,
                                             list(thetain), 
                                             list(thetain2), 
                                             list(thetain3),
@@ -157,8 +157,8 @@ def invariant_image_similarity(in_image1, in_image2,
         invariant_image_similarity_fn = lib.__dict__[_invariant_image_similarity_dict[idim][transform]]
 
         ## R1 ##
-        r1 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
+        r1 = invariant_image_similarity_fn(in_image1.pointer,
+                                            in_image2.pointer,
                                             list(thetain), 
                                             list(thetain2), 
                                             list(thetain3),
@@ -173,8 +173,8 @@ def invariant_image_similarity(in_image1, in_image2,
         r1 = pd.DataFrame(r1, columns=['MetricValue']+pnames)
 
         ## R2 ##
-        r2 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
+        r2 = invariant_image_similarity_fn(in_image1.pointer,
+                                            in_image2.pointer,
                                             list(thetain), 
                                             list(thetain2), 
                                             list(thetain3),
@@ -187,8 +187,8 @@ def invariant_image_similarity(in_image1, in_image2,
         r2 = pd.DataFrame(r2, columns=['MetricValue']+pnames)
 
         ## R3 ##
-        r3 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
+        r3 = invariant_image_similarity_fn(in_image1.pointer,
+                                            in_image2.pointer,
                                             list(thetain), 
                                             list(thetain2), 
                                             list(thetain3),
@@ -201,8 +201,8 @@ def invariant_image_similarity(in_image1, in_image2,
         r3 = pd.DataFrame(r3, columns=['MetricValue']+pnames)
 
         ## R4 ##
-        r4 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
+        r4 = invariant_image_similarity_fn(in_image1.pointer,
+                                            in_image2.pointer,
                                             list(thetain), 
                                             list(thetain2), 
                                             list(thetain3),
@@ -275,7 +275,7 @@ def convolve_image(image, kernel_image, crop=True):
         kernel_image[kernel_image_mask==0] = kernel_image[kernel_image_mask==1].mean()
 
     convolve_image_fn = lib.__dict__[_convolve_image_dict[image.dimension]]
-    conv_itk_image = convolve_image_fn(image._img, kernel_image._img)
+    conv_itk_image = convolve_image_fn(image.pointer, kernel_image.pointer)
     conv_ants_image = iio.ANTsImage(conv_itk_image)
 
     if orig_ptype != 'float':

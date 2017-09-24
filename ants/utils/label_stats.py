@@ -39,6 +39,6 @@ def label_stats(image, label_image):
     label_image_int = label_image.clone('unsigned int')
     label_stats_fn = _label_stats_dict[image.dimension]
 
-    df = lib.__dict__[label_stats_fn(image_float._img, label_image_int._img)]
+    df = lib.__dict__[label_stats_fn(image_float.pointer, label_image_int.pointer)]
     #df = df[order(df$LabelValue), ]
     return df

@@ -188,7 +188,7 @@ class ANTsTransform(object):
 
         reference = reference.clone(image.pixeltype)
 
-        return iio.ANTsImage(tform_fn(image._img, reference._img, interpolation))
+        return iio.ANTsImage(tform_fn(image.pointer, reference.pointer, interpolation))
 
     def __repr__(self):
         s = "ANTsTransform\n" +\
@@ -441,7 +441,7 @@ def transform_index_to_physical_point(img, index):
     d = img.dimension
     p = img.pixeltype
     tx_fn = lib.__dict__[_transform_index_to_physical_point_dict[d][p]]
-    point = tx_fn(img._img, [list(index)])
+    point = tx_fn(img.pointer, [list(index)])
     return point[0]
 
 
@@ -484,7 +484,7 @@ def transform_physical_point_to_index(img, point):
     d = img.dimension
     p = img.pixeltype
     tx_fn = lib.__dict__[_transform_physical_point_to_index_dict[d][p]]
-    index = tx_fn(img._img, [list(point)])
+    index = tx_fn(img.pointer, [list(point)])
     index = [i-1 for i in index[0]]
     return index
 

@@ -21,9 +21,10 @@
 #include "vnl/algo/vnl_matrix_inverse.h"
 #include "vnl/vnl_matrix.h"
 #include "vnl/algo/vnl_determinant.h"
+
 namespace py = pybind11;
 
-
+/*
 template <typename ImageType>
 class ANTsImage {
 public:
@@ -62,6 +63,7 @@ public:
 
 };
 
+
 // gets associated ITK pixel type as string
 std::string getPixelTypeStringFromDummy( unsigned char dummyval ) { return "unsigned char"; }
 std::string getPixelTypeStringFromDummy( unsigned int dummyval ) { return "unsigned int"; }
@@ -88,7 +90,7 @@ std::string getDataTypeStringFromDummy( itk::RGBPixel<unsigned char> dummyval ) 
 
 
 template <typename ImageType>
-ANTsImage<ImageType> wrap( const typename ImageType::Pointer &image )
+py::capsule wrap( const typename ImageType::Pointer &image )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType * ptr = new ImagePointerType( image );
@@ -99,8 +101,6 @@ ANTsImage<ImageType> wrap( const typename ImageType::Pointer &image )
     typename ImageType::PixelType dummyval;
     ptype = getPixelTypeStringFromDummy(dummyval);
     dtype = getDataTypeStringFromDummy(dummyval);
-
-    
     unsigned int ndim = ImageType::GetImageDimension();
 
     ANTsImage<ImageType>      antsimage;
@@ -112,25 +112,40 @@ ANTsImage<ImageType> wrap( const typename ImageType::Pointer &image )
     
     return antsimage;
 }
-
+*/
 
 template <typename ImageType>
-typename ImageType::Pointer as( ANTsImage<ImageType> & image )
+void capsuleDestructor( void * f ) 
 {
-    void *ptr = image.pointer;
-    typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
+    //std::cout << "calling capsule destructor" << std::endl;
+    typename ImageType::Pointer * foo  = reinterpret_cast<typename ImageType::Pointer *>( f );
+    *foo = ITK_NULLPTR;
+}
 
-    return *real;
+// converts an ITK image pointer to a py::capsule
+template <typename ImageType>
+py::capsule wrap( const typename ImageType::Pointer &image )
+{
+    typedef typename ImageType::Pointer ImagePointerType;
+    ImagePointerType * ptr = new ImagePointerType( image );
+    return py::capsule(ptr, capsuleDestructor<ImageType>);
+}
+
+// converts a py::capsule to an ITK image pointer
+template <typename ImageType>
+typename ImageType::Pointer as( py::capsule pointer )
+{
+    return static_cast<typename ImageType::Pointer>(pointer);
 }
 
 
 template <typename ImageType>
-void ANTsImage<ImageType>::toFile( std::string filename )
+void ToFile( py::capsule myPointer, std::string filename )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType image = ImageType::New();
 
-    image = as<ImageType>( *this );
+    image = as<ImageType>( myPointer );
 
     typedef itk::ImageFileWriter< ImageType > ImageWriterType ;
     typename ImageWriterType::Pointer image_writer = ImageWriterType::New() ;
@@ -155,9 +170,9 @@ py::tuple getShapeHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::tuple ANTsImage<ImageType>::getShape()
+py::tuple getShape( py::capsule myPointer )
 {
-    typename ImageType::Pointer itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getShapeHelper<ImageType>( itkImage );
 }
 
@@ -178,12 +193,9 @@ py::tuple getOriginHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::tuple ANTsImage<ImageType>::getOrigin()
+py::tuple getOrigin( py::capsule myPointer )
 {
-    py::tuple myTuple;
-    unsigned int dimension = this->dimension;
-    std::string pixeltype = this->pixeltype;
-    typename ImageType::Pointer itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getOriginHelper<ImageType>( itkImage );
 }
 
@@ -200,11 +212,9 @@ void setOriginHelper( typename ImageType::Pointer &itkImage, std::vector<double>
 }
 
 template <typename ImageType>
-void ANTsImage<ImageType>::setOrigin( std::vector<double> new_origin )
+void setOrigin( py::capsule myPointer, std::vector<double> new_origin )
 {
-    unsigned int ndim = this->dimension;
-    typename ImageType::Pointer itkImage = ImageType::New();
-    itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     setOriginHelper<ImageType>( itkImage, new_origin );
 }
 
@@ -243,13 +253,9 @@ py::array getDirectionHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::array ANTsImage<ImageType>::getDirection( )
+py::array getDirection( py::capsule myPointer )
 {
-    py::tuple myTuple;
-    unsigned int dimension = this->dimension;
-    std::string pixeltype = this->pixeltype;
-
-    typename ImageType::Pointer itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getDirectionHelper<ImageType>( itkImage );
 }
 
@@ -269,11 +275,9 @@ void setDirectionHelper( typename ImageType::Pointer &itkImage, py::array new_di
 }
 
 template <typename ImageType>
-void ANTsImage<ImageType>::setDirection( py::array new_direction )
+void setDirection( py::capsule myPointer, py::array new_direction )
 {
-    unsigned int ndim = this->dimension;
-    typename ImageType::Pointer itkImage = ImageType::New();
-    itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     setDirectionHelper<ImageType>( itkImage, new_direction );
 }
 
@@ -290,11 +294,9 @@ void setSpacingHelper( typename ImageType::Pointer &itkImage, std::vector<double
 }
 
 template <typename ImageType>
-void ANTsImage<ImageType>::setSpacing( std::vector<double> new_spacing )
+void setSpacing( py::capsule myPointer, std::vector<double> new_spacing )
 {
-    unsigned int ndim = this->dimension;
-    typename ImageType::Pointer itkImage = ImageType::New();
-    itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     setSpacingHelper<ImageType>( itkImage, new_spacing );
 }
 
@@ -314,12 +316,9 @@ py::tuple getSpacingHelper( typename ImageType::Pointer image )
 }
 
 template <typename ImageType>
-py::tuple ANTsImage<ImageType>::getSpacing()
+py::tuple getSpacing( py::capsule myPointer )
 {
-    py::tuple myTuple;
-    unsigned int dimension = this->dimension;
-    std::string pixeltype = this->pixeltype;
-    typename ImageType::Pointer itkImage = as<ImageType>( *this );
+    typename ImageType::Pointer itkImage = as<ImageType>( myPointer );
     return getSpacingHelper<ImageType>( itkImage );
 }
 

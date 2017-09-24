@@ -233,10 +233,10 @@ def transform_from_displacement_field(field):
         raise ValueError('field must be ANTsImage type')
     if field.dimension == 2:
         field = field.clone('float')
-        return tio.ANTsTransform(lib.antsTransformFromDisplacementFieldF2(field._img))
+        return tio.ANTsTransform(lib.antsTransformFromDisplacementFieldF2(field.pointer))
     elif field.dimension == 3:
         field = field.clone('float')
-        return tio.ANTsTransform(lib.antsrTransformFromDisplacementFieldF3(field._img))
+        return tio.ANTsTransform(lib.antsrTransformFromDisplacementFieldF3(field.pointer))
 
 
 def read_transform(filename, dimension=3, precision='float'):

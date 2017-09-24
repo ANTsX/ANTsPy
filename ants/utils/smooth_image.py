@@ -32,7 +32,7 @@ def _smooth_image_helper(img, sigma, sigma_in_physical_coordinates=True, FWHM=Fa
     max_kernel_width = int(math.ceil(max_kernel_width))
 
     smooth_image_fn = lib.__dict__[_smooth_image_dict[img.dimension]]
-    outimg = smooth_image_fn(img_float._img, sigma, sigma_in_physical_coordinates, max_kernel_width)
+    outimg = smooth_image_fn(img_float.pointer, sigma, sigma_in_physical_coordinates, max_kernel_width)
     ants_outimg = iio.ANTsImage(outimg)
     return ants_outimg
 

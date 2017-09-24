@@ -65,7 +65,7 @@ def merge_channels(img_list):
             raise ValueError('all images must have the same pixeltype')
 
     merge_channels_fn = lib.__dict__[_merge_channels_dict[img_list[0].pixeltype][img_list[0].dimension]]
-    img = merge_channels_fn([img._img for img in img_list])
+    img = merge_channels_fn([img.pointer for img in img_list])
     return iio.ANTsImage(img)
 
 
@@ -95,7 +95,7 @@ def split_channels(img):
     >>> imgs_unmerged[0].components == 1
     """
     split_channels_fn = lib.__dict__[_split_channels_dict[img.pixeltype][img.dimension]]
-    itkimgs = split_channels_fn(img._img)
+    itkimgs = split_channels_fn(img.pointer)
     antsimgs = [iio.ANTsImage(itkimg) for itkimg in itkimgs]
     return antsimgs
 

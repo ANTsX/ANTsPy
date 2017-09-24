@@ -55,7 +55,7 @@ def crop_image(image, label_image=None, label=1):
         label_image = label_image.clone('float')
 
     crop_image_fn = lib.__dict__[_crop_image_dict[image.dimension]]
-    itkimage = crop_image_fn(image._img, label_image._img, label, 0, [], [])
+    itkimage = crop_image_fn(image.pointer, label_image.pointer, label, 0, [], [])
     return iio.ANTsImage(itkimage).clone(inpixeltype)
 
 
@@ -98,7 +98,7 @@ def crop_indices(image, lowerind, upperind):
         raise ValueError('image dimensionality and index length must match')
 
     crop_image_fn = lib.__dict__[_crop_image_dict[image.dimension]]
-    itkimage = crop_image_fn(image._img, image._img, 1, 2, lowerind, upperind)
+    itkimage = crop_image_fn(image.pointer, image.pointer, 1, 2, lowerind, upperind)
     return iio.ANTsImage(itkimage).clone(inpixeltype)
 
 
@@ -135,6 +135,6 @@ def decrop_image(cropped_image, full_image):
         full_image = full_image.clone('float')
 
     crop_image_fn = lib.__dict__[_crop_image_dict[cropped_image.dimension]]
-    itkimage = crop_image_fn(cropped_image._img, full_image._img, 1, 1, [], [])
+    itkimage = crop_image_fn(cropped_image.pointer, full_image.pointer, 1, 1, [], [])
     return iio.ANTsImage(itkimage).clone(inpixeltype)
 

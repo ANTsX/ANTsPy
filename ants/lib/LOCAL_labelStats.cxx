@@ -128,8 +128,8 @@ py::dict labelStatsHelper(
 }
 
 template <unsigned int Dimension>
-py::dict labelStats(ANTsImage<itk::Image<float, Dimension>> py_image,
-                    ANTsImage<itk::Image<unsigned int, Dimension>> py_labelImage)
+py::dict labelStats(py::capsule py_image,
+                    py::capsule py_labelImage)
 { 
   typedef itk::Image<float, Dimension> FloatImageType;
   typedef itk::Image<unsigned int, Dimension> IntImageType;

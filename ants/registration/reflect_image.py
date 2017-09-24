@@ -70,7 +70,7 @@ def reflect_image(img, axis=None, tx=None, metric='mattes'):
     rflct = mktemp(suffix='.mat')
 
     reflection_matrix_fn = lib.__dict__[_reflection_matrix_dict[img.pixeltype][img.dimension]]
-    reflection_matrix_fn(img._img, axis, rflct)
+    reflection_matrix_fn(img.pointer, axis, rflct)
 
     if tx is not None:
         rfi = registration(img, img, type_of_transform=tx,

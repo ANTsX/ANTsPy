@@ -105,7 +105,7 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
         doscale = [doscale[0]]*img.dimension
 
     reorient_image_fn = lib.__dict__[_reorient_image_dict[img.pixeltype][img.dimension]]
-    reorient_image_fn(img._img, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
+    reorient_image_fn(img.pointer, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
     img2 = apply_transforms(img, img, transformlist=[txfn])
 
     if img.pixeltype != inpixeltype:
@@ -142,7 +142,7 @@ def get_center_of_mass(img):
         img = img.clone('float')
 
     center_of_mass_fn = lib.__dict__[_center_of_mass_dict[img.pixeltype][img.dimension]]
-    com = center_of_mass_fn(img._img)
+    com = center_of_mass_fn(img.pointer)
 
     return tuple(com)
 

@@ -44,8 +44,8 @@ def fsl2antstransform(matrix, reference, moving):
         moving = moving.clone('float')
 
     retvals = lib.fsl2antstransformF3(list(matrix), 
-                                        reference._img,
-                                        moving._img,
+                                        reference.pointer,
+                                        moving.pointer,
                                         1)
 
     return tio.ANTsTransform(retvals)

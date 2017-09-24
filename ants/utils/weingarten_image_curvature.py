@@ -54,7 +54,7 @@ def weingarten_image_curvature(img, sigma=1.0, opt='mean'):
     if opt == 'characterize':
         optnum = 5
 
-    mykout = lib.weingartenImageCurvature(temp._img, sigma, optnum)
+    mykout = lib.weingartenImageCurvature(temp.pointer, sigma, optnum)
     mykout = iio.ANTsImage(mykout)
     if img.dimension == 3:
         return mykout

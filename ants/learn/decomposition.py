@@ -187,7 +187,7 @@ def sparse_decom2(inmatrix,
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
 
     outval = sccancpp_fn(input_matrices[0], input_matrices[1],
-                        inmask[0]._img, inmask[1]._img,
+                        inmask[0].pointer, inmask[1].pointer,
                         hasmaskx, hasmasky,
                         sparseness[0], sparseness[1],
                         nvecs, its, 
@@ -219,7 +219,7 @@ def sparse_decom2(inmatrix,
             m1 = input_matrices[0][np.random.permutation(nsubs),:]
             m2 = input_matrices[1][np.random.permutation(nsubs),:]
             outvalperm = sccancpp_fn(m1, m2,
-                                inmask[0]._img, inmask[1]._img,
+                                inmask[0].pointer, inmask[1].pointer,
                                 hasmaskx, hasmasky,
                                 sparseness[0], sparseness[1],
                                 nvecs, its, 

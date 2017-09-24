@@ -143,8 +143,8 @@ public:
 
 
 template <typename AffineType, unsigned int ImageDimension >
-std::vector<std::vector<float> > invariantImageSimilarity(ANTsImage<itk::Image<float,ImageDimension>> in_image1,
-                                                          ANTsImage<itk::Image<float,ImageDimension>> in_image2, 
+std::vector<std::vector<float> > invariantImageSimilarity(py::capsule in_image1,
+                                                          py::capsule in_image2, 
                                                           std::vector<float> thetas, 
                                                           std::vector<float> thetas2, 
                                                           std::vector<float> thetas3,
@@ -531,8 +531,8 @@ std::vector<std::vector<float> > invariantImageSimilarity(ANTsImage<itk::Image<f
 
 
 template <class PixelType, unsigned int Dimension>
-ANTsImage<itk::Image<PixelType,Dimension>> convolveImage( ANTsImage<itk::Image<PixelType,Dimension>> ants_image,
-                                    ANTsImage<itk::Image<PixelType,Dimension>> ants_kernel )
+py::capsule convolveImage( py::capsule ants_image,
+                                    py::capsule ants_kernel )
 {
   typedef itk::Image<PixelType,Dimension> ImageType;
   typedef typename ImageType::Pointer ImagePointerType;
@@ -545,7 +545,7 @@ ANTsImage<itk::Image<PixelType,Dimension>> convolveImage( ANTsImage<itk::Image<P
   convolutionFilter->SetKernelImage( kernel );
   convolutionFilter->Update();
 
-  ANTsImage<ImageType> convOutput = wrap< ImageType >( convolutionFilter->GetOutput() );
+  py::capsule convOutput = wrap< ImageType >( convolutionFilter->GetOutput() );
   return convOutput;
 
 }

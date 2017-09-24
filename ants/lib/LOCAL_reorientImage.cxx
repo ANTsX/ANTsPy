@@ -150,7 +150,7 @@ int antsReoHelper(
 }
 
 template <typename ImageType, unsigned int Dimension>
-int reorientImage(  ANTsImage<ImageType> in_image, std::string txfn, 
+int reorientImage(  py::capsule in_image, std::string txfn, 
                       std::vector<int> axis1, std::vector<int> axis2,
                       std::vector<int> rrfl, std::vector<int> rscl )
 {
@@ -165,7 +165,7 @@ int reorientImage(  ANTsImage<ImageType> in_image, std::string txfn,
 
 
 template <typename ImageType, unsigned int Dimension>
-std::vector<double> centerOfMass( ANTsImage<ImageType> & image  )
+std::vector<double> centerOfMass( py::capsule & image  )
 {
   typedef typename ImageType::Pointer ImagePointerType;
   ImagePointerType itkimage = as<ImageType>( image );

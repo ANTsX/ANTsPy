@@ -11,6 +11,9 @@ from ..core import ants_image as iio
 from .. import lib
 
 
+def get_lib_fn(string):
+    return lib.__dict__[string]
+
 def _ptrstr(pointer):
     """ get string representation of a py::capsule (aka pointer) """
     return lib.ptrstr(pointer)

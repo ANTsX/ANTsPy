@@ -22,22 +22,18 @@ from .. import lib
 from .. import utils, registration, segmentation, viz
 from . import ants_image_io as iio2
 
-_npy_type_set = {'uint8', 'uint32', 'float32', 'float64'}
-_itk_type_set = {'unsigned char', 'unsigned int', 'float', 'double'}
 
+_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _itk_to_npy_map = {
     'unsigned char': 'uint8',
     'unsigned int': 'uint32',
     'float': 'float32',
     'double': 'float64'}
-
 _npy_to_itk_map = {
     'uint8': 'unsigned char',
     'uint32':'unsigned int',
     'float32': 'float',
     'float64': 'double'}
-
-_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _short_ptype_map = {
     'unsigned char' : 'UC',
     'unsigned int': 'UI',
@@ -45,50 +41,11 @@ _short_ptype_map = {
     'double' : 'D'
 }
 
-# pick up lib.antsImageCloneX functions
-_image_clone_dict = {}
-for ndim in {2,3,4}:
-    _image_clone_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        _image_clone_dict[ndim][d1] = {}
-        for d2 in _supported_ptypes:
-            d1a = _short_ptype_map[d1]
-            d2a = _short_ptype_map[d2]
-            try:
-                _image_clone_dict[ndim][d1][d2] = 'antsImageClone%s%i%s%i'%(d1a,ndim,d2a,ndim)
-            except:
-                pass
-
-# pick up lib.getNeighborhoodMatrixX functions
-_get_neighborhood_matrix_dict = {}
-for ndim in {2,3,4}:
-    _get_neighborhood_matrix_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        try:
-            _get_neighborhood_matrix_dict[ndim][d1] = 'getNeighborhoodMatrix%s%i'%(d1a,ndim)
-        except:
-            pass
-
-# pick up lib.getNeighborhoodX functions
-_get_neighborhood_at_voxel_dict = {}
-for ndim in {2,3,4}:
-    _get_neighborhood_at_voxel_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        try:
-            _get_neighborhood_at_voxel_dict[ndim][d1] = 'getNeighborhood%s%i'%(d1a,ndim)
-        except:
-            pass
-
-
 
 class ANTsImage(object):
 
-    def __init__(self, img):
+    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None):
         """
-        NOTE: This class should never be initialized directly by the user.
-
         Initialize an ANTsImage
 
         Arguments
@@ -96,56 +53,22 @@ class ANTsImage(object):
         img : Cpp-ANTsImage object
             underlying cpp class which this class just wraps
         """
-        self._img = img
+        ## Attributes which cant change without creating a new ANTsImage object
+        self.pointer = pointer
+        self.pixeltype = pixeltype
+        self.dimension = dimension
+        self.components = components
+        self.has_components = self.components > 1
 
-    @property
-    def pixeltype(self):
-        """
-        ITK pixel representation
-        """
-        return self._img.pixeltype
+        #self.shape = None #//py::tuple shape;
+        #self._ndarr = None #py::array _ndarr; // needed for creating image from numpy array
 
     @property
     def dtype(self):
         """
         Numpy pixel representation
         """
-        return self._img.dtype
-
-    @property
-    def dimension(self):
-        """
-        Number of dimensions in the image
-        """
-        return self._img.dimension
-
-    @property
-    def components(self):
-        """
-        Number of components in the image
-        """
-        return self._img.components
-
-    @property
-    def pointer(self):
-        """
-        Pointer to ITK image object
-        """
-        return self._img.pointer
-
-    @property
-    def header(self):
-        """
-        Get basic image header information
-        """
-        return {
-            'pixel type': self.pixeltype,
-            'components': self.components,
-            'dimensions': self.shape,
-            'spacing': self.spacing,
-            'origin': self.origin,
-            'direction': self.direction.tolist()
-        }
+        return _itk_to_npy_map[self.pixeltype]
 
     @property
     def spacing(self):
@@ -156,7 +79,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return self._img.get_spacing()
+        libfn = utils.get_lib_fn('getSpacing%s'%self._libsuffix)
+        return libfn(self.pointer)
 
     def set_spacing(self, new_spacing):
         """
@@ -177,7 +101,8 @@ class ANTsImage(object):
         if len(new_spacing) != self.dimension:
             raise ValueError('must give a spacing value for each dimension (%i)' % self.dimension)
 
-        self._img.set_spacing(new_spacing)
+        libfn = utils.get_lib_fn('setSpacing%s'%self._libsuffix)
+        libfn(self.pointer, new_spacing)
 
     @property
     def shape(self):
@@ -188,7 +113,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return self._img.get_shape()
+        libfn = utils.get_lib_fn('getShape%s'%self._libsuffix)
+        return libfn(self.pointer)
 
     @property
     def physical_shape(self):
@@ -212,7 +138,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return self._img.get_origin()
+        libfn = utils.get_lib_fn('getOrigin%s'%self._libsuffix)
+        return libfn(self.pointer)
 
     def set_origin(self, new_origin):
         """
@@ -233,7 +160,8 @@ class ANTsImage(object):
         if len(new_origin) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        self._img.set_origin(new_origin)
+        libfn = utils.get_lib_fn('setOrigin%s'%self._libsuffix)
+        libfn(self.pointer, new_origin)
 
     @property
     def direction(self):
@@ -244,7 +172,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return self._img.get_direction()
+        libfn = utils.get_lib_fn('getDirection%s'%self._libsuffix)
+        return libfn(self.pointer)
 
     def set_direction(self, new_direction):
         """
@@ -268,18 +197,8 @@ class ANTsImage(object):
         if len(new_direction) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        self._img.set_direction(new_direction)
-
-    @property
-    def has_components(self):
-        """
-        Returns true if image voxels are components
-
-        Returns
-        -------
-        boolean
-        """
-        return self.components > 1
+        libfn = utils.get_lib_fn('setDirection%s'%self._libsuffix)
+        libfn(self.pointer, new_direction)
 
     def view(self):
         """
@@ -295,7 +214,8 @@ class ANTsImage(object):
         shape = self.shape[::-1]
         if self.components > 1:
             shape = list(shape) + [self.components]
-        memview = self._img.numpy()
+        libfn = utils.get_lib_fn('imageToNumpy%s'%self._libsuffix)
+        memview = libfn(self.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
     def numpy(self):
@@ -339,13 +259,16 @@ class ANTsImage(object):
             if pixeltype is None:
                 pixeltype = self.pixeltype
 
+            p1_short = _short_ptype_map[self.pixeltype]
+            p2_short = _short_ptype_map[pixeltype]
             ndim = self.dimension
-            d1 = self.pixeltype
-            d2 = pixeltype
-
-            image_clone_fn = lib.__dict__[_image_clone_dict[ndim][d1][d2]]
-            img_cloned = ANTsImage(image_clone_fn(self._img)) 
-            return img_cloned
+            fn_suffix = '%s%i%s%i' % (p1_short,ndim,p2_short,ndim)
+            libfn = utils.get_lib_fn('imageClone%s'%fn_suffix)
+            pointer_cloned = libfn(self.pointer)
+            return ANTsImage(pixeltype=pixeltype, 
+                            dimension=self.dimension, 
+                            components=self.components, 
+                            pointer=pointer_cloned) 
 
     def new_image_like(self, data):
         """
@@ -385,7 +308,8 @@ class ANTsImage(object):
             filepath to which the image will be written
         """
         filename = os.path.expanduser(filename)
-        return self._img.toFile(filename)
+        libfn = utils.get_lib_fn('toFile%s'%self._libsuffix)
+        libfn(self.pointer, filename)
 
     def apply(self, fn):
         """
@@ -784,181 +708,6 @@ def image_type_cast(image_list, pixeltype=None):
             out_images.append(img.clone(pixeltype))
 
     return out_images
-
-
-def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
-                            boundary_condition=None, spatial_info=False, get_gradient=False):
-    """
-    Get neighborhoods for voxels within mask.
-    
-    This converts a scalar image to a matrix with rows that contain neighbors 
-    around a center voxel
-    
-    ANTsR function: `getNeighborhoodInMask`
-
-    Arguments
-    ---------
-    image : ANTsImage
-        image to get values from
-    
-    mask : ANTsImage
-        image indicating which voxels to examine. Each voxel > 0 will be used as the 
-        center of a neighborhood
-    
-    radius : tuple/list
-        array of values for neighborhood radius (in voxels)
-    
-    physical_coordinates : boolean
-        whether voxel indices and offsets should be in voxel or physical coordinates
-    
-    boundary_condition : string (optional)
-        how to handle voxels in a neighborhood, but not in the mask.
-            None : fill values with `NaN`
-            `image` : use image value, even if not in mask
-            `mean` : use mean of all non-NaN values for that neighborhood
-    
-    spatial_info : boolean
-        whether voxel locations and neighborhood offsets should be returned along with pixel values.
-    
-    get_gradient : boolean
-        whether a matrix of gradients (at the center voxel) should be returned in 
-        addition to the value matrix (WIP)
-
-    Returns
-    -------
-    if spatial_info is False:
-        if get_gradient is False:
-            ndarray
-                an array of pixel values where the number of rows is the size of the 
-                neighborhood and there is a column for each voxel
-
-        else if get_gradient is True:
-            dictionary w/ following key-value pairs:
-                values : ndarray
-                    array of pixel values where the number of rows is the size of the 
-                    neighborhood and there is a column for each voxel.
-
-                gradients : ndarray
-                    array providing the gradients at the center voxel of each 
-                    neighborhood
-        
-    else if spatial_info is True:
-        dictionary w/ following key-value pairs:
-            values : ndarray
-                array of pixel values where the number of rows is the size of the 
-                neighborhood and there is a column for each voxel.
-
-            indices : ndarray
-                array provinding the center coordinates for each neighborhood
-
-            offsets : ndarray
-                array providing the offsets from center for each voxel in a neighborhood
-
-    Example
-    -------
-    >>> import ants
-    >>> r16 = ants.image_read(ants.get_ants_data('r16'))
-    >>> mask = ants.get_mask(r16)
-    >>> mat = ants.get_neighborhood_in_mask(r16, mask, radius=(2,2))
-    """
-    if not isinstance(image, ANTsImage):
-        raise ValueError('image must be ANTsImage type')
-    if not isinstance(mask, ANTsImage):
-        raise ValueError('mask must be ANTsImage type')
-    if isinstance(radius, (int, float)):
-        radius = [radius]*image.dimension
-    if (not isinstance(radius, (tuple,list))) or (len(radius) != image.dimension):
-        raise ValueError('radius must be tuple or list with length == image.dimension')
-
-    boundary = 0
-    if boundary_condition == 'image':
-        boundary = 1
-    elif boundary_condition == 'mean':
-        boundary = 2
-    
-    get_neighborhood_matrix_fn = lib.__dict__[_get_neighborhood_matrix_dict[image.dimension][image.pixeltype]]
-    retvals = get_neighborhood_matrix_fn(image._img, 
-                                        mask._img, 
-                                        list(radius),
-                                        int(physical_coordinates), 
-                                        int(boundary),
-                                        int(spatial_info),
-                                        int(get_gradient))
-    if not spatial_info:
-        if get_gradient:
-            retvals['values'] = np.asarray(retvals['values'])
-            retvals['gradients'] = np.asarray(retvals['gradients'])
-        else:
-            retvals = np.asarray(retvals['matrix'])
-    else:
-        retvals['values'] = np.asarray(retvals['values'])
-        retvals['indices'] = np.asarray(retvals['indices'])
-        retvals['offsets'] = np.asarray(retvals['offsets'])
-
-
-    return retvals
-
-
-def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False):
-    """
-    Get a hypercube neighborhood at a voxel. Get the values in a local 
-    neighborhood of an image.
-    
-    ANTsR function: `getNeighborhoodAtVoxel`
-
-    Arguments
-    ---------
-    image : ANTsImage
-        image to get values from.
-    
-    center : tuple/list
-        indices for neighborhood center
-    
-    kernel : tuple/list
-        either a collection of values for neighborhood radius (in voxels) or 
-        a binary collection of the same dimension as the image, specifying the shape of the neighborhood to extract
-    
-    physical_coordinates : boolean
-        whether voxel indices and offsets should be in voxel 
-        or physical coordinates
-
-    Returns
-    -------
-    dictionary w/ following key-value pairs:
-        values : ndarray
-            array of neighborhood values at the voxel
-
-        indices : ndarray
-            matrix providing the coordinates for each value
-
-    Example
-    -------
-    >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'))
-    >>> center = (2,2)
-    >>> radius = (3,3)
-    >>> retval = ants.get_neighborhood_at_voxel(img, center, radius)
-    """
-    if not isinstance(image, ANTsImage):
-        raise ValueError('image must be ANTsImage type')
-
-    if (not isinstance(center, (tuple,list))) or (len(center) != image.dimension):
-        raise ValueError('center must be tuple or list with length == image.dimension')
-
-    if (not isinstance(kernel, (tuple,list))) or (len(kernel) != image.dimension):
-        raise ValueError('kernel must be tuple or list with length == image.dimension')
-
-    radius = [int((k-1)/2) for k in kernel]
-
-    get_neighborhood_at_voxel_fn = lib.__dict__[_get_neighborhood_at_voxel_dict[image.dimension][image.pixeltype]]
-    retvals = get_neighborhood_at_voxel_fn(image._img, 
-                                            list(center), 
-                                            list(kernel), 
-                                            list(radius), 
-                                            int(physical_coordinates))
-    for k in retvals.keys():
-        retvals[k] = np.asarray(retvals[k])
-    return retvals
 
 
 def allclose(img, other_img):

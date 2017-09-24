@@ -39,10 +39,10 @@ def image_mutual_information(img1, img2):
         raise ValueError('Both images must have same dimension')
 
     if img1.dimension == 2:
-        return lib.antsImageMutualInformation2D(img1._img, img2._img)
+        return lib.antsImageMutualInformation2D(img1.pointer, img2.pointer)
     elif img1.dimension == 3:
-        return lib.antsImageMutualInformation2D(img1._img, img2._img)
+        return lib.antsImageMutualInformation2D(img1.pointer, img2.pointer)
     elif img1.dimension == 4:
-        return lib.antsImageMutualInformation2D(img1._img, img2._img)
+        return lib.antsImageMutualInformation2D(img1.pointer, img2.pointer)
     else:
         raise ValueError('Dimension %i not supported' % img1.dimension)

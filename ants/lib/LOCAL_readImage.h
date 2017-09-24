@@ -18,7 +18,7 @@
 #include "LOCAL_antsImage.h"
 
 template <typename ImageType>
-ANTsImage<ImageType> fromNumpy( py::array data, py::tuple datashape, 
+py::capsule fromNumpy( py::array data, py::tuple datashape, 
     std::vector<double> origin, std::vector<double> spacing, py::array direction);
 
 

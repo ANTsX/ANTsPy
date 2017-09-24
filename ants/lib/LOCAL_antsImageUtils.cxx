@@ -29,7 +29,7 @@ namespace py = pybind11;
 
 
 template < typename ImageType >
-std::vector<std::vector<float> > TransformIndexToPhysicalPoint( ANTsImage<ImageType> antsImage, 
+std::vector<std::vector<float> > TransformIndexToPhysicalPoint( py::capsule antsImage, 
                                                                 std::vector<std::vector<int> > indices )
 {
   typedef typename ImageType::Pointer                            ImagePointerType ;
@@ -69,7 +69,7 @@ std::vector<std::vector<float> > TransformIndexToPhysicalPoint( ANTsImage<ImageT
 }
 
 template < typename ImageType >
-std::vector<std::vector<float> > TransformPhysicalPointToIndex( ANTsImage<ImageType> antsImage, 
+std::vector<std::vector<float> > TransformPhysicalPointToIndex( py::capsule antsImage, 
                                                                 std::vector<std::vector<int> > points )
 {
   typedef typename ImageType::Pointer      ImagePointerType ;
