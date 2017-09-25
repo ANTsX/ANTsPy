@@ -9,8 +9,8 @@ __all__ = ['copy_image_info',
            'get_spacing',
            'image_physical_space_consistency',
            'image_type_cast',
-          #'get_neighborhood_in_mask',
-           #'get_neighborhood_at_voxel',
+           'get_neighborhood_in_mask',
+           'get_neighborhood_at_voxel',
            'allclose']
 
 import os
@@ -43,8 +43,18 @@ class ANTsImage(object):
 
         Arguments
         ---------
-        img : Cpp-ANTsImage object
-            underlying cpp class which this class just wraps
+        pixeltype : string
+            ITK pixeltype of image
+
+        dimension : integer
+            number of image dimension. Does NOT include components dimension
+
+        components : integer
+            number of pixel components in the image
+
+        pointer : py::capsule (optional)
+            pybind11 capsule holding the pointer to the underlying ITK image object
+
         """
         ## Attributes which cant change without creating a new ANTsImage object
         self.pointer = pointer
@@ -53,7 +63,7 @@ class ANTsImage(object):
         self.components = components
         self.has_components = self.components > 1
         self.dtype = _itk_to_npy_map[self.pixeltype]
-        self._libsuffix = '%s%i' % (utils.short_type(self.pixeltype), self.dimension)
+        self._libsuffix = '%s%i' % (utils.short_ptype(self.pixeltype), self.dimension)
 
         self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
@@ -222,8 +232,8 @@ class ANTsImage(object):
             if pixeltype is None:
                 pixeltype = self.pixeltype
 
-            p1_short = utils.short_type(self.pixeltype)
-            p2_short = utils.short_type(pixeltype)
+            p1_short = utils.short_ptype(self.pixeltype)
+            p2_short = utils.short_ptype(pixeltype)
             ndim = self.dimension
             fn_suffix = '%s%i%s%i' % (p1_short,ndim,p2_short,ndim)
             libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
@@ -518,57 +528,57 @@ def copy_image_info(reference, target):
     target.set_spacing(reference.spacing)
     return target
 
-def set_origin(img, origin):
+def set_origin(image, origin):
     """ 
     Set origin of ANTsImage 
     
     ANTsR function: `antsSetOrigin`
     """
-    img.set_origin(origin)
+    image.set_origin(origin)
 
-def get_origin(img):
+def get_origin(image):
     """ 
     Get origin of ANTsImage
 
     ANTsR function: `antsGetOrigin`
     """
 
-    return img.origin
+    return image.origin
 
-def set_direction(img, direction):
+def set_direction(image, direction):
     """ 
     Set direction of ANTsImage 
 
     ANTsR function: `antsSetDirection`
     """
-    img.set_direction(direction)
+    image.set_direction(direction)
 
-def get_direction(img):
+def get_direction(image):
     """ 
     Get direction of ANTsImage 
     
     ANTsR function: `antsGetDirection`
     """
-    return img.direction
+    return image.direction
 
-def set_spacing(img, spacing):
+def set_spacing(image, spacing):
     """ 
     Set spacing of ANTsImage 
     
     ANTsR function: `antsSetSpacing`
     """
-    img.set_spacing(spacing)
+    image.set_spacing(spacing)
 
-def get_spacing(img):
+def get_spacing(image):
     """ 
     Get spacing of ANTsImage 
     
     ANTsR function: `antsGetSpacing`
     """
-    return img.spacing
+    return image.spacing
 
 
-def image_physical_space_consistency(*imgs, tolerance=1e-2, data_type=False):
+def image_physical_space_consistency(*images, tolerance=1e-2, data_type=False):
     """
     Check if two or more ANTsImage objects occupy the same physical space
     
@@ -576,7 +586,7 @@ def image_physical_space_consistency(*imgs, tolerance=1e-2, data_type=False):
 
     Arguments
     ---------
-    *imgs : ANTsImages
+    *images : ANTsImages
         images to compare
 
     tolerance : float
@@ -590,11 +600,11 @@ def image_physical_space_consistency(*imgs, tolerance=1e-2, data_type=False):
     boolean
         true if images share same physical space, false otherwise
     """
-    if len(imgs) < 2:
+    if len(images) < 2:
         raise ValueError('need at least two images to compare')
 
-    img1 = imgs[0]
-    for img2 in imgs[1:]:
+    img1 = images[0]
+    for img2 in images[1:]:
         if (not isinstance(img1, ANTsImage)) or (not isinstance(img2, ANTsImage)):
             raise ValueError('Both images must be of class `AntsImage`')
 
@@ -673,10 +683,10 @@ def image_type_cast(image_list, pixeltype=None):
     return out_images
 
 
-def allclose(img, other_img):
+def allclose(image1, image2):
     """
     Check if two images have the same array values
     """
-    return np.allclose(img.numpy(), other_img.numpy())
+    return np.allclose(image1.numpy(), image2.numpy())
 
 

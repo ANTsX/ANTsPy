@@ -157,7 +157,11 @@ class ANTsTransform(object):
 
         reference = reference.clone(image.pixeltype)
 
-        return iio.ANTsImage(tform_fn(image.pointer, reference.pointer, interpolation))
+        img_ptr = tform_fn(image.pointer, reference.pointer, interpolation)
+        return iio.ANTsImage(pixeltype=image.pixeltype, 
+                            dimension=image.dimension,
+                            components=image.components,
+                            pointer=img_ptr)
 
     def __repr__(self):
         s = "ANTsTransform\n" +\
@@ -371,7 +375,7 @@ def compose_ants_transforms(transform_list):
     return ANTsTransform(itk_composed_tx)
 
 
-def transform_index_to_physical_point(img, index):
+def transform_index_to_physical_point(image, index):
     """
     Get spatial point from index of an image.
 
@@ -396,24 +400,24 @@ def transform_index_to_physical_point(img, index):
     >>> img = ants.make_image((10,10),np.random.randn(100))
     >>> pt = ants.transform_index_to_physical_point(img, (2,2))
     """
-    if not isinstance(img, iio.ANTsImage):
-        raise ValueError('img must be ANTsImage type')
+    if not isinstance(image, iio.ANTsImage):
+        raise ValueError('image must be ANTsImage type')
 
     if not isinstance(index, (tuple,list)):
         raise ValueError('index must be tuple or list')
 
-    if len(index) != img.dimension:
-        raise ValueError('len(index) != img.dimension')
+    if len(index) != image.dimension:
+        raise ValueError('len(index) != image.dimension')
 
     index = [i+1 for i in index]
-    ndim = img.dimension
-    ptype = img.pixeltype
+    ndim = image.dimension
+    ptype = image.pixeltype
     libfn = utils.get_lib_fn('TransformIndexToPhysicalPoint%s%i' % (_short_ptype_map[ptype], ndim))
-    point = libfn(img.pointer, [list(index)])
+    point = libfn(image.pointer, [list(index)])
     return point[0]
 
 
-def transform_physical_point_to_index(img, point):
+def transform_physical_point_to_index(image, point):
     """
     Get index from spatial point of an image.
 
@@ -421,7 +425,7 @@ def transform_physical_point_to_index(img, point):
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to get values from
 
     point : tuple/list
@@ -440,19 +444,19 @@ def transform_physical_point_to_index(img, point):
     >>> img.set_spacing((2,2))
     >>> idx2 = ants.transform_physical_point_to_index(img, (4,4))
     """
-    if not isinstance(img, iio.ANTsImage):
-        raise ValueError('img must be ANTsImage type')
+    if not isinstance(image, iio.ANTsImage):
+        raise ValueError('image must be ANTsImage type')
 
     if not isinstance(point, (tuple,list)):
         raise ValueError('point must be tuple or list')
 
-    if len(point) != img.dimension:
-        raise ValueError('len(index) != img.dimension')
+    if len(point) != image.dimension:
+        raise ValueError('len(index) != image.dimension')
 
-    ndim = img.dimension
-    ptype = img.pixeltype
+    ndim = image.dimension
+    ptype = image.pixeltype
     libfn = utils.get_lib_fn('TransformPhysicalPointToIndex%s%i'%(_short_ptype_map[ptype],ndim))
-    index = libfn(img.pointer, [list(point)])
+    index = libfn(image.pointer, [list(point)])
     index = [i-1 for i in index[0]]
     return index
 

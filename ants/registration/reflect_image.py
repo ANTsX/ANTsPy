@@ -9,7 +9,7 @@ from .interface import registration
 from .apply_transforms import apply_transforms
 
 
-def reflect_image(img, axis=None, tx=None, metric='mattes'):
+def reflect_image(image, axis=None, tx=None, metric='mattes'):
     """
     Reflect an image along an axis
 
@@ -17,7 +17,7 @@ def reflect_image(img, axis=None, tx=None, metric='mattes'):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to reflect
     
     axis : integer (optional)
@@ -42,21 +42,21 @@ def reflect_image(img, axis=None, tx=None, metric='mattes'):
     >>> asym = asym - fi
     """
     if axis is None:
-        axis = img.dimension - 1
+        axis = image.dimension - 1
 
-    if (axis > img.dimension) or (axis < 0):
-        axis = img.dimension - 1
+    if (axis > image.dimension) or (axis < 0):
+        axis = image.dimension - 1
 
     rflct = mktemp(suffix='.mat')
 
-    libfn = utils.get_lib_fn('reflectionMatrix%s%i'%(utils.short_type(img.pixeltype),img.dimension))
-    libfn(img.pointer, axis, rflct)
+    libfn = utils.get_lib_fn('reflectionMatrix%s%i'%image._libsuffix)
+    libfn(image.pointer, axis, rflct)
 
     if tx is not None:
-        rfi = registration(img, img, type_of_transform=tx,
+        rfi = registration(image, image, type_of_transform=tx,
                             syn_metric=metric, outprefix=mktemp(),
                             initial_transform=rflct)
         return rfi
     else:
-        return apply_transforms(img, img, rflct)
+        return apply_transforms(image, image, rflct)
 

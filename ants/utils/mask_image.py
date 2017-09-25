@@ -3,7 +3,7 @@
 __all__ = ['mask_image']
 
 
-def mask_image(img, mask, level=1, binarize=False):
+def mask_image(image, mask, level=1, binarize=False):
     """
     Mask an input image by a mask image.  If the mask image has multiple labels,
     it is possible to specify which label(s) to mask at.
@@ -12,7 +12,7 @@ def mask_image(img, mask, level=1, binarize=False):
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         Input image.
 
     mask : ANTsImage
@@ -31,22 +31,22 @@ def mask_image(img, mask, level=1, binarize=False):
     Example
     -------
     >>> import ants
-    >>> myimg = ants.image_read(ants.get_ants_data('r16'))
-    >>> mask = ants.get_mask(myimg)
-    >>> myimg_mask = ants.mask_image(myimg, mask, 3)
-    >>> seg = ants.kmeans_segmentation(myimg, 3)
-    >>> myimg_mask = maskImage(myimg, seg['segmentation'], (1,3))
+    >>> myimage = ants.image_read(ants.get_ants_data('r16'))
+    >>> mask = ants.get_mask(myimage)
+    >>> myimage_mask = ants.mask_image(myimage, mask, 3)
+    >>> seg = ants.kmeans_segmentation(myimage, 3)
+    >>> myimage_mask = maskImage(myimage, seg['segmentation'], (1,3))
     """
     if not isinstance(level, (tuple,list)):
-        img_out = img.clone()
-        img_out[mask != level] = 0
-        return img_out
+        image_out = image.clone()
+        image_out[mask != level] = 0
+        return image_out
     else:
-        img_out = img.clone() * 0
+        image_out = image.clone() * 0
         for mylevel in level:
             if binarize:
-                img_out[mask == mylevel] = 1
+                image_out[mask == mylevel] = 1
             else:
-                img_out[mask == mylevel] = img[mask == mylevel]
-        return img_out
+                image_out[mask == mylevel] = image[mask == mylevel]
+        return image_out
 

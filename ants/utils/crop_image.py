@@ -23,7 +23,7 @@ def crop_image(image, label_image=None, label=1):
         image to crop
     
     label_image : ANTsImage
-        imge with label values. If not supplied, estimated from data.
+        image with label values. If not supplied, estimated from data.
     
     label : integer   
         the label value to use
@@ -40,6 +40,7 @@ def crop_image(image, label_image=None, label=1):
     >>> cropped = ants.crop_image(fi, fi, 100 )
     """
     inpixeltype = image.pixeltype
+    ndim = image.dimension
     if image.pixeltype != 'float':
         image = image.clone('float')
 
@@ -49,9 +50,10 @@ def crop_image(image, label_image=None, label=1):
     if label_image.pixeltype != 'float':
         label_image = label_image.clone('float')
 
-    libfn = utils.get_lib_fn('cropImageF%i' % image.dimension)
+    libfn = utils.get_lib_fn('cropImageF%i' % ndim)
     itkimage = libfn(image.pointer, label_image.pointer, label, 0, [], [])
-    return iio.ANTsImage(itkimage).clone(inpixeltype)
+    return iio.ANTsImage(pixeltype='float', dimension=ndim, 
+                        components=image.components, pointer=itkimage).clone(inpixeltype)
 
 
 def crop_indices(image, lowerind, upperind):
@@ -94,7 +96,8 @@ def crop_indices(image, lowerind, upperind):
 
     libfn = utils.get_lib_fn('cropImageF%i' % image.dimension)
     itkimage = libfn(image.pointer, image.pointer, 1, 2, lowerind, upperind)
-    return iio.ANTsImage(itkimage).clone(inpixeltype)
+    return iio.ANTsImage(pixeltype='float', dimension=image.dimension,
+                        components=image.components, pointer=itkimage).clone(inpixeltype)
 
 
 def decrop_image(cropped_image, full_image):
@@ -131,5 +134,6 @@ def decrop_image(cropped_image, full_image):
     
     libfn = utils.get_lib_fn('cropImageF%i' % cropped_image.dimension)
     itkimage = libfn(cropped_image.pointer, full_image.pointer, 1, 1, [], [])
-    return iio.ANTsImage(itkimage).clone(inpixeltype)
+    return iio.ANTsImage(pixeltype='float', dimension=cropped_image.dimension,
+                        components=cropped_image.components, pointer=itkimage).clone(inpixeltype)
 

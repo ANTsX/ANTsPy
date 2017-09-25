@@ -12,7 +12,7 @@ from .. import utils
 from ..core import ants_image as iio
 
 
-def invariant_image_similarity(in_image1, in_image2, 
+def invariant_image_similarity(image1, image2, 
                                 local_search_iterations=0, metric='MI', 
                                 thetas=np.linspace(0,360,5),
                                 thetas2=np.linspace(0,360,5),
@@ -29,10 +29,10 @@ def invariant_image_similarity(in_image1, in_image2,
 
     Arguments
     ---------
-    in_image1 : ANTsImage
+    image1 : ANTsImage
         reference image
     
-    in_image2 : ANTsImage
+    image2 : ANTsImage
         moving image
     
     local_search_iterations : integer
@@ -81,10 +81,10 @@ def invariant_image_similarity(in_image1, in_image2,
     if transform not in {'Rigid', 'Similarity', 'Affine'}:
         raise ValueError('transform must be one of Rigid/Similarity/Affine')
 
-    if in_image1.pixeltype != 'float':
-        in_image1 = in_image1.clone('float')
-    if in_image2.pixeltype != 'float':
-        in_image2 = in_image2.clone('float')
+    if image1.pixeltype != 'float':
+        image1 = image1.clone('float')
+    if image2.pixeltype != 'float':
+        image2 = image2.clone('float')
 
     if txfn is None:
         txfn = mktemp(suffix='.mat')
@@ -94,16 +94,16 @@ def invariant_image_similarity(in_image1, in_image2,
     thetain2 = (thetas2 * math.pi) / 180.
     thetain3 = (thetas3 * math.pi) / 180.
 
-    in_image1 = utils.iMath(in_image1, 'Normalize')
-    in_image2 = utils.iMath(in_image2, 'Normalize')
+    image1 = utils.iMath(image1, 'Normalize')
+    image2 = utils.iMath(image2, 'Normalize')
 
-    idim = in_image1.dimension
+    idim = image1.dimension
     fpname = ['FixedParam%i'%i for i in range(1,idim+1)]
 
     if not do_reflection:
         libfn = utils.get_lib_fn('invariantImageSimilarity_%s%iD' % (transform, idim))
-        r1 = libfn(in_image1.pointer, 
-                    in_image2.pointer,
+        r1 = libfn(image1.pointer, 
+                    image2.pointer,
                     list(thetain), 
                     list(thetain2), 
                     list(thetain3),
@@ -127,8 +127,8 @@ def invariant_image_similarity(in_image1, in_image2,
 
         libfn = utils.get_lib_fn('invariantImageSimilarity_%s%iD' % (transform, idim))
         ## R1 ##
-        r1 = libfn(in_image1.pointer,
-                    in_image2.pointer,
+        r1 = libfn(image1.pointer,
+                    image2.pointer,
                     list(thetain), 
                     list(thetain2), 
                     list(thetain3),
@@ -143,8 +143,8 @@ def invariant_image_similarity(in_image1, in_image2,
         r1 = pd.DataFrame(r1, columns=['MetricValue']+pnames)
 
         ## R2 ##
-        r2 = libfn(in_image1.pointer,
-                    in_image2.pointer,
+        r2 = libfn(image1.pointer,
+                    image2.pointer,
                     list(thetain), 
                     list(thetain2), 
                     list(thetain3),
@@ -157,8 +157,8 @@ def invariant_image_similarity(in_image1, in_image2,
         r2 = pd.DataFrame(r2, columns=['MetricValue']+pnames)
 
         ## R3 ##
-        r3 = libfn(in_image1.pointer,
-                    in_image2.pointer,
+        r3 = libfn(image1.pointer,
+                    image2.pointer,
                     list(thetain), 
                     list(thetain2), 
                     list(thetain3),
@@ -171,8 +171,8 @@ def invariant_image_similarity(in_image1, in_image2,
         r3 = pd.DataFrame(r3, columns=['MetricValue']+pnames)
 
         ## R4 ##
-        r4 = libfn(in_image1.pointer,
-                    in_image2.pointer,
+        r4 = libfn(image1.pointer,
+                    image2.pointer,
                     list(thetain), 
                     list(thetain2), 
                     list(thetain3),
@@ -246,7 +246,8 @@ def convolve_image(image, kernel_image, crop=True):
 
     libfn = utils.get_lib_fn('convolveImageF%i' % image.dimension)
     conv_itk_image = libfn(image.pointer, kernel_image.pointer)
-    conv_ants_image = iio.ANTsImage(conv_itk_image)
+    conv_ants_image = iio.ANTsImage(pixeltype=image.pixeltype, dimension=image.dimension,
+                                    components=image.components, pointer=conv_itk_image)
 
     if orig_ptype != 'float':
         conv_ants_image = conv_ants_image.clone(orig_ptype)

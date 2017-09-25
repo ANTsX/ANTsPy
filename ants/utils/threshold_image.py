@@ -7,7 +7,7 @@ from .process_args import _int_antsProcessArguments
 from .. import utils
 
 
-def threshold_image(img, low_thresh=None, high_thresh=None, inval=1, outval=0):
+def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0):
     """
     Converts a scalar image into a binary image by thresholding operations
 
@@ -15,7 +15,7 @@ def threshold_image(img, low_thresh=None, high_thresh=None, inval=1, outval=0):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         Input image to operate on
     
     low_thresh : scalar (optional)
@@ -36,13 +36,13 @@ def threshold_image(img, low_thresh=None, high_thresh=None, inval=1, outval=0):
 
     Example
     -------
-    >>> img = ants.image_read( ants.get_ants_data('r16') )
-    >>> timg = ants.threshold_image(img, 0.5, 1e15)
+    >>> image = ants.image_read( ants.get_ants_data('r16') )
+    >>> timage = ants.threshold_image(image, 0.5, 1e15)
     """
-    dim = img.dimension
-    outimg = img.clone()
-    args = [dim, img, outimg, low_thresh, high_thresh, inval, outval]
+    dim = image.dimension
+    outimage = image.clone()
+    args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
     processed_args = _int_antsProcessArguments(args)
     libfn = utils.get_lib_fn('ThresholdImage')
     libfn(processed_args)
-    return outimg
+    return outimage

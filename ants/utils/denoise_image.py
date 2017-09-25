@@ -7,7 +7,7 @@ from .. import utils
 from . import process_args as pargs
 from .get_mask import get_mask
 
-def denoise_image(img, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rician'):
+def denoise_image(image, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rician'):
     """
     Denoise an image using a spatially adaptive filter originally described in 
     J. V. Manjon, P. Coupe, Luis Marti-Bonmati, D. L. Collins, and M. Robles. 
@@ -18,7 +18,7 @@ def denoise_image(img, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rician
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         scalar image to denoise.
     
     mask : ANTsImage
@@ -44,32 +44,32 @@ def denoise_image(img, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rician
     -------
     >>> import ants
     >>> import numpy as np
-    >>> img = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> image = ants.image_read(ants.get_ants_data('r16'), 'float')
     >>> # add fairly large salt and pepper noise
-    >>> imgnoise = img + np.random.randn(*img.shape).astype('float32')*5
-    >>> imgdenoise = ants.denoise_image(imgnoise, ants.get_mask(img))
+    >>> imagenoise = image + np.random.randn(*image.shape).astype('float32')*5
+    >>> imagedenoise = ants.denoise_image(imagenoise, ants.get_mask(image))
     """
-    inpixeltype = img.pixeltype
-    outimg = img.clone('float')
+    inpixeltype = image.pixeltype
+    outimage = image.clone('float')
 
     if mask is None:
-        mask = get_mask(img)
+        mask = get_mask(image)
 
-    mydim = img.dimension
+    mydim = image.dimension
     myargs = {
         'd': mydim,
-        'i': img,
+        'i': image,
         'n': noise_model,
         'x': mask.clone('unsigned char'),
         's': int(shrink_factor),
         'p': p,
         'r': r,
-        'o': outimg,
+        'o': outimage,
         'v': 0
     }
     processed_args = pargs._int_antsProcessArguments(myargs)
     libfn = utils.get_lib_fn('DenoiseImage')
     libfn(processed_args)
-    return outimg.clone(inpixeltype)
+    return outimage.clone(inpixeltype)
 
 

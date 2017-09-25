@@ -7,7 +7,7 @@ __all__ = ['image_mutual_information']
 from .. import utils
 
 
-def image_mutual_information(img1, img2):
+def image_mutual_information(image1, image2):
     """
     Compute mutual information between two ANTsImage types
 
@@ -15,10 +15,10 @@ def image_mutual_information(img1, img2):
     
     Arguments
     ---------
-    img1 : ANTsImage
+    image1 : ANTsImage
         image 1
 
-    img2 : ANTsImage
+    image2 : ANTsImage
         image 2
 
     Returns
@@ -32,11 +32,11 @@ def image_mutual_information(img1, img2):
     >>> mi = ants.image_read( ants.get_ants_data('r64') ).clone('float')
     >>> mival = ants.image_mutual_information(fi, mi) # -0.1796141
     """
-    if (img1.pixeltype != 'float') or (img2.pixeltype != 'float'):
+    if (image1.pixeltype != 'float') or (image2.pixeltype != 'float'):
         raise ValueError('Both images must have float pixeltype')
 
-    if img1.dimension != img2.dimension:
+    if image1.dimension != image2.dimension:
         raise ValueError('Both images must have same dimension')
 
-    libfn = utils.get_lib_fn('antsImageMutualInformation%iD' % img1.dimension)
-    return libfn(img1.pointer, img2.pointer)
+    libfn = utils.get_lib_fn('antsImageMutualInformation%iD' % image1.dimension)
+    return libfn(image1.pointer, image2.pointer)

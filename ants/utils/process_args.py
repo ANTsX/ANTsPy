@@ -28,8 +28,8 @@ def _ptrstr(pointer):
     libfn = get_lib_fn('ptrstr')
     return libfn(pointer)
 
-def get_pointer_string(img):
-    return _ptrstr(img.pointer)
+def get_pointer_string(image):
+    return _ptrstr(image.pointer)
 
 def _int_antsProcessArguments(args):
     """

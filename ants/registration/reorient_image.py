@@ -12,7 +12,7 @@ from . import apply_transforms
 from .. import utils
 
 
-def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=None):
+def reorient_image(image, axis1, axis2=None, doreflection=False, doscale=0, txfn=None):
     """
     Align image along a specified axis
 
@@ -20,7 +20,7 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to reorient
     
     axis1 : list/tuple of integers
@@ -45,17 +45,17 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
     Example
     -------
     >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'))
+    >>> image = ants.image_read(ants.get_ants_data('r16'))
     >>> ants.reorient_image(fi, (1,0))
     """
-    inpixeltype = img.pixeltype
-    if img.pixeltype != 'float':
-        img = img.clone('float')
+    inpixeltype = image.pixeltype
+    if image.pixeltype != 'float':
+        image = image.clone('float')
 
     axis_was_none = False
     if axis2 is None:
         axis_was_none = True
-        axis2 = [0]*img.dimension
+        axis2 = [0]*image.dimension
 
     axis1 = np.array(axis1)
     axis2 = np.array(axis2)
@@ -67,7 +67,7 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
         axis2 = axis2 / np.sqrt(np.sum(axis2*axis2)) * (-1)
         axis2 = axis2.astype('int')
     else:
-        axis2 = np.array([0]*img.dimension).astype('int')
+        axis2 = np.array([0]*image.dimension).astype('int')
 
     if txfn is None:
         txfn = mktemp(suffix='.mat')
@@ -83,22 +83,22 @@ def reorient_image(img, axis1, axis2=None, doreflection=False, doscale=0, txfn=N
         doscale = [doscale]
 
     if len(doreflection) == 1:
-        doreflection = [doreflection[0]]*img.dimension
+        doreflection = [doreflection[0]]*image.dimension
     if len(doscale) == 1:
-        doscale = [doscale[0]]*img.dimension
+        doscale = [doscale[0]]*image.dimension
 
-    libfn = utils.get_lib_fn('reorientImage%s%i' % (utils.short_type(img.pixeltype), img.dimension))
-    libfn(img.pointer, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
-    img2 = apply_transforms(img, img, transformlist=[txfn])
+    libfn = utils.get_lib_fn('reorientImage%s%i' % image._libsuffix)
+    libfn(image.pointer, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
+    image2 = apply_transforms(image, image, transformlist=[txfn])
 
-    if img.pixeltype != inpixeltype:
-        img2 = img2.clone(inpixeltype)
+    if image.pixeltype != inpixeltype:
+        image2 = image2.clone(inpixeltype)
 
-    return {'reoimg':img2,
+    return {'reoimage':image2,
             'txfn':txfn}
 
 
-def get_center_of_mass(img):
+def get_center_of_mass(image):
     """
     Compute an image center of mass in physical space which is defined 
     as the mean of the intensity weighted voxel coordinate system.
@@ -107,7 +107,7 @@ def get_center_of_mass(img):
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image from which center of mass will be computed
 
     Returns
@@ -121,11 +121,11 @@ def get_center_of_mass(img):
     >>> fi = ants.image_read( ants.get_ants_data("r64"))
     >>> com2 = ants.get_center_of_mass( fi )
     """
-    if img.pixeltype != 'float':
-        img = img.clone('float')
+    if image.pixeltype != 'float':
+        image = image.clone('float')
 
-    libfn = utils.get_lib_fn('centerOfMass%s%i' % (utils.short_type(img.pixeltype), img.dimension))
-    com = libfn(img.pointer)
+    libfn = utils.get_lib_fn('centerOfMass%s%i' % image._libsuffix)
+    com = libfn(image.pointer)
 
     return tuple(com)
 

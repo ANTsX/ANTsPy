@@ -11,7 +11,7 @@ from ..core import ants_image_io as iio2
 from .. import utils
 
 
-def create_jacobian_determinant_image(domain_img, tx, do_log=False, geom=False):
+def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False):
     """
     Compute the jacobian determinant from a transformation file
    
@@ -19,7 +19,7 @@ def create_jacobian_determinant_image(domain_img, tx, do_log=False, geom=False):
 
     Arguments
     ---------
-    domain_img : ANTsImage
+    domain_image : ANTsImage
         image that defines transformation domain
     tx : string
         deformation transformation file name
@@ -41,20 +41,20 @@ def create_jacobian_determinant_image(domain_img, tx, do_log=False, geom=False):
     >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform='SyN')
     >>> jac = ants.create_jacobian_determinant_image(fi, mytx['fwdtransforms'][0], 1)
     """
-    dim = domain_img.dimension
+    dim = domain_image.dimension
     if isinstance(tx, iio.ANTsImage):
         txuse = mktemp(suffix='.nii.gz')
         iio2.image_write(tx, txuse)
     else:
         txuse = tx
     #args = [dim, txuse, do_log]
-    dimg = domain_img.clone('double')
-    args2 = [dim, txuse, dimg, int(do_log), int(geom)]
+    dimage = domain_image.clone('double')
+    args2 = [dim, txuse, dimage, int(do_log), int(geom)]
     processed_args = utils._int_antsProcessArguments(args2)
     libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
     libfn(processed_args)
-    jimg = args2[2].clone('float')
+    jimage = args2[2].clone('float')
     
-    return jimg
+    return jimage
 
 

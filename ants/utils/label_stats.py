@@ -23,11 +23,11 @@ def label_stats(image, label_image):
     
     Example
     -------
-    >>> img = ants.image_read( ants.get_ants_data('r16') , 2 )
-    >>> img = ants.resample_image( img, (64,64), 1, 0 )
-    >>> mask = ants.get_mask(img)
-    >>> segs1 = ants.kmeans_segmentation( img, 3 )
-    >>> stats = ants.label_stats(img, segs1['segmentation'])
+    >>> image = ants.image_read( ants.get_ants_data('r16') , 2 )
+    >>> image = ants.resample_image( image, (64,64), 1, 0 )
+    >>> mask = ants.get_mask(image)
+    >>> segs1 = ants.kmeans_segmentation( image, 3 )
+    >>> stats = ants.label_stats(image, segs1['segmentation'])
     """
     image_float = image.clone('float')
     label_image_int = label_image.clone('unsigned int')

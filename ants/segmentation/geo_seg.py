@@ -12,7 +12,7 @@ from ..core import ants_image_io as iio2
 from .kmeans import kmeans_segmentation
 from .atropos import atropos
 
-def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
+def geo_seg(image, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
             grad_step=1.25, mrfval=0.1, atroposits=10, jacw=None, beta=0.9 ):
     """
     Brain segmentation based on geometric priors.
@@ -20,7 +20,7 @@ def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
 
     Arguments
     ---------
-    img : ANTsImage or list/tuple of ANTsImage types
+    image : ANTsImage or list/tuple of ANTsImage types
         input image or list of images (multiple features) where 1st image 
         would typically be the primary constrast
     
@@ -63,27 +63,27 @@ def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
     Example
     -------
     >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('simple'))
-    >>> img = ants.n3_bias_field_correction(img, 4)
-    >>> img = ants.n3_bias_field_correction(img, 2)
-    >>> bmk = ants.get_mask(img)
-    >>> segs = ants.kmeans_segmentation(img, 3, bmk)
+    >>> image = ants.image_read(ants.get_ants_data('simple'))
+    >>> image = ants.n3_bias_field_correction(image, 4)
+    >>> image = ants.n3_bias_field_correction(image, 2)
+    >>> bmk = ants.get_mask(image)
+    >>> segs = ants.kmeans_segmentation(image, 3, bmk)
     >>> priors = segs['probabilityimages']
-    >>> seg = ants.geo_seg(img, bmk, priors)
+    >>> seg = ants.geo_seg(image, bmk, priors)
     """
-    if isinstance(img, iio.ANTsImage):
-        img = [img]
+    if isinstance(image, iio.ANTsImage):
+        image = [image]
 
     if vesselopt is None:
         vesselopt = 'none'
 
-    idim = img[0].dimension
+    idim = image[0].dimension
     mrfterm = '[%s,%s]' % (str(mrfval), 'x'.join(['1']*idim))
     atroposits = '[%s,0]' % (str(atroposits))
 
     # 1 vessels via bright / dark
     if (vesselopt == 'bright') or (vesselopt == 'dark'):
-        vseg = kmeans_segmentation(img[0], vesselk, brainmask)
+        vseg = kmeans_segmentation(image[0], vesselk, brainmask)
         if vesselopt == 'bright':
             mask = utils.threshold_image(vseg['segmentation'], 1, vesselk-1)
         if vesselopt == 'dark':
@@ -93,7 +93,7 @@ def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
 
     # 2 wm /gm use topology to modify wm
     if seginit is None:
-        seginit = atropos(d=idim, a=img, m=mrfterm, priorweight=0.25,
+        seginit = atropos(d=idim, a=image, m=mrfterm, priorweight=0.25,
                             c=atroposits, i=priors, x=mask)
 
     wm = utils.threshold_image(seginit['segmentation'], 3, 3)
@@ -158,7 +158,7 @@ def geo_seg(img, brainmask, priors, seginit=None, vesselopt=None, vesselk=2,
 
     #
     # now resegment with topology-modified priors
-    s3 = atropos(d=idim, a=img, m=mrfterm, priorweight=0.25, c=atroposits,
+    s3 = atropos(d=idim, a=image, m=mrfterm, priorweight=0.25, c=atroposits,
                 i=seginit['probabilityimages'], x=mask)
 
     # 5 curvature seg - use results of 4 to segment based on
