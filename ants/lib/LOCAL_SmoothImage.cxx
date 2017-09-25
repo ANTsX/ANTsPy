@@ -14,7 +14,7 @@ namespace py = pybind11;
 
 
 template <typename ImageType>
-ANTsImage<ImageType> smoothImage( ANTsImage<ImageType> ants_inimg,
+py::capsule smoothImage( py::capsule ants_inimg,
                                   std::vector<double> sigma,
                                   bool sigmaInPhysicalCoordinates,
                                   unsigned int kernelwidth)
@@ -51,7 +51,7 @@ ANTsImage<ImageType> smoothImage( ANTsImage<ImageType> ants_inimg,
   filter->SetInput( inimg );
   filter->Update();
 
-  ANTsImage<ImageType> ants_outimg = wrap<ImageType>( filter->GetOutput() );
+  py::capsule ants_outimg = wrap<ImageType>( filter->GetOutput() );
   return ants_outimg;
 }
 

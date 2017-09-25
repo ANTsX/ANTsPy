@@ -15,7 +15,7 @@
 namespace py = pybind11;
 
 template< class ImageType, class VectorImageType >
-ANTsImage<VectorImageType> mergeChannels( std::vector<ANTsImage<ImageType> > imageList )
+py::capsule mergeChannels( std::vector<py::capsule > imageList )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef typename VectorImageType::Pointer VectorImagePointerType;
@@ -57,7 +57,7 @@ ANTsImage<VectorImageType> mergeChannels( std::vector<ANTsImage<ImageType> > ima
 
 
 template< class VectorImageType, class ImageType>
-std::vector<ANTsImage<ImageType> > splitChannels( ANTsImage<VectorImageType> & antsimage )
+std::vector<py::capsule > splitChannels( py::capsule & antsimage )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef typename VectorImageType::Pointer VectorImagePointerType;
@@ -93,7 +93,7 @@ std::vector<ANTsImage<ImageType> > splitChannels( ANTsImage<VectorImageType> & a
     ++it;
     }
 
-  std::vector<ANTsImage<ImageType> > outputList( nComponents );
+  std::vector<py::capsule > outputList( nComponents );
   for (unsigned int i=0; i<nComponents; i++)
     {
     outputList[i] = wrap<ImageType>( images[i] );

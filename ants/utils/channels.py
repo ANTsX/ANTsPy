@@ -5,35 +5,10 @@ __all__ = ['merge_channels',
            'split_channels']
 
 from ..core import ants_image as iio
-from .. import lib
+from .. import utils
 
 
-_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
-_short_ptype_map = {
-    'unsigned char' : 'UC',
-    'unsigned int': 'UI',
-    'float': 'F',
-    'double' : 'D'
-}
-
-# pick up lib.mergeChannelsX functions
-_merge_channels_dict = {}
-for ndim in {2,3,4}:
-    _merge_channels_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        _merge_channels_dict[ndim][d1] = 'mergeChannels%s%i'%(d1a,ndim)
-
-# pick up lib.splitChannelsX functions
-_split_channels_dict = {}
-for ndim in {2,3,4}:
-    _split_channels_dict[ndim] = {}
-    for d1 in _supported_ptypes:
-        d1a = _short_ptype_map[d1]
-        _split_channels_dict[ndim][d1] = 'splitChannels%s%i'%(d1a,ndim)
-
-
-def merge_channels(img_list):
+def merge_channels(image_list):
     """
     Merge channels of multiple scalar ANTsImage types into one 
     multi-channel ANTsImage
@@ -42,7 +17,7 @@ def merge_channels(img_list):
 
     Arguments
     ---------
-    img_list : list/tuple of ANTsImage types
+    image_list : list/tuple of ANTsImage types
         scalar images to merge
     
     Returns
@@ -52,31 +27,39 @@ def merge_channels(img_list):
     Example
     -------
     >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'), 'float')
-    >>> img2 = ants.image_read(ants.get_ants_data('r16'), 'float')
-    >>> img3 = ants.merge_channels([img,img2])
-    >>> img3.components == 2
+    >>> image = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> image2 = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> image3 = ants.merge_channels([image,image2])
+    >>> image3.components == 2
     """
-    inpixeltype = img_list[0].pixeltype
-    for img in img_list:
-        if not isinstance(img, iio.ANTsImage):
+    inpixeltype = image_list[0].pixeltype
+    dimension = image_list[0].dimension + 1
+    components = 1
+
+
+    for image in image_list:
+        if not isinstance(image, iio.ANTsImage):
             raise ValueError('list may only contain ANTsImage objects')
-        if img.pixeltype != inpixeltype:
+        if image.pixeltype != inpixeltype:
             raise ValueError('all images must have the same pixeltype')
 
-    merge_channels_fn = lib.__dict__[_merge_channels_dict[img_list[0].pixeltype][img_list[0].dimension]]
-    img = merge_channels_fn([img._img for img in img_list])
-    return iio.ANTsImage(img)
+    libfn = utils.get_lib_fn('mergeChannels%s%i' % image_list[0]._libsuffix)
+    image_ptr = libfn([image.pointer for image in image_list])
+    
+    return iio.ANTsImage(pixeltype=inpixeltype,
+                         dimension=dimension,
+                         components=components,
+                         pointer=image_ptr)
 
 
-def split_channels(img):
+def split_channels(image):
     """
     Split channels of a multi-channel ANTsImage into a collection
     of scalar ANTsImage types
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         multi-channel image to split
 
     Returns
@@ -86,18 +69,23 @@ def split_channels(img):
     Example
     -------
     >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'), 'float')
-    >>> img2 = ants.image_read(ants.get_ants_data('r16'), 'float')
-    >>> imgmerge = ants.merge_channels([img,img2])
-    >>> imgmerge.components == 2
-    >>> imgs_unmerged = ants.split_channels(imgmerge)
-    >>> len(imgs_unmerged) == 2
-    >>> imgs_unmerged[0].components == 1
+    >>> image = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> image2 = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> imagemerge = ants.merge_channels([image,image2])
+    >>> imagemerge.components == 2
+    >>> images_unmerged = ants.split_channels(imagemerge)
+    >>> len(images_unmerged) == 2
+    >>> images_unmerged[0].components == 1
     """
-    split_channels_fn = lib.__dict__[_split_channels_dict[img.pixeltype][img.dimension]]
-    itkimgs = split_channels_fn(img._img)
-    antsimgs = [iio.ANTsImage(itkimg) for itkimg in itkimgs]
-    return antsimgs
+    inpixeltype = image.pixeltype
+    dimension = image.dimension
+    components = 1
+
+    libfn = utils.get_lib_fn('splitChannels%s%i' % image._libsuffix)
+    itkimages = libfn(image.pointer)
+    antsimages = [iio.ANTsImage(pixeltype=inpixeltype, dimension=dimension, 
+                              components=components, pointer=itkimage) for itkimage in itkimages]
+    return antsimages
 
 
 

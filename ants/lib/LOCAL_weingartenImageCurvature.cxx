@@ -16,8 +16,8 @@
 
 namespace py = pybind11;
 
-ANTsImage<itk::Image<float, 3>> weingartenImageCurvature( ANTsImage<itk::Image<float,3>> myimage,
-                                               float sigma, int opt )
+py::capsule weingartenImageCurvature( py::capsule myimage,
+                                      float sigma, int opt )
 {
   typedef itk::Image<float, 3> ImageType;
 

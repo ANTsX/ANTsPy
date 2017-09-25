@@ -5,39 +5,33 @@ __all__ = ['smooth_image']
 
 import math
 
-from .. import lib
 from .. import utils
 from ..core import ants_image as iio
 
 
-_smooth_image_dict = {
-    2: 'SmoothImage2D',
-    3: 'SmoothImage3D',
-    4: 'SmoothImage4D'
-}
 
-
-def _smooth_image_helper(img, sigma, sigma_in_physical_coordinates=True, FWHM=False, max_kernel_width=70):
-    outimg = img.clone()
+def _smooth_image_helper(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, max_kernel_width=70):
+    outimage = image.clone()
     if not isinstance(sigma, (tuple,list)):
         sigma = [sigma]
 
-    if isinstance(sigma, (tuple, list)) and ((len(sigma) != img.dimension) and (len(sigma) != 1)):
+    if isinstance(sigma, (tuple, list)) and ((len(sigma) != image.dimension) and (len(sigma) != 1)):
         raise ValueError('Length of sigma must be either 1 or the dimensionality of input image')
 
-    img_float = img.clone('float')
+    image_float = image.clone('float')
     if FWHM:
         sigma = [s/2.355 for s in sigma]
 
     max_kernel_width = int(math.ceil(max_kernel_width))
 
-    smooth_image_fn = lib.__dict__[_smooth_image_dict[img.dimension]]
-    outimg = smooth_image_fn(img_float._img, sigma, sigma_in_physical_coordinates, max_kernel_width)
-    ants_outimg = iio.ANTsImage(outimg)
-    return ants_outimg
+    smooth_image_fn = utils.get_lib_fn('SmoothImage%iD'%image.dimension)
+    outimage = smooth_image_fn(image_float.pointer, sigma, sigma_in_physical_coordinates, max_kernel_width)
+    ants_outimage = iio.ANTsImage(pixeltype='float', dimension=image.dimension,
+                                components=image.components, pointer=outimage)
+    return ants_outimage
 
 
-def smooth_image(img, sigma, sigma_in_physical_coordinates=True, FWHM=False, max_kernel_width=32):
+def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, max_kernel_width=32):
     """
     Smooth an image
 
@@ -45,11 +39,11 @@ def smooth_image(img, sigma, sigma_in_physical_coordinates=True, FWHM=False, max
 
     Arguments
     ---------
-    img   
+    image   
         Image to smooth
     
     sigma   
-        Smoothing factor. Can be scalar, in which case the same sigma is applied to each dimension, or a vector of length dim(inimg) to specify a unique smoothness for each dimension.
+        Smoothing factor. Can be scalar, in which case the same sigma is applied to each dimension, or a vector of length dim(inimage) to specify a unique smoothness for each dimension.
     
     sigma_in_physical_coordinates : boolean  
         If true, the smoothing factor is in millimeters; if false, it is in pixels.
@@ -66,16 +60,16 @@ def smooth_image(img, sigma, sigma_in_physical_coordinates=True, FWHM=False, max
     
     Example
     -------
-    >>> img = ants.image_read( ants.get_ants_data('r16'))
-    >>> simg = ants.smooth_image(img, (1.2,1.5))
+    >>> image = ants.image_read( ants.get_ants_data('r16'))
+    >>> simage = ants.smooth_image(image, (1.2,1.5))
     """
-    if img.components == 1:
-        return _smooth_image_helper(img, sigma, sigma_in_physical_coordinates, FWHM, max_kernel_width)
+    if image.components == 1:
+        return _smooth_image_helper(image, sigma, sigma_in_physical_coordinates, FWHM, max_kernel_width)
     else:
-        imglist = utils.split_channels(img)
-        newimgs = []
-        for img in imglist:
-            newimg = _smooth_image_helper(img, sigma, sigma_in_physical_coordinates, FWHM, max_kernel_width)
-            newimgs.append(newimg)
-        return utils.merge_channels(newimgs)
+        imagelist = utils.split_channels(image)
+        newimages = []
+        for image in imagelist:
+            newimage = _smooth_image_helper(image, sigma, sigma_in_physical_coordinates, FWHM, max_kernel_width)
+            newimages.append(newimage)
+        return utils.merge_channels(newimages)
 

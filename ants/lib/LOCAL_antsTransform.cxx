@@ -63,7 +63,7 @@
 namespace py = pybind11;
 
 template <typename TransformType, typename VectorImageType, typename PrecisionType, unsigned int Dimension>
-ANTsTransform<TransformType> antsTransformFromDisplacementField( ANTsImage< VectorImageType > field )
+ANTsTransform<TransformType> antsTransformFromDisplacementField( py::capsule field )
 {
 
   //typedef itk::Transform<PrecisionType,Dimension,Dimension>                  TransformType;

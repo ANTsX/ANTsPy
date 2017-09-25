@@ -7,11 +7,11 @@ __all__ = ['iMath',
 
 
 from .process_args import _int_antsProcessArguments
-from .. import lib
+from .. import utils
 
 _iMathOps = []
 
-def iMath(img, operation, *args):
+def iMath(image, operation, *args):
     """
     Perform various (often mathematical) operations on the input image/s. 
     Additional parameters should be specific for each operation. 
@@ -21,7 +21,7 @@ def iMath(img, operation, *args):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         input object, usually antsImage
     
     operation   
@@ -35,14 +35,15 @@ def iMath(img, operation, *args):
     #if operation not in _iMathOps:
     #    raise ValueError('Operation not recognized')
 
-    imgdim = img.dimension
-    outimg = img.clone()
-    args = [imgdim, outimg, operation, img] + [a for a in args]
+    imagedim = image.dimension
+    outimage = image.clone()
+    args = [imagedim, outimage, operation, image] + [a for a in args]
     processed_args = _int_antsProcessArguments(args)
-    lib.iMath(processed_args)
-    return outimg
+    libfn = utils.get_lib_fn('iMath')
+    libfn(processed_args)
+    return outimage
 image_math = iMath
 
 
-def multiply_images(img1, img2):
-    return img1 * img2
+def multiply_images(image1, image2):
+    return image1 * image2

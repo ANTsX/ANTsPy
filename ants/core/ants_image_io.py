@@ -18,11 +18,8 @@ __all__ = ['image_header_info',
 import os
 import json
 import numpy as np
-import weakref
 
 from . import ants_image as iio
-from . import ants_transform as tio
-from .. import lib
 from .. import utils
 from .. import registration as reg
 
@@ -47,12 +44,18 @@ _ptype_type_map = {
     'float': 'F',
     'double': 'D'
 }
+
 _ntype_type_map = {
     'uint8': 'UC',
     'uint32': 'UI',
     'float32': 'F',
     'float64': 'D'
 }
+_npy_to_itk_map = {
+    'uint8': 'unsigned char',
+    'uint32':'unsigned int',
+    'float32': 'float',
+    'float64': 'double'}
 
 _image_read_dict = {}
 for itype in {'scalar', 'vector', 'rgb'}:
@@ -63,15 +66,6 @@ for itype in {'scalar', 'vector', 'rgb'}:
             ita = _image_type_map[itype]
             pa = _ptype_type_map[p]
             _image_read_dict[itype][p][d] = 'imageRead%s%s%i' % (ita,pa,d)
-
-_from_numpy_dict = {}
-for p in _supported_ntypes:
-    _from_numpy_dict[p] = {}
-    for d in {2,3}:
-        ita = _image_type_map[itype]
-        pa = _ntype_type_map[p]
-        _from_numpy_dict[p][d] = 'fromNumpy%s%i' % (pa,d)
-
 
 
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
@@ -113,6 +107,7 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     if has_components:
         ndim -= 1
     dtype = data.dtype.name
+    ptype = _npy_to_itk_map[dtype]
 
     data = np.array(data)
 
@@ -123,15 +118,22 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     if direction is None:
         direction = np.eye(ndim)
 
-    from_numpy_fn = lib.__dict__[_from_numpy_dict[dtype][ndim]]
+    libfn = utils.get_lib_fn('fromNumpy%s%i' % (_ntype_type_map[dtype], ndim))
 
     if not has_components:
-        itk_image = from_numpy_fn(data, data.shape[::-1], origin, spacing, direction)
-        ants_image = iio.ANTsImage(itk_image)
+        itk_image = libfn(data, data.shape[::-1], origin, spacing, direction)
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image)
     else:
         arrays = [data[...,i].copy() for i in range(data.shape[-1])]
         data_shape = arrays[0].shape
-        ants_images = [iio.ANTsImage(from_numpy_fn(arrays[i], data_shape[::-1], origin, spacing, direction)) for i in range(len(arrays))]
+        ants_images = []
+        for i in range(len(arrays)):
+            tmp_ptr = libfn(arrays[i], data_shape[::-1], origin, spacing, direction)
+            tmp_img = iio.ANTsImage(pixeltype=ptype, 
+                                    dimension=ndim, 
+                                    components=len(arrays), 
+                                    pointer=tmp_ptr)
+            ants_images.append(tmp_img)
         ants_image = utils.merge_channels(ants_images)
 
     return ants_image
@@ -304,11 +306,12 @@ def image_header_info(filename):
     if not os.path.exists(filename):
         raise Exception('filename does not exist')
 
-    ret = lib.antsImageHeaderInfo(filename)
-    return ret
+    libfn = utils.get_lib_fn('antsImageHeaderInfo')
+    retval = libfn(filename)
+    return retval
 
 
-def image_clone(img, pixeltype=None):
+def image_clone(image, pixeltype=None):
     """
     Clone an ANTsImage
 
@@ -316,7 +319,7 @@ def image_clone(img, pixeltype=None):
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to clone
 
     dtype : string (optional)
@@ -326,7 +329,7 @@ def image_clone(img, pixeltype=None):
     -------
     ANTsImage
     """
-    return img.clone(pixeltype)
+    return image.clone(pixeltype)
 
 
 def image_read(filename, dimension=None, pixeltype='float'):
@@ -384,17 +387,17 @@ def image_read(filename, dimension=None, pixeltype='float'):
         if ptype in _unsupported_ptypes:
             ptype = _unsupported_ptype_map[ptype]
 
-        read_fn = lib.__dict__[_image_read_dict[pclass][ptype][ndim]]
-        itk_ants_image = read_fn(filename)
-        ants_image = iio.ANTsImage(itk_ants_image)
+        libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
+        itk_pointer = libfn(filename)
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_pointer)
 
-        if pixeltype is not None:
-            ants_image = ants_image.clone(pixeltype)
+        #if pixeltype is not None:
+        #    ants_image = ants_image.clone(pixeltype)
 
     return ants_image
 
 
-def image_write(img, filename):
+def image_write(image, filename):
     """
     Write an ANTsImage to file
     
@@ -402,20 +405,20 @@ def image_write(img, filename):
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to save to file
 
     filename : string
         name of file to which image will be saved
     """
     if filename.endswith('.npy'):
-        img_array = img.numpy()
-        img_header = img.header
+        img_array = image.numpy()
+        img_header = image.header
 
         np.save(filename, img_array)
         with open(filename.replace('.npy','.json'), 'w') as outfile:
             json.dump(img_header, outfile)
     else:
-        img.to_file(filename)
+        image.to_file(filename)
 
 

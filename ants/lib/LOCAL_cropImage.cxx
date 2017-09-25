@@ -141,8 +141,8 @@ typename ImageType::Pointer decropImageHelper(  typename ImageType::Pointer cima
 }
 
 template <typename ImageType>
-ANTsImage< ImageType > cropImage( ANTsImage<ImageType> &in_image1, 
-                                  ANTsImage<ImageType> &in_image2,  
+py::capsule cropImage( py::capsule &in_image1, 
+                                  py::capsule &in_image2,  
                                   unsigned int label,
                                   unsigned int decrop,
                                   std::vector<int> loind,
@@ -156,25 +156,25 @@ ANTsImage< ImageType > cropImage( ANTsImage<ImageType> &in_image1,
   if ( decrop == 0 )
   {
     ImagePointerType out_image = cropImageHelper<ImageType>(antsimage1, antsimage2, label);
-    ANTsImage<ImageType> out_ants_image = wrap<ImageType>( out_image );
+    py::capsule out_ants_image = wrap<ImageType>( out_image );
     return out_ants_image;
   }
   else if ( decrop == 1 )
   {
     ImagePointerType out_image = decropImageHelper<ImageType>(antsimage1, antsimage2);
-    ANTsImage<ImageType> out_ants_image = wrap<ImageType>( out_image );
+    py::capsule out_ants_image = wrap<ImageType>( out_image );
     return out_ants_image;
   }
 
   else if ( decrop == 2 )
   {
     ImagePointerType out_image = cropIndHelper<ImageType>(antsimage1, loind, upind);
-    ANTsImage<ImageType> out_ants_image = wrap<ImageType>( out_image );
+    py::capsule out_ants_image = wrap<ImageType>( out_image );
     return out_ants_image;
   }
 
   ImagePointerType out_image = ImageType::New();
-  ANTsImage<ImageType> out_ants_image = wrap<ImageType>( out_image );
+  py::capsule out_ants_image = wrap<ImageType>( out_image );
   return out_ants_image;
   
 }

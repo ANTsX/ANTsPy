@@ -6,7 +6,6 @@ from tempfile import mktemp
 
 from PIL import Image
 
-from .. import lib
 from .. import utils
 
 def create_tiled_mosaic(img, output=None, rgb=None, mask=None, overlay=None,
@@ -45,7 +44,8 @@ def create_tiled_mosaic(img, output=None, rgb=None, mask=None, overlay=None,
     }
 
     processed_args = utils._int_antsProcessArguments(args)
-    retval = lib.CreateTiledMosaic(processed_args)
+    libfn = utils.get_lib_fn('CreateTiledMosaic')
+    retval = libfn(processed_args)
 
     if retval != 0:
         raise ValueError('Non-zero exit status')

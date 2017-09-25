@@ -19,7 +19,7 @@ namespace py = pybind11;
 
 
 template< typename ImageType >
-ANTsImage<ImageType> imageReadHelper( std::string filename )
+py::capsule imageReadHelper( std::string filename )
 {
     //py::print("at imagereadhelper");
     typedef typename ImageType::Pointer           ImagePointerType;
@@ -34,17 +34,17 @@ ANTsImage<ImageType> imageReadHelper( std::string filename )
 }
 
 template <typename ImageType>
-ANTsImage<ImageType> imageRead( std::string filename )
+py::capsule imageRead( std::string filename )
 {
-    ANTsImage<ImageType> antsImage;
+    py::capsule antsImage;
     antsImage = imageReadHelper<ImageType>( filename );
     return antsImage;
 }
 
 
 template <typename ImageType>
-ANTsImage<ImageType> fromNumpy( py::array data, py::tuple datashape, 
-                                std::vector<double> origin, std::vector<double> spacing, py::array direction)
+py::capsule fromNumpy( py::array data, py::tuple datashape, 
+                       std::vector<double> origin, std::vector<double> spacing, py::array direction)
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType myimage = ImageType::New();
@@ -53,7 +53,8 @@ ANTsImage<ImageType> fromNumpy( py::array data, py::tuple datashape,
     //py::tuple datashape = py::getattr(data, "shape");
     myimage = PyBufferType::_GetImageViewFromArray( data.ptr(), datashape.ptr(), py::make_tuple(1)[0].ptr() );
 
-    ANTsImage<ImageType> antsImage = wrap<ImageType>( myimage );
+    /*
+    py::capsule antsImage = wrap<ImageType>( myimage );
     antsImage.setOrigin( origin );
     antsImage.setSpacing( spacing );
     antsImage.setDirection( direction );
@@ -61,6 +62,8 @@ ANTsImage<ImageType> fromNumpy( py::array data, py::tuple datashape,
     antsImage._ndarr = data;
 
     return antsImage;
+    */
+    return wrap<ImageType>( myimage );
 }
 
 

@@ -5,9 +5,7 @@ __all__ = ['apply_transforms']
 import os
 
 from ..core import ants_image as iio
-from .. import lib
 from .. import utils
-
 
 def apply_transforms(fixed, moving, transformlist, 
                      interpolator='linear', imagetype=0, 
@@ -170,7 +168,8 @@ def apply_transforms(fixed, moving, transformlist,
                 print(myargs)
 
             processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
-            lib.antsApplyTransforms(processed_args)
+            libfn = utils.get_lib_fn('antsApplyTransforms')
+            libfn(processed_args)
 
             if compose is None:
                 return warpedmovout.clone(inpixeltype)
@@ -185,7 +184,8 @@ def apply_transforms(fixed, moving, transformlist,
     else:
         args = args + ['-z', 1, '--float', 1, '-e', imagetype]
         processed_args = utils._int_antsProcessArguments(args)
-        lib.antsApplyTransforms(processed_args)
+        libfn = utils.get_lib_fn('antsApplyTransforms')
+        libfn(processed_args)
 
 
 

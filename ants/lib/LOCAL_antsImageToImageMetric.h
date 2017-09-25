@@ -35,10 +35,10 @@ public:
     py::capsule pointer;
 
     template <typename MyImageType>
-    void setFixedImage( ANTsImage<MyImageType>&, bool);
+    void setFixedImage( py::capsule &, bool);
     
     template <typename MyImageType>
-    void setMovingImage( ANTsImage<MyImageType>&, bool);
+    void setMovingImage( py::capsule &, bool);
 
     void setSampling(std::string, double);
     void initialize();
@@ -78,7 +78,7 @@ typename MetricType::Pointer as_metric( ANTsImageToImageMetric<MetricType> & met
 
 template <typename MetricType>
 template <typename MyImageType>
-void ANTsImageToImageMetric< MetricType >::setFixedImage( ANTsImage<MyImageType> & antsImage, 
+void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImage, 
                                                           bool isMask )
 {
   typedef typename MetricType::FixedImageType   ImageType;
@@ -107,7 +107,7 @@ void ANTsImageToImageMetric< MetricType >::setFixedImage( ANTsImage<MyImageType>
 
 template <typename MetricType>
 template <typename MyImageType>
-void ANTsImageToImageMetric< MetricType >::setMovingImage( ANTsImage<MyImageType> & antsImage, 
+void ANTsImageToImageMetric< MetricType >::setMovingImage( py::capsule & antsImage, 
                                                           bool isMask )
 {
   typedef typename MetricType::MovingImageType  ImageType;
@@ -307,8 +307,8 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
                                                             unsigned int dimension, 
                                                             std::string metrictype, 
                                                             unsigned int isVector, 
-                                                            ANTsImage<itk::Image<float,Dimension>> fixed_img, 
-                                                            ANTsImage<itk::Image<float,Dimension>> moving_img )
+                                                            py::capsule fixed_img, 
+                                                            py::capsule moving_img )
 {
   typedef itk::Image<float, Dimension> ImageType;
   typedef typename ImageType::Pointer  ImagePointerType;

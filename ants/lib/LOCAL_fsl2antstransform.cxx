@@ -62,8 +62,8 @@ TransformMatrixType GetVoxelSpaceToRASPhysicalSpaceMatrix(typename ImageType::Po
 
 template< class PixelType, unsigned int Dimension >
 ANTsTransform<itk::Transform<double,3,3>> fsl2antstransform( std::vector<std::vector<float> > matrix, 
-                ANTsImage<itk::Image<PixelType,Dimension>> ants_reference, 
-                ANTsImage<itk::Image<PixelType,Dimension>> ants_moving, 
+                py::capsule ants_reference, 
+                py::capsule ants_moving, 
                 int flag )
 {
   typedef vnl_matrix_fixed<double, 4, 4>              MatrixType;

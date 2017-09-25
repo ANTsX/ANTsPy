@@ -8,7 +8,6 @@ import scipy.misc
 
 from .. import core
 from ..core import ants_image as iio
-from .. import lib
 from .. import utils
 
 
@@ -25,7 +24,8 @@ def convert_scalar_image_to_rgb(dimension, img, outimg, mask, colormap='red', cu
     args = [dimension, img, outimg, mask, colormap, custom_colormap_file,
             min_input, max_input, min_rgb_output, max_rgb_output, vtk_lookup_table]
     processed_args = utils._int_antsProcessArguments(args)
-    lib.ConvertScalarImageToRGB(processed_args)
+    libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
+    libfn(processed_args)
 
 
 def vol(volume, overlays=None,
@@ -181,7 +181,8 @@ def vol(volume, overlays=None,
             volcmd = volcmd + ['-d', '%s[%s,%s,255x255x255]' % (pngfnloc, magnification_factor, rparamstring)]
 
         ## C++ LIBRARY FUNCTION CALL ##
-        retval = lib.antsVol(volcmd)
+        libfn = utils.get_lib_fn('antsVol')
+        retval = libfn(volcmd)
 
         if retval != 0:
             raise Exception('antsVol c++ function call failed for unknown reason')

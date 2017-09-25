@@ -6,18 +6,18 @@ import numpy as np
 from ..core import ants_image as iio
 
 
-def labels_to_matrix(img, mask, target_labels=None, missing_val=np.nan):
+def labels_to_matrix(image, mask, target_labels=None, missing_val=np.nan):
     """
     Convert a labeled image to an n x m binary matrix where n = number of voxels
     and m = number of labels. Only includes values inside the provided mask while
-    including background ( img == 0 ) for consistency with timeseries2matrix and
+    including background ( image == 0 ) for consistency with timeseries2matrix and
     other image to matrix operations.
     
     ANTsR function: `labels2matrix`
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         input label image
 
     mask : ANTsImage
@@ -43,10 +43,10 @@ def labels_to_matrix(img, mask, target_labels=None, missing_val=np.nan):
     >>> labs = ants.kmeans_segmentation(fi,3)['segmentation']
     >>> labmat = ants.labels_to_matrix(labs, mask)
     """
-    if (not isinstance(img, iio.ANTsImage)) or (not isinstance(mask, iio.ANTsImage)):
-        raise ValueError('img and mask must be ANTsImage types')
+    if (not isinstance(image, iio.ANTsImage)) or (not isinstance(mask, iio.ANTsImage)):
+        raise ValueError('image and mask must be ANTsImage types')
 
-    vec = img[mask > 0]
+    vec = image[mask > 0]
     
     if target_labels is not None:
         the_labels = target_labels

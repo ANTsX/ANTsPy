@@ -8,40 +8,11 @@ from tempfile import mktemp
 import numpy as np
 import pandas as pd
 
-from .. import lib
 from .. import utils
 from ..core import ants_image as iio
 
 
-
-_supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
-_short_ptype_map = {
-    'unsigned char' : 'UC',
-    'unsigned int': 'UI',
-    'float': 'F',
-    'double' : 'D'
-}
-
-_invariant_image_similarity_dict = {
-    2 : {
-        'Affine': 'invariantImageSimilarity_Affine2D',
-        'Similarity': 'invariantImageSimilarity_Similarity2D',
-        'Rigid': 'invariantImageSimilarity_Rigid2D'
-    },
-    3 : {
-        'Affine': 'invariantImageSimilarity_Affine3D',
-        'Similarity': 'invariantImageSimilarity_Similarity3D',
-        'Rigid': 'invariantImageSimilarity_Rigid3D'
-    }
-}
-
-# pick up lib.convolveImageX functions
-_convolve_image_dict = {}
-for ndim in {2,3,4}:
-    _convolve_image_dict[ndim] = 'convolveImageF%i' % ndim
-
-
-def invariant_image_similarity(in_image1, in_image2, 
+def invariant_image_similarity(image1, image2, 
                                 local_search_iterations=0, metric='MI', 
                                 thetas=np.linspace(0,360,5),
                                 thetas2=np.linspace(0,360,5),
@@ -58,10 +29,10 @@ def invariant_image_similarity(in_image1, in_image2,
 
     Arguments
     ---------
-    in_image1 : ANTsImage
+    image1 : ANTsImage
         reference image
     
-    in_image2 : ANTsImage
+    image2 : ANTsImage
         moving image
     
     local_search_iterations : integer
@@ -110,10 +81,10 @@ def invariant_image_similarity(in_image1, in_image2,
     if transform not in {'Rigid', 'Similarity', 'Affine'}:
         raise ValueError('transform must be one of Rigid/Similarity/Affine')
 
-    if in_image1.pixeltype != 'float':
-        in_image1 = in_image1.clone('float')
-    if in_image2.pixeltype != 'float':
-        in_image2 = in_image2.clone('float')
+    if image1.pixeltype != 'float':
+        image1 = image1.clone('float')
+    if image2.pixeltype != 'float':
+        image2 = image2.clone('float')
 
     if txfn is None:
         txfn = mktemp(suffix='.mat')
@@ -123,24 +94,24 @@ def invariant_image_similarity(in_image1, in_image2,
     thetain2 = (thetas2 * math.pi) / 180.
     thetain3 = (thetas3 * math.pi) / 180.
 
-    in_image1 = utils.iMath(in_image1, 'Normalize')
-    in_image2 = utils.iMath(in_image2, 'Normalize')
+    image1 = utils.iMath(image1, 'Normalize')
+    image2 = utils.iMath(image2, 'Normalize')
 
-    idim = in_image1.dimension
+    idim = image1.dimension
     fpname = ['FixedParam%i'%i for i in range(1,idim+1)]
 
     if not do_reflection:
-        invariant_image_similarity_fn = lib.__dict__[_invariant_image_similarity_dict[idim][transform]]
-        r1 = invariant_image_similarity_fn(in_image1._img, 
-                                            in_image2._img,
-                                            list(thetain), 
-                                            list(thetain2), 
-                                            list(thetain3),
-                                            local_search_iterations, 
-                                            metric,
-                                            scale_image, 
-                                            int(do_reflection),
-                                            txfn)
+        libfn = utils.get_lib_fn('invariantImageSimilarity_%s%iD' % (transform, idim))
+        r1 = libfn(image1.pointer, 
+                    image2.pointer,
+                    list(thetain), 
+                    list(thetain2), 
+                    list(thetain3),
+                    local_search_iterations, 
+                    metric,
+                    scale_image, 
+                    int(do_reflection),
+                    txfn)
         r1 = np.asarray(r1)
 
         pnames = ['Param%i'%i for i in range(1,r1.shape[1])]
@@ -154,63 +125,62 @@ def invariant_image_similarity(in_image1, in_image2,
         txfn3 = mktemp(suffix='.mat')
         txfn4 = mktemp(suffix='.mat')
 
-        invariant_image_similarity_fn = lib.__dict__[_invariant_image_similarity_dict[idim][transform]]
-
+        libfn = utils.get_lib_fn('invariantImageSimilarity_%s%iD' % (transform, idim))
         ## R1 ##
-        r1 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
-                                            list(thetain), 
-                                            list(thetain2), 
-                                            list(thetain3),
-                                            local_search_iterations, 
-                                            metric,
-                                            scale_image, 
-                                            0,
-                                            txfn1)
+        r1 = libfn(image1.pointer,
+                    image2.pointer,
+                    list(thetain), 
+                    list(thetain2), 
+                    list(thetain3),
+                    local_search_iterations, 
+                    metric,
+                    scale_image, 
+                    0,
+                    txfn1)
         r1 = np.asarray(r1)
         pnames = ['Param%i'%i for i in range(1,r1.shape[1])]
         pnames[(len(pnames)-idim):len(pnames)] = fpname
         r1 = pd.DataFrame(r1, columns=['MetricValue']+pnames)
 
         ## R2 ##
-        r2 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
-                                            list(thetain), 
-                                            list(thetain2), 
-                                            list(thetain3),
-                                            local_search_iterations, 
-                                            metric,
-                                            scale_image, 
-                                            1,
-                                            txfn2)
+        r2 = libfn(image1.pointer,
+                    image2.pointer,
+                    list(thetain), 
+                    list(thetain2), 
+                    list(thetain3),
+                    local_search_iterations, 
+                    metric,
+                    scale_image, 
+                    1,
+                    txfn2)
         r2 = np.asarray(r2)
         r2 = pd.DataFrame(r2, columns=['MetricValue']+pnames)
 
         ## R3 ##
-        r3 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
-                                            list(thetain), 
-                                            list(thetain2), 
-                                            list(thetain3),
-                                            local_search_iterations, 
-                                            metric,
-                                            scale_image, 
-                                            2,
-                                            txfn3)
+        r3 = libfn(image1.pointer,
+                    image2.pointer,
+                    list(thetain), 
+                    list(thetain2), 
+                    list(thetain3),
+                    local_search_iterations, 
+                    metric,
+                    scale_image, 
+                    2,
+                    txfn3)
         r3 = np.asarray(r3)
         r3 = pd.DataFrame(r3, columns=['MetricValue']+pnames)
 
         ## R4 ##
-        r4 = invariant_image_similarity_fn(in_image1._img,
-                                            in_image2._img,
-                                            list(thetain), 
-                                            list(thetain2), 
-                                            list(thetain3),
-                                            local_search_iterations, 
-                                            metric,
-                                            scale_image, 
-                                            3,
-                                            txfn4)
+        r4 = libfn(image1.pointer,
+                    image2.pointer,
+                    list(thetain), 
+                    list(thetain2), 
+                    list(thetain3),
+                    local_search_iterations, 
+                    metric,
+                    scale_image, 
+                    3,
+                    txfn4)
         r4 = np.asarray(r4)
         r4 = pd.DataFrame(r4, columns=['MetricValue']+pnames)
 
@@ -274,9 +244,10 @@ def convolve_image(image, kernel_image, crop=True):
         kernel_image_mask = utils.crop_image(kernel_image_mask, kernel_image_mask)
         kernel_image[kernel_image_mask==0] = kernel_image[kernel_image_mask==1].mean()
 
-    convolve_image_fn = lib.__dict__[_convolve_image_dict[image.dimension]]
-    conv_itk_image = convolve_image_fn(image._img, kernel_image._img)
-    conv_ants_image = iio.ANTsImage(conv_itk_image)
+    libfn = utils.get_lib_fn('convolveImageF%i' % image.dimension)
+    conv_itk_image = libfn(image.pointer, kernel_image.pointer)
+    conv_ants_image = iio.ANTsImage(pixeltype=image.pixeltype, dimension=image.dimension,
+                                    components=image.components, pointer=conv_itk_image)
 
     if orig_ptype != 'float':
         conv_ants_image = conv_ants_image.clone(orig_ptype)

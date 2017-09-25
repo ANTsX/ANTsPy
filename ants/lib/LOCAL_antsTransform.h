@@ -85,7 +85,7 @@ public:
     std::vector< double > transformVector( std::vector< double > );
     
     template <typename ImageType>
-    ANTsImage<ImageType> transformImage( ANTsImage<ImageType>&, ANTsImage<ImageType>&, std::string);
+    py::capsule transformImage( py::capsule&, py::capsule&, std::string);
 
     template <typename ReturnTransformType>
     ANTsTransform<ReturnTransformType> inverse();
@@ -286,7 +286,7 @@ ANTsTransform<ReturnTransformType> ANTsTransform<TransformType>::inverse()
 }
 
 template <typename ImageType>
-ANTsImage<ImageType> wrapHelper( typename ImageType::Pointer & image )
+py::capsule wrapHelper( typename ImageType::Pointer & image )
 {
     return wrap<ImageType>( image );
 }
@@ -294,7 +294,7 @@ ANTsImage<ImageType> wrapHelper( typename ImageType::Pointer & image )
 
 template <typename TransformType>
 template <typename ImageType>
-ANTsImage<ImageType> ANTsTransform<TransformType>::transformImage( ANTsImage<ImageType> & image, ANTsImage<ImageType> & ref, std::string interp)
+py::capsule ANTsTransform<TransformType>::transformImage( py::capsule & image, py::capsule & ref, std::string interp)
 {
     typedef typename TransformType::Pointer          TransformPointerType;
 
