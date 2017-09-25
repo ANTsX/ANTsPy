@@ -96,7 +96,13 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     ANTsImage
         image with given data and any given information 
     """
-    return _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
+    orig_dtype = data.dtype.name
+    orig_ptype = _npy_to_itk_map[orig_dtype]
+    data = data.astype('float32')
+    img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
+    if img.pixeltype != orig_ptype:
+        img = img.clone(orig_ptype)
+    return img
 
 
 def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
@@ -122,7 +128,8 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1], origin, spacing, direction)
-        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image)
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image,
+                                   origin=origin, spacing=spacing, direction=direction)
     else:
         arrays = [data[...,i].copy() for i in range(data.shape[-1])]
         data_shape = arrays[0].shape
@@ -132,7 +139,10 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
             tmp_img = iio.ANTsImage(pixeltype=ptype, 
                                     dimension=ndim, 
                                     components=len(arrays), 
-                                    pointer=tmp_ptr)
+                                    pointer=tmp_ptr,
+                                    origin=origin, 
+                                    spacing=spacing, 
+                                    direction=direction)
             ants_images.append(tmp_img)
         ants_image = utils.merge_channels(ants_images)
 

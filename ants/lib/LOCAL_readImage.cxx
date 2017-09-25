@@ -43,8 +43,7 @@ py::capsule imageRead( std::string filename )
 
 
 template <typename ImageType>
-py::capsule fromNumpy( py::array data, py::tuple datashape, 
-                       std::vector<double> origin, std::vector<double> spacing, py::array direction)
+py::capsule fromNumpy( py::array data, py::tuple datashape )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType myimage = ImageType::New();
@@ -53,16 +52,6 @@ py::capsule fromNumpy( py::array data, py::tuple datashape,
     //py::tuple datashape = py::getattr(data, "shape");
     myimage = PyBufferType::_GetImageViewFromArray( data.ptr(), datashape.ptr(), py::make_tuple(1)[0].ptr() );
 
-    /*
-    py::capsule antsImage = wrap<ImageType>( myimage );
-    antsImage.setOrigin( origin );
-    antsImage.setSpacing( spacing );
-    antsImage.setDirection( direction );
-    // assign data to image so it doesnt go out of scope (ala WrapITK)... dubious.
-    antsImage._ndarr = data;
-
-    return antsImage;
-    */
     return wrap<ImageType>( myimage );
 }
 
