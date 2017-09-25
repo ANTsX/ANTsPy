@@ -100,8 +100,8 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     orig_ptype = _npy_to_itk_map[orig_dtype]
     data = data.astype('float32')
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
-    if img.pixeltype != orig_ptype:
-        img = img.clone(orig_ptype)
+    #if img.pixeltype != orig_ptype:
+    #    img = img.clone(orig_ptype)
     return img
 
 
@@ -127,29 +127,31 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     libfn = utils.get_lib_fn('fromNumpy%s%i' % (_ntype_type_map[dtype], ndim))
 
     if not has_components:
-        itk_image = libfn(data, data.shape[::-1], origin, spacing, direction)
+        itk_image = libfn(data, data.shape[::-1])
         ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image,
                                    origin=origin, spacing=spacing, direction=direction)
+        ants_image._ndarr = data
     else:
-        arrays = [data[...,i].copy() for i in range(data.shape[-1])]
+        arrays = [data[i,...].copy() for i in range(data.shape[0])]
         data_shape = arrays[0].shape
         ants_images = []
         for i in range(len(arrays)):
-            tmp_ptr = libfn(arrays[i], data_shape[::-1], origin, spacing, direction)
+            tmp_ptr = libfn(arrays[i], data_shape[::-1])
             tmp_img = iio.ANTsImage(pixeltype=ptype, 
                                     dimension=ndim, 
-                                    components=len(arrays), 
+                                    components=1, 
                                     pointer=tmp_ptr,
                                     origin=origin, 
                                     spacing=spacing, 
                                     direction=direction)
+            tmp_img._ndarr = arrays[i]
             ants_images.append(tmp_img)
         ants_image = utils.merge_channels(ants_images)
 
     return ants_image
 
 
-def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, has_components=False, pixeltype='float'):
+def make_image(shape, voxval=0, spacing=None, origin=None, direction=None, has_components=False, pixeltype='float'):
     """
     Make an image with given size and voxel value or given a mask and vector
     
@@ -157,7 +159,7 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
 
     Arguments
     ---------
-    imagesize : tuple/ANTsImage 
+    shape : tuple/ANTsImage 
         input image size or mask
     
     voxval : scalar
@@ -182,21 +184,23 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
     -------
     ANTsImage
     """
-    if isinstance(imagesize, iio.ANTsImage):
-        img = imagesize.clone()
-        sel = imagesize > 0
+    if isinstance(shape, iio.ANTsImage):
+        img = shape.clone()
+        sel = shape > 0
         if voxval.ndim > 1:
                 voxval = voxval.flatten()
         if (len(voxval) == sel.sum()) or (len(voxval) == 0):
             img[sel] = voxval
         else:
-            raise ValueError('Num given voxels %i not same as num positive values %i in `imagesize`' % (len(voxval), np.sum(sel)))
+            raise ValueError('Num given voxels %i not same as num positive values %i in `shape`' % (len(voxval), np.sum(sel)))
         return img
     else:
         if isinstance(voxval, (tuple,list,np.ndarray)):
-            voxval = np.asarray(voxval).reshape(imagesize)
-        array = np.zeros(imagesize) + voxval
-        image = from_numpy(array, origin=origin, spacing=spacing, direction=direction, has_components=has_components)
+            array = np.asarray(voxval).astype('float32').reshape(shape)
+        else:
+            array = np.full(shape,voxval,dtype='float32')
+        image = from_numpy(array, origin=origin, spacing=spacing, 
+                            direction=direction, has_components=has_components)
         return image.clone(pixeltype)
 
 

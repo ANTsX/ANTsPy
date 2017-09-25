@@ -15,7 +15,7 @@
 namespace py = pybind11;
 
 template< class ImageType, class VectorImageType >
-py::capsule mergeChannels( std::vector<py::capsule > imageList )
+py::capsule mergeChannels( std::vector<void *> imageList )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef typename VectorImageType::Pointer VectorImagePointerType;
@@ -115,9 +115,6 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("mergeChannelsF2", &mergeChannels<itk::Image<float, 2>, itk::VectorImage<float, 2> >);
   m.def("mergeChannelsF3", &mergeChannels<itk::Image<float, 3>, itk::VectorImage<float, 3> >);
   m.def("mergeChannelsF4", &mergeChannels<itk::Image<float, 4>, itk::VectorImage<float, 4> >);
-  m.def("mergeChannelsD2", &mergeChannels<itk::Image<double, 2>, itk::VectorImage<double, 2> >);
-  m.def("mergeChannelsD3", &mergeChannels<itk::Image<double, 3>, itk::VectorImage<double, 3> >);
-  m.def("mergeChannelsD4", &mergeChannels<itk::Image<double, 4>, itk::VectorImage<double, 4> >);
 
   m.def("splitChannelsUC2", &splitChannels<itk::VectorImage<unsigned char, 2>, itk::Image<unsigned char, 2> >);
   m.def("splitChannelsUC3", &splitChannels<itk::VectorImage<unsigned char, 3>, itk::Image<unsigned char, 3> >);
@@ -128,11 +125,6 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("splitChannelsF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
   m.def("splitChannelsF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
   m.def("splitChannelsF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
-  m.def("splitChannelsD2", &splitChannels<itk::VectorImage<double, 2>, itk::Image<double, 2> >);
-  m.def("splitChannelsD3", &splitChannels<itk::VectorImage<double, 3>, itk::Image<double, 3> >);
-  m.def("splitChannelsD4", &splitChannels<itk::VectorImage<double, 4>, itk::Image<double, 4> >);
-
-
 
 }
 

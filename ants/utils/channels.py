@@ -33,9 +33,8 @@ def merge_channels(image_list):
     >>> image3.components == 2
     """
     inpixeltype = image_list[0].pixeltype
-    dimension = image_list[0].dimension + 1
-    components = 1
-
+    dimension = image_list[0].dimension
+    components = len(image_list)
 
     for image in image_list:
         if not isinstance(image, iio.ANTsImage):
@@ -43,7 +42,7 @@ def merge_channels(image_list):
         if image.pixeltype != inpixeltype:
             raise ValueError('all images must have the same pixeltype')
 
-    libfn = utils.get_lib_fn('mergeChannels%s%i' % image_list[0]._libsuffix)
+    libfn = utils.get_lib_fn('mergeChannels%s' % image_list[0]._libsuffix)
     image_ptr = libfn([image.pointer for image in image_list])
     
     return iio.ANTsImage(pixeltype=inpixeltype,
@@ -81,7 +80,7 @@ def split_channels(image):
     dimension = image.dimension
     components = 1
 
-    libfn = utils.get_lib_fn('splitChannels%s%i' % image._libsuffix)
+    libfn = utils.get_lib_fn('splitChannels%s' % image._libsuffix)
     itkimages = libfn(image.pointer)
     antsimages = [iio.ANTsImage(pixeltype=inpixeltype, dimension=dimension, 
                               components=components, pointer=itkimage) for itkimage in itkimages]

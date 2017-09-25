@@ -18,8 +18,7 @@
 #include "LOCAL_antsImage.h"
 
 template <typename ImageType>
-py::capsule fromNumpy( py::array data, py::tuple datashape, 
-    std::vector<double> origin, std::vector<double> spacing, py::array direction);
+py::capsule fromNumpy( py::array data, py::tuple datashape );
 
 
 #endif // ANTSPYREADIMAGE_H

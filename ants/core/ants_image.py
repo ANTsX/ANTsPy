@@ -191,8 +191,6 @@ class ANTsImage(object):
         """
         dtype = self.dtype
         shape = self.shape[::-1]
-        if self.components > 1:
-            shape = list(shape) + [self.components]
         libfn = utils.get_lib_fn('toNumpy%s'%self._libsuffix)
         memview = libfn(self.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
@@ -206,7 +204,12 @@ class ANTsImage(object):
         -------
         ndarray
         """
-        return np.array(self.view(), copy=True, dtype=self.dtype)
+        if self.has_components:
+            imgs = utils.split_channels(self)
+            arr = np.stack([np.array(ii.view(), copy=True, dtype=self.dtype) for ii in imgs])
+            return np.rollaxis(arr, 0, self.dimension+1)
+        else:
+            return np.array(self.view(), copy=True, dtype=self.dtype)
 
     def clone(self, pixeltype=None):
         """
