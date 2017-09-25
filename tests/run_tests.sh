@@ -6,7 +6,7 @@ PYCMD=${PYCMD:="python"}
 
 if [[ $COVERAGE -eq 1 ]]; then
     coverage erase
-    PYCMD="coverage run --parallel-mode --source torch "
+    PYCMD="coverage run --parallel-mode --source antspy "
     echo "coverage flag found. Setting python command to: \"$PYCMD\""
 fi
 
