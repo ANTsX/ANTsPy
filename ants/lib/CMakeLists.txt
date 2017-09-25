@@ -67,7 +67,7 @@ pybind11_add_module(antsJointFusion antscore/antsJointFusion.cxx WRAP_antsJointF
 #pybind11_add_module(antsMotionCorr antscore/antsMotionCorr.cxx WRAP_antsMotionCorr.cxx)
 #pybind11_add_module(antsMotionCorrStats antscore/antsMotionCorrStats.cxx WRAP_antsMotionCorrStats.cxx)
 pybind11_add_module(antsRegistration antscore/antsRegistration.cxx WRAP_antsRegistration.cxx)
-pybind11_add_module(antsSliceRegularizedRegistration antscore/antsSliceRegularizedRegistration.cxx WRAP_antsSliceRegularizedRegistration.cxx)
+#pybind11_add_module(antsSliceRegularizedRegistration antscore/antsSliceRegularizedRegistration.cxx WRAP_antsSliceRegularizedRegistration.cxx)
 pybind11_add_module(Atropos antscore/Atropos.cxx WRAP_Atropos.cxx)
 pybind11_add_module(CreateJacobianDeterminantImage antscore/CreateJacobianDeterminantImage.cxx WRAP_CreateJacobianDeterminantImage.cxx)
 pybind11_add_module(CreateTiledMosaic antscore/CreateTiledMosaic.cxx WRAP_CreateTiledMosaic.cxx)
@@ -76,7 +76,7 @@ pybind11_add_module(iMath antscore/iMath.cxx WRAP_iMath.cxx)
 pybind11_add_module(KellyKapowski antscore/KellyKapowski.cxx WRAP_KellyKapowski.cxx)
 pybind11_add_module(LabelClustersUniquely antscore/LabelClustersUniquely.cxx WRAP_LabelClustersUniquely.cxx)
 pybind11_add_module(LabelGeometryMeasures antscore/LabelGeometryMeasures.cxx WRAP_LabelGeometryMeasures.cxx)
-pybind11_add_module(LesionFilling antscore/LesionFilling.cxx WRAP_LesionFilling.cxx)
+#pybind11_add_module(LesionFilling antscore/LesionFilling.cxx WRAP_LesionFilling.cxx)
 pybind11_add_module(N3BiasFieldCorrection antscore/N3BiasFieldCorrection.cxx WRAP_N3BiasFieldCorrection.cxx)
 pybind11_add_module(N4BiasFieldCorrection antscore/N4BiasFieldCorrection.cxx WRAP_N4BiasFieldCorrection.cxx)
 #pybind11_add_module(NonLocalSuperResolution antscore/NonLocalSuperResolution.cxx WRAP_NonLocalSuperResolution.cxx)
@@ -84,7 +84,7 @@ pybind11_add_module(ResampleImage antscore/ResampleImage.cxx WRAP_ResampleImage.
 #pybind11_add_module(SuperResolution antscore/SuperResolution.cxx WRAP_SuperResolution.cxx)
 pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdImage.cxx)
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
-pybind11_add_module(TimeSCCAN antscore/TimeSCCAN.cxx WRAP_TimeSCCAN.cxx)
+#pybind11_add_module(TimeSCCAN antscore/TimeSCCAN.cxx WRAP_TimeSCCAN.cxx)
 
 # -----------------------------------------------------------------
 
@@ -119,7 +119,7 @@ target_link_libraries(antsJointFusion PRIVATE ${ITK_LIBRARIES} antsUtilities reg
 #target_link_libraries(antsMotionCorr PRIVATE ${ITK_LIBRARIES} antsUtilities)
 #target_link_libraries(antsMotionCorrStats PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(antsRegistration PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities)
-target_link_libraries(antsSliceRegularizedRegistration PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities)
+#target_link_libraries(antsSliceRegularizedRegistration PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities)
 target_link_libraries(Atropos PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(CreateJacobianDeterminantImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(CreateTiledMosaic PRIVATE ${ITK_LIBRARIES} antsUtilities)
@@ -128,7 +128,7 @@ target_link_libraries(iMath PRIVATE ${ITK_LIBRARIES} antsUtilities imageMathUtil
 target_link_libraries(KellyKapowski PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(LabelClustersUniquely PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(LabelGeometryMeasures PRIVATE ${ITK_LIBRARIES} antsUtilities)
-target_link_libraries(LesionFilling PRIVATE ${ITK_LIBRARIES} antsUtilities)
+#target_link_libraries(LesionFilling PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(N3BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(N4BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtilities)
 #target_link_libraries(NonLocalSuperResolution PRIVATE ${ITK_LIBRARIES} antsUtilities)
@@ -136,7 +136,7 @@ target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 #target_link_libraries(SuperResolution PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
-target_link_libraries(TimeSCCAN PRIVATE ${ITK_LIBRARIES} antsUtilities)
+#target_link_libraries(TimeSCCAN PRIVATE ${ITK_LIBRARIES} antsUtilities)
 
 # -----------------------------------------------------------------
 ## VIZ ##
