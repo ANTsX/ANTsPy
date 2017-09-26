@@ -11,12 +11,12 @@ self.assertTrue
 import os
 import unittest
 from common import run_tests
-from context import ants
 from tempfile import mktemp
 
 import numpy as np
 import numpy.testing as nptest
 
+import ants
 
 class TestModule_ants_image_io(unittest.TestCase):
 

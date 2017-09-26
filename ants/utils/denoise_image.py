@@ -44,7 +44,7 @@ def denoise_image(image, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rici
     -------
     >>> import ants
     >>> import numpy as np
-    >>> image = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> image = ants.image_read(ants.get_ants_data('r16'))
     >>> # add fairly large salt and pepper noise
     >>> imagenoise = image + np.random.randn(*image.shape).astype('float32')*5
     >>> imagedenoise = ants.denoise_image(imagenoise, ants.get_mask(image))

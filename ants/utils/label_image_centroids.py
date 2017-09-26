@@ -47,7 +47,7 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
 
     xcoords = np.asarray(np.arange(d[0]).tolist()*(d[1]*d[2]))
     ycoords = np.asarray(np.repeat(np.arange(d[1]),d[0]).tolist()*d[2])
-    zcoords = np.asarray(np.repeat(np.arange(d[2]), d[1]*d[3]))
+    zcoords = np.asarray(np.repeat(np.arange(d[1]), d[0]*d[2]))
 
     labels = image.numpy()
     mylabels = np.sort(np.unique(labels[labels > 0])).astype('int')

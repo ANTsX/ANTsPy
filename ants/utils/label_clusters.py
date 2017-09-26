@@ -38,6 +38,7 @@ def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fu
 
     Example
     -------
+    >>> import ants
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> timageFully = ants.label_clusters( image, 10, 128, 150, True )
     >>> timageFace = ants.label_clusters( image, 10, 128, 150, False )

@@ -29,6 +29,11 @@ def get_ants_data(name):
     -------
     string
         filepath of test image
+
+    Example
+    -------
+    >>> import ants
+    >>> mnipath = ants.get_ants_data('mni')
     """
     datapath = None
     for fname in os.listdir(data_path):
@@ -44,8 +49,8 @@ def get_ants_data_files(exclude=''):
     files = []
     for fname in os.listdir(data_path):
         if fname.endswith('.nii.gz') or fname.endswith('.jpg') and (not fname.endswith(exclude)):
-            files.append(fname)
-    return fname
+            files.append(os.path.join(data_path,fname))
+    return files
 
 
 

@@ -389,7 +389,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
     else:
         filename = os.path.expanduser(filename)
         if not os.path.exists(filename):
-            raise ValueError('File does not exist!')
+            raise ValueError('File %s does not exist!' % filename)
 
         hinfo = image_header_info(filename)
         ptype = hinfo['pixeltype']

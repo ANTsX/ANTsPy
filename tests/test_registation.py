@@ -9,11 +9,12 @@ self.assertTrue
 import os
 import unittest
 from common import run_tests
-from context import ants
 from tempfile import mktemp
 
 import numpy as np
 import numpy.testing as nptest
+
+import ants
 
 class TestModule_affine_initializer(unittest.TestCase):
 
@@ -103,7 +104,23 @@ class TestModule_fsl2antstransform(unittest.TestCase):
 class TestModule_interface(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.transform_types = {'SynBold',
+                                'SynBoldAff',
+                                'ElasticSyn',
+                                'SyN',
+                                'SyNRA',
+                                'SyNOnly',
+                                'SyNAggro',
+                                'SyNCC',
+                                'TRSAA',
+                                'SyNabp',
+                                'SyNLessAggro',
+                                'TVMSQ',
+                                'TVMSQC',
+                                'Rigid',
+                                'Similarity',
+                                'Translation',
+                                'Affine'}
 
     def tearDown(self):
         pass
@@ -114,6 +131,15 @@ class TestModule_interface(unittest.TestCase):
         fi = ants.resample_image(fi, (60,60), 1, 0)
         mi = ants.resample_image(mi, (60,60), 1, 0)
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'SyN' )
+
+    def test_registration_types(self):
+        fi = ants.image_read(ants.get_ants_data('r16'))
+        mi = ants.image_read(ants.get_ants_data('r64'))
+        fi = ants.resample_image(fi, (60,60), 1, 0)
+        mi = ants.resample_image(mi, (60,60), 1, 0)
+
+        for ttype in self.transform_types:
+            mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=ttype)
 
 
 class TestModule_metrics(unittest.TestCase):
@@ -166,10 +192,15 @@ class TestModule_resample_image(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_example(self):
+    def test_resample_image_example(self):
         fi = ants.image_read( ants.get_ants_data("r16"))
         finn = ants.resample_image(fi,(50,60),True,0)
         filin = ants.resample_image(fi,(1.5,1.5),False,1)
+
+    def test_resample_image_to_target_example(self):
+        fi = ants.image_read(ants.get_ants_data('r16'))
+        fi2mm = ants.resample_image(fi, (2,2), use_voxels=0, interp_type='linear')
+        resampled = ants.resample_image_to_target(fi2mm, fi, verbose=True)
 
 
 class TestModule_symmetrize_image(unittest.TestCase):

@@ -43,6 +43,7 @@ def get_mask(image, low_thresh=None, high_thresh=None, cleanup=2):
     
     Example
     -------
+    >>> import ants
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> mask = ants.get_mask(image)
     """

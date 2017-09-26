@@ -10,7 +10,8 @@ self.assertTrue
 import os
 import unittest
 from common import run_tests
-from context import ants
+
+import ants
 
 import numpy as np
 import numpy.testing as nptest

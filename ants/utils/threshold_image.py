@@ -36,6 +36,7 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0)
 
     Example
     -------
+    >>> import ants
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> timage = ants.threshold_image(image, 0.5, 1e15)
     """

@@ -173,7 +173,7 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
 
     radius = [int((k-1)/2) for k in kernel]
 
-    libfn = utils.get_lib_fn('getNeighborhoodAtVoxel%s' % image._libsuffix)
+    libfn = utils.get_lib_fn('getNeighborhood%s' % image._libsuffix)
     retvals = libfn(image.pointer, 
                     list(center), 
                     list(kernel), 

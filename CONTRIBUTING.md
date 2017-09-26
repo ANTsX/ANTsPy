@@ -422,6 +422,22 @@ All tests can be executed by running the following command from the main directo
 ./tests/run_tests.sh
 ```
 
+Similarly, code coverage can be calculated by adding a flag to the above command:
+
+```bash
+./tests/run_tests.sh -c
+```
+
+This will create an html folder in the `tests` directory with detailed coverage information.
+In order to publish this information to coveralls, we run the following (given that the
+.coveralls.yml file is in the tests directory with the correct repo token):
+
+```bash
+./tests/run_tests.sh -c
+cd tests
+coveralls
+```
+
 Refer to that file for adding tests. We use the `unittest` module for creating tests, which
 generally have the following structure:
 

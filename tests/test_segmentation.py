@@ -42,11 +42,12 @@ class TestModule_prior_based_segmentation(unittest.TestCase):
 import os
 import unittest
 from common import run_tests
-from context import ants
 from tempfile import mktemp
 
 import numpy as np
 import numpy.testing as nptest
+
+import ants
 
 class TestModule_atropos(unittest.TestCase):
 

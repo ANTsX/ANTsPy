@@ -286,8 +286,7 @@ def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smooth
     -------
     >>> import ants
     >>> import numpy as np
-    >>> import pandas as pd
-    >>> mat = pd.read_csv('~/desktop/mat.csv', index_col=0).values
+    >>> mat = np.random.randn(4,100).astype('float32')
     >>> init = ants.initialize_eigenanatomy(mat)
     """
     if isinstance(initmat, iio.ANTsImage):
@@ -379,7 +378,7 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
     if isinstance(img_list, np.ndarray):
         mydata = img_list
     elif isinstance(img_list, (tuple, list)):
-        mydata = utils.image_list_to_matrix(img_list, mask)
+        mydata = core.image_list_to_matrix(img_list, mask)
 
     if (smooth > 0):
         for i in range(mydata.shape[0]):
@@ -392,9 +391,9 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
     maskseg[maskvox] = (segids * (segmax > 1e-09))
 
     if cthresh > 0:
-        for kk in range(max(maskseg)):
+        for kk in range(int(maskseg.max())):
             timg = utils.threshold_image(maskseg, kk, kk)
-            timg = utils.label_clusters(cthresh)
+            timg = utils.label_clusters(timg, cthresh)
             timg = utils.threshold_image(timg, 1, 1e15) * float(kk)
             maskseg[maskseg == kk] = timg[maskseg == kk]
 

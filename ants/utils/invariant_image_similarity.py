@@ -221,7 +221,7 @@ def convolve_image(image, kernel_image, crop=True):
     Example
     -------
     >>> import ants
-    >>> fi = ants.image_reead(ants.get_ants_data('r16'))
+    >>> fi = ants.image_read(ants.get_ants_data('r16'))
     >>> convimg = ants.make_image( (3,3), (1,0,1,0,-4,0,1,0,1) )
     >>> convout = ants.convolve_image( fi, convimg )
     >>> convimg2 = ants.make_image( (3,3), (0,1,0,1,0,-1,0,-1,0) )

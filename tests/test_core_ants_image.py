@@ -10,7 +10,7 @@ self.assertTrue
 import os
 import unittest
 from common import run_tests
-from context import ants
+
 from tempfile import mktemp
 
 import numpy as np
@@ -24,8 +24,8 @@ class TestClass_ANTsImage(unittest.TestCase):
     Test ants.ANTsImage class
     """
     def setUp(self):
-        img2d = ants.image_read(ants.get_ants_data('r16')).clone('float')
-        img3d = ants.image_read(ants.get_ants_data('mni')).clone('float')
+        img2d = ants.image_read(ants.get_ants_data('r16'))
+        img3d = ants.image_read(ants.get_ants_data('mni'))
         self.imgs = [img2d, img3d]
         self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
 

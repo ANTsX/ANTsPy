@@ -82,11 +82,13 @@ def crop_indices(image, lowerind, upperind):
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data("r16"))
     >>> cropped = ants.crop_indices( fi, (10,10), (100,100) )
     >>> cropped = ants.smooth_image( cropped, 5 )
     >>> decropped = ants.decrop_image( cropped, fi )
     """
+    inpixeltype = 'float'
     if image.pixeltype != 'float':
         inpixeltype = image.pixeltype
         image = image.clone('float')
@@ -96,8 +98,11 @@ def crop_indices(image, lowerind, upperind):
 
     libfn = utils.get_lib_fn('cropImageF%i' % image.dimension)
     itkimage = libfn(image.pointer, image.pointer, 1, 2, lowerind, upperind)
-    return iio.ANTsImage(pixeltype='float', dimension=image.dimension,
-                        components=image.components, pointer=itkimage).clone(inpixeltype)
+    ants_image = iio.ANTsImage(pixeltype='float', dimension=image.dimension,
+                        components=image.components, pointer=itkimage)
+    if inpixeltype != 'float':
+        ants_image = ants_image.clone(inpixeltype)
+    return ants_image
 
 
 def decrop_image(cropped_image, full_image):
@@ -120,12 +125,14 @@ def decrop_image(cropped_image, full_image):
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read(ants.get_ants_data('r16'))
     >>> mask = ants.get_mask(fi)
     >>> cropped = ants.crop_image(fi, mask, 1)
     >>> cropped = ants.smooth_image(cropped, 1)
     >>> decropped = ants.decrop_image(cropped, fi)
     """
+    inpixeltype = 'float'
     if cropped_image.pixeltype != 'float':
         inpixeltype= cropped_image.pixeltype
         cropped_image = cropped_image.clone('float')
@@ -134,6 +141,10 @@ def decrop_image(cropped_image, full_image):
     
     libfn = utils.get_lib_fn('cropImageF%i' % cropped_image.dimension)
     itkimage = libfn(cropped_image.pointer, full_image.pointer, 1, 1, [], [])
-    return iio.ANTsImage(pixeltype='float', dimension=cropped_image.dimension,
-                        components=cropped_image.components, pointer=itkimage).clone(inpixeltype)
+    ants_image = iio.ANTsImage(pixeltype='float', dimension=cropped_image.dimension,
+                        components=cropped_image.components, pointer=itkimage)
+    if inpixeltype != 'float':
+        ants_image = ants_image.clone(inpixeltype)
+
+    return ants_image
 

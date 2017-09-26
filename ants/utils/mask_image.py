@@ -35,7 +35,7 @@ def mask_image(image, mask, level=1, binarize=False):
     >>> mask = ants.get_mask(myimage)
     >>> myimage_mask = ants.mask_image(myimage, mask, 3)
     >>> seg = ants.kmeans_segmentation(myimage, 3)
-    >>> myimage_mask = maskImage(myimage, seg['segmentation'], (1,3))
+    >>> myimage_mask = ants.mask_image(myimage, seg['segmentation'], (1,3))
     """
     if not isinstance(level, (tuple,list)):
         image_out = image.clone()

@@ -62,6 +62,7 @@ def morphology(image, operation, radius, mtype='binary', value=1,
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data('r16') , 2 )
     >>> mask = ants.get_mask( fi )
     >>> dilated_ball = ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='ball')

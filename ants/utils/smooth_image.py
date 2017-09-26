@@ -60,6 +60,7 @@ def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, m
     
     Example
     -------
+    >>> import ants
     >>> image = ants.image_read( ants.get_ants_data('r16'))
     >>> simage = ants.smooth_image(image, (1.2,1.5))
     """

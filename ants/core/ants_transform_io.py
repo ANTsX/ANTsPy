@@ -18,6 +18,11 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
     Create a new ANTsTransform
 
     ANTsR function: None
+
+    Example
+    -------
+    >>> import ants
+    >>> tx = ants.new_ants_transform()
     """
     libfn = utils.get_lib_fn('new_ants_transform%s%i' % (utils.short_ptype(precision), dimension))
     itk_tx = libfn(precision, dimension, transform_type)

@@ -5,6 +5,7 @@ import numpy as np
 __all__ = ['set_ants_transform_parameters',
            'get_ants_transform_parameters',
            'get_ants_transform_fixed_parameters',
+           'set_ants_transform_fixed_parameters',
            'apply_ants_transform',
            'apply_ants_transform_to_point',
            'apply_ants_transform_to_vector',
@@ -106,6 +107,14 @@ class ANTsTransform(object):
         Returns
         -------
         list : transformed point
+
+        Example
+        -------
+        >>> import ants
+        >>> tx = ants.new_ants_transform()
+        >>> params = tx.parameters
+        >>> tx.set_parameters(params*2)
+        >>> pt2 = tx.apply_to_point((1,2,3)) # should be (2,4,6)
         """
         return tuple(self._tx.transform_point(point))
 
@@ -185,7 +194,7 @@ def get_ants_transform_parameters(transform):
     
     ANTsR function: `getAntsrTransformParameters`
     """
-    return transform.get_parameters()
+    return transform.parameters
 
 def set_ants_transform_fixed_parameters(transform, parameters):
     """
@@ -201,7 +210,7 @@ def get_ants_transform_fixed_parameters(transform):
     
     ANTsR function: `getAntsrTransformFixedParameters`
     """
-    return transform.get_fixed_parameters()
+    return transform.fixed_parameters
 
 
 def apply_ants_transform(transform, data, data_type="point", reference=None, **kwargs):
@@ -263,7 +272,7 @@ def apply_ants_transform_to_point(transform, point):
     >>> tx.set_parameters(params*2)
     >>> pt2 = tx.apply_to_point((1,2,3)) # should be (2,4,6)
     """
-    return transform.apply_transform_to_point(point)
+    return transform.apply_to_point(point)
 
 
 def apply_ants_transform_to_vector(transform, vector):
@@ -313,7 +322,7 @@ def apply_ants_transform_to_image(transform, image, reference, interpolation='li
     >>> tx.set_parameters((0.9,0,0,1.1,10,11))
     >>> img2 = tx.apply_to_image(img, img)
     """
-    return transform.apply_transform_to_image(image, reference, interpolation)
+    return transform.apply_to_image(image, reference, interpolation)
 
 
 def invert_ants_transform(transform):
@@ -370,7 +379,7 @@ def compose_ants_transforms(transform_list):
             raise ValueError('All transforms must have the same dimension')
 
     transform_list = list(reversed([tf._tx for tf in transform_list]))
-    libfn = utils.get_lib_fn('ComposeTransforms%s%i'%(_short_ptype_map[precision],dimension))
+    libfn = utils.get_lib_fn('composeTransforms%s%i'%(_short_ptype_map[precision],dimension))
     itk_composed_tx = libfn(transform_list, precision, dimension)
     return ANTsTransform(itk_composed_tx)
 

@@ -34,6 +34,7 @@ def n3_bias_field_correction(image, downsample_factor=3):
     
     Example
     -------
+    >>> import ants
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> image_n3 = ants.n3_bias_field_correction(image)
     """
