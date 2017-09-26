@@ -123,7 +123,12 @@ class TestModule_interface(unittest.TestCase):
                                 'Rigid',
                                 'Similarity',
                                 'Translation',
-                                'Affine'}
+                                'Affine',
+                                'AffineFast',
+                                'BOLDAffine',
+                                'QuickRigid',
+                                'DenseRigid',
+                                'BOLDRigid'}
 
     def tearDown(self):
         pass
@@ -136,6 +141,7 @@ class TestModule_interface(unittest.TestCase):
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'SyN' )
 
     def test_registration_types(self):
+        print('Starting long registration interface test')
         fi = ants.image_read(ants.get_ants_data('r16'))
         mi = ants.image_read(ants.get_ants_data('r64'))
         fi = ants.resample_image(fi, (60,60), 1, 0)
@@ -144,6 +150,10 @@ class TestModule_interface(unittest.TestCase):
         for ttype in self.transform_types:
             mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=ttype)
 
+            # with mask
+            fimask = fi > fi.mean()
+            mytx = ants.registration(fixed=fi, moving=mi, mask=fimask, type_of_transform=ttype)   
+        print('Finished long registration interface test')
 
 class TestModule_metrics(unittest.TestCase):
 

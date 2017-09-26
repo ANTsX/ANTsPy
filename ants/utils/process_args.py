@@ -52,6 +52,8 @@ def _int_antsProcessArguments(args):
                     p_args.append(_ptrstr(argval.pointer))
                 elif isinstance(argval, list):
                     for av in argval:
+                        if isinstance(av, iio.ANTsImage):
+                            av = _ptrstr(av.pointer)
                         p_args.append(av)
                 else:
                     p_args.append(str(argval))

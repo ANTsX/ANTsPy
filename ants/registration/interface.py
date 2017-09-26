@@ -214,10 +214,13 @@ def registration(fixed,
         if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
             inpixeltype = fixed.pixeltype
             ttexists = False
-            allowable_tx = {'Translation','Rigid', 'Similarity', 'Affine', 'TRSAA',
-                            'SyN','SyNRA','SyNOnly','SyNCC','SyNabp', 'SyNBold', 'SyNBoldAff',
-                            'SyNAggro', 'SyNLessAggro', 'TVMSQ','TVMSQC','ElasticSyN'}
+            allowable_tx =  {'SynBold','SynBoldAff', 'ElasticSyn','SyN','SyNRA',
+                            'SyNOnly','SyNAggro','SyNCC','TRSAA','SyNabp','SyNLessAggro',
+                            'TVMSQ','TVMSQC','Rigid','Similarity','Translation','Affine',
+                            'AffineFast','BOLDAffine','QuickRigid','DenseRigid','BOLDRigid'}
             ttexists = type_of_transform in allowable_tx
+            if not ttexists:
+                raise ValueError('`type_of_transform` does not exist')
 
             if ttexists:
                 initx = initial_transform
