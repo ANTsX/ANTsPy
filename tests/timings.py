@@ -14,12 +14,7 @@ def time_nifti_to_numpy(N_TRIALS):
     """
     Times how fast a framework can read a nifti file and convert it to numpy
     """
-    datadir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-    img_paths = []
-    for dtype in ['DOUBLE', 'FLOAT',
-                  'UNSIGNEDCHAR',  'UNSIGNEDINT']:
-        for dim in [2,3]:
-            img_paths.append(os.path.join(datadir, 'image_%s_%iD.nii.gz' % (dtype, dim)))
+    img_paths = [ants.get_ants_data('mni')]*10
     
     def test_nibabel():
         for img_path in img_paths:
