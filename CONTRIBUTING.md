@@ -438,6 +438,8 @@ cd tests
 coveralls
 ```
 
+We use https://coveralls.io/ for hosting our coverage information.
+
 Refer to that file for adding tests. We use the `unittest` module for creating tests, which
 generally have the following structure:
 
