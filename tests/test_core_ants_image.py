@@ -52,6 +52,14 @@ class TestClass_ANTsImage(unittest.TestCase):
             img.set_spacing(new_spacing_tuple)
             self.assertEqual(img.spacing, new_spacing_tuple)
 
+            # test exceptions
+            with self.assertRaises(Exception):
+                new_spacing = img.clone()
+                img.set_spacing(new_spacing)
+            with self.assertRaises(Exception):
+                new_spacing = [6.9]*(img.dimension+1)
+                img.set_spacing(new_spacing)
+
     def test_get_origin(self):
         #self.setUp()
         for img in self.imgs:
@@ -71,6 +79,14 @@ class TestClass_ANTsImage(unittest.TestCase):
             img.set_origin(new_origin_tuple)
             self.assertEqual(img.origin, new_origin_tuple)
 
+            # test exceptions
+            with self.assertRaises(Exception):
+                new_origin = img.clone()
+                img.set_origin(new_origin)
+            with self.assertRaises(Exception):
+                new_origin = [6.9]*(img.dimension+1)
+                img.set_spacing(new_origin)
+
     def test_get_direction(self):
         #self.setUp()
         for img in self.imgs:
@@ -84,6 +100,14 @@ class TestClass_ANTsImage(unittest.TestCase):
             new_direction = np.eye(img.dimension)*3
             img.set_direction(new_direction)
             nptest.assert_allclose(img.direction, new_direction)
+
+            # test exceptions
+            with self.assertRaises(Exception):
+                new_direction = img.clone()
+                img.set_spacing(new_direction)
+            with self.assertRaises(Exception):
+                new_direction = np.eye(img.dimension+2)*3
+                img.set_spacing(new_direction)
 
     def test_view(self):
         #self.setUp()
@@ -135,6 +159,16 @@ class TestClass_ANTsImage(unittest.TestCase):
             # test data
             nptest.assert_allclose(myarray, imgnew.numpy())
             nptest.assert_allclose(myarray, img.numpy()*6.9)
+
+            # test exceptions
+            with self.assertRaises(Exception):
+                # not ndarray
+                new_data = img.clone()
+                img.new_image_like(new_data)
+            with self.assertRaises(Exception):
+                # wrong shape
+                new_data = np.random.randn(69,12,21).astype('float32')
+                img.new_image_like(new_data)
 
     def test_to_file(self):
         #self.setUp()
@@ -475,6 +509,27 @@ class TestModule_ants_image(unittest.TestCase):
             img2 = img.clone(clonetype)
             self.assertTrue(ants.image_physical_space_consistency(img,img2))
             self.assertTrue(not ants.image_physical_space_consistency(img,img2,datatype=True))
+
+            # test incorrectness #
+            # bad spacing
+            img2 = img.clone()
+            img2.set_spacing([6.96]*img.dimension)
+            self.assertTrue(not ants.image_physical_space_consistency(img,img2))
+
+            # bad origin
+            img2 = img.clone()
+            img2.set_origin([6.96]*img.dimension)
+            self.assertTrue(not ants.image_physical_space_consistency(img,img2))
+
+            # bad direction
+            img2 = img.clone()
+            img2.set_direction(img.direction*2)
+            self.assertTrue(not ants.image_physical_space_consistency(img,img2))
+
+            # bad dimension
+            ndim = img.dimension
+            img2 = ants.from_numpy(np.random.randn(*tuple([69]*(ndim+1))).astype('float32'))
+            self.assertTrue(not ants.image_physical_space_consistency(img,img2))
 
     def test_image_type_cast(self):
         # test with list of images
