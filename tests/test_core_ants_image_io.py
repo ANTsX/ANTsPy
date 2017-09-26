@@ -27,8 +27,11 @@ class TestModule_ants_image_io(unittest.TestCase):
         img3d = ants.image_read(ants.get_ants_data('mni')).clone('float')
         arr2d = np.random.randn(69,70).astype('float32')
         arr3d = np.random.randn(69,70,71).astype('float32')
+        vecimg2d = ants.from_numpy(np.random.randn(69,70,4), has_components=True)
+        vecimg3d = ants.from_numpy(np.random.randn(69,70,71,2), has_components=True)
         self.imgs = [img2d, img3d]
         self.arrs = [arr2d, arr3d]
+        self.vecimgs = [vecimg2d, vecimg3d]
         self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
 
     def tearDown(self):
@@ -98,7 +101,140 @@ class TestModule_ants_image_io(unittest.TestCase):
         self.assertEqual(img.dimension, 3)
         nptest.assert_allclose(img.mean(), 0.)
 
+    def test_matrix_to_images(self):
+        # def matrix_to_images(data_matrix, mask):
+        for img in self.imgs:
+            imgmask = img > img.mean()
+            data = img[imgmask]
+            dataflat = data.reshape(1,-1)
+            mat = np.vstack([dataflat,dataflat]).astype('float32')
+            imglist = ants.matrix_to_images(mat, imgmask)
+            nptest.assert_allclose((img*imgmask).numpy(), imglist[0].numpy())
+            nptest.assert_allclose((img*imgmask).numpy(), imglist[1].numpy())
+            self.assertTrue(ants.image_physical_space_consistency(img,imglist[0],imglist[1]))
 
+            # go back to matrix
+            mat2 = ants.images_to_matrix(imglist, imgmask)
+            nptest.assert_allclose(mat, mat2)
+
+    def test_images_to_matrix(self):
+        # def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
+        for img in self.imgs:
+            mask = img > img.mean()
+            imglist = [img.clone(),img.clone(),img.clone()]
+            imgmat = ants.images_to_matrix(imglist, mask=mask)
+            self.assertTrue(imgmat.shape[0] == len(imglist))
+            self.assertTrue(imgmat.shape[1] == (mask>0).sum())
+
+            # go back to images
+            imglist2 = ants.matrix_to_images(imgmat, mask)
+            for i1,i2 in zip(imglist,imglist2):
+                self.assertTrue(ants.image_physical_space_consistency(i1,i2))
+                nptest.assert_allclose(i1.numpy()*mask.numpy(),i2.numpy())
+
+    def test_image_header_info(self):
+        # def image_header_info(filename):
+        for img in self.imgs:
+            img.set_spacing([6.9]*img.dimension)
+            img.set_origin([3.6]*img.dimension)
+            tmpfile = mktemp(suffix='.nii.gz')
+            ants.image_write(img, tmpfile)
+
+            info = ants.image_header_info(tmpfile)
+            self.assertEqual(info['dimensions'], img.shape)
+            nptest.assert_allclose(info['direction'], img.direction)
+            self.assertEqual(info['nComponents'], img.components)
+            self.assertEqual(info['nDimensions'], img.dimension)
+            self.assertEqual(info['origin'], img.origin)
+            self.assertEqual(info['pixeltype'], img.pixeltype)
+            self.assertEqual(info['pixelclass'], 'vector' if img.has_components else 'scalar')
+            self.assertEqual(info['spacing'], img.spacing)
+            
+            try:
+                os.remove(tmpfile)
+            except:
+                pass
+
+        # test on vector image
+        img = ants.from_numpy(np.random.randn(69,60,4).astype('float32'), has_components=True)
+        tmpfile = mktemp(suffix='.nii.gz')
+        ants.image_write(img, tmpfile)
+        info = ants.image_header_info(tmpfile)
+        self.assertEqual(info['dimensions'], img.shape)
+        nptest.assert_allclose(info['direction'], img.direction)
+        self.assertEqual(info['nComponents'], img.components)
+        self.assertEqual(info['nDimensions'], img.dimension)
+        self.assertEqual(info['origin'], img.origin)
+        self.assertEqual(info['pixeltype'], img.pixeltype)
+        self.assertEqual(info['pixelclass'], 'vector' if img.has_components else 'scalar')
+        self.assertEqual(info['spacing'], img.spacing)
+
+
+        img = ants.from_numpy(np.random.randn(69,60,70,2).astype('float32'), has_components=True)
+        tmpfile = mktemp(suffix='.nii.gz')
+        ants.image_write(img, tmpfile)
+        info = ants.image_header_info(tmpfile)
+        self.assertEqual(info['dimensions'], img.shape)
+        nptest.assert_allclose(info['direction'], img.direction)
+        self.assertEqual(info['nComponents'], img.components)
+        self.assertEqual(info['nDimensions'], img.dimension)
+        self.assertEqual(info['origin'], img.origin)
+        self.assertEqual(info['pixeltype'], img.pixeltype)
+        self.assertEqual(info['pixelclass'], 'vector' if img.has_components else 'scalar')
+        self.assertEqual(info['spacing'], img.spacing)
+
+    def test_image_clone(self):
+        for img in self.imgs:
+            img = img.clone('unsigned char')
+            orig_ptype = img.pixeltype
+            for ptype in self.pixeltypes:
+                imgcloned = img.clone(ptype)
+                self.assertTrue(ants.image_physical_space_consistency(img,imgcloned))
+                nptest.assert_allclose(img.numpy(), imgcloned.numpy())
+                self.assertEqual(imgcloned.pixeltype, ptype)
+                self.assertEqual(img.pixeltype, orig_ptype)
+
+        for img in self.vecimgs:
+            img = img.clone('unsigned char')
+            orig_ptype = img.pixeltype
+            for ptype in self.pixeltypes:
+                imgcloned = img.clone(ptype)
+                self.assertTrue(ants.image_physical_space_consistency(img,imgcloned))
+                self.assertEqual(imgcloned.components, img.components)
+                nptest.assert_allclose(img.numpy(), imgcloned.numpy())
+                self.assertEqual(imgcloned.pixeltype, ptype)
+                self.assertEqual(img.pixeltype, orig_ptype)
+
+    def test_image_read_write(self):
+        # def image_read(filename, dimension=None, pixeltype='float'):
+        # def image_write(image, filename):
+        for img in self.imgs:
+            img = (img - img.min()) / (img.max() - img.min())
+            img = img * 255.
+            img = img.clone('unsigned char')
+            for ptype in self.pixeltypes:
+                img = img.clone(ptype)
+                tmpfile = mktemp(suffix='.nii.gz')
+                ants.image_write(img, tmpfile)
+
+                img2 = ants.image_read(tmpfile)
+                self.assertTrue(ants.image_physical_space_consistency(img,img2))
+                self.assertEqual(img2.components, img.components)
+                nptest.assert_allclose(img.numpy(), img2.numpy())
+
+        for img in self.vecimgs:
+            img = (img - img.min()) / (img.max() - img.min())
+            img = img * 255.
+            img = img.clone('unsigned char')
+            for ptype in self.pixeltypes:
+                img = img.clone(ptype)
+                tmpfile = mktemp(suffix='.nii.gz')
+                ants.image_write(img, tmpfile)
+
+                img2 = ants.image_read(tmpfile)
+                self.assertTrue(ants.image_physical_space_consistency(img,img2))
+                self.assertEqual(img2.components, img.components)
+                nptest.assert_allclose(img.numpy(), img2.numpy())
 
 
 if __name__ == '__main__':

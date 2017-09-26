@@ -116,15 +116,15 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("mergeChannelsF3", &mergeChannels<itk::Image<float, 3>, itk::VectorImage<float, 3> >);
   m.def("mergeChannelsF4", &mergeChannels<itk::Image<float, 4>, itk::VectorImage<float, 4> >);
 
-  m.def("splitChannelsUC2", &splitChannels<itk::VectorImage<unsigned char, 2>, itk::Image<unsigned char, 2> >);
-  m.def("splitChannelsUC3", &splitChannels<itk::VectorImage<unsigned char, 3>, itk::Image<unsigned char, 3> >);
-  m.def("splitChannelsUC4", &splitChannels<itk::VectorImage<unsigned char, 4>, itk::Image<unsigned char, 4> >);
-  m.def("splitChannelsUI2", &splitChannels<itk::VectorImage<unsigned int, 2>, itk::Image<unsigned int, 2> >);
-  m.def("splitChannelsUI3", &splitChannels<itk::VectorImage<unsigned int, 3>, itk::Image<unsigned int, 3> >);
-  m.def("splitChannelsUI4", &splitChannels<itk::VectorImage<unsigned int, 4>, itk::Image<unsigned int, 4> >);
-  m.def("splitChannelsF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
-  m.def("splitChannelsF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
-  m.def("splitChannelsF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
+  m.def("splitChannelsVUC2", &splitChannels<itk::VectorImage<unsigned char, 2>, itk::Image<unsigned char, 2> >);
+  m.def("splitChannelsVUC3", &splitChannels<itk::VectorImage<unsigned char, 3>, itk::Image<unsigned char, 3> >);
+  m.def("splitChannelsVUC4", &splitChannels<itk::VectorImage<unsigned char, 4>, itk::Image<unsigned char, 4> >);
+  m.def("splitChannelsVUI2", &splitChannels<itk::VectorImage<unsigned int, 2>, itk::Image<unsigned int, 2> >);
+  m.def("splitChannelsVUI3", &splitChannels<itk::VectorImage<unsigned int, 3>, itk::Image<unsigned int, 3> >);
+  m.def("splitChannelsVUI4", &splitChannels<itk::VectorImage<unsigned int, 4>, itk::Image<unsigned int, 4> >);
+  m.def("splitChannelsVF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
+  m.def("splitChannelsVF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
+  m.def("splitChannelsVF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
 
 }
 

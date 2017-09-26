@@ -48,7 +48,7 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     else:
         txuse = tx
     #args = [dim, txuse, do_log]
-    dimage = domain_image.clone('double')
+    dimage = domain_image.clone('float')
     args2 = [dim, txuse, dimage, int(do_log), int(geom)]
     processed_args = utils._int_antsProcessArguments(args2)
     libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')

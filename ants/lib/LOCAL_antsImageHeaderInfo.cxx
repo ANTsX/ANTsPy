@@ -29,10 +29,10 @@ py::dict antsImageHeaderInfo( std::string fname )
   const std::string pixelClass( imageIO->GetPixelTypeAsString(imageIO->GetPixelType()) );
   const unsigned int pixelCode = imageIO->GetComponentType();
 
-  std::vector<double> dimensions( numDimensions );
-  std::vector<double> spacing( numDimensions );
-  std::vector<double> origin( numDimensions );
-  std::vector<std::vector<double> > direction( numDimensions, std::vector<double>(numDimensions) );
+  std::vector<float> dimensions( numDimensions );
+  std::vector<float> spacing( numDimensions );
+  std::vector<float> origin( numDimensions );
+  std::vector<std::vector<float> > direction( numDimensions, std::vector<float>(numDimensions) );
 
   for (unsigned int i=0; i<numDimensions; i++)
     {

@@ -17,6 +17,9 @@ echo "Running core tests"
 $PYCMD test_core_ants_image.py $@
 $PYCMD test_core_ants_image_io.py $@
 
+echo "Running registation tests"
+$PYCMD test_registation.py $@
+
 echo "Running bug tests"
 $PYCMD test_bugs.py $@
 

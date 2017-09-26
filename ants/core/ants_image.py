@@ -62,7 +62,9 @@ class ANTsImage(object):
         self.components = components
         self.has_components = self.components > 1
         self.dtype = _itk_to_npy_map[self.pixeltype]
-        self._libsuffix = '%s%i' % (utils.short_ptype(self.pixeltype), self.dimension)
+        self._pixelclass = 'vector' if self.has_components else 'scalar'
+        self._shortpclass = 'V' if self._pixelclass == 'vector' else ''
+        self._libsuffix = '%s%s%i' % (self._shortpclass, utils.short_ptype(self.pixeltype), self.dimension)
 
         self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
@@ -191,6 +193,8 @@ class ANTsImage(object):
         """
         dtype = self.dtype
         shape = self.shape[::-1]
+        if self.has_components:
+            shape = list(shape) + [self.components]
         libfn = utils.get_lib_fn('toNumpy%s'%self._libsuffix)
         memview = libfn(self.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
@@ -203,13 +207,17 @@ class ANTsImage(object):
         Returns
         -------
         ndarray
-        """
+        
         if self.has_components:
             imgs = utils.split_channels(self)
             arr = np.stack([np.array(ii.view(), copy=True, dtype=self.dtype) for ii in imgs])
             return np.rollaxis(arr, 0, self.dimension+1)
         else:
-            return np.array(self.view(), copy=True, dtype=self.dtype)
+        """
+        array = np.array(self.view(), copy=True, dtype=self.dtype)
+        if self.has_components:
+            array = np.rollaxis(array, 0, self.dimension+1)
+        return array
 
     def clone(self, pixeltype=None):
         """
@@ -273,7 +281,7 @@ class ANTsImage(object):
             if data.shape != self.shape:
                 raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
         else:
-            if (data.shape[0] != self.components) and (data.shape[1:] != self.shape):
+            if (data.shape[-1] != self.components) and (data.shape[:-1] != self.shape):
                 raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
 
         return iio2.from_numpy(data, origin=self.origin, 

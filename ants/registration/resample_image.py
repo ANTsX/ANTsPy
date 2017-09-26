@@ -36,6 +36,7 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data("r16"))
     >>> finn = ants.resample_image(fi,(50,60),True,0)
     >>> filin = ants.resample_image(fi,(1.5,1.5),False,1)

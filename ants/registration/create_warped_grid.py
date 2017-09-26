@@ -47,10 +47,11 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data( 'r16' ) )
     >>> mi = ants.image_read( ants.get_ants_data( 'r64' ) )
     >>> mygr = ants.create_warped_grid( mi )
-    >>> mytx <- ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
     >>> mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
                             transform=mytx['fwdtransforms'], fixed_reference_image=fi )
     """
@@ -61,8 +62,8 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
     gridw = grid_width
 
     for d in range(image.dimension):
-        togrid = np.arange(0, garr.shape[d]-grid_width, by=grid_step)
-        for i in range(togrid):
+        togrid = np.arange(0, garr.shape[d]-grid_width, step=grid_step)
+        for i in range(len(togrid)):
             if (d == 1) & (image.dimension == 3) & (grid_directions[d]):
                 garr[togrid[i]:(togrid[i]+gridw),...] = background
             if (d == 2) & (image.dimension == 3) & (grid_directions[d]):

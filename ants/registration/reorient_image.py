@@ -46,7 +46,7 @@ def reorient_image(image, axis1, axis2=None, doreflection=False, doscale=0, txfn
     -------
     >>> import ants
     >>> image = ants.image_read(ants.get_ants_data('r16'))
-    >>> ants.reorient_image(fi, (1,0))
+    >>> ants.reorient_image(image, (1,0))
     """
     inpixeltype = image.pixeltype
     if image.pixeltype != 'float':
@@ -87,7 +87,7 @@ def reorient_image(image, axis1, axis2=None, doreflection=False, doscale=0, txfn
     if len(doscale) == 1:
         doscale = [doscale[0]]*image.dimension
 
-    libfn = utils.get_lib_fn('reorientImage%s%i' % image._libsuffix)
+    libfn = utils.get_lib_fn('reorientImage%s' % image._libsuffix)
     libfn(image.pointer, txfn, axis1.tolist(), axis2.tolist(), doreflection, doscale)
     image2 = apply_transforms(image, image, transformlist=[txfn])
 
@@ -124,7 +124,7 @@ def get_center_of_mass(image):
     if image.pixeltype != 'float':
         image = image.clone('float')
 
-    libfn = utils.get_lib_fn('centerOfMass%s%i' % image._libsuffix)
+    libfn = utils.get_lib_fn('centerOfMass%s' % image._libsuffix)
     com = libfn(image.pointer)
 
     return tuple(com)

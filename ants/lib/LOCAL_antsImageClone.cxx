@@ -60,7 +60,7 @@ PYBIND11_MODULE(antsImageClone, m)
   wrapantsImageClone<itk::Image<float,2>,itk::Image<float,2>>(m, "F2F2");
 
   // dim = 3
-  wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>(m, "UC3UC2");
+  wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>(m, "UC3UC3");
   wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned int,3>>(m, "UC3UI3");
   wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<float,3>>(m, "UC3F3");
 

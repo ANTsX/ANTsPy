@@ -49,7 +49,7 @@ def reflect_image(image, axis=None, tx=None, metric='mattes'):
 
     rflct = mktemp(suffix='.mat')
 
-    libfn = utils.get_lib_fn('reflectionMatrix%s%i'%image._libsuffix)
+    libfn = utils.get_lib_fn('reflectionMatrix%s'%image._libsuffix)
     libfn(image.pointer, axis, rflct)
 
     if tx is not None:

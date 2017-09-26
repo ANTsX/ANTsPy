@@ -96,12 +96,8 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     ANTsImage
         image with given data and any given information 
     """
-    orig_dtype = data.dtype.name
-    orig_ptype = _npy_to_itk_map[orig_dtype]
-    data = data.astype('float32')
+    data = data.astype('float32') # need to remove this eventually.. double precision issues
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
-    #if img.pixeltype != orig_ptype:
-    #    img = img.clone(orig_ptype)
     return img
 
 
@@ -212,7 +208,7 @@ def matrix_to_images(data_matrix, mask):
 
     Arguments
     ---------
-    data_matrix : ndarray
+    data_matrix : numpy.ndarray
         each row corresponds to an image
         array should have number of columns equal to non-zero voxels in the mask
     
@@ -322,6 +318,10 @@ def image_header_info(filename):
 
     libfn = utils.get_lib_fn('antsImageHeaderInfo')
     retval = libfn(filename)
+    retval['dimensions'] = tuple(retval['dimensions'])
+    retval['origin'] = tuple([round(o,4) for o in retval['origin']])
+    retval['spacing'] = tuple([round(s,4) for s in retval['spacing']])
+    retval['direction'] = np.round(retval['direction'],4)
     return retval
 
 
@@ -346,7 +346,7 @@ def image_clone(image, pixeltype=None):
     return image.clone(pixeltype)
 
 
-def image_read(filename, dimension=None, pixeltype='float'):
+def image_read(filename, pixeltype='float', dimension=None):
     """
     Read an ANTsImage from file
 
@@ -395,6 +395,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
         ptype = hinfo['pixeltype']
         pclass = hinfo['pixelclass']
         ndim = hinfo['nDimensions']
+        ncomp = hinfo['nComponents']
         if dimension is not None:
             ndim = dimension
 
@@ -403,10 +404,10 @@ def image_read(filename, dimension=None, pixeltype='float'):
 
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
-        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_pointer)
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=ncomp, pointer=itk_pointer)
 
-        #if pixeltype is not None:
-        #    ants_image = ants_image.clone(pixeltype)
+        if pixeltype is not None:
+            ants_image = ants_image.clone(pixeltype)
 
     return ants_image
 
