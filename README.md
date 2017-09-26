@@ -14,7 +14,7 @@
 matches much of the statistical capabilities of <i>ANTsR</i>, and allows seamless integration
 with Numpy, Scikit-Learn, and the greater Python community. 
 
-ANTsPy includes blazing-fast IO (>2.5x faster than Nibabel for loading a Nifti file and 
+ANTsPy includes blazing-fast IO (<b>>2.5x</b> faster than <i>Nibabel</i> for loading a Nifti file and 
 converting it to a Numpy array), registration, segmentation, visualization, other useful utility functions.
 
 If you want to contribute to ANTsPy or simply want to learn about the package architecture
