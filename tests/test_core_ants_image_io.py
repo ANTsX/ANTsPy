@@ -183,10 +183,10 @@ class TestModule_ants_image_io(unittest.TestCase):
 
     def test_image_clone(self):
         for img in self.imgs:
-            img = img.clone('unsigned char')
+            img = ants.image_clone(img, 'unsigned char')
             orig_ptype = img.pixeltype
             for ptype in self.pixeltypes:
-                imgcloned = img.clone(ptype)
+                imgcloned = ants.image_clone(img, ptype)
                 self.assertTrue(ants.image_physical_space_consistency(img,imgcloned))
                 nptest.assert_allclose(img.numpy(), imgcloned.numpy())
                 self.assertEqual(imgcloned.pixeltype, ptype)
@@ -196,7 +196,7 @@ class TestModule_ants_image_io(unittest.TestCase):
             img = img.clone('unsigned char')
             orig_ptype = img.pixeltype
             for ptype in self.pixeltypes:
-                imgcloned = img.clone(ptype)
+                imgcloned = ants.image_clone(img, ptype)
                 self.assertTrue(ants.image_physical_space_consistency(img,imgcloned))
                 self.assertEqual(imgcloned.components, img.components)
                 nptest.assert_allclose(img.numpy(), imgcloned.numpy())
@@ -206,6 +206,8 @@ class TestModule_ants_image_io(unittest.TestCase):
     def test_image_read_write(self):
         # def image_read(filename, dimension=None, pixeltype='float'):
         # def image_write(image, filename):
+
+        # test scalar images
         for img in self.imgs:
             img = (img - img.min()) / (img.max() - img.min())
             img = img * 255.
@@ -220,6 +222,7 @@ class TestModule_ants_image_io(unittest.TestCase):
                 self.assertEqual(img2.components, img.components)
                 nptest.assert_allclose(img.numpy(), img2.numpy())
 
+        # test vector images
         for img in self.vecimgs:
             img = (img - img.min()) / (img.max() - img.min())
             img = img * 255.
@@ -233,6 +236,16 @@ class TestModule_ants_image_io(unittest.TestCase):
                 self.assertTrue(ants.image_physical_space_consistency(img,img2))
                 self.assertEqual(img2.components, img.components)
                 nptest.assert_allclose(img.numpy(), img2.numpy())
+
+        # test saving/loading as npy
+        for img in self.imgs:
+            tmpfile = mktemp(suffix='.npy')
+            ants.image_write(img, tmpfile)
+            img2 = ants.image_read(tmpfile)
+            
+            self.assertTrue(ants.image_physical_space_consistency(img,img2))
+            self.assertEqual(img2.components, img.components)
+            nptest.assert_allclose(img.numpy(), img2.numpy())   
 
 
 if __name__ == '__main__':

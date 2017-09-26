@@ -428,7 +428,8 @@ def image_write(image, filename):
     """
     if filename.endswith('.npy'):
         img_array = image.numpy()
-        img_header = image.header
+        img_header = {'origin': image.origin,'spacing': image.spacing,
+                        'direction': image.direction.tolist(), 'components': image.components}
 
         np.save(filename, img_array)
         with open(filename.replace('.npy','.json'), 'w') as outfile:
