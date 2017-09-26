@@ -1,12 +1,14 @@
 
 [![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy)
+<br>
+[![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master)](https://coveralls.io/github/ANTsX/ANTsPy?branch=master)
+<br>
 
 # Advanced Normalization Tools in Python
 
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) 
 <br>
-[![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master)](https://coveralls.io/github/ANTsX/ANTsPy?branch=master)
-<br>
+
 
 ## What is ANTsPy?
 
