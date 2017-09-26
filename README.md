@@ -8,7 +8,7 @@
 [![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy) [![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg)](https://coveralls.io/github/ANTsX/ANTsPy)
 
 
-## What is ANTsPy?
+## About ANTsPy
 
 <i>ANTsPy</i> is a Python library which wraps the biomedical image processing library <i>ANTs</i>,
 matches much of the statistical capabilities of <i>ANTsR</i>, and allows seamless integration
