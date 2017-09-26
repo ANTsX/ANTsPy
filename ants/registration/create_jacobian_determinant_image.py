@@ -21,10 +21,13 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     ---------
     domain_image : ANTsImage
         image that defines transformation domain
+    
     tx : string
         deformation transformation file name
+    
     do_log : boolean
         return the log jacobian
+    
     geom : bolean
         use the geometric jacobian calculation (boolean)
     
@@ -35,11 +38,12 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     Example
     -------
     >>> import ants
-    >>> fi = ants.image_read( ants.get_ants_data('r16') ).clone('float')
-    >>> fi = ants.n3_bias_field_correction(fi, 2)
-    >>> mi = ants.image_read( ants.get_ants_data('r64') ).clone('float')
-    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=('SyN'))
-    >>> jac = ants.create_jacobian_determinant_image(fi, mytx['fwdtransforms'][0], 1)
+    >>> fi = ants.image_read( ants.get_ants_data('r16'))
+    >>> mi = ants.image_read( ants.get_ants_data('r64'))
+    >>> fi = ants.resample_image(fi,(128,128),1,0)
+    >>> mi = ants.resample_image(mi,(128,128),1,0)
+    >>> mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
+    >>> jac = ants.create_jacobian_determinant_image(fi,mytx['fwdtransforms'][0],1)
     """
     dim = domain_image.dimension
     if isinstance(tx, iio.ANTsImage):

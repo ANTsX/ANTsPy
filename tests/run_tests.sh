@@ -20,6 +20,9 @@ $PYCMD test_core_ants_image_io.py $@
 echo "Running registation tests"
 $PYCMD test_registation.py $@
 
+echo "Running segmentation tests"
+$PYCMD test_segmentation.py $@
+
 echo "Running bug tests"
 $PYCMD test_bugs.py $@
 

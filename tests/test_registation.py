@@ -1,5 +1,5 @@
 """
-Test ants_image.py
+Test ants.registration module
 
 nptest.assert_allclose
 self.assertEqual
@@ -14,9 +14,6 @@ from tempfile import mktemp
 
 import numpy as np
 import numpy.testing as nptest
-
-import ants
-
 
 class TestModule_affine_initializer(unittest.TestCase):
 
@@ -62,12 +59,12 @@ class TestModule_create_jacobian_determinant_image(unittest.TestCase):
         pass
 
     def test_example(self):
-        # test ANTsPy/ANTsR example
-        fi = ants.image_read( ants.get_ants_data('r16') ).clone('float')
-        fi = ants.n3_bias_field_correction(fi, 2)
-        mi = ants.image_read( ants.get_ants_data('r64') ).clone('float')
-        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform='SyN')
-        jac = ants.create_jacobian_determinant_image(fi, mytx['fwdtransforms'][0], 1)
+        fi = ants.image_read( ants.get_ants_data('r16'))
+        mi = ants.image_read( ants.get_ants_data('r64'))
+        fi = ants.resample_image(fi,(128,128),1,0)
+        mi = ants.resample_image(mi,(128,128),1,0)
+        mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
+        jac = ants.create_jacobian_determinant_image(fi,mytx['fwdtransforms'][0],1)
 
 
 class TestModule_create_warped_grid(unittest.TestCase):
@@ -142,7 +139,7 @@ class TestModule_reflect_image(unittest.TestCase):
         pass
 
     def test_example(self):
-        fi = ants.image_read( ants.get_ants_data('r16'), 'float' )
+        fi = ants.image_read(ants.get_ants_data('r16'))
         axis = 2
         asym = ants.reflect_image(fi, axis, 'Affine')['warpedmovout']
         asym = asym - fi
@@ -184,7 +181,7 @@ class TestModule_symmetrize_image(unittest.TestCase):
         pass
 
     def test_example(self):
-        image = ants.image_read( ants.get_ants_data('r16') , 'float')
+        image = ants.image_read(ants.get_ants_data('r16'))
         simage = ants.symmetrize_image(image)
 
 

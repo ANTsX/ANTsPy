@@ -147,7 +147,7 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
     return ants_image
 
 
-def make_image(shape, voxval=0, spacing=None, origin=None, direction=None, has_components=False, pixeltype='float'):
+def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, has_components=False, pixeltype='float'):
     """
     Make an image with given size and voxel value or given a mask and vector
     
@@ -180,21 +180,21 @@ def make_image(shape, voxval=0, spacing=None, origin=None, direction=None, has_c
     -------
     ANTsImage
     """
-    if isinstance(shape, iio.ANTsImage):
-        img = shape.clone()
-        sel = shape > 0
+    if isinstance(imagesize, iio.ANTsImage):
+        img = imagesize.clone()
+        sel = imagesize > 0
         if voxval.ndim > 1:
                 voxval = voxval.flatten()
         if (len(voxval) == sel.sum()) or (len(voxval) == 0):
             img[sel] = voxval
         else:
-            raise ValueError('Num given voxels %i not same as num positive values %i in `shape`' % (len(voxval), np.sum(sel)))
+            raise ValueError('Num given voxels %i not same as num positive values %i in `imagesize`' % (len(voxval), np.sum(sel)))
         return img
     else:
         if isinstance(voxval, (tuple,list,np.ndarray)):
-            array = np.asarray(voxval).astype('float32').reshape(shape)
+            array = np.asarray(voxval).astype('float32').reshape(imagesize)
         else:
-            array = np.full(shape,voxval,dtype='float32')
+            array = np.full(imagesize,voxval,dtype='float32')
         image = from_numpy(array, origin=origin, spacing=spacing, 
                             direction=direction, has_components=has_components)
         return image.clone(pixeltype)
@@ -346,7 +346,7 @@ def image_clone(image, pixeltype=None):
     return image.clone(pixeltype)
 
 
-def image_read(filename, pixeltype='float', dimension=None):
+def image_read(filename, dimension=None, pixeltype='float'):
     """
     Read an ANTsImage from file
 

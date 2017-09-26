@@ -17,8 +17,6 @@ from tempfile import mktemp
 import numpy as np
 import numpy.testing as nptest
 
-import ants
-
 
 class TestModule_ants_image_io(unittest.TestCase):
 

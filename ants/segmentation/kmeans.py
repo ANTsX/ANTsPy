@@ -32,6 +32,7 @@ def kmeans_segmentation(image, k, kmask=None, mrf=0.1):
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read(ants.get_ants_data('r16'), 'float')
     >>> fi = ants.n3_bias_field_correction(fi, 2)
     >>> seg = ants.kmeans_segmentation(fi, 3)

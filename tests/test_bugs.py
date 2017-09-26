@@ -15,7 +15,6 @@ from context import ants
 import numpy as np
 import numpy.testing as nptest
 
-import ants
 
 class Test_bugs(unittest.TestCase):
     """

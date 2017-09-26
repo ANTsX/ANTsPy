@@ -16,8 +16,8 @@ def time_nifti_to_numpy(N_TRIALS):
     """
     datadir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
     img_paths = []
-    for dtype in ['CHAR', 'DOUBLE', 'FLOAT', 'SHORT', 
-                  'UNSIGNEDCHAR',  'UNSIGNEDSHORT']:
+    for dtype in ['DOUBLE', 'FLOAT',
+                  'UNSIGNEDCHAR',  'UNSIGNEDINT']:
         for dim in [2,3]:
             img_paths.append(os.path.join(datadir, 'image_%s_%iD.nii.gz' % (dtype, dim)))
     

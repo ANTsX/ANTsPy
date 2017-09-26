@@ -112,7 +112,7 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
     >>> pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=[r]*ref.dimension)
     """
     segpixtype = 'unsigned int'
-    if np.any([l is None for l in label_list]):
+    if (label_list is None) or (np.any([l is None for l in label_list])):
         doJif = True
     else:
         doJif = False
@@ -129,7 +129,7 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
         mymask = target_image_mask.clone()
         mymask[labsum==0] = 0
     else:
-        mymask = [target_image_mask]
+        mymask = target_image_mask
 
     osegfn = mktemp(prefix='antsr', suffix='myseg.nii.gz')
     #segdir = osegfn.replace(os.path.basename(osegfn),'')
