@@ -10,31 +10,7 @@ import numpy as np
 
 from . import ants_image as iio
 from . import ants_transform as tio
-from .. import lib
-
-_new_ants_transform_dict = {}
-for ttype,tabbrev in zip(['float','double'],['F','D']):
-    _new_ants_transform_dict[ttype] = {}
-    for d in {2,3,4}:
-        _new_ants_transform_dict[ttype][d] = 'new_ants_transform%s%i' % (tabbrev, d)
-
-_read_transform_dict = {}
-for ttype,tabbrev in zip(['float','double'],['F','D']):
-    _read_transform_dict[ttype] = {}
-    for d in {2,3,4}:
-        _read_transform_dict[ttype][d] = 'readTransform%s%i' % (tabbrev, d)
-
-_write_transform_dict = {}
-for ttype,tabbrev in zip(['float','double'],['F','D']):
-    _write_transform_dict[ttype] = {}
-    for d in {2,3,4}:
-        _write_transform_dict[ttype][d] = 'writeTransform%s%i' % (tabbrev, d)
-
-_matrix_offset_dict = {}
-for ttype,tabbrev in zip(['float','double'],['F','D']):
-    _matrix_offset_dict[ttype] = {}
-    for d in {2,3,4}:
-        _matrix_offset_dict[ttype][d] = 'matrixOffset%s%i' % (tabbrev, d)
+from .. import utils
 
 
 def new_ants_transform(precision='float', dimension=3, transform_type='AffineTransform', parameters=None):
@@ -42,10 +18,14 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
     Create a new ANTsTransform
 
     ANTsR function: None
-    """
-    new_ants_transform_fn = lib.__dict__[_new_ants_transform_dict[precision][dimension]]
 
-    itk_tx = new_ants_transform_fn(precision, dimension, transform_type)
+    Example
+    -------
+    >>> import ants
+    >>> tx = ants.new_ants_transform()
+    """
+    libfn = utils.get_lib_fn('new_ants_transform%s%i' % (utils.short_ptype(precision), dimension))
+    itk_tx = libfn(precision, dimension, transform_type)
     ants_tx = tio.ANTsTransform(itk_tx)
 
     if parameters is not None:
@@ -188,16 +168,16 @@ def create_ants_transform(transform_type='AffineTransform',
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     elif transform_type in matrix_offset_types:
-        matrix_offset_fn = lib.__dict__[_matrix_offset_dict[precision][dimension]]
-        itk_tx = matrix_offset_fn(transform_type,
-                                  precision,
-                                  dimension,
-                                  matrix,
-                                  offset,
-                                  center,
-                                  translation,
-                                  parameters,
-                                  fixed_parameters)
+        libfn = utils.get_lib_fn('matrixOffset%s%i' % (utils.short_ptype(precision), dimension))
+        itk_tx = libfn(transform_type,
+                        precision,
+                        dimension,
+                        matrix,
+                        offset,
+                        center,
+                        translation,
+                        parameters,
+                        fixed_parameters)
         return tio.ANTsTransform(itk_tx)
     else:
         raise ValueError('transform_type not supported or unkown error happened')
@@ -231,13 +211,9 @@ def transform_from_displacement_field(field):
     """
     if not isinstance(field, iio.ANTsImage):
         raise ValueError('field must be ANTsImage type')
-    if field.dimension == 2:
-        field = field.clone('float')
-        return tio.ANTsTransform(lib.antsTransformFromDisplacementFieldF2(field._img))
-    elif field.dimension == 3:
-        field = field.clone('float')
-        return tio.ANTsTransform(lib.antsrTransformFromDisplacementFieldF3(field._img))
-
+    libfn = utils.get_lib_fn('antsTransformFromDisplacementFieldF%i'%field.dimension)
+    field = field.clone('float')
+    return tio.ANTsTransform(libfn(field.pointer))
 
 def read_transform(filename, dimension=3, precision='float'):
     """
@@ -269,8 +245,9 @@ def read_transform(filename, dimension=3, precision='float'):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    read_transform_fn = lib.__dict__[_read_transform_dict[precision][dimension]]
-    itk_tx = read_transform_fn(filename, dimension, precision)
+
+    libfn = utils.get_lib_fn('readTransform%s%i' % (utils.short_ptype(precision), dimension))
+    itk_tx = libfn(filename, dimension, precision)
     return tio.ANTsTransform(itk_tx)
 
 
@@ -301,7 +278,7 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    write_transform_fn = lib.__dict__[_write_transform_dict[transform.precision][transform.dimension]]
-    write_transform_fn(transform._tx, filename)
+    libfn = utils.get_lib_fn('writeTransform%s%i' % (utils.short_ptype(transform.precision), transform.dimension))
+    libfn(transform._tx, filename)
 
 

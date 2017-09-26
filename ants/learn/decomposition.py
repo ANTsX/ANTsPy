@@ -9,9 +9,7 @@ from scipy.stats import pearsonr
 import pandas as pd
 
 from .. import core
-from .. import lib
 from .. import utils
-from .. import viz
 from ..core import ants_image as iio
 
 
@@ -175,19 +173,19 @@ def sparse_decom2(inmatrix,
 
     if idim == 2:
         if version == 1:
-            sccancpp_fn = lib.sccanCpp2D
+            sccancpp_fn = utils.get_lib_fn('sccanCpp2D')
         elif version == 2:
-            sccancpp_fn = lib.sccanCpp2DV2
+            sccancpp_fn = utils.get_lib_fn('sccanCpp2DV2')
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
     elif idim ==3:
         if version == 1:
-            sccancpp_fn = lib.sccanCpp3D
+            sccancpp_fn = utils.get_lib_fn('sccanCpp3D')
         elif version == 2:
-            sccancpp_fn = lib.sccanCpp3DV2
+            sccancpp_fn = utils.get_lib_fn('sccanCpp3DV2')
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
 
     outval = sccancpp_fn(input_matrices[0], input_matrices[1],
-                        inmask[0]._img, inmask[1]._img,
+                        inmask[0].pointer, inmask[1].pointer,
                         hasmaskx, hasmasky,
                         sparseness[0], sparseness[1],
                         nvecs, its, 
@@ -219,7 +217,7 @@ def sparse_decom2(inmatrix,
             m1 = input_matrices[0][np.random.permutation(nsubs),:]
             m2 = input_matrices[1][np.random.permutation(nsubs),:]
             outvalperm = sccancpp_fn(m1, m2,
-                                inmask[0]._img, inmask[1]._img,
+                                inmask[0].pointer, inmask[1].pointer,
                                 hasmaskx, hasmasky,
                                 sparseness[0], sparseness[1],
                                 nvecs, its, 
@@ -288,8 +286,7 @@ def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smooth
     -------
     >>> import ants
     >>> import numpy as np
-    >>> import pandas as pd
-    >>> mat = pd.read_csv('~/desktop/mat.csv', index_col=0).values
+    >>> mat = np.random.randn(4,100).astype('float32')
     >>> init = ants.initialize_eigenanatomy(mat)
     """
     if isinstance(initmat, iio.ANTsImage):
@@ -381,7 +378,7 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
     if isinstance(img_list, np.ndarray):
         mydata = img_list
     elif isinstance(img_list, (tuple, list)):
-        mydata = utils.image_list_to_matrix(img_list, mask)
+        mydata = core.image_list_to_matrix(img_list, mask)
 
     if (smooth > 0):
         for i in range(mydata.shape[0]):
@@ -394,9 +391,9 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
     maskseg[maskvox] = (segids * (segmax > 1e-09))
 
     if cthresh > 0:
-        for kk in range(max(maskseg)):
+        for kk in range(int(maskseg.max())):
             timg = utils.threshold_image(maskseg, kk, kk)
-            timg = utils.label_clusters(cthresh)
+            timg = utils.label_clusters(timg, cthresh)
             timg = utils.threshold_image(timg, 1, 1e15) * float(kk)
             maskseg[maskseg == kk] = timg[maskseg == kk]
 

@@ -29,8 +29,8 @@ namespace py = pybind11;
 using namespace py::literals;
 
 template< class PixelType , unsigned int Dimension >
-py::dict getNeighborhoodMatrix( ANTsImage<itk::Image<PixelType,Dimension>> ants_image,
-                                ANTsImage<itk::Image<PixelType,Dimension>> ants_mask,
+py::dict getNeighborhoodMatrix( py::capsule ants_image,
+                                py::capsule ants_mask,
                                 std::vector<int> radius,
                                 int physical,
                                 int boundary,
@@ -325,7 +325,7 @@ py::dict getNeighborhoodMatrix( ANTsImage<itk::Image<PixelType,Dimension>> ants_
 
 
 template< class PixelType , unsigned int Dimension >
-py::dict getNeighborhood( ANTsImage<itk::Image<PixelType,Dimension>> ants_image,
+py::dict getNeighborhood( py::capsule ants_image,
                           std::vector<float> index, 
                           std::vector<float> kernel, 
                           std::vector<int> radius, 
@@ -436,10 +436,6 @@ PYBIND11_MODULE(getNeighborhoodMatrix, m)
     m.def("getNeighborhoodMatrixF2", &getNeighborhoodMatrix<float,2>);
     m.def("getNeighborhoodMatrixF3", &getNeighborhoodMatrix<float,3>);
     m.def("getNeighborhoodMatrixF4", &getNeighborhoodMatrix<float,4>);
-    
-    m.def("getNeighborhoodMatrixD2", &getNeighborhoodMatrix<double,2>);
-    m.def("getNeighborhoodMatrixD3", &getNeighborhoodMatrix<double,3>);
-    m.def("getNeighborhoodMatrixD4", &getNeighborhoodMatrix<double,4>);
 
     m.def("getNeighborhoodUC2", &getNeighborhood<unsigned char,2>);
     m.def("getNeighborhoodUC3", &getNeighborhood<unsigned char,3>);
@@ -452,10 +448,6 @@ PYBIND11_MODULE(getNeighborhoodMatrix, m)
     m.def("getNeighborhoodF2", &getNeighborhood<float,2>);
     m.def("getNeighborhoodF3", &getNeighborhood<float,3>);
     m.def("getNeighborhoodF4", &getNeighborhood<float,4>);
-    
-    m.def("getNeighborhoodD2", &getNeighborhood<double,2>);
-    m.def("getNeighborhoodD3", &getNeighborhood<double,3>);
-    m.def("getNeighborhoodD4", &getNeighborhood<double,4>);
 }
 
 

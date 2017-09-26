@@ -5,7 +5,6 @@ Kelly Kapowski algorithm with computing cortical thickness
 __all__ = ['kelly_kapowski']
 
 from ..core import ants_image as iio
-from .. import lib
 from .. import utils
 
 
@@ -73,7 +72,8 @@ def kelly_kapowski(s, g, w, its=50, r=0.025, m=1.5, **kwargs):
 
     processed_kellargs = utils._int_antsProcessArguments(kellargs)
 
-    lib.KellyKapowski(processed_kellargs)
+    libfn = utils.get_lib_fn('KellyKapowski')
+    libfn(processed_kellargs)
     return outimg
 
 

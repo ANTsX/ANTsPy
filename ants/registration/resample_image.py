@@ -8,9 +8,8 @@ import os
 
 from ..core import ants_image as iio
 from .. import utils
-from .. import lib
 
-def resample_image(img, resample_params, use_voxels=False, interp_type=1):
+def resample_image(image, resample_params, use_voxels=False, interp_type=1):
     """
     Resample image by spacing or number of voxels with 
     various interpolators. Works with multi-channel images.
@@ -37,20 +36,22 @@ def resample_image(img, resample_params, use_voxels=False, interp_type=1):
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data("r16"))
     >>> finn = ants.resample_image(fi,(50,60),True,0)
     >>> filin = ants.resample_image(fi,(1.5,1.5),False,1)
     """
-    if img.components == 1:
-        inimg = img.clone('float')
-        outimg = img.clone('float')
+    if image.components == 1:
+        inimage = image.clone('float')
+        outimage = image.clone('float')
         rsampar = 'x'.join([str(rp) for rp in resample_params])
 
-        args = [img.dimension, inimg, outimg, rsampar, int(use_voxels), interp_type]
+        args = [image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
         processed_args = utils._int_antsProcessArguments(args)
-        lib.ResampleImage(processed_args)
-        outimg = outimg.clone(img.pixeltype)
-        return outimg
+        libfn = utils.get_lib_fn('ResampleImage')
+        libfn(processed_args)
+        outimage = outimage.clone(image.pixeltype)
+        return outimage
     else:
         raise ValueError('images with more than 1 component not currently supported')
 
@@ -156,7 +157,8 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             myverb = int(verbose)
 
             processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
-            lib.antsApplyTransforms(processed_args)
+            libfn = utils.get_lib_fn('antsApplyTransforms')
+            libfn(processed_args)
 
             if compose is None:
                 return warpedmovout.clone(inpixeltype)
@@ -169,4 +171,5 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             return 1
     else:
         processed_args = myargs + ['-z', str(1), '--float', str(1), '-e', str(imagetype)]
-        lib.antsApplyTransforms(processed_args)
+        libfn = utils.get_lib_fn('antsApplyTransforms')
+        libfn(processed_args)

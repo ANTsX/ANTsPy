@@ -18,7 +18,7 @@
 namespace py = pybind11;
 
 template< class ImageType >
-int reflectionMatrixHelper( ANTsImage<ImageType> py_image, unsigned int axis, std::string filename )
+int reflectionMatrixHelper( py::capsule py_image, unsigned int axis, std::string filename )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef itk::AffineTransform<double, ImageType::ImageDimension> AffineTransformType;
@@ -63,7 +63,7 @@ int reflectionMatrixHelper( ANTsImage<ImageType> py_image, unsigned int axis, st
 
 
 template <typename ImageType>
-int reflectionMatrixEntry( ANTsImage<ImageType> image, unsigned int axis, std::string filename)
+int reflectionMatrixEntry( py::capsule image, unsigned int axis, std::string filename)
 {
   return reflectionMatrixHelper<ImageType>( image, axis, filename );
 }

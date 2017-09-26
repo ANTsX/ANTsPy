@@ -14,7 +14,7 @@
 namespace py = pybind11;
 
 template<typename InImageType, typename OutImageType>
-ANTsImage<OutImageType> antsImageClone( ANTsImage<InImageType> antsImage )
+py::capsule antsImageClone( py::capsule antsImage )
 {
   typedef typename InImageType::Pointer InImagePointerType;
   InImagePointerType in_image = as< InImageType >( antsImage );
@@ -40,6 +40,7 @@ template <typename InImageType, typename OutImageType>
 void wrapantsImageClone(py::module & m, std::string const & suffix) {
   m.def(("antsImageClone"+suffix).c_str(), &antsImageClone<InImageType,OutImageType>);
 }
+
 //pixels: Image, VectorImage
 //types: unsigned char, unsigned int, float, double
 //dims: 2, 3, 4
@@ -68,7 +69,7 @@ PYBIND11_MODULE(antsImageClone, m)
 
 
   // dim = 3
-  wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>(m, "UC3UC2");
+  wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>(m, "UC3UC3");
   wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned int,3>>(m, "UC3UI3");
   wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<float,3>>(m, "UC3F3");
   wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<double,3>>(m, "UC3D3");

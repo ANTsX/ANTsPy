@@ -12,7 +12,6 @@ import warnings
 from tempfile import mktemp
 
 from ..core import ants_image_io as iio2
-from .. import lib
 from .. import utils
 
 
@@ -135,7 +134,8 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             myargs['a-MULTINAME-%i'%aa_idx] = aa
 
     processed_args = utils._int_antsProcessArguments(myargs)
-    retval = lib.Atropos(processed_args)
+    libfn = utils.get_lib_fn('Atropos')
+    retval = libfn(processed_args)
     
     if retval != 0:
         warnings.warn('ERROR: Non-zero exit status!')

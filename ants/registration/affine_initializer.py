@@ -5,7 +5,6 @@ import warnings
 from tempfile import mktemp
 
 from .. import utils
-from .. import lib
 
 def affine_initializer(fixed_image, moving_image, search_factor=20,
                         radian_fraction=0.1, use_principal_axis=False, 
@@ -61,7 +60,8 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
         veccer.append(mask)
 
     xxx = utils._int_antsProcessArguments(veccer)
-    retval = lib.antsAffineInitializer(xxx)
+    libfn = utils.get_lib_fn('antsAffineInitializer')
+    retval = libfn(xxx)
 
     if retval != 0:
         warnings.warn('ERROR: Non-zero exit status!')

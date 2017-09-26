@@ -9,6 +9,6 @@ from .metrics import *
 from .reflect_image import *
 from .reorient_image import *
 from .resample_image import *
-from .symimg import *
+from .symmetrize_image import *
 
 from .interface import *

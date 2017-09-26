@@ -18,6 +18,9 @@ ants-repo/
 *ants-repo/
 tests/data/*.nii.gz
 tests/data/
+tests/.coverage*
+tests/htmlcov/
+tests/htmlcov/*
 
 .DS_Store
 *.DS_Store

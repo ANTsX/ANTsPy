@@ -17,14 +17,9 @@ namespace py = pybind11;
 
 
 template <unsigned int Dimension>
-double antsImageMutualInformation( ANTsImage<itk::Image<float, Dimension> > in_image1, 
-                                  ANTsImage<itk::Image<float, Dimension> > in_image2 )
+double antsImageMutualInformation( py::capsule in_image1, 
+                                   py::capsule in_image2 )
 {
-  std::string in_pixeltype = in_image1.pixeltype;
-  unsigned int dimension = in_image1.dimension;
-  std::string in_pixelType = in_image2.pixeltype;
-  unsigned int dimension2 = in_image2.dimension;
-
   double mi = 1;
   typedef itk::Image< float , Dimension > ImageType;
   typedef typename ImageType::Pointer ImagePointerType;

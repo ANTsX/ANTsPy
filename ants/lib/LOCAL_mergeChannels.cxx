@@ -15,7 +15,7 @@
 namespace py = pybind11;
 
 template< class ImageType, class VectorImageType >
-ANTsImage<VectorImageType> mergeChannels( std::vector<ANTsImage<ImageType> > imageList )
+py::capsule mergeChannels( std::vector<void *> imageList )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef typename VectorImageType::Pointer VectorImagePointerType;
@@ -57,7 +57,7 @@ ANTsImage<VectorImageType> mergeChannels( std::vector<ANTsImage<ImageType> > ima
 
 
 template< class VectorImageType, class ImageType>
-std::vector<ANTsImage<ImageType> > splitChannels( ANTsImage<VectorImageType> & antsimage )
+std::vector<py::capsule > splitChannels( py::capsule & antsimage )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef typename VectorImageType::Pointer VectorImagePointerType;
@@ -93,7 +93,7 @@ std::vector<ANTsImage<ImageType> > splitChannels( ANTsImage<VectorImageType> & a
     ++it;
     }
 
-  std::vector<ANTsImage<ImageType> > outputList( nComponents );
+  std::vector<py::capsule > outputList( nComponents );
   for (unsigned int i=0; i<nComponents; i++)
     {
     outputList[i] = wrap<ImageType>( images[i] );
@@ -115,24 +115,16 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("mergeChannelsF2", &mergeChannels<itk::Image<float, 2>, itk::VectorImage<float, 2> >);
   m.def("mergeChannelsF3", &mergeChannels<itk::Image<float, 3>, itk::VectorImage<float, 3> >);
   m.def("mergeChannelsF4", &mergeChannels<itk::Image<float, 4>, itk::VectorImage<float, 4> >);
-  m.def("mergeChannelsD2", &mergeChannels<itk::Image<double, 2>, itk::VectorImage<double, 2> >);
-  m.def("mergeChannelsD3", &mergeChannels<itk::Image<double, 3>, itk::VectorImage<double, 3> >);
-  m.def("mergeChannelsD4", &mergeChannels<itk::Image<double, 4>, itk::VectorImage<double, 4> >);
 
-  m.def("splitChannelsUC2", &splitChannels<itk::VectorImage<unsigned char, 2>, itk::Image<unsigned char, 2> >);
-  m.def("splitChannelsUC3", &splitChannels<itk::VectorImage<unsigned char, 3>, itk::Image<unsigned char, 3> >);
-  m.def("splitChannelsUC4", &splitChannels<itk::VectorImage<unsigned char, 4>, itk::Image<unsigned char, 4> >);
-  m.def("splitChannelsUI2", &splitChannels<itk::VectorImage<unsigned int, 2>, itk::Image<unsigned int, 2> >);
-  m.def("splitChannelsUI3", &splitChannels<itk::VectorImage<unsigned int, 3>, itk::Image<unsigned int, 3> >);
-  m.def("splitChannelsUI4", &splitChannels<itk::VectorImage<unsigned int, 4>, itk::Image<unsigned int, 4> >);
-  m.def("splitChannelsF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
-  m.def("splitChannelsF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
-  m.def("splitChannelsF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
-  m.def("splitChannelsD2", &splitChannels<itk::VectorImage<double, 2>, itk::Image<double, 2> >);
-  m.def("splitChannelsD3", &splitChannels<itk::VectorImage<double, 3>, itk::Image<double, 3> >);
-  m.def("splitChannelsD4", &splitChannels<itk::VectorImage<double, 4>, itk::Image<double, 4> >);
-
-
+  m.def("splitChannelsVUC2", &splitChannels<itk::VectorImage<unsigned char, 2>, itk::Image<unsigned char, 2> >);
+  m.def("splitChannelsVUC3", &splitChannels<itk::VectorImage<unsigned char, 3>, itk::Image<unsigned char, 3> >);
+  m.def("splitChannelsVUC4", &splitChannels<itk::VectorImage<unsigned char, 4>, itk::Image<unsigned char, 4> >);
+  m.def("splitChannelsVUI2", &splitChannels<itk::VectorImage<unsigned int, 2>, itk::Image<unsigned int, 2> >);
+  m.def("splitChannelsVUI3", &splitChannels<itk::VectorImage<unsigned int, 3>, itk::Image<unsigned int, 3> >);
+  m.def("splitChannelsVUI4", &splitChannels<itk::VectorImage<unsigned int, 4>, itk::Image<unsigned int, 4> >);
+  m.def("splitChannelsVF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
+  m.def("splitChannelsVF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
+  m.def("splitChannelsVF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
 
 }
 

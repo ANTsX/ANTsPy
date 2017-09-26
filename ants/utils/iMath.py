@@ -7,11 +7,39 @@ __all__ = ['iMath',
 
 
 from .process_args import _int_antsProcessArguments
-from .. import lib
+from .. import utils
 
-_iMathOps = []
+_iMathOps = {'FillHoles',
+            'GetLargestComponent',
+            'Normalize',
+            'TruncateImageIntensity',
+            'Sharpen',
+            'PadImage',
+            'D',
+            'MaurerDistance',
+            'PeronaMalik',
+            'Grad',
+            'Laplacian',
+            'Canny',
+            'HistogramEqualization',
+            'MD',
+            'ME',
+            'MO',
+            'MC',
+            'GD',
+            'GE',
+            'GO',
+            'GC',
+            'FillHoles',
+            'GetLargestComponent',
+            'LabelStats',
+            'Normalize',
+            'TruncateIntensity',
+            'Sharpen',
+            'PropagateLabelsThroughMask'}
 
-def iMath(img, operation, *args):
+
+def iMath(image, operation, *args):
     """
     Perform various (often mathematical) operations on the input image/s. 
     Additional parameters should be specific for each operation. 
@@ -21,7 +49,7 @@ def iMath(img, operation, *args):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         input object, usually antsImage
     
     operation   
@@ -31,18 +59,30 @@ def iMath(img, operation, *args):
     
     *args : non-keyword arguments
         additional parameters specific to the operation
-    """
-    #if operation not in _iMathOps:
-    #    raise ValueError('Operation not recognized')
 
-    imgdim = img.dimension
-    outimg = img.clone()
-    args = [imgdim, outimg, operation, img] + [a for a in args]
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.image_read(ants.get_ants_data('r16'))
+    >>> img2 = ants.iMath(img, 'Canny', 1, 5, 12)
+    """
+    if operation not in _iMathOps:
+        raise ValueError('Operation not recognized')
+
+    imagedim = image.dimension
+    outimage = image.clone()
+    args = [imagedim, outimage, operation, image] + [a for a in args]
     processed_args = _int_antsProcessArguments(args)
-    lib.iMath(processed_args)
-    return outimg
+    libfn = utils.get_lib_fn('iMath')
+    libfn(processed_args)
+    return outimage
 image_math = iMath
 
 
-def multiply_images(img1, img2):
-    return img1 * img2
+def iMath_ops():
+    return _iMathOps
+
+
+def multiply_images(image1, image2):
+    return image1 * image2
+

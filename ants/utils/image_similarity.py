@@ -5,7 +5,7 @@ __all__ = ['image_similarity']
 from ..core import ants_metric as mio
 from ..core import ants_metric_io as mio2
 
-def image_similarity(fixed, moving, metric_type='MeanSquares', 
+def image_similarity(fixed_image, moving_image, metric_type='MeanSquares', 
                     fixed_mask=None, moving_mask=None, 
                     sampling_strategy=None, sampling_percentage=1 ):
     """
@@ -57,7 +57,7 @@ def image_similarity(fixed, moving, metric_type='MeanSquares',
     >>> y = ants.image_read(ants.get_ants_data('r30'))
     >>> metric = ants.image_similarity(x,y,metric_type='MeanSquares')
     """
-    metric = mio2.create_ants_metric(fixed, moving, metric_type, fixed_mask,
+    metric = mio2.create_ants_metric(fixed_image, moving_image, metric_type, fixed_mask,
                         moving_mask, sampling_strategy, sampling_percentage)
     return metric.get_value()
 

@@ -7,7 +7,7 @@ import numpy as np
 from ..core import ants_transform as tio
 
 
-def label_image_centroids(img, physical=False, convex=True, verbose=False):
+def label_image_centroids(image, physical=False, convex=True, verbose=False):
     """
     Converts a label image to coordinates summarizing their positions
 
@@ -15,7 +15,7 @@ def label_image_centroids(img, physical=False, convex=True, verbose=False):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image of integer labels
     
     physical : boolean
@@ -38,18 +38,18 @@ def label_image_centroids(img, physical=False, convex=True, verbose=False):
     -------
     >>> import ants
     >>> import numpy as np
-    >>> img = ants.from_numpy(np.asarray([[[0,2],[1,3]],[[4,6],[5,7]]]).astype('float32'))
-    >>> labels = ants.label_image_centroids(img)
+    >>> image = ants.from_numpy(np.asarray([[[0,2],[1,3]],[[4,6],[5,7]]]).astype('float32'))
+    >>> labels = ants.label_image_centroids(image)
     """
-    d = img.shape
+    d = image.shape
     if len(d) != 3:
-        raise ValueError('img must be 3 dimensions')
+        raise ValueError('image must be 3 dimensions')
 
     xcoords = np.asarray(np.arange(d[0]).tolist()*(d[1]*d[2]))
     ycoords = np.asarray(np.repeat(np.arange(d[1]),d[0]).tolist()*d[2])
-    zcoords = np.asarray(np.repeat(np.arange(d[2]), d[1]*d[3]))
+    zcoords = np.asarray(np.repeat(np.arange(d[1]), d[0]*d[2]))
 
-    labels = img.numpy()
+    labels = image.numpy()
     mylabels = np.sort(np.unique(labels[labels > 0])).astype('int')
     n_labels = len(mylabels)
     xc = np.zeros(n_labels)
@@ -81,7 +81,7 @@ def label_image_centroids(img, physical=False, convex=True, verbose=False):
     centroids = np.vstack([xc,yc,zc]).T
 
     #if physical:
-    #    centroids = tio.transform_index_to_physical_point(img, centroids)
+    #    centroids = tio.transform_index_to_physical_point(image, centroids)
 
     return {
         'labels': mylabels,

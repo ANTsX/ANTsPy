@@ -4,15 +4,7 @@ ANTs ImageToImageMetric class
 
 __all__ = []
 
-import os
-import numpy as np
-from functools import partial, partialmethod
-import inspect
 
-from .. import lib
-from .. import utils, registration, segmentation, viz
-
-from . import ants_metric_io as mio
 from . import ants_image as iio
 
 
@@ -59,7 +51,7 @@ class ANTsImageToImageMetric(object):
         if image.dimension != self.dimension:
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
-        self._metric.setFixedImage(image._img, False)
+        self._metric.setFixedImage(image.pointer, False)
 
     def set_fixed_mask(self, image):
         """
@@ -71,7 +63,7 @@ class ANTsImageToImageMetric(object):
         if image.dimension != self.dimension:
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
-        self._metric.setFixedImage(image._img, True)
+        self._metric.setFixedImage(image.pointer, True)
 
     def set_moving_image(self, image):
         """
@@ -83,7 +75,7 @@ class ANTsImageToImageMetric(object):
         if image.dimension != self.dimension:
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
-        self._metric.setMovingImage(image._img, False)
+        self._metric.setMovingImage(image.pointer, False)
 
     def set_moving_mask(self, image):
         """
@@ -95,7 +87,7 @@ class ANTsImageToImageMetric(object):
         if image.dimension != self.dimension:
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
-        self._metric.setMovingImage(image._img, True)
+        self._metric.setMovingImage(image.pointer, True)
 
     def set_sampling(self, strategy='regular', percentage=1.):
         if strategy is None:

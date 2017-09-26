@@ -3,9 +3,10 @@ __all__ = ['get_centroids']
 
 import numpy as np
 
-from . import label_clusters, label_stats
+from .label_clusters import label_clusters
+from .label_stats import label_stats
 
-def get_centroids(img, clustparam=0):
+def get_centroids(image, clustparam=0):
     """
     Reduces a variate/statistical/network image to a set of centroids 
     describing the center of each stand-alone non-zero component in the image
@@ -14,7 +15,7 @@ def get_centroids(img, clustparam=0):
     
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image from which centroids will be calculated
 
     clustparam : integer    
@@ -26,31 +27,32 @@ def get_centroids(img, clustparam=0):
 
     Example
     -------
-    >>> img = ants.image_read( ants.get_ants_data( "r16" ) )
-    >>> img = ants.threshold_image( img, 90, 120 )
-    >>> img = ants.label_clusters( img, 10 )
-    >>> cents = ants.get_centroids( img  )
+    >>> import ants
+    >>> image = ants.image_read( ants.get_ants_data( "r16" ) )
+    >>> image = ants.threshold_image( image, 90, 120 )
+    >>> image = ants.label_clusters( image, 10 )
+    >>> cents = ants.get_centroids( image )
     """
-    imagedim = img.dimension
+    imagedim = image.dimension
     if clustparam > 0:
-        mypoints = label_clusters(img, clustparam, max_thresh=1e15)
+        mypoints = label_clusters(image, clustparam, max_thresh=1e15)
     if clustparam == 0:
-        mypoints = img.clone()
+        mypoints = image.clone()
     mypoints = label_stats(mypoints, mypoints)
-    mypoints = mypoints[-1,:]
-    x = mypoints[:,0]
-    y = mypoints[:,1]
+    mypoints = mypoints.iloc[1:,:]
+    x = mypoints.x
+    y = mypoints.y
     
     if imagedim == 3:
-        z = mypoints[:,2]
+        z = mypoints.y
     else:
         z = np.zeros(mypoints.shape[0])
 
     if imagedim == 4:
-        t = mypoints[:,4]
+        t = mypoints.t
     else:
         t = np.zeros(mypoints.shape[0])
 
-    centroids = np.hstack([x,y,z,t])
+    centroids = np.stack([x,y,z,t]).T
     return centroids
 

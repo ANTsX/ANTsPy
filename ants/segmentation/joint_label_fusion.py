@@ -12,12 +12,11 @@ import glob
 import re
 
 from .. import utils
-from .. import lib
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
 
-def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
+def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=2,
                         label_list=None, rho=0.01, usecor=False, r_search=3, 
                         nonnegative=False, verbose=False):
     """
@@ -38,10 +37,10 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
 
     Arguments
     ---------
-    targetI : ANTsImage
+    target_image : ANTsImage
         image to be approximated
     
-    targetIMask : ANTsImage
+    target_image_mask : ANTsImage
         mask with value 1
     
     atlas_list : list of ANTsImage types
@@ -113,7 +112,7 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
     >>> pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=[r]*ref.dimension)
     """
     segpixtype = 'unsigned int'
-    if np.any([l is None for l in label_list]):
+    if (label_list is None) or (np.any([l is None for l in label_list])):
         doJif = True
     else:
         doJif = False
@@ -121,16 +120,16 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
     if not doJif:
         if len(label_list) != len(atlas_list):
             raise ValueError('len(label_list) != len(atlas_list)')
-        inlabs = np.sort(np.unique(label_list[0][targetIMask == 1]))
+        inlabs = np.sort(np.unique(label_list[0][target_image_mask == 1]))
         labsum = label_list[0]
         for n in range(1, len(label_list)):
-            inlabs = np.sort(np.unique(np.hstack([inlabs, label_list[n][targetIMask==1]])))
+            inlabs = np.sort(np.unique(np.hstack([inlabs, label_list[n][target_image_mask==1]])))
             labsum = labsum + label_list[n]
 
-        mymask = targetIMask.clone()
+        mymask = target_image_mask.clone()
         mymask[labsum==0] = 0
     else:
-        mymask = [targetIMask]
+        mymask = target_image_mask
 
     osegfn = mktemp(prefix='antsr', suffix='myseg.nii.gz')
     #segdir = osegfn.replace(os.path.basename(osegfn),'')
@@ -143,7 +142,7 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
     tdir = probs.replace(probsbase,'')
     searchpattern = probsbase.replace('%02d', '*')
 
-    mydim = targetIMask.dimension
+    mydim = target_image_mask.dimension
     if not doJif:
         # not sure if these should be allocated or what their size should be
         outimg = iio2.make_image(imagesize=[128]*mydim, pixeltype=segpixtype)
@@ -171,7 +170,7 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
 
     myargs = {
         'd': mydim,
-        't': targetI,
+        't': target_image,
         'a': rho,
         'b': beta,
         'c': nnum,
@@ -194,7 +193,8 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
 
     myprocessedargs = utils._int_antsProcessArguments(myargs)
     
-    rval = lib.antsJointFusion(myprocessedargs)
+    libfn = utils.get_lib_fn('antsJointFusion')
+    rval = libfn(myprocessedargs)
     if rval != 0:
         print('Warning: Non-zero return from antsJointFusion')
 
@@ -206,7 +206,7 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
     for idx in range(1, len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
 
-    segmat = iio2.images_to_matrix(probimgs, targetIMask)
+    segmat = iio2.images_to_matrix(probimgs, target_image_mask)
     finalsegvec = segmat.argmax(axis=0)
     finalsegvec2 = finalsegvec
 
@@ -214,7 +214,7 @@ def joint_label_fusion(targetI, targetIMask, atlas_list, beta=4, rad=2,
     for i in range(finalsegvec.max()):
         finalsegvec2[finalsegvec==i] = inlabs[i]
 
-    outimg = iio2.make_image(targetIMask, finalsegvec2)
+    outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
     return {
         'segmentation': outimg,

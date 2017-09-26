@@ -11,10 +11,10 @@ from .get_mask import get_mask
 from .iMath import iMath
 
 from ..core import ants_image as iio
-from .. import lib
+from .. import utils
 
 
-def n3_bias_field_correction(img, downsample_factor=3):
+def n3_bias_field_correction(image, downsample_factor=3):
     """
     N3 Bias Field Correction
 
@@ -22,7 +22,7 @@ def n3_bias_field_correction(img, downsample_factor=3):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to be bias corrected
 
     downsample_factor : scalar
@@ -34,17 +34,19 @@ def n3_bias_field_correction(img, downsample_factor=3):
     
     Example
     -------
-    >>> img = ants.image_read( ants.get_ants_data('r16') )
-    >>> img_n3 = ants.n3_bias_field_correction(img)
+    >>> import ants
+    >>> image = ants.image_read( ants.get_ants_data('r16') )
+    >>> image_n3 = ants.n3_bias_field_correction(image)
     """
-    outimg = img.clone()
-    args = [img.dimension, img, outimg, downsample_factor]
+    outimage = image.clone()
+    args = [image.dimension, image, outimage, downsample_factor]
     processed_args = pargs._int_antsProcessArguments(args)
-    lib.N3BiasFieldCorrection(processed_args)
-    return outimg
+    libfn = utils.get_lib_fn('N3BiasFieldCorrection')
+    libfn(processed_args)
+    return outimage
 
 
-def n4_bias_field_correction(img, mask=None, shrink_factor=4,
+def n4_bias_field_correction(image, mask=None, shrink_factor=4,
                              convergence={'iters':[50,50,50,50], 'tol':1e-07},
                              spline_param=200, verbose=False, weight_mask=None):
     """
@@ -54,7 +56,7 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to bias correct
     
     mask : ANTsImage   
@@ -82,19 +84,21 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
     
     Example
     -------
-    >>> img = ants.image_read( ants.get_ants_data('r16') )
-    >>> img_n4 = ants.n4_bias_field_correction(img)
+    >>> image = ants.image_read( ants.get_ants_data('r16') )
+    >>> image_n4 = ants.n4_bias_field_correction(image)
     """
+    if image.pixeltype != 'float':
+        image = image.clone('float')
     iters = convergence['iters']
     tol = convergence['tol']
     if mask is None:
-        mask = get_mask(img)
+        mask = get_mask(image)
 
     N4_CONVERGENCE_1 = '[%s, %.10f]' % ('x'.join([str(it) for it in iters]), tol)
     N4_SHRINK_FACTOR_1 = str(shrink_factor)
     if (not isinstance(spline_param, (tuple,list))) or (len(spline_param) == 1):
         N4_BSPLINE_PARAMS = '[%i]' % spline_param
-    elif (isinstance(spline_param)) and (len(spline_param) == img.dimension):
+    elif (isinstance(spline_param)) and (len(spline_param) == image.dimension):
         N4_BSPLINE_PARAMS = '[%s]' % ('x'.join([str(sp) for sp in spline_param]))
     else:
         raise ValueError('Length of splineParam must either be 1 or dimensionality of image')
@@ -103,25 +107,26 @@ def n4_bias_field_correction(img, mask=None, shrink_factor=4,
         if not isinstance(weight_mask, iio.ANTsImage):
             raise ValueError('Weight Image must be an antsImage')
 
-    outimg = img.clone()
+    outimage = image.clone()
     kwargs = {
-        'd': outimg.dimension,
-        'i': img,
+        'd': outimage.dimension,
+        'i': image,
         'w': weight_mask,
         's': N4_SHRINK_FACTOR_1,
         'c': N4_CONVERGENCE_1,
         'b': N4_BSPLINE_PARAMS,
         'x': mask,
-        'o': outimg,
+        'o': outimage,
         'v': int(verbose)
     }
 
     processed_args = pargs._int_antsProcessArguments(kwargs)
-    lib.N4BiasFieldCorrection(processed_args)
-    return outimg
+    libfn = utils.get_lib_fn('N4BiasFieldCorrection')
+    libfn(processed_args)
+    return outimage
 
 
-def abp_n4(img, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
+def abp_n4(image, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
     """
     Truncate outlier intensities and bias correct with the N4 algorithm.
     
@@ -129,7 +134,7 @@ def abp_n4(img, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
 
     Arguments
     ---------
-    img : ANTsImage
+    image : ANTsImage
         image to correct and truncate
 
     intensity_truncation : 3-tuple
@@ -148,20 +153,20 @@ def abp_n4(img, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
     Example
     -------
     >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'))
-    >>> img2 = ants.abp_n4(img)
+    >>> image = ants.image_read(ants.get_ants_data('r16'))
+    >>> image2 = ants.abp_n4(image)
     """
     if len(intensity_truncation) != 3:
         raise ValueError('intensity_truncation must have 3 values')
 
-    outimg = iMath(img, 'TruncateIntensity', 
+    outimage = iMath(image, 'TruncateIntensity', 
             intensity_truncation[0], intensity_truncation[1], intensity_truncation[2])
     if usen3 == True:
-        outimg = n3_bias_field_correction(outimg, 4)
-        outimg = n3_bias_field_correction(outimg, 2)
-        return outimg
+        outimage = n3_bias_field_correction(outimage, 4)
+        outimage = n3_bias_field_correction(outimage, 2)
+        return outimage
     else:
-        outimg = n4_bias_field_correction(outimg, mask)
-        return outimg
+        outimage = n4_bias_field_correction(outimage, mask)
+        return outimage
 
 

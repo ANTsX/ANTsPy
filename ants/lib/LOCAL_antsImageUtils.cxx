@@ -29,7 +29,7 @@ namespace py = pybind11;
 
 
 template < typename ImageType >
-std::vector<std::vector<float> > TransformIndexToPhysicalPoint( ANTsImage<ImageType> antsImage, 
+std::vector<std::vector<float> > TransformIndexToPhysicalPoint( py::capsule antsImage, 
                                                                 std::vector<std::vector<int> > indices )
 {
   typedef typename ImageType::Pointer                            ImagePointerType ;
@@ -69,7 +69,7 @@ std::vector<std::vector<float> > TransformIndexToPhysicalPoint( ANTsImage<ImageT
 }
 
 template < typename ImageType >
-std::vector<std::vector<float> > TransformPhysicalPointToIndex( ANTsImage<ImageType> antsImage, 
+std::vector<std::vector<float> > TransformPhysicalPointToIndex( py::capsule antsImage, 
                                                                 std::vector<std::vector<int> > points )
 {
   typedef typename ImageType::Pointer      ImagePointerType ;
@@ -118,9 +118,6 @@ PYBIND11_MODULE(antsImageUtils, m)
     m.def("TransformIndexToPhysicalPointF2", &TransformIndexToPhysicalPoint<itk::Image<float, 2>>);
     m.def("TransformIndexToPhysicalPointF3", &TransformIndexToPhysicalPoint<itk::Image<float, 3>>);
     m.def("TransformIndexToPhysicalPointF4", &TransformIndexToPhysicalPoint<itk::Image<float, 4>>);
-    m.def("TransformIndexToPhysicalPointD2", &TransformIndexToPhysicalPoint<itk::Image<double, 2>>);
-    m.def("TransformIndexToPhysicalPointD3", &TransformIndexToPhysicalPoint<itk::Image<double, 3>>);
-    m.def("TransformIndexToPhysicalPointD4", &TransformIndexToPhysicalPoint<itk::Image<double, 4>>);
 
     m.def("TransformPhysicalPointToIndexUC2", &TransformPhysicalPointToIndex<itk::Image<unsigned char, 2>>);
     m.def("TransformPhysicalPointToIndexUC3", &TransformPhysicalPointToIndex<itk::Image<unsigned char, 3>>);
@@ -131,8 +128,5 @@ PYBIND11_MODULE(antsImageUtils, m)
     m.def("TransformPhysicalPointToIndexF2", &TransformPhysicalPointToIndex<itk::Image<float, 2>>);
     m.def("TransformPhysicalPointToIndexF3", &TransformPhysicalPointToIndex<itk::Image<float, 3>>);
     m.def("TransformPhysicalPointToIndexF4", &TransformPhysicalPointToIndex<itk::Image<float, 4>>);
-    m.def("TransformPhysicalPointToIndexD2", &TransformPhysicalPointToIndex<itk::Image<double, 2>>);
-    m.def("TransformPhysicalPointToIndexD3", &TransformPhysicalPointToIndex<itk::Image<double, 3>>);
-    m.def("TransformPhysicalPointToIndexD4", &TransformPhysicalPointToIndex<itk::Image<double, 4>>);
 
 }

@@ -5,7 +5,7 @@ __all__ = ['morphology']
 
 from .iMath import iMath
 
-def morphology(img, operation, radius, mtype='binary', value=1,
+def morphology(image, operation, radius, mtype='binary', value=1,
                shape='ball', radius_is_parametric=False, thickness=1,
                lines=3, include_center=False):
     """
@@ -62,13 +62,14 @@ def morphology(img, operation, radius, mtype='binary', value=1,
 
     Example
     -------
+    >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data('r16') , 2 )
     >>> mask = ants.get_mask( fi )
     >>> dilated_ball = ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='ball')
     >>> eroded_box = ants.morphology( mask, operation='erode', radius=3, mtype='binary', shape='box')
     >>> opened_annulus = ants.morphology( mask, operation='open', radius=5, mtype='binary', shape='annulus', thickness=2)
     """
-    if img.components > 1:
+    if image.components > 1:
         raise ValueError('multichannel images not yet supported')
 
     _sflag_dict = {'ball': 1, 'box': 2, 'cross': 3, 'annulus': 4, 'polygon': 5}
@@ -80,35 +81,35 @@ def morphology(img, operation, radius, mtype='binary', value=1,
     if (mtype == 'binary'):
         if (operation == 'dilate'):
             if (sFlag == 5):
-                ret = iMath(img, 'MD', radius, value, sFlag, lines)
+                ret = iMath(image, 'MD', radius, value, sFlag, lines)
             else:
-                ret = iMath(img, 'MD', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = iMath(image, 'MD', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         elif (operation == 'erode'):
             if (sFlag == 5):
-                ret = iMath(img, 'ME', radius, value, sFlag, lines)
+                ret = iMath(image, 'ME', radius, value, sFlag, lines)
             else:
-                ret = iMath(img, 'ME', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = iMath(image, 'ME', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         elif (operation == 'open'):
             if (sFlag == 5):
-                ret = iMath(img, 'MO', radius, value, sFlag, lines)
+                ret = iMath(image, 'MO', radius, value, sFlag, lines)
             else:
-                ret = iMath(img, 'MO', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = iMath(image, 'MO', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         elif (operation == 'close'):
             if (sFlag == 5):
-                ret = iMath(img, 'MC', radius, value, sFlag, lines)
+                ret = iMath(image, 'MC', radius, value, sFlag, lines)
             else:
-                ret = iMath(img, 'MC', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = iMath(image, 'MC', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         else:
             raise ValueError('Invalid morphology operation')
     elif (mtype == 'grayscale'):
         if (operation == 'dilate'):
-            ret = iMath(img, 'GD', radius)
+            ret = iMath(image, 'GD', radius)
         elif (operation == 'erode'):
-            ret = iMath(img, 'GE', radius)
+            ret = iMath(image, 'GE', radius)
         elif (operation == 'open'):
-            ret = iMath(img, 'GO', radius)
+            ret = iMath(image, 'GO', radius)
         elif (operation == 'close'):
-            ret = iMath(img, 'GC', radius)
+            ret = iMath(image, 'GC', radius)
         else:
             raise ValueError('Invalid morphology operation')
     else:
