@@ -38,7 +38,7 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     >>> fi = ants.image_read( ants.get_ants_data('r16') ).clone('float')
     >>> fi = ants.n3_bias_field_correction(fi, 2)
     >>> mi = ants.image_read( ants.get_ants_data('r64') ).clone('float')
-    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform='SyN')
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=('SyN'))
     >>> jac = ants.create_jacobian_determinant_image(fi, mytx['fwdtransforms'][0], 1)
     """
     dim = domain_image.dimension
@@ -48,7 +48,7 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     else:
         txuse = tx
     #args = [dim, txuse, do_log]
-    dimage = domain_image.clone('float')
+    dimage = domain_image.clone('double')
     args2 = [dim, txuse, dimage, int(do_log), int(geom)]
     processed_args = utils._int_antsProcessArguments(args2)
     libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
