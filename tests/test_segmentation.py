@@ -23,19 +23,7 @@ class TestModule_geo_seg(unittest.TestCase):
         priors = segs['probabilityimages']
         seg = ants.geo_seg(image, bmk, priors)
 
-class TestModule_prior_based_segmentation(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_example(self):
-        fi = ants.image_read(ants.get_ants_data('r16'))
-        seg = ants.kmeans_segmentation(fi,3)
-        mask = ants.threshold_image(seg['segmentation'], 1, 1e15)
-        priorseg = ants.prior_based_segmentation(fi, seg['probabilityimages'], mask, 0.25, 0.1, 3)
 """
 
 
@@ -148,6 +136,20 @@ class TestModule_label_geometry_measures(unittest.TestCase):
         seg = ants.kmeans_segmentation( fi, 3 )['segmentation']
         geom = ants.label_geometry_measures(seg,fi)
 
+
+class TestModule_prior_based_segmentation(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_example(self):
+        fi = ants.image_read(ants.get_ants_data('r16'))
+        seg = ants.kmeans_segmentation(fi,3)
+        mask = ants.threshold_image(seg['segmentation'], 1, 1e15)
+        priorseg = ants.prior_based_segmentation(fi, seg['probabilityimages'], mask, 0.25, 0.1, 3)
 
 
 if __name__ == '__main__':

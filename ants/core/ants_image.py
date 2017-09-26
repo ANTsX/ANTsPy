@@ -325,7 +325,7 @@ class ANTsImage(object):
         return self.numpy().mean(axis=axis)
     def median(self, axis=None):
         """ Return median along specified axis """
-        return self.numpy().median(axis=axis)
+        return np.median(self.numpy(), axis=axis)
     def std(self, axis=None):
         """ Return std along specified axis """
         return self.numpy().std(axis=axis)
@@ -340,10 +340,10 @@ class ANTsImage(object):
         return self.numpy().max(axis=axis)
     def argmin(self, axis=None):
         """ Return argmin along specified axis """
-        return self.numpy().argmin(axis=self.axis)
+        return self.numpy().argmin(axis=axis)
     def argmax(self, axis=None):
         """ Return argmax along specified axis """
-        return self.numpy().argmax(axis=self.axis)
+        return self.numpy().argmax(axis=axis)
     def flatten(self):
         """ Flatten image data """
         return self.numpy().flatten()
@@ -352,7 +352,7 @@ class ANTsImage(object):
         return self.numpy().nonzero()
     def unique(self):
         """ Return unique set of values in image """
-        return self.numpy().unique()
+        return np.unique(self.numpy())
 
     ## OVERLOADED OPERATORS ##
     def __add__(self, other):

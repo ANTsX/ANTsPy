@@ -86,13 +86,13 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     ct = 0
     if isinstance(i, (list,tuple)) and (len(i) > 1):
         while ct < len(i):
-            probchar = str(ct)
+            probchar = str(ct+1)
             if ct < 10:
                 probchar = '0%s' % probchar
-            tempfn = probs.replace('%02d', 'probchar')
+            tempfn = probs.replace('%02d', probchar)
             iio2.image_write(i[ct], tempfn)
             ct += 1
-        i = 'PriorProbabilityImages[%s, %s, %s]' % (str(len(i)), probs, str(priorweight))
+        i = 'PriorProbabilityImages[%s,%s,%s]' % (str(len(i)), probs, str(priorweight))
 
     if isinstance(a, list):
         outimg = a[0].clone('unsigned int')
@@ -114,8 +114,8 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             'i': i,
             'x': mymask
         }
-        #for k, v in kwargs.items():
-        #    myargs[k] = v
+        for k, v in kwargs.items():
+            myargs[k] = v
 
     elif isinstance(a, (list, tuple)):
         if len(a) > 6:
