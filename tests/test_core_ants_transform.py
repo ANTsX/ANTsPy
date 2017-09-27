@@ -36,6 +36,10 @@ class TestClass_ANTsTransform(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test__repr__(self):
+        for tx in self.txs:
+            r = tx.__repr__()
+
     def test_get_precision(self):
         for tx in self.txs:
             precision = tx.precision
@@ -69,11 +73,33 @@ class TestClass_ANTsTransform(unittest.TestCase):
         for tx in self.txs:
             txinvert = tx.invert()
 
+    def test_apply(self):
+        tx = ants.new_ants_transform()
+        params = tx.parameters
+        tx.set_parameters(params*2)
+        pt2 = tx.apply(data=(1,2,3), data_type='point')
+
+        tx = ants.new_ants_transform()
+        params = tx.parameters
+        tx.set_parameters(params*2)
+        pt2 = tx.apply(data=(1,2,3), data_type='vector')
+
+        img = ants.image_read(ants.get_ants_data("r16")).clone('float')
+        tx = ants.new_ants_transform(dimension=2)
+        tx.set_parameters((0.9,0,0,1.1,10,11))
+        img2 = tx.apply(data=img, reference=img, data_type='image')  
+
     def test_apply_to_point(self):
         tx = ants.new_ants_transform()
         params = tx.parameters
         tx.set_parameters(params*2)
         pt2 = tx.apply_to_point((1,2,3)) # should be (2,4,6)
+
+    def test_apply_to_vector(self):
+        tx = ants.new_ants_transform()
+        params = tx.parameters
+        tx.set_parameters(params*2)
+        pt2 = tx.apply_to_vector((1,2,3)) # should be (2,4,6)    
 
     def test_apply_to_image(self):
         img = ants.image_read(ants.get_ants_data("r16")).clone('float')
@@ -113,11 +139,33 @@ class TestModule_ants_transform(unittest.TestCase):
         for tx in self.txs:
             ants.set_ants_transform_fixed_parameters(tx, tx.fixed_parameters**2)
 
+    def test_apply_ants_transform(self):
+        tx = ants.new_ants_transform()
+        params = tx.parameters
+        tx.set_parameters(params*2)
+        pt2 = ants.apply_ants_transform(tx, data=(1,2,3), data_type='point')
+
+        tx = ants.new_ants_transform()
+        params = tx.parameters
+        tx.set_parameters(params*2)
+        pt2 = ants.apply_ants_transform(tx, data=(1,2,3), data_type='vector')
+
+        img = ants.image_read(ants.get_ants_data("r16")).clone('float')
+        tx = ants.new_ants_transform(dimension=2)
+        tx.set_parameters((0.9,0,0,1.1,10,11))
+        img2 = ants.apply_ants_transform(tx, data=img, reference=img, data_type='image')  
+
     def test_apply_ants_transform_to_point(self):
         tx = ants.new_ants_transform()
         params = tx.parameters
         tx.set_parameters(params*2)
         pt2 = ants.apply_ants_transform_to_point(tx, (1,2,3)) # should be (2,4,6)
+
+    def test_apply_ants_transform_to_vector(self):
+        tx = ants.new_ants_transform()
+        params = tx.parameters
+        tx.set_parameters(params*2)
+        pt2 = ants.apply_ants_transform_to_vector(tx, (1,2,3)) # should be (2,4,6)
 
     def test_apply_ants_transform_to_image(self):
         img = ants.image_read(ants.get_ants_data("r16")).clone('float')

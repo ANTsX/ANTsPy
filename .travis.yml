@@ -107,9 +107,6 @@ jobs:
       sudo: required
       language: generic
 
-  allow_failures:
-    - os: linux
-
 
 branches:
   only:

@@ -246,7 +246,7 @@ def apply_ants_transform(transform, data, data_type="point", reference=None, **k
     OR
     tuple if data_type == 'point' or data_type == 'vector'
     """
-    return transform.apply_transform(data, data_type, reference, **kwargs)
+    return transform.apply(data, data_type, reference, **kwargs)
 
 
 def apply_ants_transform_to_point(transform, point):

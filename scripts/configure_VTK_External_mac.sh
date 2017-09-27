@@ -41,9 +41,7 @@ cmake \
     -DBUILD_EXAMPLES:BOOL=OFF \
     -DVTK_LEGACY_REMOVE:BOOL=OFF \
     -DVTK_WRAP_PYTHON:BOOL=OFF \
-    -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../vtksource-mac/
+    -DVTK_USE_COCOA:BOOL=OFF ../vtksource-mac/
 make -j 3
 #make install
 cd ../
