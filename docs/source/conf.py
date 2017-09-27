@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 autodoc_mock_imports = ['_tkinter', 'matplotlib']
 # replace lib __init__ with empty init file since RTD cant handle C++ extensions
 os.remove('../../ants/lib/__init__.py')
-shutil.move('emptyinit.py', '../../ants/lib/__init__.py')
+shutil.copyfile('emptyinit.py', '../../ants/lib/__init__.py')
 
 import ants
 import numpy as np
