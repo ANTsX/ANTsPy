@@ -23,7 +23,6 @@ import sys
 import shutil
 
 # copy source code into docs directory
-
 sys.path.insert(0, os.path.abspath('../../'))
 autodoc_mock_imports = ['_tkinter', 'matplotlib']
 os.remove('../../ants/lib/__init__.py')
