@@ -17,11 +17,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-autodoc_mock_imports = ['_tkinter']
 
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../'))
+autodoc_mock_imports = ['_tkinter', 'matplotlib']
 
 import ants
 import numpy as np
