@@ -20,6 +20,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../'))
+autodoc_mock_imports = ['_tkinter']
 import ants
 import numpy as np
 import sphinx_rtd_theme
