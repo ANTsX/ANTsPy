@@ -23,7 +23,7 @@ import sys
 import shutil
 
 # copy source code into docs directory
-shutil.copytree('../../ants/', 'ants-tmp')
+shutil.copytree('../../', 'antspy')
 
 sys.path.insert(0, os.path.abspath('ants-tmp'))
 autodoc_mock_imports = ['_tkinter', 'matplotlib']
@@ -227,4 +227,4 @@ def patched_make_field(self, types, domain, items, **kw):
 
 TypedField.make_field = patched_make_field
 
-shutil.rmtree('ants-tmp')
+shutil.rmtree('antspy')
