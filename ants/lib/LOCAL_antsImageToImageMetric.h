@@ -40,7 +40,7 @@ public:
     template <typename MyImageType>
     void setMovingImage( py::capsule &, bool);
 
-    void setSampling(std::string, double);
+    void setSampling(std::string, float);
     void initialize();
     float getValue();
 
@@ -144,7 +144,7 @@ float ANTsImageToImageMetric< MetricType >::getValue()
 }
 
 template< class MetricType >
-void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, double percentage )
+void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, float percentage )
 {
   typedef typename MetricType::MovingImageType  ImageType;
   typedef typename MetricType::Pointer          MetricPointerType;

@@ -16,6 +16,10 @@ class ANTsImageToImageMetric(object):
     def __init__(self, metric):
         self._metric = metric
         self._is_initialized = False
+        self.fixed_image = None
+        self.fixed_mask = None
+        self.moving_image = None
+        self.moving_mask = None
 
     # ------------------------------------------
     # PROPERTIES
@@ -52,6 +56,7 @@ class ANTsImageToImageMetric(object):
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
         self._metric.setFixedImage(image.pointer, False)
+        self.fixed_image = image
 
     def set_fixed_mask(self, image):
         """
@@ -64,6 +69,7 @@ class ANTsImageToImageMetric(object):
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
         self._metric.setFixedImage(image.pointer, True)
+        self.fixed_mask = image
 
     def set_moving_image(self, image):
         """
@@ -76,6 +82,7 @@ class ANTsImageToImageMetric(object):
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
         self._metric.setMovingImage(image.pointer, False)
+        self.moving_image = image
 
     def set_moving_mask(self, image):
         """
@@ -88,15 +95,18 @@ class ANTsImageToImageMetric(object):
             raise ValueError('image dim (%i) does not match metric dim (%i)' % (image.dimension, self.dimension))
 
         self._metric.setMovingImage(image.pointer, True)
+        self.moving_mask = image
 
     def set_sampling(self, strategy='regular', percentage=1.):
-        if strategy is None:
-            strategy = 'regular'
-        if percentage is None:
-            percentage = 1.
+        if (self.fixed_image is None) or (self.moving_image is None):
+            raise ValueError('must set fixed_image and moving_image before setting sampling')
+
         self._metric.setSampling(strategy, percentage)
 
     def initialize(self):
+        if (self.fixed_image is None) or (self.moving_image is None):
+            raise ValueError('must set fixed_image and moving_image before initializing')
+
         self._metric.initialize()
         self._is_initialized = True
 
@@ -105,7 +115,7 @@ class ANTsImageToImageMetric(object):
             self.initialize()
         return self._metric.getValue()
 
-    def __call__(self, fixed, moving, fixed_mask=None, moving_mask=None, sampling_strategy=None, sampling_percentage=None):
+    def __call__(self, fixed, moving, fixed_mask=None, moving_mask=None, sampling_strategy='regular', sampling_percentage=1.):
         self.set_fixed_image(fixed)
         self.set_moving_image(moving)
 

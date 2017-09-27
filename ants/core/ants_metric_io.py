@@ -63,35 +63,34 @@ def create_ants_metric(fixed,
     >>> metric_type = 'Correlation'
     >>> metric = ants.create_ants_metric(fixed, moving, metric_type)
     """
+    dimension = fixed.dimension
+    pixeltype = fixed.pixeltype
+    is_vector = False # For now, no multichannel images
+
     if metric_type not in _supported_metrics:
         raise ValueError('metric_type must be one of %s' % _supported_metrics)
-    dimension = fixed.dimension
-    pixeltype = 'float'
-
-    # Check for valid dimension
+    
     if (dimension < 2) or (dimension > 4):
         raise ValueError('unsupported dimension %i' % dimension)
 
-    is_vector = False # For now, no multichannel images
+    if not isinstance(moving, iio.ANTsImage):
+        raise ValueError('invalid moving image')
+    
+    if moving.dimension != dimension:
+        raise ValueError('Fixed and Moving images must have same dimension')
 
-    if isinstance(fixed, iio.ANTsImage):
-        fixed = fixed.clone('float')
-        dimension = fixed.dimension
-        pixeltype = fixed.pixeltype
-    else:
+    if not isinstance(fixed, iio.ANTsImage):
         raise ValueError('invalid fixed image')
 
-    if isinstance(moving, iio.ANTsImage):
-        moving = moving.clone('float')
-        if moving.dimension != dimension:
-            raise ValueError('Fixed and Moving images must have same dimension')
-    else:
-        raise ValueError('invalid moving image')
+    fixed = fixed.clone('float')
+    moving = moving.clone('float') 
 
     libfn = utils.get_lib_fn('create_ants_metricF%i' % dimension)
     metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
     ants_metric = mio.ANTsImageToImageMetric(metric)
+    ants_metric.set_fixed_image(fixed)
+    ants_metric.set_moving_image(moving)
 
     if isinstance(fixed_mask, iio.ANTsImage):
         ants_metric.set_fixed_mask(fixed_mask)

@@ -7,7 +7,7 @@ from ..core import ants_metric_io as mio2
 
 def image_similarity(fixed_image, moving_image, metric_type='MeanSquares', 
                     fixed_mask=None, moving_mask=None, 
-                    sampling_strategy=None, sampling_percentage=1 ):
+                    sampling_strategy='regular', sampling_percentage=1.):
     """
     Measure similarity between two images
     
