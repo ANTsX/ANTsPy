@@ -33,6 +33,7 @@ jobs:
         unset CCACHE_DISABLE
         export CCACHE_DIR=$HOME/.ccache
         ./scripts/configure_ITK_External_linux.sh;
+        ./scripts/configure_VTK_External_linux.sh;
       os: linux
       sudo: required
       python: 3.6
@@ -45,6 +46,7 @@ jobs:
         ccache --show-stats;
         export PATH="/usr/local/opt/ccache/libexec:$PATH";
         ./scripts/configure_ITK_External_mac.sh;
+        ./scripts/configure_VTK_External_mac.sh;
       os: osx
       sudo: required
       language: generic
@@ -52,6 +54,7 @@ jobs:
     - stage: install
       script: |
         export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
+        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install plotly webcolors scikit-image
@@ -63,6 +66,7 @@ jobs:
     - stage: install
       script: |
         export ITK_DIR=$HOME/itkbuild-mac
+        export VTK_DIR=$HOME/vtkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install coveralls coverage plotly webcolors scikit-image
