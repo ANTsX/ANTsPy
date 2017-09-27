@@ -99,6 +99,24 @@ class TestModule_ants_image_io(unittest.TestCase):
         self.assertEqual(img.dimension, 3)
         nptest.assert_allclose(img.mean(), 0.)
 
+        # set from image
+        for img in self.imgs:
+            mask = img > img.mean()
+            arr = img[mask]
+            img2 = ants.make_image(mask, voxval=arr)
+            nptest.assert_allclose(img2.numpy(), (img*mask).numpy())
+            self.assertTrue(ants.image_physical_space_consistency(img2,mask))
+
+            # set with arr.ndim > 1
+            img2 = ants.make_image(mask, voxval=np.expand_dims(arr,-1))
+            nptest.assert_allclose(img2.numpy(), (img*mask).numpy())
+            self.assertTrue(ants.image_physical_space_consistency(img2,mask))
+
+            with self.assertRaises(Exception):
+                # wrong number of non-zero voxels
+                img3 = ants.make_image(img, voxval=arr)
+
+
     def test_matrix_to_images(self):
         # def matrix_to_images(data_matrix, mask):
         for img in self.imgs:
@@ -115,6 +133,27 @@ class TestModule_ants_image_io(unittest.TestCase):
             mat2 = ants.images_to_matrix(imglist, imgmask)
             nptest.assert_allclose(mat, mat2)
 
+            # test with matrix.ndim > 2
+            img = img.clone()
+            img.set_direction(img.direction*2)
+            imgmask = img > img.mean()
+            arr = (img*imgmask).numpy()
+            arr = arr[arr>0.5]
+            arr2 = arr.copy()
+            mat = np.stack([arr,arr2])
+            imglist = ants.matrix_to_images(mat, imgmask)
+            for im in imglist:
+                self.assertTrue(ants.allclose(im, imgmask*img))
+                self.assertTrue(ants.image_physical_space_consistency(im, imgmask))
+
+            # test for wrong number of voxels
+            with self.assertRaises(Exception):
+                arr = (img*imgmask).numpy()
+                arr = arr[arr>0.5]
+                arr2 = arr.copy()
+                mat = np.stack([arr,arr2])
+                imglist = ants.matrix_to_images(mat, img)
+
     def test_images_to_matrix(self):
         # def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
         for img in self.imgs:
@@ -129,6 +168,24 @@ class TestModule_ants_image_io(unittest.TestCase):
             for i1,i2 in zip(imglist,imglist2):
                 self.assertTrue(ants.image_physical_space_consistency(i1,i2))
                 nptest.assert_allclose(i1.numpy()*mask.numpy(),i2.numpy())
+
+            if img.dimension == 2:
+                # with sigma
+                mask = img > img.mean()
+                imglist = [img.clone(),img.clone(),img.clone()]
+                imgmat = ants.images_to_matrix(imglist, mask=mask, sigma=2.)
+
+                # with no mask
+                mask = img > img.mean()
+                imglist = [img.clone(),img.clone(),img.clone()]
+                imgmat = ants.images_to_matrix(imglist)
+
+                # with mask of different shape
+                s = [65]*img.dimension
+                mask2 = ants.from_numpy(np.random.randn(*s))
+                mask2 = mask2 > mask2.mean()
+                imgmat = ants.images_to_matrix(imglist, mask=mask2)
+
 
     def test_image_header_info(self):
         # def image_header_info(filename):
@@ -181,6 +238,11 @@ class TestModule_ants_image_io(unittest.TestCase):
         self.assertEqual(info['pixelclass'], 'vector' if img.has_components else 'scalar')
         self.assertEqual(info['spacing'], img.spacing)
 
+        # non-existant file
+        with self.assertRaises(Exception):
+            tmpfile = mktemp(suffix='.nii.gz')
+            ants.image_header_info(tmpfile)
+
     def test_image_clone(self):
         for img in self.imgs:
             img = ants.image_clone(img, 'unsigned char')
@@ -222,6 +284,10 @@ class TestModule_ants_image_io(unittest.TestCase):
                 self.assertEqual(img2.components, img.components)
                 nptest.assert_allclose(img.numpy(), img2.numpy())
 
+            # unsupported ptype
+            with self.assertRaises(Exception):
+                ants.image_read(tmpfile, pixeltype='not-suppoted-ptype')
+
         # test vector images
         for img in self.vecimgs:
             img = (img - img.min()) / (img.max() - img.min())
@@ -246,6 +312,18 @@ class TestModule_ants_image_io(unittest.TestCase):
             self.assertTrue(ants.image_physical_space_consistency(img,img2))
             self.assertEqual(img2.components, img.components)
             nptest.assert_allclose(img.numpy(), img2.numpy())   
+
+            # with no json header
+            arr = img.numpy()
+            tmpfile = mktemp(suffix='.npy')
+            np.save(tmpfile, arr)
+            img2 = ants.image_read(tmpfile)
+            nptest.assert_allclose(img.numpy(), img2.numpy())  
+
+        # non-existant file
+        with self.assertRaises(Exception):
+            tmpfile = mktemp(suffix='.nii.gz')
+            ants.image_read(tmpfile)  
 
 
 if __name__ == '__main__':

@@ -94,15 +94,12 @@ def vol(volume, overlays=None,
     Example
     -------
     >>> import ants
-    >>> wm = ants.image_read('~/desktop/wm.nii.gz')
-    >>> kimg = ants.image_read('~/desktop/kimg.nii.gz')
-    >>> wm = ants.image_read( ants.get_ants_data('mni') )
-    >>> rp1 = (90,180,90)
-    >>> rp2 = (0,0,0)
-    >>> rp3 = (270,90,90)
-    >>> ants.Vol(wm, kimg, rotation_params=(rp1,rp2,rp3), quantlimits=(0.01,0.99),
-        filename='~/desktop/image.png', colormap='jet',
-        magnification_factor=1.9, verbose=True)
+    >>> ch2i = ants.image_read( ants.get_ants_data("mni") )
+    >>> ch2seg = ants.threshold_image( ch2i, "Otsu", 3 )
+    >>> wm   = ants.threshold_image( ch2seg, 3, 3 )
+    >>> kimg = ants.weingarten_image_curvature( ch2i, 1.5  ).smooth_image( 1 )
+    >>> rp = [(90,180,90), (90,180,270), (90,180,180)]
+    >>> result = ants.vol( wm, [kimg], quantlimits=(0.01,0.99), filename='/users/ncullen/desktop/voltest.png')
     """
     if (overlays is not None) and not isinstance(overlays, (list,iio.ANTsImage)):
         raise ValueError('overlay must be ANTsImage..')

@@ -12,7 +12,7 @@ except:
     pass
 
 
-def plot(img, title=None, margin=0.05, dpi=80):
+def plot(img, title=None, margin=0.05, dpi=80, show=True):
     """
     Plot an ANTsImage
     """
@@ -59,5 +59,7 @@ def plot(img, title=None, margin=0.05, dpi=80):
         plt.title(title)
 
     plt.grid(False)
-    plt.show()
+
+    if show:
+        plt.show()
 

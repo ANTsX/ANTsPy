@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# make this where you want to build VTK
+
 CXX_STD=CXX11
 JTHREADS=2
 if [[ `uname` -eq Darwin ]] ; then
@@ -9,35 +12,26 @@ if [[ $TRAVIS -eq true ]] ; then
   JTHREADS=2
 fi
 
-#cd ./src
+#mkdir $HOME/vtkbuild-mac;
+
+#cd /users/travis/
+cd $HOME
+
 vtkgit=https://github.com/Kitware/VTK.git
 vtktag=acc5f269186e3571fb2a10af4448076ecac75e8e
+# if ther is a directory but no git,
+# remove it
 
-if [[ -d vtksource ]]; then 
-    if [[ ! -d vtksource/.git ]]; then
-        rm -rf vtksource/
-    fi  
-fi
-# if no directory, clone ITK in `itksource` dir
-if [[ ! -d vtksource ]]; then 
-    git clone $vtkgit vtksource 
-fi
-cd vtksource
-if [[ -d .git ]]; then
-    git checkout master;
-    git checkout $vtktag
-    rm -rf .git    
-fi
-# go back to main dir
+# if no directory, clone VTK in `vtksource-mac` dir
+git clone $vtkgit vtksource-mac;
+cd vtksource-mac;
+git checkout master;
+git checkout $vtktag;
 cd ../
-#if [[ ! -d ../data/ ]] ; then
-#  mkdir -p ../data
-#fi
 
-echo "VTK;${vtktag}" >> ./data/softwareVersions.csv
-
-mkdir vtkbuild
-cd vtkbuild
+mkdir vtkbuild-mac
+cd vtkbuild-mac
+compflags=" -fPIC -O2  "
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
@@ -47,8 +41,11 @@ cmake \
     -DBUILD_EXAMPLES:BOOL=OFF \
     -DVTK_LEGACY_REMOVE:BOOL=OFF \
     -DVTK_WRAP_PYTHON:BOOL=OFF \
-    -DVTK_USE_COCOA:BOOL=OFF \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../vtksource/
+    -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
+    -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
+    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../vtksource-mac/
 make -j 3
 #make install
 cd ../
+
+

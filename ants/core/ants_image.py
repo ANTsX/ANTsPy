@@ -286,7 +286,7 @@ class ANTsImage(object):
             if data.shape != self.shape:
                 raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
         else:
-            if (data.shape[-1] != self.components) and (data.shape[:-1] != self.shape):
+            if (data.shape[-1] != self.components) or (data.shape[:-1] != self.shape):
                 raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
 
         return iio2.from_numpy(data, origin=self.origin, 
