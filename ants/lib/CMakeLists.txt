@@ -13,7 +13,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
-find_package(VTK)
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
 
 add_subdirectory(pybind11)
 
@@ -145,10 +146,11 @@ target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 
 # -----------------------------------------------------------------
 ## VIZ ##
-#pybind11_add_module(antsSurf antscore/antsSurf.cxx WRAP_antsSurf.cxx  antscore/antsUtilities.cxx antscore/ReadWriteData.cxx antscore/antsCommandLineOption.cxx antscore/antsCommandLineParser.cxx)
-#pybind11_add_module(antsVol antscore/antsVol.cxx WRAP_antsVol.cxx  antscore/antsUtilities.cxx antscore/ReadWriteData.cxx antscore/antsCommandLineOption.cxx antscore/antsCommandLineParser.cxx)
-#pybind11_add_module(ConvertScalarImageToRGB antscore/ConvertScalarImageToRGB.cxx WRAP_ConvertScalarImageToRGB.cxx  antscore/antsUtilities.cxx antscore/ReadWriteData.cxx antscore/antsCommandLineOption.cxx antscore/antsCommandLineParser.cxx)
-#target_link_libraries(ConvertScalarImageToRGB PRIVATE ${ITK_LIBRARIES})
-#target_link_libraries(antsSurf PRIVATE ${ITK_LIBRARIES})
-#target_link_libraries(antsVol PRIVATE ${ITK_LIBRARIES})
+pybind11_add_module(antsSurf antscore/antsSurf.cxx WRAP_antsSurf.cxx)
+pybind11_add_module(antsVol antscore/antsVol.cxx WRAP_antsVol.cxx)
+pybind11_add_module(ConvertScalarImageToRGB antscore/ConvertScalarImageToRGB.cxx WRAP_ConvertScalarImageToRGB.cxx)
+
+target_link_libraries(antsSurf PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
+target_link_libraries(antsVol PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
+target_link_libraries(ConvertScalarImageToRGB PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
 

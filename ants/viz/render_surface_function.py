@@ -18,7 +18,8 @@ except:
 
 def render_surface_function(surfimg, funcimg=None, alphasurf=0.2, alphafunc=1.0, 
                             isosurf=0.5, isofunc=0.5, smoothsurf=None, smoothfunc=None,
-                            cmapsurf='grey', cmapfunc='red', filename=None, notebook=False):
+                            cmapsurf='grey', cmapfunc='red', filename=None, notebook=False,
+                            auto_open=False):
     """
     Render an image as a base surface and an optional collection of other image.
 
@@ -71,9 +72,9 @@ def render_surface_function(surfimg, funcimg=None, alphasurf=0.2, alphafunc=1.0,
     Example
     -------
     >>> import ants
-    >>> mnit = ants.image_read('~/desktop/mnit.nii.gz')
-    >>> mnia = ants.image_read('~/desktop/mnia.nii.gz')
-    >>> ants.render_surface_function(mnit, mnia, alphasurf=0.1)
+    >>> mni = ants.image_read(ants.get_ants_data('mni'))
+    >>> mnia = ants.image_read(ants.get_ants_data('mnia'))
+    >>> ants.render_surface_function(mni, mnia, alphasurf=0.1, filename='/users/ncullen/desktop/surffnc.png')
     """
     cmap_dict = {
         'grey': 'Greys',
@@ -153,7 +154,7 @@ def render_surface_function(surfimg, funcimg=None, alphasurf=0.2, alphafunc=1.0,
         save_file = None
 
     try:
-        plot(fig_data_list, image=save_file, filename=filename, image_filename=image_filename)
+        plot(fig_data_list, image=save_file, filename=filename, image_filename=image_filename, auto_open=auto_open)
     except PermissionError:
         print('PermissionError caught - are you running jupyter console? Try launching it with sudo privledges (e.g. `sudo jupyter-console`)')
 

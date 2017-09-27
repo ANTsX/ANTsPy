@@ -50,3 +50,9 @@ from .TileImages import *
 #from .NonLocalSuperResolution import *
 #from .SuperResolution import *
 #from .TimeSCCAN import *
+
+
+## VIZ ##
+from .antsSurf import *
+from .antsVol import *
+from .ConvertScalarImageToRGB import *

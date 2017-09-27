@@ -52,6 +52,7 @@ jobs:
         export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
+        travis_retry pip install plotly webcolors scikit-image
         python setup.py install
         ./tests/run_tests.sh
       os: linux
@@ -62,7 +63,7 @@ jobs:
         export ITK_DIR=$HOME/itkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
-        travis_retry pip install coveralls coverage
+        travis_retry pip install coveralls coverage plotly webcolors scikit-image
         python setup.py install
         ./tests/run_tests.sh -c
         cd tests

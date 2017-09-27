@@ -96,13 +96,17 @@ def surf(x, y=None, z=None,
     Example
     -------
     >>> import ants
-    >>> wm2 = ants.image_read('~/desktop/wm2.nii.gz')
-    >>> kimg2 = ants.image_read('~/desktop/kimg2.nii.gz')
-    >>> wmz = ants.image_read('~/desktop/wmz.nii.gz')
-    >>> rps = [(90,180,90), (90,180,270), (90,180,180)]
-    >>> ants.Surf( x=wm2, y=[kimg], z=[wmz],
+    >>> ch2i = ants.image_read( ants.get_ants_data("ch2") )
+    >>> ch2seg = ants.threshold_image( ch2i, "Otsu", 3 )
+    >>> wm   = ants.threshold_image( ch2seg, 3, 3 )
+    >>> wm2 = wm.smooth_image( 1 ).threshold_image( 0.5, 1e15 )
+    >>> kimg = ants.weingarten_image_curvature( ch2i, 1.5  ).smooth_image( 1 )
+    >>> wmz = wm2.iMath("MD",3)
+    >>> rp = [(90,180,90), (90,180,270), (90,180,180)]
+    >>> ants.surf( x=wm2, y=[kimg], z=[wmz],
                 inflation_factor=255, overlay_limits=(-0.3,0.3), verbose = True,
                 rotation_params = rp, filename='/users/ncullen/desktop/surface.png')
+
     """
     TEMPFILES = []
     len_x = len(x) if isinstance(x, (tuple,list)) else 1
