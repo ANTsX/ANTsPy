@@ -5,7 +5,11 @@ or a tile of slices from a 3D ANTsImage
 
 
 __all__ = ['plot']
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    pass
 
 
 def plot(img, title=None, margin=0.05, dpi=80):
