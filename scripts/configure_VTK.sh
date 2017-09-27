@@ -36,16 +36,17 @@ cd ../
 
 echo "VTK;${vtktag}" >> ./data/softwareVersions.csv
 
-mkdir -p vtkbuild
+mkdir vtkbuild
 cd vtkbuild
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
-    -DVTK_USE_GIT_PROTOCOL:BOOL=OFF \
     -DBUILD_SHARED_LIBS=OFF \
     -DBUILD_TESTING:BOOL=OFF \
     -DBUILD_EXAMPLES:BOOL=OFF \
+    -DVTK_LEGACY_REMOVE:BOOL=OFF \
+    -DVTK_WRAP_PYTHON:BOOL=OFF \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../vtksource/
