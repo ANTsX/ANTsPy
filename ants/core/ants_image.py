@@ -595,7 +595,7 @@ def get_spacing(image):
     return image.spacing
 
 
-def image_physical_space_consistency(*images, tolerance=1e-2, datatype=False):
+def image_physical_space_consistency(images, tolerance=1e-2, datatype=False):
     """
     Check if two or more ANTsImage objects occupy the same physical space
     
