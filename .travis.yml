@@ -7,6 +7,10 @@ cache:
         - $HOME/itkbuild-mac
         - $TRAVIS_BUILD_DIR/itksource-linux
         - $HOME/itksource-mac
+        - $TRAVIS_BUILD_DIR/vtkbuild-linux
+        - $HOME/vtkbuild-mac
+        - $TRAVIS_BUILD_DIR/vtksource-linux
+        - $HOME/vtksource-mac
 
 before_install: |
   if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
