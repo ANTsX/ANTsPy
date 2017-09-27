@@ -11,10 +11,8 @@ fi
 
 #cd ./src
 vtkgit=https://github.com/Kitware/VTK.git
-# vtktag=c5138560409c75408ff76bccff938f21e5dcafc6 #4.12
+vtktag=acc5f269186e3571fb2a10af4448076ecac75e8e
 
-# if there is a directory but no git,
-# remove it
 if [[ -d vtksource ]]; then 
     if [[ ! -d vtksource/.git ]]; then
         rm -rf vtksource/
@@ -40,9 +38,17 @@ echo "VTK;${vtktag}" >> ./data/softwareVersions.csv
 
 mkdir -p vtkbuild
 cd vtkbuild
-ccmake ../vtksource/
-make -j 2
+cmake \
+    -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
+    -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
+    -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
+    -DVTK_USE_GIT_PROTOCOL:BOOL=OFF \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_TESTING:BOOL=OFF \
+    -DBUILD_EXAMPLES:BOOL=OFF \
+    -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
+    -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
+    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../vtksource/
+make -j 3
 #make install
 cd ../
-
-
