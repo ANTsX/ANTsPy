@@ -1,4 +1,4 @@
-"""
+
 ## LOCAL ##
 from .antsImage import *
 from .antsImageClone import *
@@ -50,4 +50,3 @@ from .TileImages import *
 #from .NonLocalSuperResolution import *
 #from .SuperResolution import *
 #from .TimeSCCAN import *
-"""

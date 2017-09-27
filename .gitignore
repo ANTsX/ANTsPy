@@ -8,6 +8,10 @@ itkbuild/
 itksource/
 *itkbuild/
 *itksource/
+vtkbuild/
+vtksource/
+*vtkbuild/
+*vtksource/
 pybind11/
 *pybind11/
 antscore/
