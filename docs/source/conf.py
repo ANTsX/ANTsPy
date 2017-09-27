@@ -129,7 +129,7 @@ html_logo = '_static/img/antspy-logo.png'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# html_style_path = 'css/ants_theme.css'
+html_style_path = 'css/ants_theme.css'
 html_context = {
     'css_files': [
         'https://fonts.googleapis.com/css?family=Lato',
