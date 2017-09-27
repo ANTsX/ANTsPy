@@ -127,15 +127,15 @@ html_logo = '_static/img/antspy-logo.png'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
-html_style_path = 'css/ants_theme.css'
-html_context = {
-    'css_files': [
-        'https://fonts.googleapis.com/css?family=Lato',
-        '_static/css/ants_theme.css'
-    ],
-}
+#html_style_path = '_static/css/ants_theme.css'
+#html_context = {
+#    'css_files': [
+#        'https://fonts.googleapis.com/css?family=Lato',
+#        '_static/css/ants_theme.css'
+#    ],
+#}
 
 
 # -- Options for HTMLHelp output ------------------------------------------
