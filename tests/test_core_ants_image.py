@@ -85,7 +85,7 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img.set_origin(new_origin)
             with self.assertRaises(Exception):
                 new_origin = [6.9]*(img.dimension+1)
-                img.set_spacing(new_origin)
+                img.set_origin(new_origin)
 
     def test_get_direction(self):
         #self.setUp()
@@ -101,13 +101,16 @@ class TestClass_ANTsImage(unittest.TestCase):
             img.set_direction(new_direction)
             nptest.assert_allclose(img.direction, new_direction)
 
+            # set from list
+            img.set_direction(new_direction.tolist())
+
             # test exceptions
             with self.assertRaises(Exception):
                 new_direction = img.clone()
-                img.set_spacing(new_direction)
+                img.set_direction(new_direction)
             with self.assertRaises(Exception):
                 new_direction = np.eye(img.dimension+2)*3
-                img.set_spacing(new_direction)
+                img.set_direction(new_direction)
 
     def test_view(self):
         #self.setUp()
@@ -169,6 +172,12 @@ class TestClass_ANTsImage(unittest.TestCase):
                 # wrong shape
                 new_data = np.random.randn(69,12,21).astype('float32')
                 img.new_image_like(new_data)
+
+        with self.assertRaises(Exception):
+            # wrong shape with components
+            vecimg = ants.from_numpy(np.random.randn(69,12,3).astype('float32'), has_components=True)
+            new_data = np.random.randn(69,12,4).astype('float32')
+            vecimg.new_image_like(new_data)
 
     def test_to_file(self):
         #self.setUp()
@@ -417,6 +426,14 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2 = img[6:9,6:9,6:9]
                 nptest.assert_allclose(img2, img.numpy()[6:9,6:9,6:9])
 
+            # get from another image
+            img2 = img.clone()
+            xx = img[img2]
+            with self.assertRaises(Exception):
+                # different physical space
+                img2.set_direction(img.direction*2)
+                xx = img[img2]
+
     def test__setitem__(self):
         #self.setUp()
         for img in self.imgs:
@@ -426,6 +443,15 @@ class TestClass_ANTsImage(unittest.TestCase):
             elif img.dimension == 3:
                 img[6:9,6:9,6:9] = 6.9
                 self.assertTrue(img.numpy()[6:9,6:9,6:9].mean(), 6.9)
+
+            # set from another image
+            img2 = img.clone()
+            img3 = img.clone()
+            img[img2] = 0
+            with self.assertRaises(Exception):
+                # different physical space
+                img2.set_direction(img3.direction*2)
+                img3[img2] = 0
 
     def test__repr__(self):
         for img in self.imgs:
@@ -531,11 +557,33 @@ class TestModule_ants_image(unittest.TestCase):
             img2 = ants.from_numpy(np.random.randn(*tuple([69]*(ndim+1))).astype('float32'))
             self.assertTrue(not ants.image_physical_space_consistency(img,img2))
 
+            # only one image
+            with self.assertRaises(Exception):
+                ants.image_physical_space_consistency(img)
+            # not an ANTsImage
+            with self.assertRaises(Exception):
+                ants.image_physical_space_consistency(img, 12)
+
+        # false because of components
+        vecimg = ants.from_numpy(np.random.randn(69,70,3), has_components=True)
+        vecimg2 = ants.from_numpy(np.random.randn(69,70,4), has_components=True)
+        self.assertTrue(not ants.image_physical_space_consistency(vecimg, vecimg2, datatype=True))
+
     def test_image_type_cast(self):
         # test with list of images
         imgs2 = ants.image_type_cast(self.imgs)
         for img in imgs2:
             self.assertTrue(img.pixeltype, 'float')
+
+        # not a list or tuple
+        with self.assertRaises(Exception):
+            ants.image_type_cast(self.imgs[0])
+
+        # cast from unsigned int
+        imgs = [i.clone() for i in self.imgs]
+        imgs[0] = imgs[0].clone('unsigned int')
+        imgs2 = ants.image_type_cast(imgs)
+
 
     def test_allclose(self):
         for img in self.imgs:

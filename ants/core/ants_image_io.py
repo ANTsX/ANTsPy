@@ -185,10 +185,10 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
         sel = imagesize > 0
         if voxval.ndim > 1:
                 voxval = voxval.flatten()
-        if (len(voxval) == sel.sum()) or (len(voxval) == 0):
+        if (len(voxval) == int((sel>0).sum())) or (len(voxval) == 0):
             img[sel] = voxval
         else:
-            raise ValueError('Num given voxels %i not same as num positive values %i in `imagesize`' % (len(voxval), np.sum(sel)))
+            raise ValueError('Num given voxels %i not same as num positive values %i in `imagesize`' % (len(voxval), int((sel>0).sum())))
         return img
     else:
         if isinstance(voxval, (tuple,list,np.ndarray)):
@@ -400,7 +400,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
             ndim = dimension
 
         if ptype in _unsupported_ptypes:
-            ptype = _unsupported_ptype_map[ptype]
+            raise ValueError('unsupported pixeltype %s' % ptype)
 
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
