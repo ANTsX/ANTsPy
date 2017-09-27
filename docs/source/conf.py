@@ -22,12 +22,15 @@ import os
 import sys
 import shutil
 
-# add package to local path
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
+    # add package to local path
 sys.path.insert(0, os.path.abspath('../../'))
 autodoc_mock_imports = ['_tkinter', 'matplotlib']
-# replace lib __init__ with empty init file since RTD cant handle C++ extensions
-os.remove('../../ants/lib/__init__.py')
-shutil.copyfile('emptyinit.py', '../../ants/lib/__init__.py')
+if on_rtd:
+    # replace lib __init__ with empty init file since RTD cant handle C++ extensions
+    os.remove('../../ants/lib/__init__.py')
+    shutil.copyfile('emptyinit.py', '../../ants/lib/__init__.py')
 
 import ants
 import numpy as np
