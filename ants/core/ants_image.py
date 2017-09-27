@@ -13,7 +13,12 @@ __all__ = ['copy_image_info',
 
 import os
 import numpy as np
-from functools import partialmethod
+try:
+    from functools import partialmethod
+    HAS_PY3 = True
+except:
+    HAS_PY3 = False
+
 import inspect
 
 from .. import utils, registration, segmentation, viz
@@ -505,21 +510,21 @@ class ANTsImage(object):
             '\t {:<10} : {}\n'.format('Direction', self.direction.flatten())
         return s
 
+if HAS_PY3:
+    # Set partial class methods for any functions which take an ANTsImage as the first argument
+    _utils_partial_dict = {k:v for k,v in utils.__dict__.items() if callable(v) and (inspect.getargspec(getattr(utils,k)).args[0] in {'img','image'})}
+    _reg_partial_dict = {k:v for k,v in registration.__dict__.items() if callable(v) and (inspect.getargspec(getattr(registration,k)).args[0] in {'img','image'})}
+    _seg_partial_dict = {k:v for k,v in segmentation.__dict__.items() if callable(v) and (inspect.getargspec(getattr(segmentation,k)).args[0] in {'img','image'})}
+    _viz_partial_dict = {k:v for k,v in viz.__dict__.items() if callable(v) and (inspect.getargspec(getattr(viz,k)).args[0] in {'img','image'})}
 
-# Set partial class methods for any functions which take an ANTsImage as the first argument
-_utils_partial_dict = {k:v for k,v in utils.__dict__.items() if callable(v) and (inspect.getargspec(getattr(utils,k)).args[0] in {'img','image'})}
-_reg_partial_dict = {k:v for k,v in registration.__dict__.items() if callable(v) and (inspect.getargspec(getattr(registration,k)).args[0] in {'img','image'})}
-_seg_partial_dict = {k:v for k,v in segmentation.__dict__.items() if callable(v) and (inspect.getargspec(getattr(segmentation,k)).args[0] in {'img','image'})}
-_viz_partial_dict = {k:v for k,v in viz.__dict__.items() if callable(v) and (inspect.getargspec(getattr(viz,k)).args[0] in {'img','image'})}
-
-for k, v in _utils_partial_dict.items():
-    setattr(ANTsImage, k, partialmethod(v))
-for k, v in _reg_partial_dict.items():
-    setattr(ANTsImage, k, partialmethod(v))
-for k, v in _seg_partial_dict.items():
-    setattr(ANTsImage, k, partialmethod(v))
-for k, v in _viz_partial_dict.items():
-    setattr(ANTsImage, k, partialmethod(v))
+    for k, v in _utils_partial_dict.items():
+        setattr(ANTsImage, k, partialmethod(v))
+    for k, v in _reg_partial_dict.items():
+        setattr(ANTsImage, k, partialmethod(v))
+    for k, v in _seg_partial_dict.items():
+        setattr(ANTsImage, k, partialmethod(v))
+    for k, v in _viz_partial_dict.items():
+        setattr(ANTsImage, k, partialmethod(v))
 
 
 def copy_image_info(reference, target):
