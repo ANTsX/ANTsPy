@@ -5,7 +5,7 @@
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) 
 <br>
 
-[![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy) [![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg)](https://coveralls.io/github/ANTsX/ANTsPy)
+[![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy) [![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master)](https://coveralls.io/github/ANTsX/ANTsPy?branch=master)
 
 
 ## About ANTsPy
