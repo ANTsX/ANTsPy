@@ -37,6 +37,25 @@ class TestModule_bias_correction(unittest.TestCase):
         image = ants.image_read( ants.get_ants_data('r16') )
         image_n4 = ants.n4_bias_field_correction(image)
 
+        # spline param list
+        image_n4 = ants.n4_bias_field_correction(image, spline_param=(10,10))
+
+        # image not float
+        image_ui = image.clone('unsigned int')
+        image_n4 = ants.n4_bias_field_correction(image_ui)
+
+        # weight mask
+        mask = image > image.mean()
+        ants.n4_bias_field_correction(image, weight_mask=mask)
+
+        # len(spline_param) != img.dimension
+        with self.assertRaises(Exception):
+            ants.n4_bias_field_correction(image, spline_param=(10,10,10))
+
+        # weight mask not ANTsImage
+        with self.assertRaises(Exception):
+            ants.n4_bias_field_correction(image, weight_mask=0.4)
+
     def test_n4_bias_field_correction(self):
         #def n4_bias_field_correction(image, mask=None, shrink_factor=4,
         #                     convergence={'iters':[50,50,50,50], 'tol':1e-07},
@@ -50,10 +69,17 @@ class TestModule_bias_correction(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data('r16'))
         image2 = ants.abp_n4(image)
 
+
     def test_abp_n4(self):
         # def abp_n4(image, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
         for img in self.imgs:
             img2 = ants.abp_n4(img)
+            img3 = ants.abp_n4(img, usen3=True)
+
+        # intensity trunction doesnt have three values
+        with self.assertRaises(Exception):
+            img = self.imgs[0]  
+            ants.abp_n4(img, intensity_truncation=(1,2))
 
 
 class TestModule_channels(unittest.TestCase):
@@ -107,11 +133,25 @@ class TestModule_crop_image(unittest.TestCase):
         cropped = ants.crop_image(fi)
         cropped = ants.crop_image(fi, fi, 100 )
 
+        # image not float type
+        cropped = ants.crop_image(fi.clone('unsigned int'))
+
+        # label image not float
+        cropped = ants.crop_image(fi, fi.clone('unsigned int'), 100 )
+
     def test_crop_indices_example(self):
         fi = ants.image_read( ants.get_ants_data("r16"))
         cropped = ants.crop_indices( fi, (10,10), (100,100) )
         cropped = ants.smooth_image( cropped, 5 )
         decropped = ants.decrop_image( cropped, fi )
+
+        # image not float
+        cropped = ants.crop_indices( fi.clone('unsigned int'), (10,10), (100,100) )
+
+        # image dim not equal to indices
+        with self.assertRaises(Exception):
+            cropped = ants.crop_indices( fi, (10,10,10), (100,100) )
+            cropped = ants.crop_indices( fi, (10,10), (100,100,100) )
 
     def test_decrop_image_example(self):
         fi = ants.image_read(ants.get_ants_data('r16'))
@@ -119,6 +159,12 @@ class TestModule_crop_image(unittest.TestCase):
         cropped = ants.crop_image(fi, mask, 1)
         cropped = ants.smooth_image(cropped, 1)
         decropped = ants.decrop_image(cropped, fi)
+
+        # image not float
+        cropped = ants.crop_image(fi.clone('unsigned int'), mask, 1)
+
+        # full image not float
+        cropped = ants.crop_image(fi, mask.clone('unsigned int'), 1)
 
 
 class TestModule_denoise_image(unittest.TestCase):
@@ -135,7 +181,7 @@ class TestModule_denoise_image(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data('r16'))
         # add fairly large salt and pepper noise
         imagenoise = image + np.random.randn(*image.shape).astype('float32')*5
-        imagedenoise = ants.denoise_image(imagenoise, ants.get_mask(image))
+        imagedenoise = ants.denoise_image(imagenoise, image>image.mean())
 
 
 class TestModule_get_ants_data(unittest.TestCase):
@@ -193,15 +239,49 @@ class TestModule_get_neighborhood(unittest.TestCase):
         pass
 
     def test_get_neighborhood_in_mask_example(self):
-        r16 = ants.image_read(ants.get_ants_data('r16'))
-        mask = ants.get_mask(r16)
-        mat = ants.get_neighborhood_in_mask(r16, mask, radius=(2,2))
+        img = ants.image_read(ants.get_ants_data('r16'))
+        mask = img > img.mean()
+        mat = ants.get_neighborhood_in_mask(img, mask, radius=(2,2))
+
+        # image not ANTsImage
+        with self.assertRaises(Exception):
+            ants.get_neighborhood_in_mask(2, mask, radius=(2,2))
+        # mask not ANTsImage
+        with self.assertRaises(Exception):
+            ants.get_neighborhood_in_mask(img, 2, radius=(2,2))
+        # radius not right length
+        with self.assertRaises(Exception):
+            ants.get_neighborhood_in_mask(img, 2, radius=(2,2,2,2))
+
+        # radius is just a float/int
+        mat = ants.get_neighborhood_in_mask(img, mask, radius=2)
+
+        # boundary condition == 'image'
+        mat = ants.get_neighborhood_in_mask(img, mask, radius=(2,2), boundary_condition='image')
+        # boundary condition == 'mean'
+        mat = ants.get_neighborhood_in_mask(img, mask, radius=(2,2), boundary_condition='mean')
+
+        # spatial info
+        mat = ants.get_neighborhood_in_mask(img, mask, radius=(2,2), spatial_info=True)
+
+        # get_gradient
+        mat = ants.get_neighborhood_in_mask(img, mask, radius=(2,2), get_gradient=True)
 
     def test_get_neighborhood_at_voxel_example(self):
         img = ants.image_read(ants.get_ants_data('r16'))
         center = (2,2)
         radius = (3,3)
         retval = ants.get_neighborhood_at_voxel(img, center, radius)
+
+        # image not ANTsImage
+        with self.assertRaises(Exception):
+            ants.get_neighborhood_at_voxel(2, center, radius)
+        # wrong center length
+        with self.assertRaises(Exception):
+            ants.get_neighborhood_at_voxel(img, (2,2,2,2,2), radius)
+        # wrong radius length
+        with self.assertRaises(Exception):
+            ants.get_neighborhood_at_voxel(img, center, (2,2,2,2))
 
 
 class TestModule_image_similarity(unittest.TestCase):
@@ -328,7 +408,7 @@ class TestModule_label_stats(unittest.TestCase):
     def test_label_stats_example(self):
         image = ants.image_read( ants.get_ants_data('r16') , 2 )
         image = ants.resample_image( image, (64,64), 1, 0 )
-        mask = ants.get_mask(image)
+        mask = image > image.mean()
         segs1 = ants.kmeans_segmentation( image, 3 )
         stats = ants.label_stats(image, segs1['segmentation'])
 
@@ -344,7 +424,7 @@ class TestModule_labels_to_matrix(unittest.TestCase):
 
     def test_labels_to_matrix_example(self):
         fi = ants.image_read(ants.get_ants_data('r16')).resample_image((60,60),1,0)
-        mask = ants.get_mask(fi)
+        mask = fi > fi.mean()
         labs = ants.kmeans_segmentation(fi,3)['segmentation']
         labmat = ants.labels_to_matrix(labs, mask)
 
@@ -360,7 +440,7 @@ class TestModule_mask_image(unittest.TestCase):
 
     def test_mask_image_example(self):
         myimage = ants.image_read(ants.get_ants_data('r16'))
-        mask = ants.get_mask(myimage)
+        mask = myimage > myimage.mean()
         myimage_mask = ants.mask_image(myimage, mask, 3)
         seg = ants.kmeans_segmentation(myimage, 3)
         myimage_mask = ants.mask_image(myimage, seg['segmentation'], (1,3))
@@ -388,7 +468,7 @@ class TestModule_morphology(unittest.TestCase):
 
     def test_morphology_example(self):
         fi = ants.image_read( ants.get_ants_data('r16') , 2 )
-        mask = ants.get_mask( fi )
+        mask = fi > fi.mean()
         dilated_ball = ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='ball')
         eroded_box = ants.morphology( mask, operation='erode', radius=3, mtype='binary', shape='box')
         opened_annulus = ants.morphology( mask, operation='open', radius=5, mtype='binary', shape='annulus', thickness=2)

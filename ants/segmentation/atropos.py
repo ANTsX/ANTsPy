@@ -94,7 +94,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             ct += 1
         i = 'PriorProbabilityImages[%s,%s,%s]' % (str(len(i)), probs, str(priorweight))
 
-    if isinstance(a, list):
+    if isinstance(a, (list,tuple)):
         outimg = a[0].clone('unsigned int')
     else:
         outimg = a.clone('unsigned int')

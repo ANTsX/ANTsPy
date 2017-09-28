@@ -52,6 +52,21 @@ class TestModule_atropos(unittest.TestCase):
         mask = ants.get_mask(img)
         ants.atropos( a = img, m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
 
+    def test_multiple_inputs(self):
+        img = ants.image_read( ants.get_ants_data("r16"))
+        img =  ants.resample_image( img, (64,64), 1, 0 )
+        mask = ants.get_mask(img)
+        segs1 = ants.atropos( a = img, m = '[0.2,1x1]',
+           c = '[2,0]',  i = 'kmeans[3]', x = mask )
+
+        # Use probabilities from k-means seg as priors
+        segs2 = ants.atropos( a = img, m = '[0.2,1x1]',
+           c = '[2,0]',  i = segs1['probabilityimages'], x = mask )
+
+        # multiple inputs
+        feats = [img, ants.iMath(img,"Laplacian"), ants.iMath(img,"Grad") ]
+        segs3 = ants.atropos( a = feats, m = '[0.2,1x1]',
+           c = '[2,0]',  i = segs1['probabilityimages'], x = mask )
 
 
 class TestModule_joint_label_fusion(unittest.TestCase):

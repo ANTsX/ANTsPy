@@ -96,9 +96,9 @@ def n4_bias_field_correction(image, mask=None, shrink_factor=4,
 
     N4_CONVERGENCE_1 = '[%s, %.10f]' % ('x'.join([str(it) for it in iters]), tol)
     N4_SHRINK_FACTOR_1 = str(shrink_factor)
-    if (not isinstance(spline_param, (tuple,list))) or (len(spline_param) == 1):
+    if (not isinstance(spline_param, (list,tuple))) or (len(spline_param) == 1):
         N4_BSPLINE_PARAMS = '[%i]' % spline_param
-    elif (isinstance(spline_param)) and (len(spline_param) == image.dimension):
+    elif (isinstance(spline_param, (list,tuple))) and (len(spline_param) == image.dimension):
         N4_BSPLINE_PARAMS = '[%s]' % ('x'.join([str(sp) for sp in spline_param]))
     else:
         raise ValueError('Length of splineParam must either be 1 or dimensionality of image')
@@ -156,8 +156,8 @@ def abp_n4(image, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False
     >>> image = ants.image_read(ants.get_ants_data('r16'))
     >>> image2 = ants.abp_n4(image)
     """
-    if len(intensity_truncation) != 3:
-        raise ValueError('intensity_truncation must have 3 values')
+    if (not isinstance(intensity_truncation, (list,tuple))) or (len(intensity_truncation) != 3):
+        raise ValueError('intensity_truncation must be list/tuple with 3 values')
 
     outimage = iMath(image, 'TruncateIntensity', 
             intensity_truncation[0], intensity_truncation[1], intensity_truncation[2])

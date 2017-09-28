@@ -57,6 +57,13 @@ class TestModule_ants_transform_io(unittest.TestCase):
         # supported types
         tx = ants.create_ants_transform(supported_types=True)
 
+        # input params
+        translation = (3,4,5) 
+        tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation ) 
+
+        translation = np.array([3,4,5])
+        tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation ) 
+
         # invalid dimension
         with self.assertRaises(Exception):
             ants.create_ants_transform(dimension=5)
@@ -65,12 +72,24 @@ class TestModule_ants_transform_io(unittest.TestCase):
         with self.assertRaises(Exception):
             ants.create_ants_transform(transform_type='unsupported-type')
 
+        # bad param arg
+        with self.assertRaises(Exception):
+            ants.create_ants_transform( transform_type='Euler3DTransform', translation=ants.image_read(ants.get_ants_data('r16')) ) 
+
+        # bad precision
+        with self.assertRaises(Exception):
+            ants.create_ants_transform(precision='unsigned int')
+
     def test_read_write_transform(self):
         for tx in self.txs:
-            print(tx)
             filename = mktemp(suffix='.mat')
             ants.write_transform(tx, filename)
             tx2 = ants.read_transform(filename)
+
+        # file doesnt exist
+        with self.assertRaises(Exception):
+            ants.read_transform('blah-blah.mat')
+            
 
 
 if __name__ == '__main__':

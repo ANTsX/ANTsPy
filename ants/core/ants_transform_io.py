@@ -167,20 +167,17 @@ def create_ants_transform(transform_type='AffineTransform',
     #    return tio.ants_transform(itk_tx)
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
-    elif transform_type in matrix_offset_types:
-        libfn = utils.get_lib_fn('matrixOffset%s%i' % (utils.short_ptype(precision), dimension))
-        itk_tx = libfn(transform_type,
-                        precision,
-                        dimension,
-                        matrix,
-                        offset,
-                        center,
-                        translation,
-                        parameters,
-                        fixed_parameters)
-        return tio.ANTsTransform(itk_tx)
-    else:
-        raise ValueError('transform_type not supported or unkown error happened')
+    libfn = utils.get_lib_fn('matrixOffset%s%i' % (utils.short_ptype(precision), dimension))
+    itk_tx = libfn(transform_type,
+                    precision,
+                    dimension,
+                    matrix,
+                    offset,
+                    center,
+                    translation,
+                    parameters,
+                    fixed_parameters)
+    return tio.ANTsTransform(itk_tx)
 
 
 def transform_from_displacement_field(field):

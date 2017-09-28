@@ -7,8 +7,9 @@ from tempfile import mktemp
 from PIL import Image
 
 from .. import utils
+from ..core import ants_image_io as iio2
 
-def create_tiled_mosaic(img, output=None, rgb=None, mask=None, overlay=None,
+def create_tiled_mosaic(img, rgb=None, output=None,  mask=None, overlay=None,
                         alpha=1., direction=0, 
                         pad_or_crop=None, slices=None,
                         flip_slice=None, permute_axes=False):
@@ -30,25 +31,36 @@ def create_tiled_mosaic(img, output=None, rgb=None, mask=None, overlay=None,
      -f, --flip-slice flipXxflipY
      -g, --permute-axes doPermute
      -h 
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.image_read(ants.get_ants_data('ch2'))
+    >>> plt = ants.create_tiled_mosaic(img)
     """
     output_is_temp = False
     if output is None:
         output_is_temp = True
-        output = mktemp(suffix='.png')
+        output = mktemp(suffix='.jpg')
 
-    img = img.clone('float')
+    if rgb is None:
+        rgb = img.clone()
 
+
+    imgpath = mktemp(suffix='.nii.gz')
+    iio2.image_write(img, imgpath)
+    rgbpath = mktemp(suffix='.nii.gz')
+    iio2.image_write(rgb, rgbpath)
     args = {
-        'i': img,
+        'i': imgpath,
+        'r': rgbpath,
         'o': output
     }
 
     processed_args = utils._int_antsProcessArguments(args)
     libfn = utils.get_lib_fn('CreateTiledMosaic')
-    retval = libfn(processed_args)
-
-    if retval != 0:
-        raise ValueError('Non-zero exit status')
+    
+    libfn(processed_args)
 
     outimg = Image.open(output)
     if output_is_temp:

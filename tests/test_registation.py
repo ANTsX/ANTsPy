@@ -50,6 +50,16 @@ class TestModule_apply_transforms(unittest.TestCase):
         mywarpedimage = ants.apply_transforms(fixed=fixed, moving=moving,
                                             transformlist=mytx['fwdtransforms'] )
 
+        # bad interpolator
+        with self.assertRaises(Exception):
+            mywarpedimage = ants.apply_transforms(fixed=fixed, moving=moving,
+                                    transformlist=mytx['fwdtransforms'], interpolator='unsupported-interp' )
+
+        # transform doesnt exist
+        with self.assertRaises(Exception):
+            mywarpedimage = ants.apply_transforms(fixed=fixed, moving=moving,
+                                    transformlist=['blah-blah.mat'], interpolator='unsupported-interp' )
+
 
 class TestModule_create_jacobian_determinant_image(unittest.TestCase):
 
@@ -192,9 +202,32 @@ class TestModule_reorient_image(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_example(self):
+    def test_reorient_image(self):
         image = ants.image_read(ants.get_ants_data('r16'))
         ants.reorient_image(image, (1,0))
+
+        image = ants.image_read(ants.get_ants_data('r16'))
+        image = image.clone('unsigned int')
+        ants.reorient_image(image, (1,0))
+
+    def test_get_center_of_mass(self):
+        fi = ants.image_read( ants.get_ants_data("r16")) 
+        com = ants.get_center_of_mass( fi ) 
+
+        self.assertEqual(len(com), fi.dimension)
+
+        fi = ants.image_read( ants.get_ants_data("r64")) 
+        com = ants.get_center_of_mass( fi ) 
+        self.assertEqual(len(com), fi.dimension)
+
+        fi = fi.clone('unsigned int')
+        com = ants.get_center_of_mass( fi ) 
+        self.assertEqual(len(com), fi.dimension)
+
+        # 3d 
+        img = ants.image_read(ants.get_ants_data('mni'))
+        com = ants.get_center_of_mass(img)
+        self.assertEqual(len(com), img.dimension)
 
 
 class TestModule_resample_image(unittest.TestCase):
