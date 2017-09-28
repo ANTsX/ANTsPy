@@ -466,13 +466,40 @@ class TestModule_morphology(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_morphology_example(self):
-        fi = ants.image_read( ants.get_ants_data('r16') , 2 )
+    def test_morphology(self):
+        fi = ants.image_read( ants.get_ants_data('r16'))
         mask = fi > fi.mean()
         dilated_ball = ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='ball')
         eroded_box = ants.morphology( mask, operation='erode', radius=3, mtype='binary', shape='box')
         opened_annulus = ants.morphology( mask, operation='open', radius=5, mtype='binary', shape='annulus', thickness=2)
 
+        ## --- ##
+        mtype = 'binary'
+        mask = mask.clone()
+        for operation in {'dilate', 'erode', 'open', 'close'}:
+            for shape in {'ball', 'box', 'cross', 'annulus', 'polygon'}:
+                morph = ants.morphology( mask, operation=operation, radius=3, mtype=mtype, shape=shape)
+                self.assertTrue(isinstance(morph, ants.core.ants_image.ANTsImage))
+        # invalid operation
+        with self.assertRaises(Exception):
+            ants.morphology( mask, operation='invalid-operation', radius=3, mtype=mtype, shape=shape)
+
+        mtype = 'grayscale'
+        img = ants.image_read( ants.get_ants_data('r16'))
+        for operation in {'dilate', 'erode', 'open', 'close'}:
+            morph = ants.morphology( img, operation=operation, radius=3, mtype=mtype)
+            self.assertTrue(isinstance(morph, ants.core.ants_image.ANTsImage))
+        # invalid operation
+        with self.assertRaises(Exception):
+            ants.morphology( img, operation='invalid-operation', radius=3, mtype='grayscale')
+
+        #invalid morphology type
+        with self.assertRaises(Exception):
+            ants.morphology( img, operation='dilate', radius=3, mtype='invalid-morphology')
+
+        # invalid shape 
+        with self.assertRaises(Exception):
+            ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='invalid-shape')
 
 
 class TestModule_smooth_image(unittest.TestCase):
