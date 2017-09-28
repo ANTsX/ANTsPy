@@ -46,8 +46,7 @@ cmake \
     -DBUILD_TESTING:BOOL=OFF \
     -DBUILD_EXAMPLES:BOOL=OFF \
     -DVTK_LEGACY_REMOVE:BOOL=OFF \
-    -DVTK_WRAP_PYTHON:BOOL=OFF \
-    -DVTK_USE_COCOA:BOOL=OFF ../vtksource/
+    -DVTK_WRAP_PYTHON:BOOL=OFF ../vtksource/
 make -j 3
 #make install
 cd ../

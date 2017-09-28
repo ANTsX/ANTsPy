@@ -53,6 +53,16 @@ from .TileImages import *
 
 
 ## VIZ ##
-from .antsSurf import *
-from .antsVol import *
-from .ConvertScalarImageToRGB import *
+try:
+    from .antsSurf import *
+except:
+    pass
+try:
+    from .antsVol import *
+except:
+    pass
+try:
+    from .ConvertScalarImageToRGB import *
+except:
+    pass
+

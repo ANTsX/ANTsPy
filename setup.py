@@ -1,4 +1,5 @@
 import os
+import shutil
 import re
 import sys
 import platform
@@ -15,8 +16,27 @@ import setuptools.command.develop
 import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
+version = '0.1.4' # ANTsPy version
 
-version = '0.1.3.dev12'
+# check for `--vtk` or `--VTK` flag in setup call
+if '--vtk' in sys.argv:
+    BUILD_VTK = True
+    sys.argv.remove('--vtk')
+    # use VTK CMakeLists.txt for building
+    shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt'),
+                    os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+elif '--VTK' in sys.argv:
+    BUILD_VTK = True
+    sys.argv.remove('--VTK')
+    # use VTK CMakeLists.txt for building
+    shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt'),
+                    os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+else:
+    BUILD_VTK = False
+    # use NOVTK CMakeLists.txt for building
+    shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt'),
+                    os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -52,16 +72,18 @@ class BuildExtFirst(setuptools.command.install.install):
 class CMakeBuild(build_ext):
     def run(self):
         ## Find or Configure VTK ##
-        print('Configuring VTK')
-        if os.getenv('VTK_DIR'):
-            print('Using Local VTK Installation at:\n %s' % os.getenv('VTK_DIR'))
-        elif os.path.exists(os.path.join(setup_py_dir, 'vtkbuild')):
-            print('Using local VTK already built for this package')
-            os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
-        else:
-            print('No local VTK installation found... Building VTK now...')
-            subprocess.check_call(['./scripts/configure_VTK.sh'], cwd=setup_py_dir)
-            os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
+        global BUILD_VTK
+        if BUILD_VTK:
+            print('Configuring VTK')
+            if os.getenv('VTK_DIR'):
+                print('Using Local VTK Installation at:\n %s' % os.getenv('VTK_DIR'))
+            elif os.path.exists(os.path.join(setup_py_dir, 'vtkbuild')):
+                print('Using local VTK already built for this package')
+                os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
+            else:
+                print('No local VTK installation found... Building VTK now...')
+                subprocess.check_call(['./scripts/configure_VTK.sh'], cwd=setup_py_dir)
+                os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
 
         ## Find or Configure ITK ##
         print('Configuring ITK')
