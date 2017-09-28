@@ -4,6 +4,7 @@ import re
 import sys
 import platform
 import subprocess
+import time
 
 import setuptools
 from setuptools import find_packages
@@ -36,6 +37,8 @@ if ('--vtk' in sys.argv) or ('--VTK' in sys.argv):
     else:
         print('not copying cmakelists')
 else:
+    print('WARNING: You are installing ANTsPy without VTK support.. waiting 5s in case you change your mind (press ctrl+c)')
+    time.sleep(5)
     BUILD_VTK = False
     file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt')).read()
     file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()

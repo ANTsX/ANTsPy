@@ -3,7 +3,6 @@ Segmentation
 .. automodule:: ants
 
 .. autofunction:: atropos
-.. autofunction:: geo_seg
 .. autofunction:: joint_label_fusion
 .. autofunction:: kelly_kapowski
 .. autofunction:: kmeans_segmentation

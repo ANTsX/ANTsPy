@@ -14,4 +14,3 @@ Registration
 .. autofunction:: get_center_of_mass
 .. autofunction:: resample_image
 .. autofunction:: resample_image_to_target
-.. autofunction:: symimg
