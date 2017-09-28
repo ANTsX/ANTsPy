@@ -19,23 +19,33 @@ setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 version = '0.1.4' # ANTsPy version
 
 # check for `--vtk` or `--VTK` flag in setup call
-if '--vtk' in sys.argv:
+if ('--vtk' in sys.argv) or ('--VTK' in sys.argv):
     BUILD_VTK = True
-    sys.argv.remove('--vtk')
-    # use VTK CMakeLists.txt for building
-    shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt'),
-                    os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
-elif '--VTK' in sys.argv:
-    BUILD_VTK = True
-    sys.argv.remove('--VTK')
-    # use VTK CMakeLists.txt for building
-    shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt'),
-                    os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+    if ('--vtk' in sys.argv):
+        sys.argv.remove('--vtk')
+    elif ('--VTK' in sys.argv):
+        sys.argv.remove('--VTK')
+
+    file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt')).read()
+    file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()
+    if file1 != file2:
+        print('copying CmakeLists-VTK')
+        # use VTK CMakeLists.txt for building
+        shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt'),
+                        os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+    else:
+        print('not copying cmakelists')
 else:
     BUILD_VTK = False
-    # use NOVTK CMakeLists.txt for building
-    shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt'),
-                    os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+    file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt')).read()
+    file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()
+    if file1 != file2:
+        print('copying CmakeLists-NOVTK')
+        # use NOVTK CMakeLists.txt for building
+        shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt'),
+                        os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
+    else:
+        print('not copying cmakelists')
 
 
 class CMakeExtension(Extension):
