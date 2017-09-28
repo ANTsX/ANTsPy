@@ -10,6 +10,25 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
+## SETUP VTK ##
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL
+                            vtkCommonCore
+                            vtkCommonDataModel
+                            vtkIOGeometry
+                            vtkIOXML
+                            vtkIOLegacy
+                            vtkIOPLY
+                            vtkFiltersModeling
+                            vtkImagingStencil
+                            vtkImagingGeneral
+                            vtkRenderingAnnotation)
+
+include(${VTK_USE_FILE})
+include_directories(${VTK_INCLUDE_DIRS})
+set(INIT_VTK_LIBRARIES ${VTK_LIBRARIES})
+
 ## SETUP PYBIND11 ##
 add_subdirectory(pybind11)
 
@@ -141,4 +160,14 @@ target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 #target_link_libraries(NonLocalSuperResolution PRIVATE ${ITK_LIBRARIES} antsUtilities)
 #target_link_libraries(SuperResolution PRIVATE ${ITK_LIBRARIES} antsUtilities)
 #target_link_libraries(TimeSCCAN PRIVATE ${ITK_LIBRARIES} antsUtilities)
+
+# -----------------------------------------------------------------
+## VIZ ##
+pybind11_add_module(antsSurf antscore/antsSurf.cxx WRAP_antsSurf.cxx)
+pybind11_add_module(antsVol antscore/antsVol.cxx WRAP_antsVol.cxx)
+pybind11_add_module(ConvertScalarImageToRGB antscore/ConvertScalarImageToRGB.cxx WRAP_ConvertScalarImageToRGB.cxx)
+
+target_link_libraries(antsSurf PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
+target_link_libraries(antsVol PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
+target_link_libraries(ConvertScalarImageToRGB PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
 
