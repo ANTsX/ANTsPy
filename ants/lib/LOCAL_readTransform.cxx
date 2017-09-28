@@ -10,6 +10,7 @@
 #include "vnl/vnl_vector_ref.h"
 #include "itkTransform.h"
 #include "itkAffineTransform.h"
+#include "itkTransformFileReader.h"
 
 #include "antscore/antsUtilities.h"
 
@@ -56,6 +57,17 @@
 namespace py = pybind11;
 
 
+unsigned int  getTransformFileDimension( std::string filename )
+{
+    typedef itk::TransformFileReader TransformReaderType1;
+    typedef typename TransformReaderType1::Pointer TransformReaderType;
+    TransformReaderType reader = itk::TransformFileReader::New();
+    reader->SetFileName( filename.c_str() );
+    reader->Update();
+    const TransformReaderType1::TransformListType * transforms = reader->GetTransformList();
+    const TransformReaderType1::TransformPointer tx = *(transforms->begin());
+    return tx->GetInputSpaceDimension();
+}
 
 template <typename TransformType, class PrecisionType, unsigned int Dimension>
 ANTsTransform<TransformType> new_ants_transform( std::string precision, unsigned int dimension, std::string type)
@@ -87,4 +99,6 @@ PYBIND11_MODULE(readTransform, m)
     wrapNewANTsTransform<itk::Transform<double, 2, 2>, double, 2>(m, "D2");
     wrapNewANTsTransform<itk::Transform<double, 3, 3>, double, 3>(m, "D3");
     wrapNewANTsTransform<itk::Transform<double, 4, 4>, double, 4>(m, "D4");
+
+    m.def("getTransformFileDimension", &getTransformFileDimension);
 }

@@ -36,19 +36,41 @@ class TestModule_ants_transform_io(unittest.TestCase):
                          'Rigid2DTransform', 'QuaternionRigidTransform', 
                          'Similarity2DTransform', 'CenteredSimilarity2DTransform',
                          'Similarity3DTransform', 'CenteredRigid2DTransform', 
-                         'CenteredEuler3DTransform'}
+                         'CenteredEuler3DTransform', 'Rigid3DTransform'}
 
     def tearDown(self):
         pass
 
     def test_new_ants_transform(self):
         tx = ants.new_ants_transform()
+        params = tx.parameters*2
+
+        # initialize w/ params
+        tx = ants.new_ants_transform(parameters=params)
 
     def test_create_ants_transform(self):
         for mtype in self.matrix_offset_types:
             for ptype in {'float','double'}:
                 for ndim in {2,3}:
                     tx = ants.create_ants_transform(transform_type=mtype, precision=ptype, dimension=ndim)
+
+        # supported types
+        tx = ants.create_ants_transform(supported_types=True)
+
+        # invalid dimension
+        with self.assertRaises(Exception):
+            ants.create_ants_transform(dimension=5)
+
+        # unsupported type
+        with self.assertRaises(Exception):
+            ants.create_ants_transform(transform_type='unsupported-type')
+
+    def test_read_write_transform(self):
+        for tx in self.txs:
+            print(tx)
+            filename = mktemp(suffix='.mat')
+            ants.write_transform(tx, filename)
+            tx2 = ants.read_transform(filename)
 
 
 if __name__ == '__main__':

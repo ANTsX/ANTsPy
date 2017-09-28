@@ -110,10 +110,10 @@ ANTsTransform<TransformType> wrap_transform( const typename TransformType::Point
     typedef typename TransformType::Pointer TransformPointerType;
     TransformPointerType * ptr = new TransformPointerType( itkTransform );
 
-    //typename TransformType::TransformBase::ScalarType dummyval = 1;
+    typename TransformType::ScalarType dummyval = 1;
 
     ANTsTransform<TransformType> antsTransform;
-    antsTransform.precision         = "float";//getScalarTypeStringFromDummy(dummyval);
+    antsTransform.precision         = getScalarTypeStringFromDummy(dummyval);
     antsTransform.dimension         = TransformType::InputSpaceDimension;
     antsTransform.type              = itkTransform->GetNameOfClass();
     antsTransform.pointer           = py::capsule(ptr, "itk::Transform::Pointer");

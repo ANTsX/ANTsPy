@@ -102,10 +102,11 @@ class TestClass_ANTsTransform(unittest.TestCase):
         pt2 = tx.apply_to_vector((1,2,3)) # should be (2,4,6)    
 
     def test_apply_to_image(self):
-        img = ants.image_read(ants.get_ants_data("r16")).clone('float')
-        tx = ants.new_ants_transform(dimension=2)
-        tx.set_parameters((0.9,0,0,1.1,10,11))
-        img2 = tx.apply_to_image(img, img)   
+        for ptype in self.pixeltypes:
+            img = ants.image_read(ants.get_ants_data("r16")).clone(ptype)
+            tx = ants.new_ants_transform(dimension=2)
+            tx.set_parameters((0.9,0,0,1.1,10,11))
+            img2 = tx.apply_to_image(img, img)   
 
 
 class TestModule_ants_transform(unittest.TestCase):
@@ -189,15 +190,48 @@ class TestModule_ants_transform(unittest.TestCase):
         single_tx = ants.compose_ants_transforms([tx, inv_tx])
         img_orig = single_tx.apply_to_image(img, img)
 
+        # different precisions
+        tx1 = ants.new_ants_transform(dimension=2, precision='float')
+        tx2 = ants.new_ants_transform(dimension=2, precision='double')
+        with self.assertRaises(Exception):
+            single_tx = ants.compose_ants_transforms([tx1,tx2])
+
+        # different dimensions
+        tx1 = ants.new_ants_transform(dimension=2, precision='float')
+        tx2 = ants.new_ants_transform(dimension=3, precision='float')
+        with self.assertRaises(Exception):
+            single_tx = ants.compose_ants_transforms([tx1,tx2])
+
+
     def test_transform_index_to_physical_point(self):
         img = ants.make_image((10,10),np.random.randn(100))
         pt = ants.transform_index_to_physical_point(img, (2,2))
+
+        # image not ANTsImage
+        with self.assertRaises(Exception):
+            ants.transform_index_to_physical_point(2, (2,2))
+        # index not tuple/list
+        with self.assertRaises(Exception):
+            ants.transform_index_to_physical_point(img,img)
+        # index not same size as dimension
+        with self.assertRaises(Exception):
+            ants.transform_index_to_physical_point(img,[2]*(img.dimension+1))
 
     def test_transform_physical_point_to_index(self):
         img = ants.make_image((10,10),np.random.randn(100))
         idx = ants.transform_physical_point_to_index(img, (2,2))
         img.set_spacing((2,2))
         idx2 = ants.transform_physical_point_to_index(img, (4,4))
+
+        # image not ANTsImage
+        with self.assertRaises(Exception):
+            ants.transform_physical_point_to_index(2, (2,2))
+        # index not tuple/list
+        with self.assertRaises(Exception):
+            ants.transform_physical_point_to_index(img,img)
+        # index not same size as dimension
+        with self.assertRaises(Exception):
+            ants.transform_physical_point_to_index(img,[2]*(img.dimension+1))
 
 
 if __name__ == '__main__':

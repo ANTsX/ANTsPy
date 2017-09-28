@@ -116,7 +116,7 @@ def create_ants_transform(transform_type='AffineTransform',
     fixed_parameters = _check_arg(fixed_parameters)
 
     matrix_offset_types = {'AffineTransform', 'CenteredAffineTransform', 
-                         'Euler2DTransform', 'Euler3DTransform', 
+                         'Euler2DTransform', 'Euler3DTransform', 'Rigid3DTransform',
                          'Rigid2DTransform', 'QuaternionRigidTransform', 
                          'Similarity2DTransform', 'CenteredSimilarity2DTransform',
                          'Similarity3DTransform', 'CenteredRigid2DTransform', 
@@ -215,7 +215,7 @@ def transform_from_displacement_field(field):
     field = field.clone('float')
     return tio.ANTsTransform(libfn(field.pointer))
 
-def read_transform(filename, dimension=3, precision='float'):
+def read_transform(filename, precision='float'):
     """
     Read a transform from file
 
@@ -245,9 +245,14 @@ def read_transform(filename, dimension=3, precision='float'):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
+    if not os.path.exists(filename):
+        raise ValueError('filename does not exist!')
 
-    libfn = utils.get_lib_fn('readTransform%s%i' % (utils.short_ptype(precision), dimension))
-    itk_tx = libfn(filename, dimension, precision)
+    libfn1 = utils.get_lib_fn('getTransformFileDimension')
+    dimension = libfn1(filename)
+
+    libfn2 = utils.get_lib_fn('readTransform%s%i' % (utils.short_ptype(precision), dimension))
+    itk_tx = libfn2(filename, dimension, precision)
     return tio.ANTsTransform(itk_tx)
 
 

@@ -107,6 +107,9 @@ jobs:
       sudo: required
       language: generic
 
+  allow_failures:
+    - os: osx
+
 
 branches:
   only:
