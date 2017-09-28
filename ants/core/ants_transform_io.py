@@ -215,7 +215,7 @@ def transform_from_displacement_field(field):
     field = field.clone('float')
     return tio.ANTsTransform(libfn(field.pointer))
 
-def read_transform(filename, precision='float'):
+def read_transform(filename, dimension=2, precision='float'):
     """
     Read a transform from file
 
