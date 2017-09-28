@@ -339,10 +339,21 @@ class TestModule_impute(unittest.TestCase):
         pass
 
     def test_impute_example(self):
-        data = np.random.randn(4,10)
+        data = np.random.randn(7,10)
         data[2,3] = np.nan
         data[3,5] = np.nan
         data_imputed = ants.impute(data, 'mean')
+
+        for itype in {'KNN', 'BiScaler', 'NuclearNormMinimization', 'SoftImpute', 'IterativeSVD', 'mean', 'median'}:
+            data = np.random.randn(7,10)
+            data[2,3] = np.nan
+            data[3,5] = np.nan
+            data_imputed = ants.impute(data, itype)
+
+        data = np.random.randn(7,10)
+        data[2,3] = np.nan
+        data[3,5] = np.nan
+        data_imputed = ants.impute(data, method='constant', value=12.)
 
 
 class TestModule_invariant_image_similarity(unittest.TestCase):

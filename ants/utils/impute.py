@@ -93,7 +93,7 @@ def impute(data, method='mean', value=None, nan_value=np.nan):
     if (not has_fancyimpute) and (method in _fancyimpute_options):
         raise ValueError('You must install `fancyimpute` (pip install fancyimpute) to use this method')
 
-    _base_options = {'mean', 'median'}
+    _base_options = {'mean', 'median', 'constant'}
     if (method not in _base_options) and (method not in _fancyimpute_options) and (not isinstance(method, (int,float))):
         raise ValueError('method not understood.. Use `mean`, `median`, a scalar, or an option from `fancyimpute`')
 
@@ -105,7 +105,7 @@ def impute(data, method='mean', value=None, nan_value=np.nan):
         X_filled = KNN(k=value).complete(X_incomplete)
 
     elif method == 'BiScaler':
-        X_filled = BiScaler().complete(X_incomplete)
+        X_filled = BiScaler().fit_transform(X_incomplete)
 
     elif method == 'NuclearNormMinimization':
         X_filled = NuclearNormMinimization().complete(X_incomplete)
@@ -114,7 +114,11 @@ def impute(data, method='mean', value=None, nan_value=np.nan):
         X_filled = SoftImpute().complete(X_incomplete)
 
     elif method == 'IterativeSVD':
-        X_filled = IterativeSVD().complete(X_incomplete)
+        if value is None:
+            rank = min(10, X_incomplete.shape[0]-2)
+        else:
+            rank = value
+        X_filled = IterativeSVD(rank=rank).complete(X_incomplete)
 
     elif method == 'mean':
         col_means = np.nanmean(X_incomplete, axis=0)
