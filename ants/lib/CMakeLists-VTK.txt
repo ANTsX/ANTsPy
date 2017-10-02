@@ -13,7 +13,7 @@ include(${ITK_USE_FILE})
 ## SETUP VTK ##
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL
+find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL2
                             vtkCommonCore
                             vtkCommonDataModel
                             vtkIOGeometry
@@ -26,8 +26,7 @@ find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL
                             vtkRenderingAnnotation)
 
 # These are the libraries that we absolutely need to link to
-set(VTK_LIBRARIES vtkRenderingVolumeOpenGL
-            vtkRenderingFreeTypeOpenGL
+set(VTK_LIBRARIES vtkRenderingVolumeOpenGL2
             vtkCommonCore
             vtkCommonDataModel
             vtkIOGeometry
