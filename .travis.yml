@@ -27,56 +27,57 @@ before_install: |
       source venv/bin/activate;
   fi
 
-#    - stage: makeVTK
-#      script: |
-#        unset CCACHE_DISABLE
-#        export CCACHE_DIR=$HOME/.ccache
-#        ./scripts/configure_VTK_External_linux.sh;
-#        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
-#      os: linux
-#      sudo: required
-#      python: 3.6
-#    - stage: makeVTK
-#      script: |
-#        brew update;
-#        brew install ccache;
-#        unset CCACHE_DISABLE;
-#        export CCACHE_DIR=$HOME/.ccache;
-#        ccache --show-stats;
-#        export PATH="/usr/local/opt/ccache/libexec:$PATH";
-#        ./scripts/configure_VTK_External_mac.sh;
-#        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-mac;
-#      os: osx
-#      sudo: required
-#      language: generic
-#
-#
-#    - stage: makeITK
-#      script: |
-#        unset CCACHE_DISABLE
-#        export CCACHE_DIR=$HOME/.ccache
-#        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
-#        ./scripts/configure_ITK_External_linux.sh;
-#      os: linux
-#      sudo: required
-#      python: 3.6
-#    - stage: makeITK
-#      script: |
-#        brew update;
-#        brew install ccache;
-#        unset CCACHE_DISABLE;
-#        export CCACHE_DIR=$HOME/.ccache;
-#        ccache --show-stats;
-#        export PATH="/usr/local/opt/ccache/libexec:$PATH";
-#        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-mac;
-#        ./scripts/configure_ITK_External_mac.sh;
-#      os: osx
-#      sudo: required
-#      language: generic
 
 jobs:
   include:
 
+    - stage: makeVTK
+      script: |
+        unset CCACHE_DISABLE
+        export CCACHE_DIR=$HOME/.ccache
+        ./scripts/configure_VTK_External_linux.sh;
+        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
+      os: linux
+      sudo: required
+      python: 3.6
+    - stage: makeVTK
+      script: |
+        brew update;
+        brew install ccache;
+        unset CCACHE_DISABLE;
+        export CCACHE_DIR=$HOME/.ccache;
+        ccache --show-stats;
+        export PATH="/usr/local/opt/ccache/libexec:$PATH";
+        ./scripts/configure_VTK_External_mac.sh;
+        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-mac;
+      os: osx
+      sudo: required
+      language: generic
+
+
+    - stage: makeITK
+      script: |
+        unset CCACHE_DISABLE
+        export CCACHE_DIR=$HOME/.ccache
+        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
+        ./scripts/configure_ITK_External_linux.sh;
+      os: linux
+      sudo: required
+      python: 3.6
+    - stage: makeITK
+      script: |
+        brew update;
+        brew install ccache;
+        unset CCACHE_DISABLE;
+        export CCACHE_DIR=$HOME/.ccache;
+        ccache --show-stats;
+        export PATH="/usr/local/opt/ccache/libexec:$PATH";
+        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-mac;
+        ./scripts/configure_ITK_External_mac.sh;
+      os: osx
+      sudo: required
+      language: generic
+  
     - stage: install
       script: |
         export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
