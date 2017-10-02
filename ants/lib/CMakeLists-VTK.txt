@@ -25,6 +25,32 @@ find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL
                             vtkImagingGeneral
                             vtkRenderingAnnotation)
 
+# These are the libraries that we absolutely need to link to
+set(VTK_LIBRARIES vtkRenderingVolumeOpenGL
+            vtkCommonCore
+            vtkCommonDataModel
+            vtkIOGeometry
+            vtkIOXML
+            vtkIOLegacy
+            vtkIOPLY
+            vtkFiltersModeling
+            vtkImagingStencil
+            vtkImagingGeneral
+            vtkRenderingAnnotation)
+
+# These are libraries that we link to, only if they are present
+set(VTK_EXTRA_LIBRARIES vtkIOMPIImage
+  vtkRenderingOpenGL vtkRenderingFreeTypeOpenGL
+  vtkRenderingOpenGL2 vtkRenderingFreeTypeOpenGL2)
+
+# Check for the existence of each of the EXTRA libs
+foreach(TMP_LIB ${VTK_EXTRA_LIBRIESS})
+list(FIND VTK_LIBRARIES ${TMP_LIB} TMP_INDEX)
+if(TMP_INDEX GREATER -1)
+  set(VTK_LIBRARIES ${VTK_LIBRARIES} ${TMP_LIB})
+endif()
+endforeach()
+
 include(${VTK_USE_FILE})
 include_directories(${VTK_INCLUDE_DIRS})
 set(INIT_VTK_LIBRARIES ${VTK_LIBRARIES})
