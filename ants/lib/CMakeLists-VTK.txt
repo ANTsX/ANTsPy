@@ -27,6 +27,7 @@ find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL
 
 # These are the libraries that we absolutely need to link to
 set(VTK_LIBRARIES vtkRenderingVolumeOpenGL
+            vtkRenderingFreeTypeOpenGL
             vtkCommonCore
             vtkCommonDataModel
             vtkIOGeometry
