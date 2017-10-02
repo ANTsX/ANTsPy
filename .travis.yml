@@ -85,7 +85,9 @@ jobs:
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install plotly webcolors scikit-image fancyimpute
         python setup.py install --vtk
-        ./tests/run_tests_travis.sh
+        ./tests/run_tests_travis.sh -c
+        cd tests
+        coveralls
       os: linux
       python: 3.6
       sudo: required
