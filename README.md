@@ -32,7 +32,7 @@ The fastest method is to install the pre-compiled binaries (takes ~1 min):
 
 If you have MacOS:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.3/antspy-0.1.3.dev12-cp36-cp36m-macosx_10_7_x86_64.whl
+pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-macosx_10_7_x86_64.whl
 ```
 
 If you have Linux:

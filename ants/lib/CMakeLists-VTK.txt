@@ -13,21 +13,6 @@ include(${ITK_USE_FILE})
 ## SETUP VTK ##
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-find_package(VTK COMPONENTS vtkRenderingVolumeOpenGL
-                            vtkCommonCore
-                            vtkCommonDataModel
-                            vtkIOGeometry
-                            vtkIOXML
-                            vtkIOLegacy
-                            vtkIOPLY
-                            vtkFiltersModeling
-                            vtkImagingStencil
-                            vtkImagingGeneral
-                            vtkRenderingAnnotation)
-
-include(${VTK_USE_FILE})
-include_directories(${VTK_INCLUDE_DIRS})
-set(INIT_VTK_LIBRARIES ${VTK_LIBRARIES})
 
 ## SETUP PYBIND11 ##
 add_subdirectory(pybind11)
