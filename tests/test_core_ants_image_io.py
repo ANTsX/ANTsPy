@@ -127,8 +127,9 @@ class TestModule_ants_image_io(unittest.TestCase):
             imglist = ants.matrix_to_images(mat, imgmask)
             nptest.assert_allclose((img*imgmask).numpy(), imglist[0].numpy())
             nptest.assert_allclose((img*imgmask).numpy(), imglist[1].numpy())
-            self.assertTrue(ants.image_physical_space_consistency(img,imglist[0],imglist[1]))
-
+            self.assertTrue(ants.image_physical_space_consistency(img,imglist[0]))
+            self.assertTrue(ants.image_physical_space_consistency(img,imglist[1]))
+            
             # go back to matrix
             mat2 = ants.images_to_matrix(imglist, imgmask)
             nptest.assert_allclose(mat, mat2)
