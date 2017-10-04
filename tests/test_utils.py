@@ -344,7 +344,7 @@ class TestModule_impute(unittest.TestCase):
         data[3,5] = np.nan
         data_imputed = ants.impute(data, 'mean')
 
-        for itype in {'KNN', 'BiScaler', 'NuclearNormMinimization', 'SoftImpute', 'IterativeSVD', 'mean', 'median'}:
+        for itype in {'KNN', 'BiScaler', 'SoftImpute', 'IterativeSVD', 'mean', 'median'}:
             data = np.random.randn(7,10)
             data[2,3] = np.nan
             data[3,5] = np.nan

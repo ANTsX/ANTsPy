@@ -107,9 +107,6 @@ def impute(data, method='mean', value=None, nan_value=np.nan):
     elif method == 'BiScaler':
         X_filled = BiScaler().fit_transform(X_incomplete)
 
-    elif method == 'NuclearNormMinimization':
-        X_filled = NuclearNormMinimization().complete(X_incomplete)
-
     elif method == 'SoftImpute':
         X_filled = SoftImpute().complete(X_incomplete)
 
