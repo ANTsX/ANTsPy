@@ -59,6 +59,15 @@ cd ANTsPy
 python setup.py install
 ```
 
+The above will install with VTK in order to use the visualization functions in ANTsPy. If
+you dont want VTK support, use the following:
+
+```bash
+git clone https://github.com/ANTsX/ANTsPy.git
+cd ANTsPy
+python setup.py install --novtk
+```
+
 If you want to develop code for ANTsPy, you should install the project as follows and
 then refer to the [contributor's guide](CONTRIBUTING.md) for notes on project structure
 and how to add code.
@@ -68,6 +77,48 @@ git clone https://github.com/ANTsX/ANTsPy.git
 cd ANTsPy
 python setup.py develop
 ```
+
+ANTsPy is known to install on MacOS, Ubuntu, and CentOS - all with Python3.6. It does not
+currently work on Python 2.7, but we're planning on adding support.
+
+## CentOS Installation
+
+To install ANTsPy on CentOS (tested on "7") with virtual environment, 
+follow these commands:
+
+background:
+
+* follow python3.6 installation from [here](https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7)
+* create a virtual environment.
+* clone `ANTsPy`
+
+then call
+
+```
+sudo python3.6 setup.py develop
+```
+
+To use the toolkit, you then need to install dependencies:
+
+```
+ pip3.6 install numpy
+ pip3.6 install pandas
+ pip3.6 install pillow
+ pip3.6 install sklearn
+ pip3.6 install scikit-image
+ pip3.6 install webcolors
+ pip3.6 install plotly
+ pip3.6 install matplotlib
+ sudo yum --enablerepo=ius-archive install python36u-tkinter
+```
+
+after this, you may try to run examples such as the following:
+
+```
+help( ants.vol )
+help( ants.sparse_decom2 )
+```
+
 ------------------------------------------------------------------------------
 
 #### Insight Toolkit (ITK)
@@ -75,11 +126,18 @@ python setup.py develop
 By default, ANTsPy will search for an existing ITK build by checking if the `ITK_DIR`
 environment variable is set. If that is not
 found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
-ITK. If you want to use 3D visualization tools
-such as `ants.Surf` or `ants.Vol`, you need to build VTK on your own right now.
+ITK.
+
+#### Visualization Toolkit (VTK)
+
+By default, ANTsPy will search for an existing VTK build by checking if the `VTK_DIR`
+environment variable is set. If that is not
+found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
+VTK. If you do not want VTK, then add the `--novtk` flag to setup (e.g. `python setup.py install --novtk`).
 
 ANTsPy is known to install on MacOS and Ubuntu, both with Python3.6. It's unlikely that
 it will work with Python2.7.
+
 
 ## ANTsR Comparison
 
