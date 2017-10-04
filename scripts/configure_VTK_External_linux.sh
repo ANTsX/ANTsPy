@@ -36,13 +36,11 @@ cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
-    -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_SHARED_LIBS=ON \
     -DBUILD_TESTING:BOOL=OFF \
     -DBUILD_EXAMPLES:BOOL=OFF \
     -DVTK_LEGACY_REMOVE:BOOL=OFF \
-    -DVTK_WRAP_PYTHON:BOOL=OFF \
-    -DVTK_USE_COCOA:BOOL=OFF ../vtksource-linux/
+    -DVTK_WRAP_PYTHON:BOOL=OFF ../vtksource-linux/
 make -j 3
 #make install
 cd ../
-
