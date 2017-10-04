@@ -68,6 +68,8 @@ cd ANTsPy
 python setup.py install --novtk
 ```
 
+### Method 4: Developement Installation
+
 If you want to develop code for ANTsPy, you should install the project as follows and
 then refer to the [contributor's guide](CONTRIBUTING.md) for notes on project structure
 and how to add code.
