@@ -14,7 +14,7 @@ cd ANTsPy
 python setup.py develop
 ```
 
-The above commands will take ~45 min, so go ride your bike around the block or
+The above commands will take ~1 hour, so go ride your bike around the block or
 something until it finishes. With the development environment, you get the following:
 
 - if you change PURE PYTHON code only, just restart the python kernel and import
@@ -31,11 +31,14 @@ ANTsPy from source, the following steps happen. Refer here if you want to change
 any part of the install process.
 
 1. The `setup.py` file is run. The entire build runs from here.
-2. We check for a local ITK copy by seeing if the environment variable $ITK_DIR is set.
-2. If there is a local ITK build found, move on. Otherwise, clone the ITK repo
-and make it by running the script `configure_ITK.sh`. This does NOT run `make install`,
-so you will not now have a local ITK build.. that could be changed.
-3. After ITK is built, the `configure_ANTsPy.sh` script is run. 
+2. We check for a local VTK copy by seeing if the environment variable $VTK_DIR is set.
+  (unless the `--novtk` flag was given - e.g. `python setup.py develop --novtk`).
+3. If there is a local VTK build found, move on. Otherwise, clone the VTK repo
+and make it by running the script `configure_VTK.sh`. This does NOT run `make install`.
+4. We check for a local ITK copy by seeing if the environment variable $ITK_DIR is set.
+5. If there is a local ITK build found, move on. Otherwise, clone the ITK repo
+and make it by running the script `configure_ITK.sh`. This does NOT run `make install`.
+6. After VTK (optional) and ITK are built, the `configure_ANTsPy.sh` script is run. 
 This clones the core ANTs repo and copies all of the source files 
 into the `ants/lib/` directory. Note that ANTs core is not actually built on its own directly.
 Then, a copy of `pybind11` is cloned and put into the `ants/lib/` directory - 
@@ -43,7 +46,8 @@ which is how we can actually wrap C++ code in Python. Finally, the example data/
 which ship with ANTsPy (in the `data/` directory) are moved to a folder in the user's
 home directory (`~/.antspy/`). 
 4. Then, the ANTsPy library is built by running the cmake command in the `ants/lib/`
-directory and referring to the `ants/lib/CMakeLists.txt` file. This builds all of the
+directory and referring to the `ants/lib/CMakeLists.txt` file. If VTK support was chosen,
+we will use `CMakeLists-VTK.txt` else we will use `CMakeLists-NOVTK.txt`. This builds all of the
 shared object libraries.
 5. Finally, the library is installed as any other python package. To see what happens
 there (depends on whether `develop` or `install` was run), refer to the official
@@ -125,8 +129,8 @@ function. The general workflow for wrapping a library calls involves the followi
 
 ## How do I go from an ANTsImage to an ITK Image?
 
-First off, there are two ANTsImage classes - a core C++ templated ANTsImage class and 
-a python ANTsImage class which stores the C++ object as a property (`self._img`). 
+First off, the python-based ANTsImage class holds a pointer to the underlying
+ITK object in the property `self.pointer`.
 
 To go from a C++ ANTsImage class to an ITK image, use the following code:
 
@@ -134,7 +138,7 @@ To go from a C++ ANTsImage class to an ITK image, use the following code:
 #include "LOCAL_antsImage.h"
 
 template <typename ImageType>
-ImageType::Pointer getITKImage( ANTsImage<ImageType> antsImage )
+ImageType::Pointer getITKImage( py::capsule antsImage )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType itkImage = as<ImageType>( antsImage );
@@ -143,8 +147,8 @@ ImageType::Pointer getITKImage( ANTsImage<ImageType> antsImage )
 ```
 
 Now, say you wrapped this code and wanted to call it from python. You wouldn't pass
-the Python ANTsImage object directly, you would pass in the `self._img` attribute which
-contains the C++ ANTsImage - confusing I know, but you get used to it.
+the Python ANTsImage object directly, you would pass in the `self.pointer` attribute which
+contains the ITK image pointer.
 
 ### Example 1 - getOrigin
 
@@ -163,7 +167,7 @@ We would create the following file `ants/lib/LOCAL_getOrigin.cxx`:
 
 // all functions accepted ANTsImage types must be templated
 template <typename ImageType>
-std::vector getOrigin( ANTsImage<ImageType> antsImage )
+std::vector getOrigin( py::capsule antsImage )
 {
     // cast to ITK image as shown above
     typedef typename ImageType::Pointer ImagePointerType;
@@ -231,8 +235,8 @@ def get_origin(img):
     # get the template function corresponding to image dimension and pixeltype
     _get_origin_fn = lib.__dict__[_get_origin_dict[idim][ptype]]
 
-    # call function - NOTE how we pass in `img._img`, not `img` directly
-    origin = _get_origin_fn(img._img)
+    # call function - NOTE how we pass in `img.pointer`, not `img` directly
+    origin = _get_origin_fn(img.pointer)
 
     # return as tuple
     return tuple(origin)
@@ -252,7 +256,7 @@ Example:
 #include "LOCAL_antsImage.h"
 
 template <typename ImageType>
-ANTsImage<ImageType> someFunction( ANTsImage<ImageType> antsImage )
+py::capsule someFunction( py::capsule antsImage )
 {
     // cast from ANTsImage to ITK Image
     typedef typename ImageType::Pointer ImagePointerType;
@@ -262,7 +266,7 @@ ANTsImage<ImageType> someFunction( ANTsImage<ImageType> antsImage )
     // ...
 
     // cast from ITK Image to ANTsImage
-    ANTsImage<ImageType> newAntsImage;
+    py::capsule newAntsImage;
     newAntsImage = wrap<ImageType>( itkImage );
 
     return newAntsImage;
@@ -276,7 +280,7 @@ If the function doesnt return the same image type, you need two template argumen
 #include "LOCAL_antsImage.h"
 
 template <typename InImageType, typename OutImageType>
-ANTsImage<OutImageType> someFunction( ANTsImage<InImageType> antsImage )
+py::capsule someFunction( py::capsule antsImage )
 {
     // cast from ANTsImage to ITK Image of InImageType
     typedef typename ImageType::Pointer ImagePointerType;
@@ -286,7 +290,7 @@ ANTsImage<OutImageType> someFunction( ANTsImage<InImageType> antsImage )
     // ...
 
     // cast from ITK Image to ANTsImage of OutImageType
-    ANTsImage<OutImageType> newAntsImage;
+    py::capsule newAntsImage;
     newAntsImage = wrap<OutImageType>( itkImage );
 
     return newAntsImage;
@@ -313,7 +317,7 @@ First, we create the C++ file `ants/lib/LOCAL_antsImageClone.cxx`:
 namespace py = pybind11;
 
 template<typename InImageType, typename OutImageType>
-ANTsImage<OutImageType> antsImageClone( ANTsImage<InImageType> antsImage )
+py::capsule antsImageClone( py::capsule antsImage )
 {
   // ---------------------------------------------
   // cast from ANTsImage to ITK Image
@@ -403,11 +407,11 @@ def image_clone(img1, pixeltype=None):
     _image_clone_fn = lib.__dict__[_image_clone_dict[idim][ptype1][ptype2]]
     
     # this function returns a C++ ANTsImage object
-    cloned_image = _image_clone_fn(img1._img)
+    cloned_img_ptr = _image_clone_fn(img1.pointer)
 
     # we need to wrap the C++ ANTsImage object into a Python ANTsImage object
-    cloned_ants_image = iio.ANTsImage(cloned_image)
-
+    cloned_ants_image = iio.ANTsImage(pixeltype=ptype1, dimension=idim,
+                                      components=img1.components, pointer=cloned_img_ptr)
     return cloned_ants_image
 ```
 
@@ -457,12 +461,14 @@ class TestMyFunction(unittest.TestCase):
 
     def test_function1(self): 
         # add whatever here
-        # use self.assertTrue(...), self.assertEqual(...), etc for tests
+        # use self.assertTrue(...), self.assertEqual(...), 
+        # nptest.assert_close(...), etc for tests
         pass
 
     def test_function2(self):
         # add whatever here
-        # use self.assertTrue(...), self.assertEqual(...), etc for tests
+        # use self.assertTrue(...), self.assertEqual(...), 
+        # nptest.assert_close(...), etc for tests
         pass
 
     ...

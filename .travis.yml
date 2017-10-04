@@ -83,7 +83,7 @@ jobs:
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install coveralls plotly webcolors scikit-image fancyimpute 
-        python setup.py install
+        python setup.py install 
         ./tests/run_tests_travis.sh
       os: linux
       python: 3.6
@@ -95,7 +95,7 @@ jobs:
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install coveralls plotly webcolors scikit-image fancyimpute 
-        python setup.py install --vtk
+        python setup.py install --novtk
         ./tests/run_tests_travis.sh
       os: linux
       python: 3.6
@@ -107,7 +107,7 @@ jobs:
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install coveralls coverage plotly webcolors scikit-image fancyimpute
-        python setup.py install --vtk
+        python setup.py install 
         ./tests/run_tests_travis.sh
       os: osx
       sudo: required
@@ -119,7 +119,7 @@ jobs:
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install coveralls coverage plotly webcolors scikit-image fancyimpute
-        python setup.py install
+        python setup.py install --novtk
         ./tests/run_tests_travis.sh
       os: osx
       sudo: required

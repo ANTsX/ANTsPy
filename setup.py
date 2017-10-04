@@ -19,13 +19,9 @@ import setuptools.command.build_py
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 version = '0.1.4' # ANTsPy version
 
-# check for `--vtk` or `--VTK` flag in setup call
-if ('--vtk' in sys.argv) or ('--VTK' in sys.argv):
+# check for `--novtk` or `--NOVTK` flag in setup call
+if ('--novtk' not in sys.argv) and ('--NOVTK' not in sys.argv):
     BUILD_VTK = True
-    if ('--vtk' in sys.argv):
-        sys.argv.remove('--vtk')
-    elif ('--VTK' in sys.argv):
-        sys.argv.remove('--VTK')
 
     file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt')).read()
     file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()
@@ -39,6 +35,10 @@ if ('--vtk' in sys.argv) or ('--VTK' in sys.argv):
 else:
     print('WARNING: You are installing ANTsPy without VTK support.. waiting 5s in case you change your mind (press ctrl+c)')
     time.sleep(5)
+    if ('--novtk' in sys.argv):
+        sys.argv.remove('--novtk')
+    elif ('--NOVTK' in sys.argv):
+        sys.argv.remove('--NOVTK')
     BUILD_VTK = False
     file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt')).read()
     file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()
