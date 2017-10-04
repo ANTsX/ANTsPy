@@ -37,7 +37,7 @@ pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.
 
 If you have Linux:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.3/antspy-0.1.3.dev12-cp36-cp36m-linux_x86_64.whl
+pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
 ```
 
 ------------------------------------------------------------------------------
