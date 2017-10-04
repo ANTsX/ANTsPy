@@ -28,7 +28,8 @@ and wrapping process, please read the extensive [contributors guide](CONTRIBUTIN
 ## Installation
 
 ### Method 1: Pre-Compiled Binaries (preferred)
-The fastest method is to install the pre-compiled binaries (takes ~1 min):
+The fastest method is to install the pre-compiled binaries for the latest 
+stable release (takes ~1 min):
 
 If you have MacOS:
 ```bash
