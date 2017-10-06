@@ -149,7 +149,7 @@ class ANTsTransform(object):
         libfn = utils.get_lib_fn('transformVector%s' % (self._libsuffix))
         return np.asarray(libfn(self.pointer, vector))
 
-    def apply_to_image(self, image, reference, interpolation='linear'):
+    def apply_to_image(self, image, reference=None, interpolation='linear'):
         """ 
         Apply transform to an image 
 
@@ -169,6 +169,9 @@ class ANTsTransform(object):
         list : transformed vector
 
         """
+        if reference is None:
+            reference = image.clone()
+
         tform_fn = utils.get_lib_fn('transformImage%s%s' % (self._libsuffix, image._libsuffix))
         reference = reference.clone(image.pixeltype)
 

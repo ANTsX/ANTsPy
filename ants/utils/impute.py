@@ -102,20 +102,20 @@ def impute(data, method='mean', value=None, nan_value=np.nan):
     if method == 'KNN':
         if value is None:
             value = 3
-        X_filled = KNN(k=value).complete(X_incomplete)
+        X_filled = KNN(k=value, verbose=False).complete(X_incomplete)
 
     elif method == 'BiScaler':
-        X_filled = BiScaler().fit_transform(X_incomplete)
+        X_filled = BiScaler(verbose=False).fit_transform(X_incomplete)
 
     elif method == 'SoftImpute':
-        X_filled = SoftImpute().complete(X_incomplete)
+        X_filled = SoftImpute(verbose=False).complete(X_incomplete)
 
     elif method == 'IterativeSVD':
         if value is None:
             rank = min(10, X_incomplete.shape[0]-2)
         else:
             rank = value
-        X_filled = IterativeSVD(rank=rank).complete(X_incomplete)
+        X_filled = IterativeSVD(rank=rank, verbose=False).complete(X_incomplete)
 
     elif method == 'mean':
         col_means = np.nanmean(X_incomplete, axis=0)
