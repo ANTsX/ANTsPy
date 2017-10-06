@@ -2,7 +2,8 @@
 
 import numpy as np
 
-__all__ = ['set_ants_transform_parameters',
+__all__ = ['ANTsTransform',
+           'set_ants_transform_parameters',
            'get_ants_transform_parameters',
            'get_ants_transform_fixed_parameters',
            'set_ants_transform_fixed_parameters',
@@ -55,14 +56,19 @@ class ANTsTransform(object):
     def parameters(self):
         """ Get parameters of transform """
         libfn = utils.get_lib_fn('getTransformParameters%s'%self._libsuffix)
-        return np.asarray(libfn(self.pointer))
+        return np.asarray(libfn(self.pointer), order='F')#.reshape((self.dimension, self.dimension+1), order='F')
 
     def set_parameters(self, parameters):
-        """ Set parameters of transform """
-        if isinstance(parameters, np.ndarray):
-            parameters = parameters.tolist()
+        """ Set parameters of transform """ 
+        if not isinstance(parameters, np.ndarray):
+            parameters = np.asarray(parameters)
+
+        # if in two dimensions, flatten with fortran ordering
+        if parameters.ndim > 1:
+            parameters = parameters.flatten(order='F')
+
         libfn = utils.get_lib_fn('setTransformParameters%s'%self._libsuffix)
-        libfn(self.pointer, parameters)
+        libfn(self.pointer, parameters.tolist())
 
     @property
     def fixed_parameters(self):
@@ -72,17 +78,21 @@ class ANTsTransform(object):
 
     def set_fixed_parameters(self, parameters):
         """ Set parameters of transform """
-        if isinstance(parameters, np.ndarray):
-            parameters = parameters.tolist()
+        if not isinstance(parameters, np.ndarray):
+            parameters = np.asarray(parameters)
+
         libfn = utils.get_lib_fn('setTransformFixedParameters%s'%self._libsuffix)
-        libfn(self.pointer, parameters)
+        libfn(self.pointer, parameters.tolist())
 
     def invert(self):
         """ Invert the transform """
         libfn = utils.get_lib_fn('inverseTransform%s' % (self._libsuffix))
         inv_tx_ptr = libfn(self.pointer)
-        return ANTsTransform(precision=self.precision, dimension=self.dimension,
-                            transform_type=self.transform_type, pointer=inv_tx_ptr)
+
+        new_tx = ANTsTransform(precision=self.precision, dimension=self.dimension,
+                                transform_type=self.transform_type, pointer=inv_tx_ptr)
+
+        return new_tx
 
     def apply(self, data, data_type='point', reference=None, **kwargs):
         """

@@ -82,36 +82,163 @@ std::string getTransformNameFromFile( std::string filename )
 }
 
 
-template <typename TransformType, class PrecisionType, unsigned int Dimension>
-py::capsule new_ants_transform( std::string precision, unsigned int dimension, std::string type)
+template <typename PrecisionType, unsigned int Dimension>
+py::capsule newAntsTransform( std::string precision, unsigned int dimension, std::string type)
 {   
-    // assume type == "AffineTransform"
-    //if ( type == "AffineTransform" )
-    typedef itk::AffineTransform<PrecisionType,Dimension> AffineTransformType;
-    typename AffineTransformType::Pointer transformPointer = AffineTransformType::New();
+
+    //typename TransformType::Pointer transformPointer = TransformType::New();
+  // Initialize transform by type
+  if ( type == "AffineTransform" )
+    {
+    typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformType >( basePointer);
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "CenteredAffineTransform" )
+    {
+    typedef itk::CenteredAffineTransform<PrecisionType,Dimension> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "Euler3DTransform" )
+    {
+    typedef itk::Euler3DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+
+    }
+  else if ( type == "Euler2DTransform" )
+    {
+    typedef itk::Euler2DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "QuaternionRigidTransform" )
+    {
+    typedef itk::QuaternionRigidTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "Rigid2DTransform" )
+    {
+    typedef itk::Rigid2DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "Rigid3DTransform" )
+    {
+    typedef itk::Rigid3DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "CenteredEuler3DTransform" )
+    {
+    typedef itk::CenteredEuler3DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "CenteredRigid2DTransform" )
+    {
+    typedef itk::CenteredRigid2DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "Similarity3DTransform" )
+    {
+    typedef itk::Similarity3DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "Similarity2DTransform" )
+    {
+    typedef itk::Similarity2DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+  else if ( type == "CenteredSimilarity2DTransform" )
+    {
+    typedef itk::CenteredSimilarity2DTransform<PrecisionType> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
+    }
+
+    typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
+    typename TransformType::Pointer transformPointer = TransformType::New();
+
+    typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
+    typedef typename TransformBaseType::Pointer               TransformBasePointerType;
+    TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
+
+    return wrap_transform< TransformBaseType >( basePointer );
 }
 
-
-template <typename TransformType, class PrecisionType, unsigned int Dimension>
-void wrapNewANTsTransform(py::module & m, std::string const & suffix) {
-    m.def(("newAntsTransform" + suffix).c_str(), &new_ants_transform<TransformType, PrecisionType, Dimension>,
-         "Create new ANTsTransform", py::return_value_policy::reference_internal);
-}
 
 PYBIND11_MODULE(readTransform, m)
 {
-    wrapNewANTsTransform<itk::Transform<float, 2, 2>, float, 2>(m, "F2");
-    wrapNewANTsTransform<itk::Transform<float, 3, 3>, float, 3>(m, "F3");
-    wrapNewANTsTransform<itk::Transform<float, 4, 4>, float, 4>(m, "F4");
-    wrapNewANTsTransform<itk::Transform<double, 2, 2>, double, 2>(m, "D2");
-    wrapNewANTsTransform<itk::Transform<double, 3, 3>, double, 3>(m, "D3");
-    wrapNewANTsTransform<itk::Transform<double, 4, 4>, double, 4>(m, "D4");
+    m.def("newAntsTransformF2", &newAntsTransform<float, 2>);
+    m.def("newAntsTransformF3", &newAntsTransform<float, 3>);
+    m.def("newAntsTransformD2", &newAntsTransform<double,2>);
+    m.def("newAntsTransformD3", &newAntsTransform<double,3>);
 
     m.def("getTransformDimensionFromFile", &getTransformDimensionFromFile);
     m.def("getTransformNameFromFile", &getTransformNameFromFile);

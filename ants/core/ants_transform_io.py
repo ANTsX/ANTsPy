@@ -123,6 +123,11 @@ def create_ants_transform(transform_type='AffineTransform',
                          'Similarity3DTransform', 'CenteredRigid2DTransform', 
                          'CenteredEuler3DTransform'}
 
+    #user_matrix_types = {'Affine','CenteredAffine', 
+    #                     'Euler', 'CenteredEuler',
+    #                     'Rigid', 'CenteredRigid', 'QuaternionRigid',
+    #                     'Similarity', 'CenteredSimilarity'}
+
     if supported_types:
       return set(list(matrix_offset_types) + ['DisplacementFieldTransform'])
 
