@@ -127,28 +127,34 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
     
     ANTsR function: `plot`
 
-    Immediate Goals:
-        X support 2D images
-        X support 3D images with `nslices` and `axis` arguments
-        - support single overlay
-        
-    Future Goals:
-        - support multiple overlays
-        - support multiple colorschemes
+    Arguments
+    ---------
+    image : ANTsImage
+        image to plot
 
-    plot(x, y, color.img = "white", color.overlay = c("jet",
-          "red", "blue", "green", "yellow", "viridis", "magma", "plasma", "inferno"),
-          axis = 2, slices, colorbar = missing(y), title.colorbar, title.img,
-          title.line = NA, color.colorbar, window.img, window.overlay, quality = 2,
-          outname = NA, alpha = 1, newwindow = FALSE, nslices = 10,
-          domainImageMap = NA, ncol = 4, useAbsoluteScale = FALSE,
-          doCropping = TRUE, ...)
+    overlay : ANTsImage (optional)
+        image to overlay on base image
 
-    if overlay is not None:
-        if overlay.dimension != image.dimension:
-            raise ValueError('image and overlay(s) must have same dimension')
-        overlay_arr = overlay.numpy()
-        overlay_arr[overlay_arr <= 0] = None
+    cmap : string (default is 'Grey_r')
+        colormap to use for base image. See matplotlib.
+
+    overlay_cmap : string (default is 'jet')
+        colormap to use for overlay images, if applicable. See matplotlib.
+
+    axis : integer (default is 0)
+        which axis to plot along if image is 3D
+
+    nslices : integer (default is 12)
+        number of slices to plot if image is 3D
+
+    slices : list or tuple of integers
+        specific slice indices to plot if image is 3D. 
+        If given, this will override `nslices`.
+        This can be absolute array indices (e.g. (80,100,120)), or
+        this can be relative array indices (e.g. (0.4,0.5,0.6))
+
+    ncol : integer (default is 4)
+        Number of columns to have on the plot if image is 3D.
 
     Example
     -------
