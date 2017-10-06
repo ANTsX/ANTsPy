@@ -57,7 +57,7 @@
 namespace py = pybind11;
 
 
-unsigned int  getTransformFileDimension( std::string filename )
+unsigned int getTransformDimensionFromFile( std::string filename )
 {
     typedef itk::TransformFileReader TransformReaderType1;
     typedef typename TransformReaderType1::Pointer TransformReaderType;
@@ -69,8 +69,21 @@ unsigned int  getTransformFileDimension( std::string filename )
     return tx->GetInputSpaceDimension();
 }
 
+std::string getTransformNameFromFile( std::string filename )
+{
+    typedef itk::TransformFileReader TransformReaderType1;
+    typedef typename TransformReaderType1::Pointer TransformReaderType;
+    TransformReaderType reader = itk::TransformFileReader::New();
+    reader->SetFileName( filename.c_str() );
+    reader->Update();
+    const TransformReaderType1::TransformListType * transforms = reader->GetTransformList();
+    const TransformReaderType1::TransformPointer tx = *(transforms->begin());
+    return std::string( tx->GetNameOfClass() );
+}
+
+
 template <typename TransformType, class PrecisionType, unsigned int Dimension>
-ANTsTransform<TransformType> new_ants_transform( std::string precision, unsigned int dimension, std::string type)
+py::capsule new_ants_transform( std::string precision, unsigned int dimension, std::string type)
 {   
     // assume type == "AffineTransform"
     //if ( type == "AffineTransform" )
@@ -87,7 +100,7 @@ ANTsTransform<TransformType> new_ants_transform( std::string precision, unsigned
 
 template <typename TransformType, class PrecisionType, unsigned int Dimension>
 void wrapNewANTsTransform(py::module & m, std::string const & suffix) {
-    m.def(("new_ants_transform" + suffix).c_str(), &new_ants_transform<TransformType, PrecisionType, Dimension>,
+    m.def(("newAntsTransform" + suffix).c_str(), &new_ants_transform<TransformType, PrecisionType, Dimension>,
          "Create new ANTsTransform", py::return_value_policy::reference_internal);
 }
 
@@ -100,5 +113,8 @@ PYBIND11_MODULE(readTransform, m)
     wrapNewANTsTransform<itk::Transform<double, 3, 3>, double, 3>(m, "D3");
     wrapNewANTsTransform<itk::Transform<double, 4, 4>, double, 4>(m, "D4");
 
-    m.def("getTransformFileDimension", &getTransformFileDimension);
+    m.def("getTransformDimensionFromFile", &getTransformDimensionFromFile);
+    m.def("getTransformNameFromFile", &getTransformNameFromFile);
 }
+
+

@@ -61,7 +61,7 @@ TransformMatrixType GetVoxelSpaceToRASPhysicalSpaceMatrix(typename ImageType::Po
 
 
 template< class PixelType, unsigned int Dimension >
-ANTsTransform<itk::Transform<double,3,3>> fsl2antstransform( std::vector<std::vector<float> > matrix, 
+py::capsule fsl2antstransform( std::vector<std::vector<float> > matrix, 
                 py::capsule ants_reference, 
                 py::capsule ants_moving, 
                 int flag )
@@ -155,9 +155,7 @@ ANTsTransform<itk::Transform<double,3,3>> fsl2antstransform( std::vector<std::ve
 
   TransformBasePointerType itkTransform = dynamic_cast<TransformBaseType*>( atran.GetPointer() );
 
-  ANTsTransform<TransformBaseType> antsTx= wrap_transform< TransformBaseType >( itkTransform );
-  //return Rcpp::wrap( itkTransform );
-  return antsTx;
+  return wrap_transform< TransformBaseType >( itkTransform );
 }
 
 

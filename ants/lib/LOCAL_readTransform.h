@@ -56,7 +56,7 @@
 #include "LOCAL_antsTransform.h"
 
 template <typename TransformType, class PrecisionType, unsigned int Dimension>
-ANTsTransform<TransformType> new_ants_transform( std::string precision, unsigned int dimension, std::string type);
+py::capsule new_ants_transform( std::string precision, unsigned int dimension, std::string type);
 
 
 

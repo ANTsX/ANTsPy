@@ -24,9 +24,10 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
     >>> import ants
     >>> tx = ants.new_ants_transform()
     """
-    libfn = utils.get_lib_fn('new_ants_transform%s%i' % (utils.short_ptype(precision), dimension))
+    libfn = utils.get_lib_fn('newAntsTransform%s%i' % (utils.short_ptype(precision), dimension))
     itk_tx = libfn(precision, dimension, transform_type)
-    ants_tx = tio.ANTsTransform(itk_tx)
+    ants_tx = tio.ANTsTransform(precision=precision, dimension=dimension, 
+                                transform_type=transform_type, pointer=itk_tx)
 
     if parameters is not None:
         ants_tx.set_parameters(parameters)
@@ -177,7 +178,8 @@ def create_ants_transform(transform_type='AffineTransform',
                     translation,
                     parameters,
                     fixed_parameters)
-    return tio.ANTsTransform(itk_tx)
+    return tio.ANTsTransform(precision=precision, dimension=dimension,
+                            transform_type=transform_type, pointer=itk_tx)
 
 
 def transform_from_displacement_field(field):
@@ -210,7 +212,8 @@ def transform_from_displacement_field(field):
         raise ValueError('field must be ANTsImage type')
     libfn = utils.get_lib_fn('antsTransformFromDisplacementFieldF%i'%field.dimension)
     field = field.clone('float')
-    return tio.ANTsTransform(libfn(field.pointer))
+    txptr = libfn(field.pointer)
+    #return tio.ANTsTransform(pointer=txptr)
 
 def read_transform(filename, dimension=2, precision='float'):
     """
@@ -245,12 +248,17 @@ def read_transform(filename, dimension=2, precision='float'):
     if not os.path.exists(filename):
         raise ValueError('filename does not exist!')
 
-    libfn1 = utils.get_lib_fn('getTransformFileDimension')
+    libfn1 = utils.get_lib_fn('getTransformDimensionFromFile')
     dimension = libfn1(filename)
 
-    libfn2 = utils.get_lib_fn('readTransform%s%i' % (utils.short_ptype(precision), dimension))
-    itk_tx = libfn2(filename, dimension, precision)
-    return tio.ANTsTransform(itk_tx)
+    libfn2 = utils.get_lib_fn('getTransformNameFromFile')
+    transform_type = libfn2(filename)
+
+    libfn3 = utils.get_lib_fn('readTransform%s%i' % (utils.short_ptype(precision), dimension))
+    itk_tx = libfn3(filename, dimension, precision)
+
+    return tio.ANTsTransform(precision=precision, dimension=dimension, 
+                            transform_type=transform_type, pointer=itk_tx)
 
 
 def write_transform(transform, filename):
@@ -280,7 +288,7 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    libfn = utils.get_lib_fn('writeTransform%s%i' % (utils.short_ptype(transform.precision), transform.dimension))
-    libfn(transform._tx, filename)
+    libfn = utils.get_lib_fn('writeTransform%s' % (transform._libsuffix))
+    libfn(transform.pointer, filename)
 
 
