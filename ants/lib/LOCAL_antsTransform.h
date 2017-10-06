@@ -481,6 +481,12 @@ py::capsule matrixOffset(  std::string type, std::string precision, unsigned int
         typename TransformType::Pointer transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
+    else if ( type == "Rigid3DTransform" )
+    {
+        typedef itk::Rigid3DTransform<PrecisionType> TransformType;
+        typename TransformType::Pointer transformPointer = TransformType::New();
+        matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
+    }
     else if ( type == "CenteredEuler3DTransform" )
     {
         typedef itk::CenteredEuler3DTransform<PrecisionType> TransformType;

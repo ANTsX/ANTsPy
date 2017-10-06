@@ -187,13 +187,22 @@ class TestModule_denoise_image(unittest.TestCase):
 class TestModule_get_ants_data(unittest.TestCase):
 
     def test_get_ants_data(self):
-        for imgpath in ants.get_ants_data_files():
-            img = ants.image_read(imgpath)
+        for dataname in ants.get_ants_data(None):
+            img = ants.image_read(ants.get_ants_data(dataname))
 
     def test_get_ants_data_files(self):
-        imgpaths = ants.get_ants_data_files()
-        self.assertTrue(isinstance(imgpaths,list))
-        self.assertTrue(len(imgpaths) > 0)
+        datanames = ants.get_ants_data(None)
+        self.assertTrue(isinstance(datanames,list))
+        self.assertTrue(len(datanames) > 0)
+
+    def test_get_ants_data2(self):
+        for dataname in ants.get_data(None):
+            img = ants.image_read(ants.get_data(dataname))
+
+    def test_get_ants_data_files2(self):
+        datanames = ants.get_data(None)
+        self.assertTrue(isinstance(datanames,list))
+        self.assertTrue(len(datanames) > 0)
 
 
 class TestModule_get_centroids(unittest.TestCase):

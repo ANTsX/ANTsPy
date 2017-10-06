@@ -82,7 +82,7 @@ class TestModule_plot(unittest.TestCase):
 
     def test_plot_example(self):
         for img in self.imgs:
-            ants.plot(img, show=False)
+            ants.plot(img)
 
 
 class TestModule_create_tiled_mosaic(unittest.TestCase):

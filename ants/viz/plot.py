@@ -6,60 +6,146 @@ or a tile of slices from a 3D ANTsImage
 
 __all__ = ['plot']
 
-try:
-    import matplotlib.pyplot as plt
-except:
-    pass
+import math
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import gridspec
 
 
-def plot(img, title=None, margin=0.05, dpi=80, show=True):
+def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslices=12, slices=None, ncol=4):
     """
     Plot an ANTsImage
+    
+    ANTsR function: `plot`
+
+    Arguments
+    ---------
+    image : ANTsImage
+        image to plot
+
+    overlay : ANTsImage (optional)
+        image to overlay on base image
+
+    cmap : string (default is 'Grey_r')
+        colormap to use for base image. See matplotlib.
+
+    overlay_cmap : string (default is 'jet')
+        colormap to use for overlay images, if applicable. See matplotlib.
+
+    axis : integer (default is 0)
+        which axis to plot along if image is 3D
+
+    nslices : integer (default is 12)
+        number of slices to plot if image is 3D
+
+    slices : list or tuple of integers
+        specific slice indices to plot if image is 3D. 
+        If given, this will override `nslices`.
+        This can be absolute array indices (e.g. (80,100,120)), or
+        this can be relative array indices (e.g. (0.4,0.5,0.6))
+
+    ncol : integer (default is 4)
+        Number of columns to have on the plot if image is 3D.
+
+    Example
+    -------
+    >>> ## 2D images ##
+    >>> import ants
+    >>> img = ants.image_read(ants.get_data('r16'))
+    >>> ants.plot(img)
+    >>> overlay = (img.kmeans_segmentation(k=3)['segmentation']==3)*(img.clone())
+    >>> ants.plot(img, overlay)
+    >>> ## 3D images ##
+    >>> import ants
+    >>> img3d = ants.image_read(ants.get_data('ch2'))
+    >>> ants.plot(img3d)
+    >>> ants.plot(img3d, axis=0, nslices=5) # slice numbers
+    >>> ants.plot(img3d, axis=1, nslices=5) # different axis
+    >>> ants.plot(img3d, axis=2, nslices=5) # different slices
+    >>> ants.plot(img3d, nslices=1) # one slice
+    >>> ants.plot(img3d, slices=(50,70,90)) # absolute slices
+    >>> ants.plot(img3d, slices=(0.4,0.6,0.8)) # relative slices
+    >>> ants.plot(img3d, slices=50) # one absolute slice
+    >>> ants.plot(img3d, slices=0.6) # one relative slice
+    >>> ## Overlay Example ##
+    >>> import ants
+    >>> img = ants.image_read(ants.get_data('ch2'))
+    >>> overlay = img.clone()
+    >>> overlay = overlay*(overlay>105.)
+    >>> ants.plot(img, overlay)
     """
-    #nda = sitk.GetArrayViewFromImage(img)
-    nda= img.numpy()
-    spacing = img.spacing
-        
-    if nda.ndim == 3:
-        # fastest dim, either component or x
-        c = nda.shape[-1]
-        
-        # the the number of components is 3 or 4 consider it an RGB image
-        if not c in (3,4):
-            nda = nda[nda.shape[0]//2,:,:]
-    
-    elif nda.ndim == 4:
-        c = nda.shape[-1]
-        
-        if not c in (3,4):
-            raise Exception("Unable to show 3D-vector Image")
-            
-        # take a z-slice
-        nda = nda[nda.shape[0]//2,:,:,:]
-            
-    ysize = nda.shape[0]
-    xsize = nda.shape[1]
-      
-    # Make a figure big enough to accommodate an axis of xpixels by ypixels
-    # as well as the ticklabels, etc...
-   #figsize = (1 + margin) * ysize / dpi, (1 + margin) * xsize / dpi
+    # Plot 2D image
+    if image.dimension == 2:
+        img_arr = image.numpy()
 
-    fig = plt.figure()#figsize=figsize, dpi=dpi)
-    # Make the axis the right size...
-    ax = fig.add_axes([margin, margin, 1 - 2*margin, 1 - 2*margin])
-    
-    extent = (0, xsize*spacing[1], ysize*spacing[0], 0)
-    
-    t = ax.imshow(nda,interpolation=None)
-    
-    if nda.ndim == 2:
-        t.set_cmap("gray")
-    
-    if(title):
-        plt.title(title)
+        if overlay is not None:
+            ov_arr = overlay.numpy()
+            ov_arr[np.abs(ov_arr) == 0] = np.nan
 
-    plt.grid(False)
+        fig, ax = plt.subplots()
 
-    if show:
+        ax.imshow(img_arr, cmap=cmap)
+
+        if overlay is not None:
+            ax.imshow(ov_arr, cmap=overlay_cmap)
+
+        plt.axis('off')
+        plt.show()
+
+    # Plot 3D image
+    elif image.dimension == 3:
+        img_arr = image.numpy()
+
+        if overlay is not None:
+            ov_arr = overlay.numpy()
+            ov_arr[np.abs(ov_arr) == 0] = np.nan
+
+        # reorder dims so that chosen axis is first
+        img_arr = np.rollaxis(img_arr, axis)
+
+        if slices is None:
+            nonzero = np.where(np.abs(img_arr)>0)[0]
+            min_idx = nonzero[0]
+            max_idx = nonzero[-1]
+            slice_idxs = np.linspace(min_idx+1, max_idx-1, nslices).astype('int')
+        else:
+            if isinstance(slices, (int,float)):
+                slices = [slices]
+            if slices[0] < 1:
+                slices = [int(s*img_arr.shape[0]) for s in slices]
+            slice_idxs = slices
+            nslices = len(slices)
+
+        # only have one row if nslices <= 6 and user didnt specify ncol
+        if (nslices <= 6) and (ncol==4):
+            ncol = nslices
+
+        # calculate grid size
+        nrow = math.ceil(nslices / ncol)
+
+        xdim = img_arr.shape[1]
+        ydim = img_arr.shape[2]
+
+        fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5)) 
+
+        gs = gridspec.GridSpec(nrow, ncol,
+                 wspace=0.0, hspace=0.0, 
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+                 left=0.5/(ncol+1), right=1-0.5/(ncol+1)) 
+
+        slice_idx_idx = 0
+        for i in range(nrow):
+            for j in range(ncol):
+                if slice_idx_idx < len(slice_idxs):
+                    im = img_arr[slice_idxs[slice_idx_idx]]
+                    ax = plt.subplot(gs[i,j])
+                    ax.imshow(im, cmap=cmap)
+                    if overlay is not None:
+                        ov = ov_arr[slice_idxs[slice_idx_idx]]
+                        ax.imshow(ov, alpha=0.9, cmap=overlay_cmap)
+                    ax.axis('off')
+                    slice_idx_idx += 1
+
         plt.show()
 

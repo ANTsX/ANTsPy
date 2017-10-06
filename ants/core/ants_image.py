@@ -1,6 +1,7 @@
 
 
-__all__ = ['copy_image_info',
+__all__ = ['ANTsImage',
+           'copy_image_info',
            'set_origin',
            'get_origin',
            'set_direction',

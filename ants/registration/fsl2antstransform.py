@@ -44,10 +44,11 @@ def fsl2antstransform(matrix, reference, moving):
         moving = moving.clone('float')
 
     libfn = utils.get_lib_fn('fsl2antstransformF3')
-    retvals = libfn(list(matrix), 
+    tx_ptr = libfn(list(matrix), 
                     reference.pointer,
                     moving.pointer,
                     1)
 
-    return tio.ANTsTransform(retvals)
+    return tio.ANTsTransform(precision='float', dimension=reference.dimension, 
+                             transform_type='AffineTransform', pointer=tx_ptr)
 
