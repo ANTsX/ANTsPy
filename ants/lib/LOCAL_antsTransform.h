@@ -65,95 +65,52 @@
 
 namespace py = pybind11;
 
-template <typename TransformType>
-class ANTsTransform {
-public:
-    typedef TransformType itkTransformType;
-    std::string precision;
-    unsigned int dimension;
-    std::string type;
-    py::capsule pointer;
-
-    py::list getParameters();
-    void setParameters( std::vector< double > );
-
-    py::list getFixedParameters();
-    void setFixedParameters( std::vector< double > );
-
-    // transformations
-    std::vector< double > transformPoint( std::vector< double > );
-    std::vector< double > transformVector( std::vector< double > );
-    
-    template <typename ImageType>
-    py::capsule transformImage( py::capsule&, py::capsule&, std::string);
-
-    template <typename ReturnTransformType>
-    ANTsTransform<ReturnTransformType> inverse();
-};
-
-
-// gets associated ITK pixel type as string
-std::string getScalarTypeStringFromDummy( unsigned char dummyval ) { return "unsigned char"; }
-std::string getScalarTypeStringFromDummy( char dummyval ) { return "char"; }
-std::string getScalarTypeStringFromDummy( unsigned short dummyval ) { return "unsigned short"; }
-std::string getScalarTypeStringFromDummy( short dummyval ) { return "short"; }
-std::string getScalarTypeStringFromDummy( unsigned int dummyval ) { return "unsigned int"; }
-std::string getScalarTypeStringFromDummy( int dummyval ) { return "int"; }
-std::string getScalarTypeStringFromDummy( float dummyval ) { return "float"; }
-std::string getScalarTypeStringFromDummy( double dummyval ) { return "double"; }
-
-// --------------------------------------------------------------
 
 template <typename TransformType>
-ANTsTransform<TransformType> wrap_transform( const typename TransformType::Pointer & itkTransform )
+void capsuleDestructor_transform( void * f ) 
 {
-    typedef typename TransformType::Pointer TransformPointerType;
-    TransformPointerType * ptr = new TransformPointerType( itkTransform );
-
-    typename TransformType::ScalarType dummyval = 1;
-
-    ANTsTransform<TransformType> antsTransform;
-    antsTransform.precision         = getScalarTypeStringFromDummy(dummyval);
-    antsTransform.dimension         = TransformType::InputSpaceDimension;
-    antsTransform.type              = itkTransform->GetNameOfClass();
-    antsTransform.pointer           = py::capsule(ptr, "itk::Transform::Pointer");
-
-    return antsTransform;
+    //std::cout << "calling capsule destructor" << std::endl;
+    typename TransformType::Pointer * foo  = reinterpret_cast<typename TransformType::Pointer *>( f );
+    *foo = ITK_NULLPTR;
 }
 
 template <typename TransformType>
-typename TransformType::Pointer as_transform( ANTsTransform<TransformType> & transform )
+py::capsule wrap_transform( const typename TransformType::Pointer & itkTransform )
 {
-    void *ptr = transform.pointer;
-    typename TransformType::Pointer * real  = reinterpret_cast<typename TransformType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
+    typedef typename TransformType::Pointer TransformPointerType;
+    TransformPointerType * ptr = new TransformPointerType( itkTransform );
+    return py::capsule(ptr, capsuleDestructor_transform<TransformType>);
+}
 
+template <typename TransformType>
+typename TransformType::Pointer as_transform( void * ptr )
+{
+    typename TransformType::Pointer * real  = static_cast<typename TransformType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
     return *real;
 }
 
 // --------------------------------------------------------------
 
+
 template <typename TransformType>
-py::list getParametersHelper( typename TransformType::Pointer itkTransform )
+std::vector<float> getTransformParameters( py::capsule & myTx)
 {
-    py::list parameterslist;
+    typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
+    
+    std::vector<float> parameterslist;
     for (unsigned int i = 0; i < itkTransform->GetNumberOfParameters(); i++ )
     {
-        parameterslist.append( itkTransform->GetParameters()[i] );
+        parameterslist.push_back( itkTransform->GetParameters()[i] );
     }
     return parameterslist;
 }
 
-template <typename TransformType>
-py::list ANTsTransform<TransformType>::getParameters()
-{
-    typename TransformType::Pointer itkTransform = as_transform<TransformType>( *this );
-    return getParametersHelper<TransformType>( itkTransform );
-}
-
 
 template <typename TransformType>
-void setParametersHelper( typename TransformType::Pointer &itkTransform, std::vector<double> new_parameters)
+void setTransformParameters( py::capsule & myTx, std::vector<float> new_parameters )
 {
+    typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
+    
     typename TransformType::ParametersType itkParameters;
     itkParameters.SetSize( itkTransform->GetNumberOfParameters() );
 
@@ -165,37 +122,27 @@ void setParametersHelper( typename TransformType::Pointer &itkTransform, std::ve
     itkTransform->SetParameters( itkParameters );
 }
 
-template <typename TransformType>
-void ANTsTransform<TransformType>::setParameters( std::vector<double> new_parameters )
-{
-    typename TransformType::Pointer itkTransform = as_transform<TransformType>( *this );
-    setParametersHelper<TransformType>( itkTransform, new_parameters );
-}
-
 // --------------------------------------------------------------
 
 template <typename TransformType>
-py::list getFixedParametersHelper( typename TransformType::Pointer itkTransform )
+std::vector<float> getTransformFixedParameters( py::capsule & myTx )
 {
-    py::list parameterslist;
+    typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
+    
+    std::vector<float> parameterslist;
     for (unsigned int i = 0; i < itkTransform->GetNumberOfFixedParameters(); i++ )
     {
-        parameterslist.append( itkTransform->GetFixedParameters()[i] );
+        parameterslist.push_back( itkTransform->GetFixedParameters()[i] );
     }
     return parameterslist;
 }
 
-template <typename TransformType>
-py::list ANTsTransform<TransformType>::getFixedParameters()
-{
-    typename TransformType::Pointer itkTransform = as_transform<TransformType>( *this );
-    return getFixedParametersHelper<TransformType>( itkTransform );
-}
-
 
 template <typename TransformType>
-void setFixedParametersHelper( typename TransformType::Pointer &itkTransform, std::vector<double> new_parameters)
+void setTransformFixedParameters( py::capsule & myTx, std::vector<float> new_parameters )
 {
+    typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
+
     typename TransformType::FixedParametersType itkParameters;
     itkParameters.SetSize( itkTransform->GetNumberOfFixedParameters() );
 
@@ -207,23 +154,16 @@ void setFixedParametersHelper( typename TransformType::Pointer &itkTransform, st
     itkTransform->SetFixedParameters( itkParameters );
 }
 
-template <typename TransformType>
-void ANTsTransform<TransformType>::setFixedParameters( std::vector<double> new_parameters )
-{
-    typename TransformType::Pointer itkTransform = as_transform<TransformType>( *this );
-    setParametersHelper<TransformType>( itkTransform, new_parameters );
-}
-
 // --------------------------------------------------------------
 
 template <typename TransformType>
-std::vector< double > ANTsTransform<TransformType>::transformPoint( std::vector< double > inPoint )
+std::vector< float > transformPoint( py::capsule & myTx, std::vector< double > inPoint )
 {
     typedef typename TransformType::Pointer          TransformPointerType;
     typedef typename TransformType::InputPointType   InputPointType;
     typedef typename TransformType::OutputPointType  OutputPointType;
 
-    TransformPointerType itkTransform = as_transform<TransformType>( *this );
+    TransformPointerType itkTransform = as_transform<TransformType>( myTx );
     
     InputPointType inItkPoint;
     for (unsigned int i = 0; i < InputPointType::PointDimension; i++)
@@ -233,7 +173,7 @@ std::vector< double > ANTsTransform<TransformType>::transformPoint( std::vector<
     
     OutputPointType outItkPoint = itkTransform->TransformPoint( inItkPoint );
 
-    std::vector< double > outPoint( OutputPointType::PointDimension );
+    std::vector< float > outPoint( OutputPointType::PointDimension );
     for (unsigned int i = 0; i < OutputPointType::PointDimension; i++)
     {
         outPoint[i] = outItkPoint[i];
@@ -243,13 +183,13 @@ std::vector< double > ANTsTransform<TransformType>::transformPoint( std::vector<
 }
 
 template <typename TransformType>
-std::vector< double > ANTsTransform<TransformType>::transformVector( std::vector< double > inVector )
+std::vector< float > transformVector( py::capsule myTx, std::vector< float > inVector )
 {
     typedef typename TransformType::Pointer          TransformPointerType;
     typedef typename TransformType::InputVectorType   InputVectorType;
     typedef typename TransformType::OutputVectorType  OutputVectorType;
 
-    TransformPointerType itkTransform = as_transform<TransformType>( *this );
+    TransformPointerType itkTransform = as_transform<TransformType>( myTx );
 
     InputVectorType inItkVector;
     for (unsigned int i = 0; i < InputVectorType::Dimension; i++)
@@ -259,7 +199,7 @@ std::vector< double > ANTsTransform<TransformType>::transformVector( std::vector
 
     OutputVectorType outItkVector = itkTransform->TransformVector( inItkVector );
 
-    std::vector< double > outVector( OutputVectorType::Dimension );
+    std::vector< float > outVector( OutputVectorType::Dimension );
     for (unsigned int i = 0; i < OutputVectorType::Dimension; i++)
     {
         outVector[i] = outItkVector[i];
@@ -268,17 +208,15 @@ std::vector< double > ANTsTransform<TransformType>::transformVector( std::vector
     return outVector;
 }
 
-template <typename TransformType>
-template <typename ReturnTransformType>
-ANTsTransform<ReturnTransformType> ANTsTransform<TransformType>::inverse()
+template <typename TransformType, typename ReturnTransformType>
+py::capsule inverseTransform( py::capsule & myTx )
 {
-    std::string type = this->type;
     typedef typename TransformType::Pointer  TransformPointerType;
-    TransformPointerType itkTransform = as_transform< TransformType >( *this );
+    TransformPointerType itkTransform = as_transform< TransformType >( myTx );
 
     if ( !itkTransform->IsLinear() )
     {
-        throw std::invalid_argument("Only linear transforms may be inverted with this method");
+        throw std::invalid_argument("Only linear transforms may be inverted here");
     }
 
     TransformPointerType inverse = itkTransform->GetInverseTransform();
@@ -292,17 +230,14 @@ py::capsule wrapHelper( typename ImageType::Pointer & image )
 }
 
 
-template <typename TransformType>
-template <typename ImageType>
-py::capsule ANTsTransform<TransformType>::transformImage( py::capsule & image, py::capsule & ref, std::string interp)
+template <typename TransformType, typename ImageType>
+py::capsule transformImage( py::capsule & myTx, py::capsule & image, py::capsule & ref, std::string interp)
 {
     typedef typename TransformType::Pointer          TransformPointerType;
 
     const unsigned int Dimension = TransformType::InputSpaceDimension;
 
-    std::string type = this->type;
-
-    TransformPointerType transform = as_transform<TransformType>( *this );
+    TransformPointerType transform = as_transform<TransformType>( myTx );
 
     typedef typename TransformType::ParametersValueType              PrecisionType;
 
@@ -423,13 +358,9 @@ py::capsule ANTsTransform<TransformType>::transformImage( py::capsule & image, p
 
 
 template <typename TransformBaseType, typename PrecisionType, unsigned int Dimension>
-ANTsTransform<TransformBaseType> composeTransforms( std::vector<ANTsTransform<TransformBaseType>> tformlist, 
-                                                    std::string precision, unsigned int dimension)
+py::capsule composeTransforms( std::vector<void *> tformlist, 
+                                std::string precision, unsigned int dimension)
 {
-    //ANTsTransform<TransformBaseType> compositeANTsTransform;
-    //compositeANTsTransform.dimension = dimension;
-    //compositeANTsTransform.precision = precision;
-
     typedef typename TransformBaseType::Pointer  TransformBasePointerType;
     typedef typename itk::CompositeTransform<PrecisionType, Dimension> CompositeTransformType;
 
@@ -437,25 +368,14 @@ ANTsTransform<TransformBaseType> composeTransforms( std::vector<ANTsTransform<Tr
 
     for ( unsigned int i = 0; i < tformlist.size(); i++ )
     {
-        //ANTsTransform<TransformBaseType> * tf = tformlist[i].cast<ANTsTransform<TransformBaseType> *>();
         TransformBasePointerType t = as_transform<TransformBaseType>( tformlist[i] );
         comp_transform->AddTransform( t );
     }
-
-    //TransformBasePointerType transform = dynamic_cast<TransformBaseType *>(comp_transform.GetPointer());
-    //std::string type = comp_transform->GetNameOfClass();
-    //composeANTsTransform.type = type;
-
-    //TransformBasePointerType * rawPointer = new TransformBasePointerType( transform );
-    //py::capsule xptr = wrap_transform< TransformBaseType >( rawPointer );
-    //composeANTsTransform.pointer = xptr;
-    
-    //return composeANTsTransform;
     return wrap_transform< TransformBaseType >( comp_transform.GetPointer() );
 }
 
 template <typename TransformBaseType, class PrecisionType, unsigned int Dimension>
-ANTsTransform< TransformBaseType > readTransform( std::string filename, unsigned int dimension, std::string precision )
+py::capsule readTransform( std::string filename, unsigned int dimension, std::string precision )
 {
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     typedef typename itk::CompositeTransform<PrecisionType, Dimension> CompositeTransformType;
@@ -493,7 +413,7 @@ ANTsTransform< TransformBaseType > readTransform( std::string filename, unsigned
 
 
 template <typename TransformType>
-void writeTransform( ANTsTransform< TransformType > transform, std::string filename )
+void writeTransform( py::capsule & transform, std::string filename )
 {
     typedef typename TransformType::Pointer          TransformPointerType;
     TransformPointerType itkTransform = as_transform<TransformType>( transform );
@@ -509,13 +429,13 @@ void writeTransform( ANTsTransform< TransformType > transform, std::string filen
 // ------------------------------------------------------------------
 
 template< typename TransformBaseType, class PrecisionType, unsigned int Dimension >
-ANTsTransform<TransformBaseType> matrixOffset( std::string type, std::string precision, unsigned int dimension, 
-                                               std::vector<std::vector<double> > matrix,
-                                               std::vector<double> offset,
-                                               std::vector<double> center,
-                                               std::vector<double> translation,
-                                               std::vector<double> parameters,
-                                               std::vector<double> fixedparameters)
+py::capsule matrixOffset(  std::string type, std::string precision, unsigned int dimension, 
+                           std::vector<std::vector<float> > matrix,
+                           std::vector<float> offset,
+                           std::vector<float> center,
+                           std::vector<float> translation,
+                           std::vector<float> parameters,
+                           std::vector<float> fixedparameters)
 {
 
     typedef itk::MatrixOffsetTransformBase< PrecisionType, Dimension, Dimension> MatrixOffsetBaseType;
