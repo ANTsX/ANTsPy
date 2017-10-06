@@ -126,7 +126,9 @@ jobs:
       os: osx
       sudo: required
       language: generic
-
+   
+    allow_failures:
+      osx
 
 branches:
   only:
