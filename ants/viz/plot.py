@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
 
-def plot(image, cmap='Greys_r', axis=0, slices=None, nslices=3, ncol=4):
+def plot(image, cmap='Greys_r', axis=0, nslices=12, slices=None, ncol=4):
     """
     Plot an ANTsImage
     
@@ -45,14 +45,14 @@ def plot(image, cmap='Greys_r', axis=0, slices=None, nslices=3, ncol=4):
 
     Example
     -------
+    >>> ## 2D images ##
     >>> import ants
     >>> img = ants.image_read(ants.get_data('r16'))
     >>> ants.plot(img)
-
+    >>> ## 3D images ##
     >>> import ants
     >>> img3d = ants.image_read(ants.get_data('ch2'))
     >>> ants.plot(img3d)
-
     >>> ants.plot(img3d, axis=0, nslices=5) # slice numbers
     >>> ants.plot(img3d, axis=1, nslices=5) # different axis
     >>> ants.plot(img3d, axis=2, nslices=5) # different slices
@@ -61,7 +61,6 @@ def plot(image, cmap='Greys_r', axis=0, slices=None, nslices=3, ncol=4):
     >>> ants.plot(img3d, slices=(0.4,0.6,0.8)) # relative slices
     >>> ants.plot(img3d, slices=50) # one absolute slice
     >>> ants.plot(img3d, slices=0.6) # one relative slice
-
     """
     # Plot 2D image
     if image.dimension == 2:
@@ -71,7 +70,7 @@ def plot(image, cmap='Greys_r', axis=0, slices=None, nslices=3, ncol=4):
         ax.imshow(img_arr, cmap=cmap)
         plt.axis('off')
         plt.show()
-    
+
     # Plot 3D image
     elif image.dimension == 3:
         img_arr = image.numpy()
@@ -91,6 +90,10 @@ def plot(image, cmap='Greys_r', axis=0, slices=None, nslices=3, ncol=4):
                 slices = [int(s*img_arr.shape[0]) for s in slices]
             slice_idxs = slices
             nslices = len(slices)
+
+        # only have one row if nslices <= 6 and user didnt specify ncol
+        if (nslices <= 6) and (ncol==4):
+            ncol = nslices
 
         # calculate grid size
         nrow = math.ceil(nslices / ncol)
