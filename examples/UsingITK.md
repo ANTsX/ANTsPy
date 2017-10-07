@@ -287,7 +287,7 @@ from .scale_image import *
 
 Finally, we rebuild the package by going to the main directory and running setup.py again:
 ```
-python setup.py develop # (or python setup.py install)
+python setup.py develop
 ```
 
 Now we can use this function quite easily:
