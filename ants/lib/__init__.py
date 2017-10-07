@@ -2,7 +2,7 @@
 ## CONTRIB ##
 # NOTE: contrib contains code which is experimental or otherwise not
 # ready or appropriate to be included in the core package
-from .scaleImageModule import *
+
 
 ## LOCAL ##
 from .antsImage import *

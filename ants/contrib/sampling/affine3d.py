@@ -17,7 +17,7 @@ import random
 import math
 import numpy as np
 
-from ..core import ants_transform as tio
+from ...core import ants_transform as tio
 
 
 class Translate3D(object):
