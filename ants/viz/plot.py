@@ -7,6 +7,7 @@ or a tile of slices from a 3D ANTsImage
 __all__ = ['plot']
 
 import math
+import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -75,6 +76,10 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
     >>> overlay = overlay*(overlay>105.)
     >>> ants.plot(img, overlay)
     """
+    # need this hack because of a weird NaN warning (not an exception) from
+    # matplotlib with overlays
+    warnings.simplefilter('ignore')
+
     # Plot 2D image
     if image.dimension == 2:
         img_arr = image.numpy()
@@ -96,13 +101,13 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
     # Plot 3D image
     elif image.dimension == 3:
         img_arr = image.numpy()
+        # reorder dims so that chosen axis is first
+        img_arr = np.rollaxis(img_arr, axis)
 
         if overlay is not None:
             ov_arr = overlay.numpy()
             ov_arr[np.abs(ov_arr) == 0] = np.nan
-
-        # reorder dims so that chosen axis is first
-        img_arr = np.rollaxis(img_arr, axis)
+            ov_arr = np.rollaxis(ov_arr, axis)
 
         if slices is None:
             nonzero = np.where(np.abs(img_arr)>0)[0]
@@ -146,6 +151,8 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
                         ax.imshow(ov, alpha=0.9, cmap=overlay_cmap)
                     ax.axis('off')
                     slice_idx_idx += 1
-
         plt.show()
+
+        # turn warnings back to default
+        warnings.simplefilter('default')
 
