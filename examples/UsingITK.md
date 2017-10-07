@@ -296,9 +296,17 @@ Now we can use this function quite easily:
 import ants
 img = ants.image_read(ants.get_data('r16'))
 ants.plot(img)
-scaled_img = ants.scale_image2d(img, 1.2, 1.2)
+scaled_img = ants.scale_image2d(img, 0.8, 0.8)
 ants.plot(scaled_img)
 ```
+
+Original Image:
+![orig](original.png)
+
+Scaled Image:
+![scaled](scaled.png)
+
+------------------------------------------------------------
 
 And that's it - a painless 15 minute process that gives you access to all of the ANTsPy functionality
 such as IO, visualization, numpy-conversion, etc.
