@@ -3,8 +3,8 @@
 The beauty of ANTsPy is the ease at which users can incorporate (i.e. wrap)
 their existing C++ code into Python while simultaneously leveraging the
 IO, visualization, and greater python inter-operability provided by ANTsPy. 
-This short tutorial demonstrates just how easy the process can be.
-
+This short tutorial demonstrates how you can wrap your ITK C++ functions 
+in 15 minutes or less.
 
 # Problem Definition
 
@@ -285,6 +285,11 @@ then we would add the following line to the `__init__.py` file in the
 from .scale_image import *
 ```
 
+Finally, we rebuild the package by going to the main directory and running setup.py again:
+```
+python setup.py develop # (or python setup.py install)
+```
+
 Now we can use this function quite easily:
 
 ```python
@@ -294,6 +299,9 @@ ants.plot(img)
 scaled_img = ants.scale_image2d(img, 1.2, 1.2)
 ants.plot(scaled_img)
 ```
+
+And that's it - a painless 15 minute process that gives you access to all of the ANTsPy functionality
+such as IO, visualization, numpy-conversion, etc.
 
 
 
