@@ -6,6 +6,10 @@ IO, visualization, and greater python inter-operability provided by ANTsPy.
 This short tutorial demonstrates how you can wrap your ITK C++ functions 
 in 15 minutes or less.
 
+You'll notice how seemless the wrapping is between C++ and Python due to implicit
+casting of standard types by `pybind11` - making the process immensely smoother than
+an Rcpp equivalent, for instance.
+
 # Problem Definition
 
 I have a function that takes a 2D ITK image and scales it by some factor in 
@@ -22,7 +26,7 @@ Here is my original code in a file called "scaleImage.cxx":
 #include "itkResampleImageFilter.h"
 
 template <typename ImageType>
-ImageType::Pointer scaleImage( ImageType::Pointer myImage, float scale1, float scale2 )
+ImageType::Pointer scaleImage( typename ImageType::Pointer myImage, float scale1, float scale2 )
 {  
     typedef itk::ScaleTransform<double, 2> TransformType;
     typename TransformType::Pointer scaleTransform = TransformType::New();
