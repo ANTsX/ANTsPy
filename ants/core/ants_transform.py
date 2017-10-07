@@ -405,7 +405,7 @@ def transform_index_to_physical_point(image, index):
     img : ANTsImage
         image to get values from
 
-    index : tuple/list
+    index : list or tuple or numpy.ndarray
         location in image
 
     Returns
@@ -422,6 +422,9 @@ def transform_index_to_physical_point(image, index):
     if not isinstance(image, iio.ANTsImage):
         raise ValueError('image must be ANTsImage type')
 
+    if isinstance(index, np.ndarray):
+        index = index.tolist()
+
     if not isinstance(index, (tuple,list)):
         raise ValueError('index must be tuple or list')
 
@@ -433,7 +436,8 @@ def transform_index_to_physical_point(image, index):
     ptype = image.pixeltype
     libfn = utils.get_lib_fn('TransformIndexToPhysicalPoint%s%i' % (utils.short_ptype(ptype), ndim))
     point = libfn(image.pointer, [list(index)])
-    return point[0]
+
+    return np.array(point[0])
 
 
 def transform_physical_point_to_index(image, point):
@@ -447,7 +451,7 @@ def transform_physical_point_to_index(image, point):
     image : ANTsImage
         image to get values from
 
-    point : tuple/list
+    point : list or tuple or numpy.ndarray
         point in image
 
     Returns
@@ -466,8 +470,11 @@ def transform_physical_point_to_index(image, point):
     if not isinstance(image, iio.ANTsImage):
         raise ValueError('image must be ANTsImage type')
 
-    if not isinstance(point, (tuple,list)):
-        raise ValueError('point must be tuple or list')
+    if isinstance(point, np.ndarray):
+        point = point.tolist()
+
+    if not isinstance(point, (list,tuple)):
+        raise ValueError('point must be list, tuple, or np.ndarray')
 
     if len(point) != image.dimension:
         raise ValueError('len(index) != image.dimension')
@@ -477,7 +484,9 @@ def transform_physical_point_to_index(image, point):
     libfn = utils.get_lib_fn('TransformPhysicalPointToIndex%s%i'%(utils.short_ptype(ptype),ndim))
     index = libfn(image.pointer, [list(point)])
     index = [i-1 for i in index[0]]
-    return index
+
+    return np.array(index)
+
 
 
 
