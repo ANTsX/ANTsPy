@@ -188,7 +188,8 @@ class TestModule_get_ants_data(unittest.TestCase):
 
     def test_get_ants_data(self):
         for dataname in ants.get_ants_data(None):
-            img = ants.image_read(ants.get_ants_data(dataname))
+            if dataname.endswith('nii.gz'):
+                img = ants.image_read(dataname)
 
     def test_get_ants_data_files(self):
         datanames = ants.get_ants_data(None)
@@ -197,7 +198,8 @@ class TestModule_get_ants_data(unittest.TestCase):
 
     def test_get_ants_data2(self):
         for dataname in ants.get_data(None):
-            img = ants.image_read(ants.get_data(dataname))
+            if dataname.endswith('nii.gz'):
+                img = ants.image_read(dataname)
 
     def test_get_ants_data_files2(self):
         datanames = ants.get_data(None)

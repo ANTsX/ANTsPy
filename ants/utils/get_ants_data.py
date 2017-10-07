@@ -40,6 +40,7 @@ def get_data(name=None):
         files = []
         for fname in os.listdir(data_path):
             if (fname.endswith('.nii.gz')) or (fname.endswith('.jpg') or (fname.endswith('.csv'))):
+                fname = os.path.join(data_path, fname)
                 files.append(fname)
         return files
     else:

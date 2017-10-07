@@ -187,11 +187,17 @@ class ANTsImage(object):
         libfn = utils.get_lib_fn('setDirection%s'%self._libsuffix)
         libfn(self.pointer, new_direction)
 
-    def view(self):
+    def view(self, single_components=False):
         """
         Geet a numpy array providing direct, shared access to the image data. 
         IMPORTANT: If you alter the view, then the underlying image data 
         will also be altered.
+
+        Arguments
+        ---------
+        single_components : boolean (default is False)
+            if True, keep the extra component dimension in returned array even
+            if image only has one component (i.e. self.has_components == False)
 
         Returns
         -------
@@ -199,16 +205,22 @@ class ANTsImage(object):
         """
         dtype = self.dtype
         shape = self.shape[::-1]
-        if self.has_components:
+        if self.has_components or (single_components == True):
             shape = list(shape) + [self.components]
         libfn = utils.get_lib_fn('toNumpy%s'%self._libsuffix)
         memview = libfn(self.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
-    def numpy(self):
+    def numpy(self, single_components=False):
         """
         Get a numpy array copy representing the underlying image data. Altering
         this ndarray will have NO effect on the underlying image data.
+        
+        Arguments
+        ---------
+        single_components : boolean (default is False)
+            if True, keep the extra component dimension in returned array even
+            if image only has one component (i.e. self.has_components == False)
 
         Returns
         -------
@@ -220,8 +232,8 @@ class ANTsImage(object):
             return np.rollaxis(arr, 0, self.dimension+1)
         else:
         """
-        array = np.array(self.view(), copy=True, dtype=self.dtype)
-        if self.has_components:
+        array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
+        if self.has_components or (single_components == True):
             array = np.rollaxis(array, 0, self.dimension+1)
         return array
 
