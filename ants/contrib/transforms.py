@@ -24,13 +24,11 @@ __all__ = ['Zoom3D',
            'Rotate3D',
            'RandomRotate3D']
 
-import os
 import random
 import math
 import numpy as np
 
 from ..core import ants_transform as tio
-from ..core import ants_transform_io  as tio2
 
 
 class Rotate3D(object):

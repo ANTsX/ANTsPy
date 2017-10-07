@@ -128,7 +128,7 @@ jobs:
       language: generic
    
   allow_failures:
-    - osx
+    - os: osx
 
 branches:
   only:
