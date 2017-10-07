@@ -8,13 +8,13 @@ This short tutorial demonstrates just how easy the process can be.
 
 # Problem Definition
 
-I have a function that takes a 3D ITK image and scales it by some factor in 
+I have a function that takes a 2D ITK image and scales it by some factor in 
 each direction. I want to use this function in Python, but don't want to go 
 about 1) learning a new framework for wrapping my C++ code, 2) learning how 
 to build ITK and my python code at the same time, 3) building an entire 
 set of IO and plotting tools just for using my function. 
 
-Here is my code in a file called "scaleImage.cxx":
+Here is my original code in a file called "scaleImage.cxx":
 
 ```cpp
 #include "itkImage.h"
@@ -24,27 +24,28 @@ Here is my code in a file called "scaleImage.cxx":
 template <typename ImageType>
 ImageType::Pointer scaleImage( ImageType::Pointer myImage, float scale1, float scale2 )
 {  
-    typedef itk::ScaleTransform<float, 2> TransformType;
-    TransformType::Pointer scaleTransform = TransformType::New();
+    typedef itk::ScaleTransform<double, 2> TransformType;
+    typename TransformType::Pointer scaleTransform = TransformType::New();
     itk::FixedArray<float, 2> scale;
     scale[0] = scale1; // newWidth/oldWidth
     scale[1] = scale2;
     scaleTransform->SetScale( scale );
 
     itk::Point<float,2> center;
-    center[0] = image->GetLargestPossibleRegion().GetSize()[0]/2;
-    center[1] = image->GetLargestPossibleRegion().GetSize()[1]/2;
+    center[0] = myImage->GetLargestPossibleRegion().GetSize()[0]/2;
+    center[1] = myImage->GetLargestPossibleRegion().GetSize()[1]/2;
 
     scaleTransform->SetCenter( center );
 
     typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleImageFilterType;
-    ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
+    typename ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
     resampleFilter->SetTransform( scaleTransform );
     resampleFilter->SetInput( myImage );
     resampleFilter->SetSize( myImage->GetLargestPossibleRegion().GetSize() );
     resampleFilter->Update();
 
-    return resampleFilter->GetOutput();
+    typename ImageType::Pointer resampledImage = resampleFilter->GetOutput();
+    return resampledImage;
 }
 ```
 
@@ -63,27 +64,28 @@ The first thing to do is to convert the Input and Output argument types from `Im
 template <typename ImageType>
 py::capsule scaleImage( py::capsule myImage, float scale1, float scale2 )
 {  
-    typedef itk::ScaleTransform<float, 2> TransformType;
-    TransformType::Pointer scaleTransform = TransformType::New();
+    typedef itk::ScaleTransform<double, 2> TransformType;
+    typename TransformType::Pointer scaleTransform = TransformType::New();
     itk::FixedArray<float, 2> scale;
     scale[0] = scale1; // newWidth/oldWidth
     scale[1] = scale2;
     scaleTransform->SetScale( scale );
 
     itk::Point<float,2> center;
-    center[0] = image->GetLargestPossibleRegion().GetSize()[0]/2;
-    center[1] = image->GetLargestPossibleRegion().GetSize()[1]/2;
+    center[0] = myImage->GetLargestPossibleRegion().GetSize()[0]/2;
+    center[1] = myImage->GetLargestPossibleRegion().GetSize()[1]/2;
 
     scaleTransform->SetCenter( center );
 
     typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleImageFilterType;
-    ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
+    typename ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
     resampleFilter->SetTransform( scaleTransform );
     resampleFilter->SetInput( myImage );
     resampleFilter->SetSize( myImage->GetLargestPossibleRegion().GetSize() );
     resampleFilter->Update();
 
-    return resampleFilter->GetOutput();
+    typename ImageType::Pointer resampledImage = resampleFilter->GetOutput();
+    return resampledImage;
 }
 ```
 
@@ -107,27 +109,27 @@ py::capsule scaleImage( py::capsule myAntsImage, float scale1, float scale2 )
     // UN-WRAP THE CAPSULE
     ImageType::Pointer myImage = as<ImageType>( myAntsImage );
 
-    typedef itk::ScaleTransform<float, 2> TransformType;
-    TransformType::Pointer scaleTransform = TransformType::New();
+    typedef itk::ScaleTransform<double, 2> TransformType;
+    typename TransformType::Pointer scaleTransform = TransformType::New();
     itk::FixedArray<float, 2> scale;
     scale[0] = scale1; // newWidth/oldWidth
     scale[1] = scale2;
     scaleTransform->SetScale( scale );
 
     itk::Point<float,2> center;
-    center[0] = image->GetLargestPossibleRegion().GetSize()[0]/2;
-    center[1] = image->GetLargestPossibleRegion().GetSize()[1]/2;
+    center[0] = myImage->GetLargestPossibleRegion().GetSize()[0]/2;
+    center[1] = myImage->GetLargestPossibleRegion().GetSize()[1]/2;
 
     scaleTransform->SetCenter( center );
 
     typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleImageFilterType;
-    ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
+    typename ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
     resampleFilter->SetTransform( scaleTransform );
     resampleFilter->SetInput( myImage );
     resampleFilter->SetSize( myImage->GetLargestPossibleRegion().GetSize() );
     resampleFilter->Update();
 
-    ImageType::Pointer resampledImage = resampleFilter->GetOutput();
+    typename ImageType::Pointer resampledImage = resampleFilter->GetOutput();
 
     // WRAP THE ITK IMAGE 
     py::capsule resampledCapsule = wrap<ImageType>( resampledImage );
@@ -146,7 +148,6 @@ to increase code readability and maintainability.
 After declaring your function, your code will look like this:
 
 ```cpp
-// NEED THESE INCLUDES FOR PYBIND11
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -164,44 +165,39 @@ template <typename ImageType>
 py::capsule scaleImage2D( py::capsule myAntsImage, float scale1, float scale2 )
 {  
     // UN-WRAP THE CAPSULE
-    ImageType::Pointer myImage = as<ImageType>( myAntsImage );
+    typename ImageType::Pointer myImage = as<ImageType>( myAntsImage );
 
-    typedef itk::ScaleTransform<float, 2> TransformType;
-    TransformType::Pointer scaleTransform = TransformType::New();
+    typedef itk::ScaleTransform<double, 2> TransformType;
+    typename TransformType::Pointer scaleTransform = TransformType::New();
     itk::FixedArray<float, 2> scale;
     scale[0] = scale1; // newWidth/oldWidth
     scale[1] = scale2;
     scaleTransform->SetScale( scale );
 
     itk::Point<float,2> center;
-    center[0] = image->GetLargestPossibleRegion().GetSize()[0]/2;
-    center[1] = image->GetLargestPossibleRegion().GetSize()[1]/2;
+    center[0] = myImage->GetLargestPossibleRegion().GetSize()[0]/2;
+    center[1] = myImage->GetLargestPossibleRegion().GetSize()[1]/2;
 
     scaleTransform->SetCenter( center );
 
     typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleImageFilterType;
-    ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
+    typename ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
     resampleFilter->SetTransform( scaleTransform );
     resampleFilter->SetInput( myImage );
     resampleFilter->SetSize( myImage->GetLargestPossibleRegion().GetSize() );
     resampleFilter->Update();
 
-    ImageType::Pointer resampledImage = resampleFilter->GetOutput();
+    typename ImageType::Pointer resampledImage = resampleFilter->GetOutput();
 
     // WRAP THE ITK IMAGE 
     py::capsule resampledCapsule = wrap<ImageType>( resampledImage );
-    return resampledCapsule
+    return resampledCapsule;
 }
 
 // DECLARE OUR FUNCTION FOR APPROPRIATE TYPES 
 PYBIND11_MODULE(scaleImageModule, m)
 {
-    // notice how we prepend the image types in the function name
-    // we will call the appropriate function depending on the image type in python
-    m.def("scaleImage2D_UC2", &scaleImage2D<itk::Image<unsigned char,2>>);
-    m.def("scaleImage2D_UI2", &scaleImage2D<itk::Image<unsigned int,2>>);
-    m.def("scaleImage2D_F2", &scaleImage2D<itk::Image<float,2>>);
-    m.def("scaleImage2D_D2", &scaleImage2D<itk::Image<double,2>>);
+    m.def("scaleImage2D", &scaleImage2D<itk::Image<float,2>>);
 }
 ```
 
@@ -231,19 +227,10 @@ from .scaleImageModule import *
 ## 5. Wrapped C++ functions need a Python interface
 
 Now, we have full access to our C++ function in the python/ANTsPY namespace. We can use
-this function directly if we want:
+this function directly if we want, but for users it's better to have a small python 
+interface. This is very easy to implement, and mostly involves argument checking and such.
 
 ```python
-...
-```
-
-However, for users it's better to have a small python interface. This is very easy to implement,
-and mostly involves argument checking and such.
-
-```python
-from ants import utils
-from ants import core
-
 def scale_image2d(image, scale1, scale2):
     """
     Scale an 2D image by a specified factor in each dimension.
@@ -258,12 +245,19 @@ def scale_image2d(image, scale1, scale2):
 
     scale 2 : float
         scale factor in y direction
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.image_read(ants.get_data('r16'))
+    >>> img_scaled = ants.scale_image2d(img, 0.8, 0.8)
+    >>> ants.plot(img)
+    >>> ants.plot(img_scaled)
     """
-    # e.g. 'F2' if image is Float type with 2 dimensions
-    libsuffix = image._libsuffix
+    image = image.clone('float')
 
     # get function from its name
-    lib_fn = utils.get_lib_fn('scaleImage2d_%s' % libsuffix)
+    lib_fn = utils.get_lib_fn('scaleImage2D')
 
     # apply the function to my image
     # remember this function returns a py::capsule
@@ -276,6 +270,14 @@ def scale_image2d(image, scale1, scale2):
                                 pointer=scaled_img_ptr)
     return scaled_img
 ```
+We also need to import this function in the ANTsPy namespace. If we put the above
+python code in a file called `scaled_image.py` in the `antspy/ants/utils` directory, 
+then we would add the following line to the `__init__.py` file in the 
+`antspy/ants/utils` directory:
+
+```python
+from .scale_image import *
+```
 
 Now we can use this function quite easily:
 
@@ -283,7 +285,7 @@ Now we can use this function quite easily:
 import ants
 img = ants.image_read(ants.get_data('r16'))
 ants.plot(img)
-scaled_img = scale_image2d(img, 1.2, 1.2)
+scaled_img = ants.scale_image2d(img, 1.2, 1.2)
 ants.plot(scaled_img)
 ```
 

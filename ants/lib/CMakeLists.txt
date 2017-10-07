@@ -81,6 +81,9 @@ pybind11_add_module(ResampleImage antscore/ResampleImage.cxx WRAP_ResampleImage.
 pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdImage.cxx)
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
 
+## CONTRIB ##
+pybind11_add_module(scaleImageModule contrib/CONTRIB_scaleImage.cxx)
+
 ## NOT-WRAPPED ##
 #pybind11_add_module(antsLandmarkBasedTransformInitializer antscore/antsLandmarkBasedTransformInitializer.cxx WRAP_antsLandmarkBasedTransformInitializer.cxx)
 #pybind11_add_module(antsMotionCorr antscore/antsMotionCorr.cxx WRAP_antsMotionCorr.cxx)
@@ -135,6 +138,8 @@ target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 
+## CONTRIB ##
+target_link_libraries(scaleImageModule PRIVATE ${ITK_LIBRARIES})
 
 ## NOT-WRAPPED ##
 #target_link_libraries(antsLandmarkBasedTransformInitializer PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities)
