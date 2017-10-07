@@ -39,13 +39,13 @@ def get_data(name=None):
     if name is None:
         files = []
         for fname in os.listdir(data_path):
-            if (fname.endswith('.nii.gz')) or (fname.endswith('.jpg')):
+            if (fname.endswith('.nii.gz')) or (fname.endswith('.jpg') or (fname.endswith('.csv'))):
                 files.append(fname)
         return files
     else:
         datapath = None
         for fname in os.listdir(data_path):
-            if name in fname:
+            if (name == fname.split('.')[0]) or ((name+'slice') == fname.split('.')[0]):
                 datapath = os.path.join(data_path, fname)
 
         if datapath is None:

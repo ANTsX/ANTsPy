@@ -7,7 +7,6 @@ from .antsImageMutualInformation import *
 from .antsImageToImageMetric import *
 from .antsImageUtils import *
 from .antsTransform import *
-from .antsTransform import *
 from .cropImage import *
 from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
@@ -41,7 +40,7 @@ from .ResampleImage import *
 from .ThresholdImage import *
 from .TileImages import *
 
-## NOT-WRAP ##
+## NOT-#WRAP ##
 #from .antsLandmarkBasedTransformInitializer import *
 #from .antsMotionCorr import *
 #from .antsMotionCorrStats import *

@@ -36,11 +36,12 @@ def make_points_image(pts, mask, radius=5):
     Example
     -------
     >>> import ants
+    >>> import pandas as pd
     >>> mni = ants.image_read(ants.get_data('mni')).get_mask()
-    >>> powers_pts = ants.get_data('powers_areal_mni_itk')
-    >>> powers_labels = ants.make_points_image(powers_pts[:,:2], mni, radius=3)
+    >>> powers_pts = pd.read_csv(ants.get_data('powers_areal_mni_itk'))
+    >>> powers_labels = ants.make_points_image(powers_pts.iloc[:,:3].values, mni, radius=3)
     """
-    powers_labels = mask * 0
+    powers_lblimg = mask * 0
     npts = len(pts)
     rad = radius
     n = math.ceiling(rad/np.array(mask.spacing))
@@ -50,7 +51,7 @@ def make_points_image(pts, mask, radius=5):
 
     for r in range(npts):
         pt = pts[r,:dim]
-        idx = np.array(tio.transform_physical_point_to_index(mask, pt))
+        idx = tio.transform_physical_point_to_index(mask, pt)
         for i in np.arange(-n[0],n[0],step=0.5):
             for j in np.arange(-n[1],n[1],step=0.5):
                 if (dim == 3):
@@ -60,15 +61,15 @@ def make_points_image(pts, mask, radius=5):
                         dist = np.sqrt(np.sum((localpt-pt)*(localpt-pt)))
                         in_image = (np.prod(idx <= mask.dimension)==1) and (len(np.where(idx<1))==0)
                         if ( (dist <= rad) and (in_image == True) ):
-                            if powers_labels[local[0],local[1],local[2]] < 0.5:
-                                powers_labels[local[0],local[1],local[2]] = r
+                            if powers_lblimg[local[0],local[1],local[2]] < 0.5:
+                                powers_lblimg[local[0],local[1],local[2]] = r
                 elif (dim == 2):
                     local = idx + np.array([i,j])
                     localpt = tio.transform_index_to_physical_point(mask, local)
                     dist = np.sqrt(np.sum((localpt-pt)*(localpt-pt)))
                     in_image = (np.prod(idx<=mask.dimension)==1) and (len(np.where(idx<1))==0)
                     if ((dist <= rad) and (in_image == True)):
-                        if powers_labels[local[0],local[1]] < 0.5:
-                            powers_labels[local[0],local[1]] = r
-    return powers_labels
+                        if powers_lblimg[local[0],local[1]] < 0.5:
+                            powers_lblimg[local[0],local[1]] = r
+    return powers_lblimg
 

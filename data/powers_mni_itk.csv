@@ -1,0 +1,271 @@
+x,y,z,ROI,SystemLabel,SystemName,Color,r,g,b,Anatomy,Lobe,Brodmann,AAL
+25,98,-12,1,14,Uncertain,Peach,238,203,173,Inferior Occipital Gyrus,Occipital,18,Occipital_Inf_L
+-27,97,-13,2,14,Uncertain,Peach,238,203,173,Occipital Pole,Occipital,18,
+-24,-32,-18,3,14,Uncertain,Peach,238,203,173,Medial Orbital Gyrus,Frontal,11,Frontal_Inf_Orb_R
+56,45,-24,4,14,Uncertain,Peach,238,203,173,Inferior Temporal Gyrus,Temporal,20,Temporal_Inf_L
+-8,-41,-24,5,14,Uncertain,Peach,238,203,173,Gyrus Rectus,Frontal,11,Rectus_R
+21,22,-20,6,14,Uncertain,Peach,238,203,173,Cerebral White Matter,NA,30,ParaHippocampal_L
+-17,28,-17,7,14,Uncertain,Peach,238,203,173,NA,NA,0,ParaHippocampal_R
+37,29,-26,8,14,Uncertain,Peach,238,203,173,Fusiform Gyrus,Temporal,20,Fusiform_L
+-65,24,-19,9,14,Uncertain,Peach,238,203,173,Middle Temporal Gyrus,Temporal,20,Temporal_Inf_R
+-52,34,-27,10,14,Uncertain,Peach,238,203,173,Inferior Temporal Gyrus,Temporal,20,
+-55,31,-17,11,14,Uncertain,Peach,238,203,173,Inferior Temporal Gyrus,Temporal,20,Temporal_Inf_R
+-34,-38,-12,12,14,Uncertain,Peach,238,203,173,Anterior Orbital Gyrus,Frontal,47,Frontal_Inf_Orb_R
+7,52,61,13,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Cerebral White Matter,NA,5,Precuneus_L
+14,18,40,14,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Supplementary Motor Cortex,Frontal,0,Cingulum_Mid_L
+0,15,47,15,1,Sensory/Somatomotor Hand,Cyan,0,205,205,NA,NA,23,Cingulum_Mid_R
+-10,2,45,16,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Supplementary Motor Cortex,Frontal,0,Cingulum_Mid_R
+7,21,65,17,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus Medial Segment,Frontal,4,Paracentral_Robule_L
+7,33,72,18,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,4,Paracentral_Robule_L
+-13,33,75,19,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,4,Postcentral_R
+54,23,43,20,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,3,Postcentral_L
+-29,17,71,21,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,6,Precentral_R
+-10,46,73,22,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precuneus,Parietal,5,Precuneus_R
+23,30,72,23,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,4,Postcentral_L
+40,19,54,24,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,4,Postcentral_L
+-29,39,59,25,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Superior Parietal Lobule,Parietal,2,Parietal_Inf_R
+-50,20,42,26,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,3,Postcentral_R
+38,27,69,27,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,4,Postcentral_L
+-20,29,60,28,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,3,Postcentral_R
+-44,8,57,29,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,6,Precentral_R
+29,43,61,30,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Superior Parietal Lobule,Parietal,2,Parietal_Sup_L
+-10,17,74,31,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,6,Supp_Motor_Area_R
+-22,42,69,32,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,0,Parietal_Sup_R
+45,32,47,33,1,Sensory/Somatomotor Hand,Cyan,0,205,205,NA,NA,2,Postcentral_L
+21,31,61,34,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,3,Postcentral_L
+13,17,75,35,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,6,Paracentral_Robule_L
+-42,20,55,36,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,3,Postcentral_R
+38,15,69,37,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus,Frontal,6,Precentral_L
+16,46,73,38,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,5,Precuneus_L
+-2,28,60,39,1,Sensory/Somatomotor Hand,Cyan,0,205,205,NA,NA,4,Paracentral_Robule_R
+-3,17,58,40,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Precentral Gyrus Medial Segment,Frontal,6,Supp_Motor_Area_R
+-38,17,45,41,1,Sensory/Somatomotor Hand,Cyan,0,205,205,Postcentral Gyrus,Parietal,4,Postcentral_R
+49,11,35,42,2,Sensory/Somatomotor Mouth,Orange,255,165,0,Precentral Gyrus,Frontal,3,Postcentral_L
+-36,9,14,43,2,Sensory/Somatomotor Mouth,Orange,255,165,0,Posterior Insula,Limbic,48,Insula_R
+-51,6,32,44,2,Sensory/Somatomotor Mouth,Orange,255,165,0,Precentral Gyrus,Frontal,4,Postcentral_R
+53,10,24,45,2,Sensory/Somatomotor Mouth,Orange,255,165,0,Postcentral Gyrus,Parietal,48,Postcentral_L
+-66,8,25,46,2,Sensory/Somatomotor Mouth,Orange,255,165,0,Postcentral Gyrus,Parietal,43,Postcentral_R
+3,-2,53,47,3,Cingulo-opercular Task Control,Purple,160,32,240,Supplementary Motor Cortex,Frontal,0,Supp_Motor_Area_L
+-54,28,34,48,3,Cingulo-opercular Task Control,Purple,160,32,240,Parietal Operculum,Parietal,2,SupraMarginal_R
+-19,8,64,49,3,Cingulo-opercular Task Control,Purple,160,32,240,Superior Frontal Gyrus,Frontal,6,Frontal_Sup_R
+16,5,71,50,3,Cingulo-opercular Task Control,Purple,160,32,240,Superior Frontal Gyrus,Frontal,6,Frontal_Sup_L
+10,2,42,51,3,Cingulo-opercular Task Control,Purple,160,32,240,Middle Cingulate Gyrus,Limbic,0,Cingulum_Mid_L
+-37,-1,-4,52,3,Cingulo-opercular Task Control,Purple,160,32,240,Posterior Insula,Limbic,48,Insula_R
+-13,1,70,53,3,Cingulo-opercular Task Control,Purple,160,32,240,Superior Frontal Gyrus,Frontal,6,Frontal_Sup_R
+-7,-8,51,54,3,Cingulo-opercular Task Control,Purple,160,32,240,Supplementary Motor Cortex,Frontal,6,Supp_Motor_Area_R
+45,0,9,55,3,Cingulo-opercular Task Control,Purple,160,32,240,Central Operculum,Frontal,48,Rolandic_Oper_L
+-49,-8,-1,56,3,Cingulo-opercular Task Control,Purple,160,32,240,Central Operculum,Frontal,48,Temporal_Pole_Sup_R
+34,-3,4,57,3,Cingulo-opercular Task Control,Purple,160,32,240,Cerebral White Matter,NA,48,
+51,-8,-2,58,3,Cingulo-opercular Task Control,Purple,160,32,240,Central Operculum,Frontal,48,Temporal_Sup_L
+5,-18,34,59,3,Cingulo-opercular Task Control,Purple,160,32,240,Middle Cingulate Gyrus,Limbic,24,Cingulum_Ant_L
+-36,-10,1,60,3,Cingulo-opercular Task Control,Purple,160,32,240,Anterior Insula,Insular,48,Insula_R
+-32,26,13,61,4,Auditory,Pink,238,169,184,Transverse Temporal Gyrus,Temporal,48,
+-65,33,20,62,4,Auditory,Pink,238,169,184,Supramarginal Gyrus,Parietal,42,Temporal_Sup_R
+-58,16,7,63,4,Auditory,Pink,238,169,184,Planum Temporale,Temporal,22,Temporal_Sup_R
+38,33,17,64,4,Auditory,Pink,238,169,184,Parietal Operculum,Parietal,48,Rolandic_Oper_L
+60,25,14,65,4,Auditory,Pink,238,169,184,Parietal Operculum,Parietal,42,Temporal_Sup_L
+49,26,5,66,4,Auditory,Pink,238,169,184,Planum Temporale,Temporal,48,Temporal_Sup_L
+-43,23,20,67,4,Auditory,Pink,238,169,184,Parietal Operculum,Parietal,48,Rolandic_Oper_R
+50,34,26,68,4,Auditory,Pink,238,169,184,Cerebral White Matter,NA,48,Temporal_Sup_L
+53,22,23,69,4,Auditory,Pink,238,169,184,Cerebral White Matter,NA,48,Rolandic_Oper_L
+55,9,12,70,4,Auditory,Pink,238,169,184,Cerebral White Matter,NA,48,Rolandic_Oper_L
+-56,5,13,71,4,Auditory,Pink,238,169,184,Cerebral White Matter,NA,48,Rolandic_Oper_R
+-59,17,29,72,4,Auditory,Pink,238,169,184,Supramarginal Gyrus,Parietal,48,SupraMarginal_R
+30,27,12,73,4,Auditory,Pink,238,169,184,Posterior Insula,Limbic,48,
+41,75,26,74,5,Default Mode,Red,255,0,0,Middle Occipital Gyrus,Occipital,39,Occipital_Mid_L
+-6,-67,-4,75,5,Default Mode,Red,255,0,0,Frontal Pole,Frontal,10,Frontal_Med_Orb_R
+-8,-48,-15,76,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,11,Rectus_R
+13,40,1,77,5,Default Mode,Red,255,0,0,Posterior Cingulate Gyrus,Limbic,27,Precuneus_L
+18,-63,-9,78,5,Default Mode,Red,255,0,0,Anterior Orbital Gyrus,Frontal,11,Frontal_Sup_Orb_L
+46,61,21,79,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,39,Temporal_Mid_L
+-43,72,28,80,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,39,Occipital_Mid_R
+44,-12,-34,81,5,Default Mode,Red,255,0,0,Temporal Pole,Temporal,20,Temporal_Pole_Mid_L
+-46,-16,-30,82,5,Default Mode,Red,255,0,0,Temporal Pole,Temporal,38,Temporal_Pole_Mid_R
+68,23,-16,83,5,Default Mode,Red,255,0,0,Middle Temporal Gyrus,Temporal,20,Temporal_Mid_L
+58,26,-15,84,14,Uncertain,Peach,238,203,173,Middle Temporal Gyrus,Temporal,20,Temporal_Mid_L
+-27,-16,-17,85,14,Uncertain,Peach,238,203,173,Anterior Insula,Insular,48,Insula_R
+44,65,35,86,5,Default Mode,Red,255,0,0,Angular Gyrus,Parietal,39,Angular_L
+39,75,44,87,5,Default Mode,Red,255,0,0,Angular Gyrus,Parietal,7,Angular_L
+7,55,27,88,5,Default Mode,Red,255,0,0,Precuneus,Parietal,23,Precuneus_L
+-6,59,35,89,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,0,Precuneus_R
+11,56,16,90,5,Default Mode,Red,255,0,0,Precuneus,Parietal,30,Precuneus_L
+3,49,13,91,5,Default Mode,Red,255,0,0,Posterior Cingulate Gyrus,Limbic,0,Precuneus_L
+-8,48,31,92,5,Default Mode,Red,255,0,0,Posterior Cingulate Gyrus,Limbic,23,Cingulum_Mid_R
+-15,63,26,93,5,Default Mode,Red,255,0,0,Precuneus,Parietal,23,Precuneus_R
+2,37,44,94,5,Default Mode,Red,255,0,0,Posterior Cingulate Gyrus,Limbic,0,Cingulum_Mid_L
+-11,54,17,95,5,Default Mode,Red,255,0,0,Precuneus,Parietal,30,Precuneus_R
+-52,59,36,96,5,Default Mode,Red,255,0,0,Angular Gyrus,Parietal,39,Angular_R
+-23,-33,48,97,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,9,Frontal_Mid_R
+10,-39,52,98,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,9,Frontal_Sup_Medial_L
+16,-29,53,99,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,8,Frontal_Sup_L
+35,-20,51,100,5,Default Mode,Red,255,0,0,Middle Frontal Gyrus,Frontal,9,Frontal_Mid_L
+-22,-39,39,101,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,9,Frontal_Sup_R
+-13,-55,38,102,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,9,Frontal_Sup_R
+10,-55,39,103,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,9,Frontal_Sup_Medial_L
+20,-45,39,104,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,9,Frontal_Sup_L
+-6,-54,16,105,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus Medial Segment,Frontal,10,Cingulum_Ant_R
+-6,-64,22,106,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus Medial Segment,Frontal,10,Frontal_Sup_Medial_R
+7,-51,-1,107,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus Medial Segment,Frontal,10,Cingulum_Ant_L
+-9,-54,3,108,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,10,Frontal_Sup_Medial_R
+3,-44,-9,109,5,Default Mode,Red,255,0,0,Anterior Cingulate Gyrus,Limbic,11,Frontal_Med_Orb_L
+-8,-42,-5,110,5,Default Mode,Red,255,0,0,Anterior Cingulate Gyrus,Limbic,11,Frontal_Med_Orb_R
+11,-45,8,111,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus Medial Segment,Frontal,32,Cingulum_Ant_L
+2,-38,36,112,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus Medial Segment,Frontal,32,Frontal_Sup_Medial_L
+3,-42,16,113,5,Default Mode,Red,255,0,0,Anterior Cingulate Gyrus,Limbic,32,Cingulum_Ant_L
+20,-64,19,114,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,10,Frontal_Sup_L
+8,-48,23,115,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus Medial Segment,Frontal,32,Frontal_Sup_Medial_L
+-65,12,-19,116,5,Default Mode,Red,255,0,0,Middle Temporal Gyrus,Temporal,21,Temporal_Mid_R
+56,13,-10,117,5,Default Mode,Red,255,0,0,Middle Temporal Gyrus,Temporal,22,Temporal_Mid_L
+58,30,-4,118,5,Default Mode,Red,255,0,0,Middle Temporal Gyrus,Temporal,21,Temporal_Mid_L
+-65,31,-9,119,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,21,Temporal_Mid_R
+68,41,-5,120,5,Default Mode,Red,255,0,0,Middle Temporal Gyrus,Temporal,20,Temporal_Mid_L
+-13,-30,59,121,5,Default Mode,Red,255,0,0,Superior Frontal Gyrus,Frontal,8,Frontal_Sup_R
+-12,-36,20,122,5,Default Mode,Red,255,0,0,Anterior Cingulate Gyrus,Limbic,32,Cingulum_Ant_R
+-52,2,-16,123,5,Default Mode,Red,255,0,0,Superior Temporal Gyrus,Temporal,21,Temporal_Mid_R
+26,40,-8,124,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,37,ParaHippocampal_L
+-27,37,-13,125,5,Default Mode,Red,255,0,0, Lingual Gyrus,Occipital,37,Fusiform_R
+34,38,-16,126,5,Default Mode,Red,255,0,0,Fusiform Gyrus,Temporal,37,Fusiform_L
+-28,77,-32,127,5,Default Mode,Red,255,0,0,Cerebellum Exterior,Cerebellum,0,Cerebelum_Crus1_R
+-52,-7,-30,128,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,21,Temporal_Pole_Mid_R
+53,-3,-27,129,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,21,Temporal_Mid_L
+-47,50,29,130,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,39,Angular_R
+49,42,1,131,5,Default Mode,Red,255,0,0,Middle Temporal Gyrus,Temporal,21,Temporal_Mid_L
+31,-19,-19,132,14,Uncertain,Peach,238,203,173,Posterior Orbital Gyrus,Frontal,38,Frontal_Inf_Orb_L
+2,35,31,133,6,Memory Retrieval,Gray,127,127,127,Posterior Cingulate Gyrus,Limbic,23,Cingulum_Mid_L
+7,71,42,134,6,Memory Retrieval,Gray,127,127,127,Precuneus,Parietal,7,Precuneus_L
+-11,66,42,135,6,Memory Retrieval,Gray,127,127,127,Cerebral White Matter,NA,7,Precuneus_R
+-4,48,51,136,6,Memory Retrieval,Gray,127,127,127,Precuneus,Parietal,0,Precuneus_R
+46,-31,-13,137,5,Default Mode,Red,255,0,0,Cerebral White Matter,NA,38,Frontal_Inf_Orb_L
+10,-11,67,138,11,Ventral Attention,Teal,69,139,116,Superior Frontal Gyrus,Frontal,6,Supp_Motor_Area_L
+-49,-35,-12,139,5,Default Mode,Red,255,0,0,Orbital Part Of The Inferior Frontal Gyrus,Frontal,47,Frontal_Inf_Orb_R
+-8,91,-7,140,14,Uncertain,Peach,238,203,173, Lingual Gyrus,Occipital,0,Lingual_R
+-17,91,-14,141,14,Uncertain,Peach,238,203,173, Lingual Gyrus,Occipital,18,Lingual_R
+12,95,-13,142,14,Uncertain,Peach,238,203,173,Cerebral White Matter,NA,18,Calcarine_L
+-18,47,-10,143,7,Visual,Blue,0,0,255, Lingual Gyrus,Occipital,19,Lingual_R
+-40,72,14,144,7,Visual,Blue,0,0,255,Middle Occipital Gyrus,Occipital,37,Occipital_Mid_R
+-8,72,11,145,7,Visual,Blue,0,0,255,Calcarine Cortex,Occipital,17,Calcarine_R
+8,81,7,146,7,Visual,Blue,0,0,255,Calcarine Cortex,Occipital,17,Calcarine_L
+28,79,19,147,7,Visual,Blue,0,0,255,Middle Occipital Gyrus,Occipital,19,Occipital_Mid_L
+-20,66,2,148,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,19,Lingual_R
+24,91,19,149,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,18,Occipital_Mid_L
+-27,59,-9,150,7,Visual,Blue,0,0,255,Fusiform Gyrus,Temporal,19,Fusiform_R
+15,72,-8,151,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,18,Lingual_L
+18,68,5,152,7,Visual,Blue,0,0,255,Calcarine Cortex,Occipital,19,Calcarine_L
+-43,78,-12,153,7,Visual,Blue,0,0,255, Inferior Occipital Gyrus,Occipital,19,Occipital_Inf_R
+47,76,-10,154,7,Visual,Blue,0,0,255,Inferior Occipital Gyrus,Occipital,19,Occipital_Inf_L
+14,91,31,155,7,Visual,Blue,0,0,255,Superior Occipital Gyrus,Occipital,18,Occipital_Sup_L
+-15,87,37,156,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,19,Occipital_Sup_R
+-29,77,25,157,7,Visual,Blue,0,0,255, Superior Occipital Gyrus,Occipital,19,Occipital_Mid_R
+-20,86,-2,158,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,18,Lingual_R
+-15,77,31,159,7,Visual,Blue,0,0,255,Cuneus,Occipital,18,Cuneus_R
+16,52,-1,160,7,Visual,Blue,0,0,255,Lingual Gyrus,Occipital,18,Lingual_L
+-42,66,-8,161,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,19,Temporal_Inf_R
+-24,87,24,162,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,19,Occipital_Sup_R
+-6,72,24,163,7,Visual,Blue,0,0,255,Cerebral White Matter,NA,18,Cuneus_R
+42,74,0,164,7,Visual,Blue,0,0,255,Inferior Occipital Gyrus,Occipital,19,Occipital_Mid_L
+-26,79,-16,165,7,Visual,Blue,0,0,255,Occipital Fusiform Gyrus,Occipital,18,Fusiform_R
+16,77,34,166,7,Visual,Blue,0,0,255,Cuneus,Occipital,18,Cuneus_L
+3,81,21,167,7,Visual,Blue,0,0,255,Cuneus,Occipital,18,Cuneus_L
+40,88,-6,168,7,Visual,Blue,0,0,255,Inferior Occipital Gyrus,Occipital,18,Occipital_Inf_L
+-37,84,13,169,7,Visual,Blue,0,0,255,Middle Occipital Gyrus,Occipital,19,Occipital_Mid_R
+-6,81,6,170,7,Visual,Blue,0,0,255,Calcarine Cortex,Occipital,17,Calcarine_R
+26,90,3,171,7,Visual,Blue,0,0,255,Middle Occipital Gyrus,Occipital,18,Occipital_Mid_L
+33,79,-13,172,7,Visual,Blue,0,0,255,Occipital Fusiform Gyrus,Occipital,19,Fusiform_L
+-37,81,1,173,7,Visual,Blue,0,0,255, Inferior Occipital Gyrus,Occipital,19,Occipital_Inf_R
+44,-2,46,174,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,6,Precentral_L
+-48,-25,27,175,8,Fronto-parietal Task Control,Yellow,238,238,0,Middle Frontal Gyrus,Frontal,48,Frontal_Inf_Tri_R
+47,-11,23,176,8,Fronto-parietal Task Control,Yellow,238,238,0,Opercular Part Of The Inferior Frontal Gyrus,Frontal,44,Frontal_Inf_Oper_L
+53,49,43,177,8,Fronto-parietal Task Control,Yellow,238,238,0,Supramarginal Gyrus,Parietal,40,Parietal_Inf_L
+23,-11,64,178,8,Fronto-parietal Task Control,Yellow,238,238,0,Superior Frontal Gyrus,Frontal,8,Frontal_Sup_L
+-58,53,-14,179,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,37,Temporal_Inf_R
+-24,-45,-15,180,8,Fronto-parietal Task Control,Yellow,238,238,0,Medial Orbital Gyrus,Frontal,11,Frontal_Mid_Orb_R
+-34,-54,-13,181,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,0,Frontal_Mid_Orb_R
+21,-41,-20,182,14,Uncertain,Peach,238,203,173,Medial Orbital Gyrus,Frontal,0,Frontal_Mid_Orb_L
+18,76,-24,183,14,Uncertain,Peach,238,203,173,Cerebellum Exterior,Cerebellum,0,Cerebelum_Crus1_L
+-17,80,-34,184,14,Uncertain,Peach,238,203,173,Cerebellum Exterior,Cerebellum,0,Cerebelum_Crus2_R
+-35,67,-34,185,14,Uncertain,Peach,238,203,173,Cerebellum White Matter,Cerebellum,0,Cerebelum_Crus1_R
+-47,-10,33,186,8,Fronto-parietal Task Control,Yellow,238,238,0,Precentral Gyrus,Frontal,44,Precentral_R
+41,-6,33,187,8,Fronto-parietal Task Control,Yellow,238,238,0,Middle Frontal Gyrus,Frontal,44,Precentral_L
+42,-38,21,188,8,Fronto-parietal Task Control,Yellow,238,238,0,Middle Frontal Gyrus,Frontal,45,Frontal_Mid_L
+-38,-43,15,189,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,45,Frontal_Mid_R
+-49,42,45,190,8,Fronto-parietal Task Control,Yellow,238,238,0,Supramarginal Gyrus,Parietal,40,SupraMarginal_R
+28,58,48,191,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,7,Parietal_Sup_L
+-44,53,47,192,8,Fronto-parietal Task Control,Yellow,238,238,0,Angular Gyrus,Parietal,40,Parietal_Inf_R
+-32,-14,56,193,8,Fronto-parietal Task Control,Yellow,238,238,0,Middle Frontal Gyrus,Frontal,8,Frontal_Mid_R
+-37,65,40,194,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,7,Angular_R
+42,55,45,195,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,40,Parietal_Inf_L
+-40,-18,40,196,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,44,Frontal_Mid_R
+34,-55,4,197,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,10,Frontal_Mid_L
+42,-45,-2,198,8,Fronto-parietal Task Control,Yellow,238,238,0,Triangular Part Of The Inferior Frontal Gyrus,Frontal,47,Frontal_Inf_Tri_L
+-33,53,44,199,8,Fronto-parietal Task Control,Yellow,238,238,0,Superior Parietal Lobule,Parietal,7,Angular_R
+-43,-49,-2,200,8,Fronto-parietal Task Control,Yellow,238,238,0,Middle Frontal Gyrus,Frontal,46,Frontal_Inf_Orb_R
+42,-25,30,201,8,Fronto-parietal Task Control,Yellow,238,238,0,Cerebral White Matter,NA,48,Frontal_Mid_L
+3,-26,44,202,8,Fronto-parietal Task Control,Yellow,238,238,0,Supplementary Motor Cortex,Frontal,32,Frontal_Sup_Medial_L
+-11,39,50,203,9,Salience,Black,0,0,0,Precuneus,Parietal,0,Cingulum_Mid_R
+-55,45,37,204,9,Salience,Black,0,0,0,Supramarginal Gyrus,Parietal,40,SupraMarginal_R
+-42,0,47,205,9,Salience,Black,0,0,0,Middle Frontal Gyrus,Frontal,6,Precentral_R
+-31,-33,26,206,9,Salience,Black,0,0,0,Cerebral White Matter,NA,48,Frontal_Mid_R
+-48,-22,10,207,9,Salience,Black,0,0,0,Opercular Part Of The Inferior Frontal Gyrus,Frontal,45,Frontal_Inf_Oper_R
+35,-20,0,208,9,Salience,Black,0,0,0,Anterior Insula,Insular,47,Insula_L
+-36,-22,3,209,9,Salience,Black,0,0,0,Anterior Insula,Insular,47,Insula_R
+-37,-32,-2,210,9,Salience,Black,0,0,0,Orbital Part Of The Inferior Frontal Gyrus,Frontal,47,Frontal_Inf_Orb_R
+-34,-16,-8,211,9,Salience,Black,0,0,0,Anterior Insula,Insular,48,Insula_R
+11,-26,25,212,9,Salience,Black,0,0,0,Anterior Cingulate Gyrus,Limbic,0,
+1,-15,44,213,9,Salience,Black,0,0,0,Supplementary Motor Cortex,Frontal,24,Cingulum_Mid_L
+28,-52,21,214,9,Salience,Black,0,0,0,Middle Frontal Gyrus,Frontal,46,Frontal_Mid_L
+0,-30,27,215,9,Salience,Black,0,0,0,NA,NA,0,Cingulum_Ant_R
+-5,-23,37,216,9,Salience,Black,0,0,0,Supplementary Motor Cortex,Frontal,24,Cingulum_Mid_R
+-10,-22,27,217,9,Salience,Black,0,0,0,Cerebral White Matter,NA,0,
+-31,-56,14,218,9,Salience,Black,0,0,0,Middle Frontal Gyrus,Frontal,10,Frontal_Mid_R
+-26,-50,27,219,9,Salience,Black,0,0,0,Superior Frontal Gyrus,Frontal,46,Frontal_Mid_R
+39,-51,17,220,9,Salience,Black,0,0,0,Middle Frontal Gyrus,Frontal,46,Frontal_Mid_L
+-2,24,30,221,6,Memory Retrieval,Gray,127,127,127,Middle Cingulate Gyrus,Limbic,23,Cingulum_Mid_R
+-6,24,0,222,10,Subcortical,Brown,139,69,19,Ventral DC,Subcortical,0,
+2,13,12,223,10,Subcortical,Brown,139,69,19,Thalamus Proper,Subcortical,0,Thalamus_L
+10,18,7,224,10,Subcortical,Brown,139,69,19,Thalamus Proper,Subcortical,0,Thalamus_L
+-12,17,8,225,10,Subcortical,Brown,139,69,19,Thalamus Proper,Subcortical,0,Thalamus_R
+5,28,-4,226,10,Subcortical,Brown,139,69,19,Brain Stem,Subcortical,0,
+22,-7,-5,227,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,48,Putamen_L
+15,-4,8,228,10,Subcortical,Brown,139,69,19,Cerebral White Matter,NA,0,
+-31,14,2,229,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,48,Putamen_R
+-23,-10,1,230,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,48,Putamen_R
+-29,-1,4,231,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,0,Putamen_R
+31,11,0,232,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,48,Putamen_L
+-15,-5,7,233,10,Subcortical,Brown,139,69,19,Cerebral White Matter,NA,0,Pallidum_R
+-9,4,6,234,10,Subcortical,Brown,139,69,19,Thalamus Proper,Subcortical,0,Thalamus_R
+-54,43,22,235,11,Ventral Attention,Teal,69,139,116,Angular Gyrus,Parietal,42,Temporal_Sup_R
+56,50,10,236,11,Ventral Attention,Teal,69,139,116,Middle Temporal Gyrus,Temporal,21,Temporal_Mid_L
+55,40,14,237,11,Ventral Attention,Teal,69,139,116,Cerebral White Matter,NA,42,Temporal_Sup_L
+-52,33,8,238,11,Ventral Attention,Teal,69,139,116,Superior Temporal Gyrus,Temporal,22,Temporal_Sup_R
+-51,29,-4,239,11,Ventral Attention,Teal,69,139,116,Middle Temporal Gyrus,Temporal,21,Temporal_Mid_R
+-56,46,11,240,11,Ventral Attention,Teal,69,139,116,Cerebral White Matter,NA,22,Temporal_Mid_R
+-53,-33,1,241,11,Ventral Attention,Teal,69,139,116,Cerebral White Matter,NA,45,Frontal_Inf_Tri_R
+49,-25,-1,242,11,Ventral Attention,Teal,69,139,116,Cerebral White Matter,NA,47,Frontal_Inf_Tri_L
+16,65,-20,243,13,Cerebellar,Pale blue,152,245,255,Cerebellum Exterior,Cerebellum,18,Cerebelum_6_L
+32,55,-25,244,13,Cerebellar,Pale blue,152,245,255,Cerebellum Exterior,Cerebellum,37,Cerebelum_6_L
+-22,58,-23,245,13,Cerebellar,Pale blue,152,245,255,Cerebellum Exterior,Cerebellum,19,Cerebelum_6_R
+-1,62,-18,246,13,Cerebellar,Pale blue,152,245,255,Cerebellar Vermal Lobules I-V,Cerebellum,0,Vermis_6
+-33,12,-34,247,14,Uncertain,Peach,238,203,173,Fusiform Gyrus,Temporal,20,Fusiform_R
+31,10,-36,248,14,Uncertain,Peach,238,203,173,Fusiform Gyrus,Temporal,20,Fusiform_L
+-49,3,-38,249,14,Uncertain,Peach,238,203,173,Inferior Temporal Gyrus,Temporal,20,Temporal_Inf_R
+50,7,-39,250,14,Uncertain,Peach,238,203,173,Inferior Temporal Gyrus,Temporal,20,Temporal_Inf_L
+-10,62,61,251,12,Dorsal Attention,Green,0,255,0,Cerebral White Matter,NA,0,Precuneus_R
+52,63,5,252,12,Dorsal Attention,Green,0,255,0,Cerebral White Matter,NA,37,Temporal_Mid_L
+47,51,-21,253,14,Uncertain,Peach,238,203,173,Inferior Temporal Gyrus,Temporal,37,Temporal_Inf_L
+-46,47,-17,254,14,Uncertain,Peach,238,203,173,Fusiform Gyrus,Temporal,20,Fusiform_R
+-47,30,49,255,1,Sensory/Somatomotor Hand,Cyan,0,205,205,NA,NA,2,Parietal_Inf_R
+-22,65,48,256,12,Dorsal Attention,Green,0,255,0,Superior Parietal Lobule,Parietal,7,Occipital_Sup_R
+-46,59,4,257,12,Dorsal Attention,Green,0,255,0,Middle Temporal Gyrus,Temporal,37,Temporal_Mid_R
+-25,58,60,258,12,Dorsal Attention,Green,0,255,0,NA,NA,7,Parietal_Sup_R
+33,46,47,259,12,Dorsal Attention,Green,0,255,0,Superior Parietal Lobule,Parietal,40,Parietal_Inf_L
+27,71,37,260,12,Dorsal Attention,Green,0,255,0,Angular Gyrus,Parietal,19,Occipital_Mid_L
+32,1,54,261,12,Dorsal Attention,Green,0,255,0,Middle Frontal Gyrus,Frontal,6,Frontal_Mid_L
+42,60,-9,262,12,Dorsal Attention,Green,0,255,0,Fusiform Gyrus,Temporal,37,Fusiform_L
+17,59,64,263,12,Dorsal Attention,Green,0,255,0,Superior Parietal Lobule,Parietal,5,Parietal_Sup_L
+-29,5,54,264,12,Dorsal Attention,Green,0,255,0,Superior Frontal Gyrus,Frontal,6,Precentral_R
+28,15,-14,265,5,Default Mode,Red,255,0,0,Hippocampus,Temporal,20,Hippocampus_L
+-27,13,-17,266,5,Default Mode,Red,255,0,0,Hippocampus,Temporal,20,Hippocampus_R
+-14,-17,9,267,10,Subcortical,Brown,139,69,19,Caudate,Subcortical,0,Caudate_R
+12,-15,7,268,10,Subcortical,Brown,139,69,19,Caudate,Subcortical,0,Caudate_L
+-30,-10,-14,269,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,0,
+28,6,0,270,10,Subcortical,Brown,139,69,19,Putamen,Subcortical,0,Putamen_L
