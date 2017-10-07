@@ -300,10 +300,8 @@ scaled_img = ants.scale_image2d(img, 0.8, 0.8)
 ants.plot(scaled_img)
 ```
 
-Original Image:
 ![orig](original.png)
 
-Scaled Image:
 ![scaled](scaled.png)
 
 ------------------------------------------------------------
