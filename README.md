@@ -15,8 +15,9 @@
 
 <i>ANTsPy</i> is a Python library which wraps the C++ biomedical image processing library <i>ANTs</i>,
 matches much of the statistical capabilities of <i>ANTsR</i>, and allows seamless integration
-with Numpy, Scikit-Learn, and the greater Python community. It is largely built on ITK and VTK, with 
-direct C++ wrapping using <i>pybind11</i>.
+with Numpy, Scikit-Learn, and the greater Python community. ANTsPyalso provides a beautiful opportunity for users
+to quickly wrap their ITK (or general C++) code without having to build an entire IO/plotting/wrapping
+code base from scratch -- see [ITK Wrap Guide](examples/UsingITK.md) for a succinct tutorial.
 
 ANTsPy includes blazing-fast IO (<b>>2.5x faster than <i>Nibabel</i></b> for loading Nifti files and 
 converting them to Numpy arrays), registration, segmentation, statistical learning, 
