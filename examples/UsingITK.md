@@ -231,6 +231,11 @@ this function directly if we want, but for users it's better to have a small pyt
 interface. This is very easy to implement, and mostly involves argument checking and such.
 
 ```python
+# relative imports in the package
+from .. import utils, core
+# could use the following if not in the package:
+# from ants import utils, core
+
 def scale_image2d(image, scale1, scale2):
     """
     Scale an 2D image by a specified factor in each dimension.
@@ -270,6 +275,7 @@ def scale_image2d(image, scale1, scale2):
                                 pointer=scaled_img_ptr)
     return scaled_img
 ```
+
 We also need to import this function in the ANTsPy namespace. If we put the above
 python code in a file called `scaled_image.py` in the `antspy/ants/utils` directory, 
 then we would add the following line to the `__init__.py` file in the 
