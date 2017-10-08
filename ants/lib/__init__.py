@@ -1,8 +1,4 @@
 
-## CONTRIB ##
-# NOTE: contrib contains code which is experimental or otherwise not
-# ready or appropriate to be included in the core package
-
 
 ## LOCAL ##
 from .antsImage import *
@@ -45,7 +41,13 @@ from .ResampleImage import *
 from .ThresholdImage import *
 from .TileImages import *
 
-## NOT-#WRAP ##
+
+## CONTRIB ##
+# NOTE: contrib contains code which is experimental
+from .antsImageAugment import *
+
+
+## NOT WRAPPED ##
 #from .antsLandmarkBasedTransformInitializer import *
 #from .antsMotionCorr import *
 #from .antsMotionCorrStats import *

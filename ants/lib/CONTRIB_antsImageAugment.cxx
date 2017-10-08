@@ -8,6 +8,11 @@
 #include "itkSigmoidImageFilter.h"
 #include "itkFlipImageFilter.h"
 #include "itkTranslationTransform.h"
+#include "itkResampleImageFilter.h"
+#include "itkLinearInterpolateImageFunction.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
+#include "itkInterpolateImageFunction.h"
+
 
 #include "itkImage.h"
 
@@ -24,7 +29,7 @@ py::capsule castAntsImage( py::capsule & antsImage )
     typename InputImageType::Pointer itkImage = as< InputImageType >( antsImage );
 
     typedef itk::CastImageFilter<InputImageType, OutputImageType > CastFilterType;
-    CastFilterType::Pointer castFilter = CastFilterType::New();
+    typename CastFilterType::Pointer castFilter = CastFilterType::New();
     castFilter->SetInput( itkImage );
 
     castFilter->Update();
@@ -41,7 +46,7 @@ py::capsule rescaleAntsImage( py::capsule & antsImage, float outputMinimum, floa
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
     typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > RescaleFilterType;
-    RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
+    typename RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
     rescaleFilter->SetInput( itkImage );
     rescaleFilter->SetOutputMinimum( outputMinimum );
     rescaleFilter->SetOutputMaximum( outputMaximum );
@@ -59,7 +64,7 @@ py::capsule shiftScaleAntsImage( py::capsule & antsImage, float outputScale, flo
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
     typedef itk::ShiftScaleImageFilter< ImageType, ImageType > ShiftScaleFilterType;
-    ShiftScaleFilterType::Pointer shiftFilter = ShiftScaleFilterType::New();
+    typename ShiftScaleFilterType::Pointer shiftFilter = ShiftScaleFilterType::New();
     shiftFilter->SetInput( itkImage );
     shiftFilter->SetScale( outputScale );
     shiftFilter->SetShift( outputShift );
@@ -77,7 +82,7 @@ py::capsule normalizeAntsImage( py::capsule & antsImage )
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
     typedef itk::NormalizeImageFilter< ImageType, ImageType > NormalizeFilterType;
-    NormalizeFilterType::Pointer normalizeFilter = NormalizeFilterType::New();
+    typename NormalizeFilterType::Pointer normalizeFilter = NormalizeFilterType::New();
     normalizeFilter->SetInput( itkImage );
 
     normalizeFilter->Update();
@@ -95,7 +100,7 @@ py::capsule sigmoidTransformAntsImage( py::capsule & antsImage,
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
     typedef itk::SigmoidImageFilter< ImageType, ImageType > SigmoidFilterType;
-    SigmoidFilterType::Pointer sigmoidFilter = SigmoidFilterType::New();
+    typename SigmoidFilterType::Pointer sigmoidFilter = SigmoidFilterType::New();
     sigmoidFilter->SetInput( itkImage );
     sigmoidFilter->SetOutputMinimum( outputMinimum );
     sigmoidFilter->SetOutputMaximum( outputMaximum );
@@ -115,15 +120,15 @@ py::capsule flipAntsImage( py::capsule & antsImage, unsigned int axis1, unsigned
 {
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
-    typedef itk::FlipImageFilter< ImageType, ImageType > FlipFilterType;
-    FlipFilterType::Pointer flipFilter = FlipFilterType::New();
+    typedef itk::FlipImageFilter< ImageType > FlipFilterType;
+    typename FlipFilterType::Pointer flipFilter = FlipFilterType::New();
     flipFilter->SetInput( itkImage );
 
-    typedef FlipFilterType::FlipAxesArrayType FlipAxesArrayType;
+    typedef typename FlipFilterType::FlipAxesArrayType FlipAxesArrayType;
     FlipAxesArrayType flipArray;
     flipArray[0] = axis1;
     flipArray[1] = axis2;
-    filter->SetFlipAxes( flipArray );
+    flipFilter->SetFlipAxes( flipArray );
 
     flipFilter->Update();
     return wrap< ImageType >( flipFilter->GetOutput() );
@@ -132,65 +137,87 @@ py::capsule flipAntsImage( py::capsule & antsImage, unsigned int axis1, unsigned
 /*
 Apply a translation to an ANTsImage. This function uses itk::TranslationTransform
 which is faster than using itk::AffineTransform.
+
+General steps for applying an ITK transform to an ANTsImage:
+- unwrap py::capsule(s)
+- create new transform smartpointer
+- set transform parameters, etc
+- create resample filter
+- create interpolation filter
+- set resample filter parameters, etc
 */
-template <typename ImageType>
-py::capsule translateAntsImage( py::capsule & antsImage, py::capsule referenceImage, std::vector<int> translationList )
+template <typename ImageType, typename InterpolatorType, typename PrecisionType, unsigned int Dimension>
+py::capsule translateAntsImage( py::capsule & inputAntsImage, py::capsule refAntsImage, 
+                                std::vector<float> translationList, std::string interpolationType )
 {
-    // first: unwrap ANTsImage
-    typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
+    // unwrap ANTsImage(s)
+    typename ImageType::Pointer inputImage = as< ImageType >( inputAntsImage );
+    typename ImageType::Pointer refImage = as< ImageType >( refAntsImage );
 
-    typedef itk::TranslationTransform<float,2> TranslationTransformType;
-    TranslationTransformType::Pointer transform = TranslationTransformType::New();
-    
-    TranslationTransformType::OutputVectorType translation;
-    for (unsigned int i; i < translationList.size(); ++i )
+    // create new transform smartpointer
+    typedef itk::TranslationTransform<PrecisionType,Dimension> TranslationTransformType;
+    typename TranslationTransformType::Pointer translationTransform = TranslationTransformType::New();
+
+    // set transform parameters, etc
+    typename TranslationTransformType::OutputVectorType translation;
+    for (unsigned int i = 0; i < translationList.size(); ++i )
     {
-        translation[i] = translationList[i]
+        translation[i] = translationList[i];
     }
-    transform->Translate(translation);
+    translationTransform->Translate(translation);
 
-    typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleImageFilterType;
-    ResampleImageFilterType::Pointer resampleFilter = ResampleImageFilterType::New();
-    resampleFilter->SetTransform(transform.GetPointer());
-    resampleFilter->SetInput(image);
+    // create resample filter
+    typedef itk::ResampleImageFilter<ImageType,ImageType,PrecisionType,PrecisionType> ResampleFilterType;
+    typename ResampleFilterType::Pointer resampleFilter = ResampleFilterType::New();
 
-    ImageType::SizeType size = image->GetLargestPossibleRegion().GetSize();
-    resampleFilter->SetSize( size );
+    // create interpolation filter
+    typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
 
+    // set resample filter parameters, etc
+    resampleFilter->SetInput( inputImage );
+    resampleFilter->SetSize( refImage->GetLargestPossibleRegion().GetSize() );
+    resampleFilter->SetOutputSpacing( refImage->GetSpacing() );
+    resampleFilter->SetOutputOrigin( refImage->GetOrigin() );
+    resampleFilter->SetOutputDirection( refImage->GetDirection() );
+    resampleFilter->SetInterpolator( interpolator );
+
+    resampleFilter->SetTransform( translationTransform );
+    resampleFilter->Update();
+
+    return wrap< ImageType >( resampleFilter->GetOutput() );
 }
 
 
-PYBIND11_MODULE(imageAugmentModule, m)
+PYBIND11_MODULE(antsImageAugment, m)
 {
     m.def("castAntsImageUC2F2", &castAntsImage<itk::Image<unsigned char,2>,itk::Image<float,2>>);
     m.def("castAntsImageUI2F2", &castAntsImage<itk::Image<unsigned int, 2>,itk::Image<float,2>>);
     m.def("castAntsImageD2F2", &castAntsImage<itk::Image<double,2>,itk::Image<float,2>>);
+
     m.def("castAntsImageUC3F3", &castAntsImage<itk::Image<unsigned char,3>,itk::Image<float,3>>);
     m.def("castAntsImageUI3F3", &castAntsImage<itk::Image<unsigned int, 3>,itk::Image<float,3>>);
     m.def("castAntsImageD3F3", &castAntsImage<itk::Image<double,3>,itk::Image<float,3>>);
-    m.def("castAntsImageUC4F4", &castAntsImage<itk::Image<unsigned char,4>,itk::Image<float,4>>);
-    m.def("castAntsImageUI4F4", &castAntsImage<itk::Image<unsigned int, 4>,itk::Image<float,4>>);
-    m.def("castAntsImageD4F4", &castAntsImage<itk::Image<double,4>,itk::Image<float,4>>);
 
     m.def("rescaleAntsImageF2", &rescaleAntsImage<itk::Image<float,2>>);
     m.def("rescaleAntsImageF3", &rescaleAntsImage<itk::Image<float,3>>);
-    m.def("rescaleAntsImageF4", &rescaleAntsImage<itk::Image<float,4>>);
 
     m.def("shiftScaleAntsImageF2", &shiftScaleAntsImage<itk::Image<float,2>>);
     m.def("shiftScaleAntsImageF3", &shiftScaleAntsImage<itk::Image<float,3>>);
-    m.def("shiftScaleAntsImageF4", &shiftScaleAntsImage<itk::Image<float,4>>);
 
     m.def("normalizeAntsImageF2", &normalizeAntsImage<itk::Image<float,2>>);
     m.def("normalizeAntsImageF3", &normalizeAntsImage<itk::Image<float,3>>);
-    m.def("normalizeAntsImageF4", &normalizeAntsImage<itk::Image<float,4>>);
 
     m.def("sigmoidTransformAntsImageF2", &sigmoidTransformAntsImage<itk::Image<float,2>>);
     m.def("sigmoidTransformAntsImageF3", &sigmoidTransformAntsImage<itk::Image<float,3>>);
-    m.def("sigmoidTransformAntsImageF4", &sigmoidTransformAntsImage<itk::Image<float,4>>);
 
     m.def("flipAntsImageF2", &flipAntsImage<itk::Image<float,2>>);
     m.def("flipAntsImageF3", &flipAntsImage<itk::Image<float,3>>);
-    m.def("flipAntsImageF4", &flipAntsImage<itk::Image<float,4>>);
+
+    m.def("translateAntsImageF2_linear", &translateAntsImage<itk::Image<float,2>, itk::LinearInterpolateImageFunction<itk::Image<float,2>, float>, float, 2>);
+    m.def("translateAntsImageF2_nearest", &translateAntsImage<itk::Image<float,2>, itk::NearestNeighborInterpolateImageFunction<itk::Image<float,2>, float>, float, 2>);
+    m.def("translateAntsImageF3_linear", &translateAntsImage<itk::Image<float,3>, itk::LinearInterpolateImageFunction<itk::Image<float,3>, float>, float, 3>);
+    m.def("translateAntsImageF3_nearest", &translateAntsImage<itk::Image<float,3>, itk::NearestNeighborInterpolateImageFunction<itk::Image<float,3>, float>, float, 3>);
+
 }
 
 

@@ -82,6 +82,7 @@ pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdIma
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
 
 ## CONTRIB ##
+pybind11_add_module(antsImageAugment CONTRIB_antsImageAugment.cxx)
 
 
 ## NOT-WRAPPED ##
@@ -139,6 +140,7 @@ target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 
 ## CONTRIB ##
+target_link_libraries(antsImageAugment PRIVATE ${ITK_LIBRARIES})
 
 
 ## NOT-WRAPPED ##
