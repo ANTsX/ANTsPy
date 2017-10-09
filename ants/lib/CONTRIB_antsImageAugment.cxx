@@ -147,8 +147,7 @@ General steps for applying an ITK transform to an ANTsImage:
 - set resample filter parameters, etc
 */
 template <typename ImageType, typename InterpolatorType, typename PrecisionType, unsigned int Dimension>
-py::capsule translateAntsImage( py::capsule & inputAntsImage, py::capsule refAntsImage, 
-                                std::vector<float> translationList, std::string interpolationType )
+py::capsule translateAntsImage( py::capsule & inputAntsImage, py::capsule refAntsImage, std::vector<float> translationList)
 {
     // unwrap ANTsImage(s)
     typename ImageType::Pointer inputImage = as< ImageType >( inputAntsImage );

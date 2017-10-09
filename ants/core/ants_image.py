@@ -285,9 +285,10 @@ class ANTsImage(object):
 
         Arguments
         ---------
-        data : ndarray
-            New data for the image. Must have the same shape as the current
-            image data
+        data : ndarray or py::capsule
+            New array or pointer for the image. 
+            It must have the same shape as the current
+            image data.
 
         Returns
         -------

@@ -55,12 +55,18 @@ ImageType::Pointer scaleImage( typename ImageType::Pointer myImage, float scale1
 
 # Problem Solution
 
-## 1. Functions take `py::capsule` types as input+output instead of `ImageType::Pointer` types
+## 1. Functions take py::capsule types as input & output instead of ImageType::Pointer types
 
 The first thing to do is to convert the Input and Output argument types from `ImageType::Pointer` to
-`py::capsule`. This needs to be done *ONLY* for input and output types.
+`py::capsule`. Py::capsules are containers which hold the underlying ITK smartpointer and let
+us pass them around in Python. This needs to be done *ONLY* for input and output types. 
+
+We also need to add in our pybind11 headers which let us implicitly cast between C++
 
 ```cpp
+#include <pybind11/pybind11.h> // header for wrapping code
+#include <pybind11/stl.h> // header for implicitly casting btwn python-cpp types
+
 #include "itkImage.h"
 #include "itkScaleTransform.h"
 #include "itkResampleImageFilter.h"
@@ -93,13 +99,16 @@ py::capsule scaleImage( py::capsule myImage, float scale1, float scale2 )
 }
 ```
 
-## 2. Input `py::capsule` types need to be un-wrapped. Output `py::capsule` types need to be wrapped.
+## 2. Input py::capsule types need to be un-wrapped. Output py::capsule types need to be wrapped.
 
-Next, we add our simple functions to un-wrap a `py::capsule` into an ITK image pointer, and
-we add our simple function to wrap an ITK image pointer into a `py::capsule`. NOTE how we 
-add another header `LOCAL_antsImage.h`
+Now, since we are passing in py::capsule types, we have to add the simple functions for
+converting py::capsules to ITK smartpointers and vice-versa. NOTE how we 
+add another header `LOCAL_antsImage.h` for doing this.
 
 ```cpp
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include "itkImage.h"
 #include "itkScaleTransform.h"
 #include "itkResampleImageFilter.h"
@@ -141,15 +150,14 @@ py::capsule scaleImage( py::capsule myAntsImage, float scale1, float scale2 )
 }
 ```
 
-## 3. Functions need to be declared for `pybind11` 
+## 3. Functions need to be declared for pybind11
 
 Now, in the file, we need to declare the function for `pybind11` to wrap it in python. 
 This is a simple process, but can be tedious since every image type needs to be declared
-explicitly. You can get around this by having a wrapper function which takes in strings
-declaring the precision and dimension (as in `ANTsR`), but we opt out of that in order
-to increase code readability and maintainability.
+explicitly. However, this tediousness caused by template usage leads to cleaner code
+and better maintainability in the long run.
 
-After declaring your function, your code will look like this:
+After declaring your function, your code will look like this (see bottom):
 
 ```cpp
 #include <pybind11/pybind11.h>
