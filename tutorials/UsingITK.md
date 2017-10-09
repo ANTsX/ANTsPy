@@ -22,11 +22,11 @@ Here is my original code in a file called "rescaleImage.cxx":
 
 ```cpp
 #include "itkImage.h"
-#include "itkScaleTransform.h"
-#include "itkResampleImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
 
 template <typename ImageType>
-ImageType::Pointer rescaleAntsImage( typename ImageType::Pointer itkImage, float outputMinimum, float outputMaximum )
+ImageType::Pointer rescaleAntsImage( typename ImageType::Pointer itkImage, 
+                                     float outputMinimum, float outputMaximum )
 {
     typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > RescaleFilterType;
     typename RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
@@ -46,7 +46,7 @@ ImageType::Pointer rescaleAntsImage( typename ImageType::Pointer itkImage, float
 
 The first thing to do is to convert the Input and Output argument types from `ImageType::Pointer` to
 `py::capsule`. Py::capsules are containers which hold the underlying ITK smartpointer and let
-us pass them around in Python. This needs to be done *ONLY* for input and output types. 
+us pass them around in Python. This needs to be done *ONLY* for input and output arguments. 
 
 We also need to add in our pybind11 headers which let us implicitly cast between C++
 
@@ -55,13 +55,13 @@ We also need to add in our pybind11 headers which let us implicitly cast between
 #include <pybind11/stl.h> // header for implicitly casting btwn python-cpp types
 
 #include "itkImage.h"
-#include "itkScaleTransform.h"
-#include "itkResampleImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
 
-namespace py = pybind11;
+namespace py = pybind11; // needed to use "py:"
 
 ttemplate <typename ImageType>
-py::capsule rescaleAntsImage( py::capsule & antsImage, float outputMinimum, float outputMaximum )
+py::capsule rescaleAntsImage( py::capsule & antsImage, 
+                              float outputMinimum, float outputMaximum )
 {
     typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > RescaleFilterType;
     typename RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
@@ -86,8 +86,7 @@ add another header `LOCAL_antsImage.h` for doing this.
 #include <pybind11/stl.h>
 
 #include "itkImage.h"
-#include "itkScaleTransform.h"
-#include "itkResampleImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
 
 // NEED THIS INCLUDE FOR WRAPPING/UNWRAPPING
 #include "LOCAL_antsImage.h"
@@ -95,8 +94,10 @@ add another header `LOCAL_antsImage.h` for doing this.
 namespace py = pybind11;
 
 template <typename ImageType>
-py::capsule rescaleAntsImage( py::capsule & antsImage, float outputMinimum, float outputMaximum )
+py::capsule rescaleAntsImage( py::capsule & antsImage, 
+                              float outputMinimum, float outputMaximum )
 {
+    // cast from py::capsule to ITK smartpointer (unwrapping)
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
     typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > RescaleFilterType;
@@ -106,6 +107,8 @@ py::capsule rescaleAntsImage( py::capsule & antsImage, float outputMinimum, floa
     rescaleFilter->SetOutputMaximum( outputMaximum );
     
     rescaleFilter->Update();
+
+    // cast from ITK smartpointer to py::capsule (wrapping)
     return wrap< ImageType >( rescaleFilter->GetOutput() );
 }
 
@@ -125,8 +128,7 @@ After declaring your function, your code will look like this (see bottom):
 #include <pybind11/stl.h>
 
 #include "itkImage.h"
-#include "itkScaleTransform.h"
-#include "itkResampleImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
 
 // NEED THIS INCLUDE FOR WRAPPING/UNWRAPPING
 #include "LOCAL_antsImage.h"
@@ -135,7 +137,8 @@ After declaring your function, your code will look like this (see bottom):
 namespace py = pybind11;
 
 template <typename ImageType>
-py::capsule rescaleAntsImage( py::capsule & antsImage, float outputMinimum, float outputMaximum )
+py::capsule rescaleAntsImage( py::capsule & antsImage, 
+                              float outputMinimum, float outputMaximum )
 {
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
 
@@ -158,8 +161,10 @@ PYBIND11_MODULE(rescaleImageModule, m)
 }
 ```
 
-That's all! The wrap declaration process is second nature after a while. Notice how
-we named our module `scaleImageModule` - this is what our python module will also be called.
+The wrap declaration process is second nature after a while. Notice how
+we named our module `rescaleImageModule` - this is what our python module will also be called.
+You can also see how I named the functions based on the type of input image. This will lead to
+TWO functions available in python - rescaleImageModule.rescaleImageF2 and rescaleImagemodule.rescaleImageF3.
 
 ## 4. Functions need to be built in `CMakeLists.txt` and imported in `__init__.py`
 
@@ -172,10 +177,12 @@ pybind11_add_module(rescaleImageModule rescaleImage.cxx)
 target_link_libraries(rescaleImageModule PRIVATE ${ITK_LIBRARIES})
 ```
 
-That's it! The code will now be built when the user runs `python setup.py develop` or
-`python setup.py install`. However, we have one last step to make sure it's imported into
+Our module will now be built into a python-compatible shared object library when 
+you run `python setup.py develop` or `python setup.py install`. 
+
+The rest of the steps involve making sure our functions are imported into
 the package namespace - we need to import it in the `__init__.py` file found in the
-`antspy/ants/lib` directory. Simply add this line:
+`antspy/ants/lib/` directory. Simply add this line:
 
 ```python
 from .rescaleImageModule import *
@@ -196,6 +203,7 @@ from .. import utils, core
 def rescale_image(image, min_val, max_val):
     """
     Rescale the intensity of an ANTsImage to be between
+    min_val and max_val
 
     Arguments
     ---------
@@ -212,9 +220,9 @@ def rescale_image(image, min_val, max_val):
     -------
     >>> import ants
     >>> img = ants.image_read(ants.get_data('r16'))
-    >>> img_scaled = ants.rescale_image(img, 0.8, 0.8)
-    >>> ants.plot(img)
-    >>> ants.plot(img_scaled)
+    >>> img_rescaled = ants.rescale_image(img, 0., 1.)
+    >>> print(img.min(), img.max())
+    >>> print(img_rescaled.min(), img_rescaled.max())
     """
     image = image.clone('float')
 
@@ -223,20 +231,20 @@ def rescale_image(image, min_val, max_val):
 
     # apply the function to my image
     # remember this function returns a py::capsule
-    rescaled_img_ptr = lib_fn(image.pointer, scale1, scale2)
+    rescaled_img_ptr = lib_fn(image.pointer, min_val, max_val)
 
     # wrap the py::capsule back in ANTsImage class
     rescaled_img = core.ANTsImage(pixeltype=image.pixeltype,
                                   dimension=image.dimension,
                                   components=image.components,
-                                  pointer=scaled_img_ptr)
+                                  pointer=rescaled_img_ptr)
     return rescaled_img
 ```
 
 We also need to import this function in the ANTsPy namespace. If we put the above
-python code in a file called `rescale_image.py` in the `antspy/ants/utils` directory, 
+python code in a file called `rescale_image.py` in the `antspy/ants/utils/` directory, 
 then we would add the following line to the `__init__.py` file in the 
-`antspy/ants/utils` directory:
+`antspy/ants/utils/` directory:
 
 ```python
 from .rescale_image import *
@@ -252,12 +260,8 @@ Now we can use this function quite easily:
 ```python
 import ants
 img = ants.image_read(ants.get_data('r16'))
-rescaled_img = ants.rescale_image(img, 0, 1) # rescale between 0 and 1
+rescaled_img = ants.rescale_image(img, 0., 1.) # rescale between 0 and 1
 ```
-
-![orig](original.png)
-
-![scaled](scaled.png)
 
 ------------------------------------------------------------
 
