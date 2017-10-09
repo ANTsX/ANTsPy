@@ -92,36 +92,12 @@ jobs:
       sudo: required
     - stage: install
       script: |
-        export ITK_DIR=$TRAVIS_BUILD_DIR/itkbuild-linux
-        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux
-        travis_retry pip install --upgrade pip setuptools wheel
-        travis_retry pip install -r requirements.txt --only-binary=scipy
-        travis_retry pip install coveralls plotly webcolors scikit-image fancyimpute 
-        python setup.py install --novtk
-        ./tests/run_tests_travis.sh
-      os: linux
-      python: 3.6
-      sudo: required
-    - stage: install
-      script: |
         export ITK_DIR=$HOME/itkbuild-mac
         export VTK_DIR=$HOME/vtkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
         travis_retry pip install coveralls coverage plotly webcolors scikit-image fancyimpute
         python setup.py install 
-        ./tests/run_tests_travis.sh
-      os: osx
-      sudo: required
-      language: generic
-    - stage: install
-      script: |
-        export ITK_DIR=$HOME/itkbuild-mac
-        export VTK_DIR=$HOME/vtkbuild-mac
-        travis_retry pip install --upgrade pip setuptools wheel
-        travis_retry pip install -r requirements.txt --only-binary=scipy
-        travis_retry pip install coveralls coverage plotly webcolors scikit-image fancyimpute
-        python setup.py install --novtk
         ./tests/run_tests_travis.sh
       os: osx
       sudo: required

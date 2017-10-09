@@ -19,37 +19,6 @@ import setuptools.command.build_py
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 version = '0.1.4' # ANTsPy version
 
-# check for `--novtk` or `--NOVTK` flag in setup call
-if ('--novtk' not in sys.argv) and ('--NOVTK' not in sys.argv):
-    BUILD_VTK = True
-
-    file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt')).read()
-    file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()
-    if file1 != file2:
-        print('copying CmakeLists-VTK')
-        # use VTK CMakeLists.txt for building
-        shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-VTK.txt'),
-                        os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
-    else:
-        print('not copying cmakelists')
-else:
-    print('WARNING: You are installing ANTsPy without VTK support.. waiting 5s in case you change your mind (press ctrl+c)')
-    time.sleep(5)
-    if ('--novtk' in sys.argv):
-        sys.argv.remove('--novtk')
-    elif ('--NOVTK' in sys.argv):
-        sys.argv.remove('--NOVTK')
-    BUILD_VTK = False
-    file1 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt')).read()
-    file2 = open(os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt')).read()
-    if file1 != file2:
-        print('copying CmakeLists-NOVTK')
-        # use NOVTK CMakeLists.txt for building
-        shutil.copyfile(os.path.join(setup_py_dir,'ants/lib/CMakeLists-NOVTK.txt'),
-                        os.path.join(setup_py_dir,'ants/lib/CMakeLists.txt'))
-    else:
-        print('not copying cmakelists')
-
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -85,18 +54,16 @@ class BuildExtFirst(setuptools.command.install.install):
 class CMakeBuild(build_ext):
     def run(self):
         ## Find or Configure VTK ##
-        global BUILD_VTK
-        if BUILD_VTK:
-            print('Configuring VTK')
-            if os.getenv('VTK_DIR'):
-                print('Using Local VTK Installation at:\n %s' % os.getenv('VTK_DIR'))
-            elif os.path.exists(os.path.join(setup_py_dir, 'vtkbuild')):
-                print('Using local VTK already built for this package')
-                os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
-            else:
-                print('No local VTK installation found... Building VTK now...')
-                subprocess.check_call(['./scripts/configure_VTK.sh'], cwd=setup_py_dir)
-                os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
+        print('Configuring VTK')
+        if os.getenv('VTK_DIR'):
+            print('Using Local VTK Installation at:\n %s' % os.getenv('VTK_DIR'))
+        elif os.path.exists(os.path.join(setup_py_dir, 'vtkbuild')):
+            print('Using local VTK already built for this package')
+            os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
+        else:
+            print('No local VTK installation found... Building VTK now...')
+            subprocess.check_call(['./scripts/configure_VTK.sh'], cwd=setup_py_dir)
+            os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
 
         ## Find or Configure ITK ##
         print('Configuring ITK')
@@ -109,8 +76,6 @@ class CMakeBuild(build_ext):
             print('No local ITK installation found... Building ITK now...')
             subprocess.check_call(['./scripts/configure_ITK.sh'], cwd=setup_py_dir)
             os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
-
-
 
         ## Find or Configure ANTs ##
         print('Configuring ANTs core')

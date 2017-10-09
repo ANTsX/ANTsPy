@@ -32,13 +32,12 @@ any part of the install process.
 
 1. The `setup.py` file is run. The entire build runs from here.
 2. We check for a local VTK copy by seeing if the environment variable $VTK_DIR is set.
-  (unless the `--novtk` flag was given - e.g. `python setup.py develop --novtk`).
 3. If there is a local VTK build found, move on. Otherwise, clone the VTK repo
 and make it by running the script `configure_VTK.sh`. This does NOT run `make install`.
 4. We check for a local ITK copy by seeing if the environment variable $ITK_DIR is set.
 5. If there is a local ITK build found, move on. Otherwise, clone the ITK repo
 and make it by running the script `configure_ITK.sh`. This does NOT run `make install`.
-6. After VTK (optional) and ITK are built, the `configure_ANTsPy.sh` script is run. 
+6. After VTK and ITK are built, the `configure_ANTsPy.sh` script is run. 
 This clones the core ANTs repo and copies all of the source files 
 into the `ants/lib/` directory. Note that ANTs core is not actually built on its own directly.
 Then, a copy of `pybind11` is cloned and put into the `ants/lib/` directory - 
@@ -46,8 +45,7 @@ which is how we can actually wrap C++ code in Python. Finally, the example data/
 which ship with ANTsPy (in the `data/` directory) are moved to a folder in the user's
 home directory (`~/.antspy/`). 
 4. Then, the ANTsPy library is built by running the cmake command in the `ants/lib/`
-directory and referring to the `ants/lib/CMakeLists.txt` file. If VTK support was chosen,
-we will use `CMakeLists-VTK.txt` else we will use `CMakeLists-NOVTK.txt`. This builds all of the
+directory and referring to the `ants/lib/CMakeLists.txt` file. This builds all of the
 shared object libraries.
 5. Finally, the library is installed as any other python package. To see what happens
 there (depends on whether `develop` or `install` was run), refer to the official
