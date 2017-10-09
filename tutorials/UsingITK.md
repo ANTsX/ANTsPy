@@ -166,7 +166,7 @@ we named our module `rescaleImageModule` - this is what our python module will a
 You can also see how I named the functions based on the type of input image. This will lead to
 TWO functions available in python - rescaleImageModule.rescaleImageF2 and rescaleImagemodule.rescaleImageF3.
 
-## 4. Functions need to be built in `CMakeLists.txt` and imported in `__init__.py`
+## 4. Functions need to be built in CMakeLists.txt and imported in __init__.py
 
 Next (almost done), we need to actually build our function during the build process by adding
 it to the CMakeLists.txt file in the `antspy/ants/lib/` directory. We only need to add two
