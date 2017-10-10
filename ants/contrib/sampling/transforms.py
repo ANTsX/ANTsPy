@@ -41,6 +41,7 @@ __all__ = ['CastIntensity',
            'ShiftScaleIntensity',
            'SigmoidIntensity',
            'FlipImage',
+           'ScaleImage',
            'TranslateImage',
            'MultiResolutionImage']
 
@@ -697,4 +698,69 @@ class TranslateImage(object):
         return iio.ANTsImage(pixeltype=X.pixeltype, dimension=X.dimension,
                              components=X.components, pointer=casted_ptr)
 
+
+class ScaleImage(object):
+    """
+    Scale an image in physical space. This function calls 
+    highly optimized ITK/C++ code.
+    """
+    def __init__(self, scale, reference=None, interp='linear'):
+        """
+        Initialize a TranslateImage transform
+
+        Arguments
+        ---------
+        scale : list, tuple, or numpy.ndarray
+            relative scaling along each axis
+
+        reference : ANTsImage (optional)
+            image which provides the reference physical space in which
+            to perform the transform
+
+        interp : string
+            type of interpolation to use
+            options: linear, nearest
+
+        Example
+        -------
+        >>> import ants
+        >>> translater = ants.contrib.TranslateImage((10,10), interp='linear')
+        """
+        if interp not in {'linear', 'nearest'}:
+            raise ValueError('interp must be one of {linear, nearest}')
+
+        self.scale = list(scale)
+        self.reference = reference
+        self.interp = interp
+
+    def transform(self, X, y=None):
+        """
+        Example
+        -------
+        >>> import ants
+        >>> scaler = ants.contrib.ScaleImage((1.2,1.2))
+        >>> img2d = ants.image_read(ants.get_data('r16'))
+        >>> img2d_r = scaler.transform(img2d)
+        >>> ants.plot(img2d, img2d_r)
+        >>> scaler = ants.contrib.ScaleImage((1.2,1.2,1.2))
+        >>> img3d = ants.image_read(ants.get_data('mni'))
+        >>> img3d_r = scaler.transform(img3d)
+        >>> ants.plot(img3d, img3d_r)
+        """
+        if X.pixeltype != 'float':
+            raise ValueError('image.pixeltype must be float ... use TypeCast transform or clone to float')
+
+        if len(self.scale) != X.dimension:
+            raise ValueError('must give a scale value for each image dimension')
+
+        if self.reference is None:
+            reference = X
+        else:
+            reference = self.reference
+
+        insuffix = X._libsuffix
+        cast_fn = utils.get_lib_fn('scaleAntsImage%s_%s' % (insuffix, self.interp))
+        casted_ptr = cast_fn(X.pointer, reference.pointer, self.scale)
+        return iio.ANTsImage(pixeltype=X.pixeltype, dimension=X.dimension,
+                             components=X.components, pointer=casted_ptr)
 

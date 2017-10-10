@@ -300,14 +300,13 @@ py::capsule translateAntsImage( py::capsule & inputAntsImage, py::capsule refAnt
 Scale an ANTsImage
 */
 template <typename ImageType, typename InterpolatorType, typename PrecisionType, unsigned int Dimension>
-py::capsule scaleAntsImage( py::capsule & antsImage, py::capsule & refImage, std::vector<float> scaleList )
+py::capsule scaleAntsImage( py::capsule & antsImage, py::capsule & antsRefImage, std::vector<float> scaleList )
 {
     typename ImageType::Pointer itkImage = as< ImageType >( antsImage );
+    typename ImageType::Pointer refImage = as< ImageType >( antsRefImage );
 
     typedef itk::ScaleTransform<PrecisionType, Dimension> TransformType;
     typename TransformType::Pointer transform = TransformType::New();
-
-    transform->SetInput( itkImage );
 
     itk::FixedArray<PrecisionType, Dimension> scale;
     for (unsigned int i = 0; i < Dimension; i++ )
@@ -319,7 +318,7 @@ py::capsule scaleAntsImage( py::capsule & antsImage, py::capsule & refImage, std
     itk::Point<float,Dimension> center;
     for (unsigned int i = 0; i < Dimension; i++ )
     {
-        center[i] = image->GetLargestPossibleRegion().GetSize()[i]/2;
+        center[i] = itkImage->GetOrigin()[i] + itkImage->GetSpacing()[i] * itkImage->GetLargestPossibleRegion().GetSize()[i]/2;
     } 
     transform->SetCenter(center);
 
