@@ -225,12 +225,6 @@ class ANTsImage(object):
         Returns
         -------
         ndarray
-        
-        if self.has_components:
-            imgs = utils.split_channels(self)
-            arr = np.stack([np.array(ii.view(), copy=True, dtype=self.dtype) for ii in imgs])
-            return np.rollaxis(arr, 0, self.dimension+1)
-        else:
         """
         array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
         if self.has_components or (single_components == True):

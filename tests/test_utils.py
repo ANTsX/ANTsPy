@@ -340,6 +340,69 @@ class TestModule_iMath(unittest.TestCase):
         img = ants.image_read(ants.get_ants_data('r16'))
         img2 = ants.iMath(img, 'Canny', 1, 5, 12)
 
+    def test_iMath_options(self):
+        """
+        test all of the imath functions
+        Options:
+        - GD
+        """
+        for img in self.imgs:
+            # Grayscale dilation
+            img_gd = ants.iMath(img, 'GD', 3)
+            self.assertTrue(ants.image_physical_space_consistency(img_gd, img))
+            self.assertTrue(not ants.allclose(img_gd, img))
+
+            # Grayscale erosion
+            img_tx = ants.iMath(img, 'GE', 3)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Morphological dilation
+            img_tx = ants.iMath(img, 'MD', 3)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Morphological erosion
+            img_tx = ants.iMath(img, 'ME', 3)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Morphological closing
+            img_tx = ants.iMath(img, 'MC', 3)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Morphological opening
+            img_tx = ants.iMath(img, 'MO', 3)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Pad image - ERRORS
+            img_tx = ants.iMath(img, 'PadImage', 2)
+
+            # PeronaMalik - ERRORS
+            img_tx = ants.iMath(img, 'PeronaMalik', 10, 0.5)
+
+            # Maurer Distance
+            img_tx = ants.iMath(img, 'MaurerDistance')
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Danielsson Distance Map
+            img_tx = ants.iMath(img, 'DistanceMap')
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Image gradient
+            img_tx = ants.iMath(img, 'Grad', 1)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
+            # Laplacian
+            img_tx = ants.iMath(img, 'Laplacian', 1, 1)
+            self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
+            self.assertTrue(not ants.allclose(img_tx, img))
+
 
 class TestModule_impute(unittest.TestCase):
 

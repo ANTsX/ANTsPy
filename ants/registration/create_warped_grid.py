@@ -4,7 +4,17 @@ __all__ = ['create_warped_grid']
 
 import numpy as np
 
+from ..core import ants_image as iio
+from ..core import ants_image_io as iio2
 from .apply_transforms import apply_transforms
+
+def create_grid_source(size=(250, 250),
+                       sigma=(0.5, 0.5),
+                       grid_spacing=(5.0, 5.0),
+                       grid_offset=(0.0, 0.0),
+                       spacing=(0.2, 0.2),
+                       pixeltype='float'):
+    pass
 
 def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True, True),
                        fixed_reference_image=None, transform=None, foreground=1, background=0):
@@ -55,25 +65,44 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
     >>> mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
                             transform=mytx['fwdtransforms'], fixed_reference_image=fi )
     """
-    if len(grid_directions) != image.dimension:
-        grid_directions = [True]*image.dimension
+    if isinstance(image, iio.ANTsImage):
+        if len(grid_directions) != image.dimension:
+            grid_directions = [True]*image.dimension
+        garr = image.numpy() * 0 + foreground
+    else:
+        if not isinstance(image, (list, tuple)):
+            raise ValueError('image arg must be ANTsImage or list or tuple')
+        if len(grid_directions) != len(image):
+            grid_directions = [True]*len(image)
+        garr = np.zeros(image) + foreground
+        image = iio2.from_numpy(garr)
 
-    garr = image.numpy() * 0 + foreground
+    idim = garr.ndim
     gridw = grid_width
 
-    for d in range(image.dimension):
-        togrid = np.arange(0, garr.shape[d]-grid_width, step=grid_step)
+    for d in range(idim):
+        togrid = np.arange(-1, garr.shape[d]-1, step=grid_step)
         for i in range(len(togrid)):
-            if (d == 1) & (image.dimension == 3) & (grid_directions[d]):
+            if (d == 0) & (idim == 3) & (grid_directions[d]):
                 garr[togrid[i]:(togrid[i]+gridw),...] = background
-            if (d == 2) & (image.dimension == 3) & (grid_directions[d]):
+                garr[0,...] = background
+                garr[-1,...] = background
+            if (d == 1) & (idim == 3) & (grid_directions[d]):
                 garr[:,togrid[i]:(togrid[i]+gridw),:] = background
-            if (d == 3) & (image.dimension == 3) & (grid_directions[d]):
+                garr[:,0,:] = background
+                garr[:,-1,:] = background
+            if (d == 2) & (idim == 3) & (grid_directions[d]):
                 garr[...,togrid[i]:(togrid[i]+gridw)] = background
-            if (d == 1) & (image.dimension == 2) & (grid_directions[d]):
+                garr[...,0] = background
+                garr[...,-1] = background
+            if (d == 0) & (idim == 2) & (grid_directions[d]):
                 garr[togrid[i]:(togrid[i]+gridw),:] = background
-            if (d == 2) & (image.dimension == 2) & (grid_directions[d]):
+                garr[0,:] = background
+                garr[-1,:] = background
+            if (d == 1) & (idim == 2) & (grid_directions[d]):
                 garr[:,togrid[i]:(togrid[i]+gridw)] = background
+                garr[:,0] = background
+                garr[:,-1] = background
 
 
     gimage = image.new_image_like(garr)
