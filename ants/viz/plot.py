@@ -14,7 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
 
-def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslices=12, slices=None, ncol=4):
+def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
+         axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
+         filename=None):
     """
     Plot an ANTsImage
     
@@ -28,16 +30,20 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
     overlay : ANTsImage (optional)
         image to overlay on base image
 
-    cmap : string (default is 'Grey_r')
+    cmap : string
         colormap to use for base image. See matplotlib.
 
-    overlay_cmap : string (default is 'jet')
+    overlay_cmap : string
         colormap to use for overlay images, if applicable. See matplotlib.
 
-    axis : integer (default is 0)
+    overlay_alpha : float
+        level of transparency for any overlays. Smaller value means 
+        the overlay is more transparent. See matplotlib.
+
+    axis : integer
         which axis to plot along if image is 3D
 
-    nslices : integer (default is 12)
+    nslices : integer
         number of slices to plot if image is 3D
 
     slices : list or tuple of integers
@@ -48,6 +54,19 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
 
     ncol : integer (default is 4)
         Number of columns to have on the plot if image is 3D.
+
+    slice_buffer : integer (default is 0)
+        how many slices to buffer when finding the non-zero slices of
+        a 3D images. So, if slice_buffer = 10, then the first slice
+        in a 3D image will be the first non-zero slice index plus 10 more
+        slices.
+
+    white_bg : boolean (default is False)
+        if True, the background of the image(s) will be white.
+        if False, the background of the image(s) will be black
+
+    filename : string (optional)
+        if given, the resulting image will be saved to this file
 
     Example
     -------
@@ -110,10 +129,12 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
             ov_arr = np.rollaxis(ov_arr, axis)
 
         if slices is None:
+            if not isinstance(slice_buffer, (list, tuple)):
+                slice_buffer = (slice_buffer, slice_buffer)
             nonzero = np.where(np.abs(img_arr)>0)[0]
-            min_idx = nonzero[0]
-            max_idx = nonzero[-1]
-            slice_idxs = np.linspace(min_idx+1, max_idx-1, nslices).astype('int')
+            min_idx = nonzero[0] + slice_buffer[0]
+            max_idx = nonzero[-1] - slice_buffer[1]
+            slice_idxs = np.linspace(min_idx, max_idx, nslices).astype('int')
         else:
             if isinstance(slices, (int,float)):
                 slices = [slices]
@@ -144,13 +165,19 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', axis=0, nslice
             for j in range(ncol):
                 if slice_idx_idx < len(slice_idxs):
                     im = img_arr[slice_idxs[slice_idx_idx]]
+                    if white_bg:
+                        im[im<(im.min()+1e-5)] = None
                     ax = plt.subplot(gs[i,j])
                     ax.imshow(im, cmap=cmap)
                     if overlay is not None:
                         ov = ov_arr[slice_idxs[slice_idx_idx]]
-                        ax.imshow(ov, alpha=0.9, cmap=overlay_cmap)
+                        ax.imshow(ov, alpha=overlay_alpha, cmap=overlay_cmap)
                     ax.axis('off')
                     slice_idx_idx += 1
+
+        if filename is not None:
+            plt.savefig(filename)
+            
         plt.show()
 
         # turn warnings back to default
