@@ -112,7 +112,7 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         ax.imshow(img_arr, cmap=cmap)
 
         if overlay is not None:
-            ax.imshow(ov_arr, cmap=overlay_cmap)
+            ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
 
         plt.axis('off')
         plt.show()
