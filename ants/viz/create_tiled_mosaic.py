@@ -38,6 +38,13 @@ def create_tiled_mosaic(img, rgb=None, output=None,  mask=None, overlay=None,
     >>> img = ants.image_read(ants.get_ants_data('ch2'))
     >>> plt = ants.create_tiled_mosaic(img)
     """
+    # img needs to be unsigned char
+    if img.pixeltype != 'unsigned char':
+        # transform between 0 and 255.
+        img = (img - img.max()) / (img.max() - img.min())
+        img = img * 255.
+        img = img.clone('unsigned char')
+    
     output_is_temp = False
     if output is None:
         output_is_temp = True
