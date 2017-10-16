@@ -61,8 +61,8 @@ This section describes the general architecture of the package.
     - `core` : contains all core object class definitions and all IO related to these objects.
     - `learn` : contains any code related to Statistical Learning, such as `sparse_decom2`.
     - `lib` : contains any C++ wrapping code. Any file which has code which does not 
-        directly wrap ANTs functions are prefaced with `LOCAL_`. 
-        Any code which directly wraps ANTs functions are prefaced with `WRAP_`.
+        directly wrap ANTs functions are prefaced with "LOCAL_". 
+        Any code which directly wraps ANTs functions are prefaced with "WRAP_".
     - `registration` : contains all code related to image registration.
     - `segmentation` : contains all code related to image segmentation.
     - `utils` : contains all code which perform random functions or functions which are
