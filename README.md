@@ -21,7 +21,7 @@ with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community.
 converting them to <i>numpy</i> arrays), registration, segmentation, statistical learning, 
 visualization, other useful utility functions.
 
-<i>ANTsPy</i> also provides a beautiful opportunity for users to quickly wrap their <i>ITK</i> (or general C++) 
+<i>ANTsPy</i> also provides a low-barrier opportunity for users to quickly wrap their <i>ITK</i> (or general C++) 
 code in Python without having to build an entire IO/plotting/wrapping code base from 
 scratch - see [ITK Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
 
