@@ -22,7 +22,7 @@ converting them to <i>numpy</i> arrays), registration, segmentation, statistical
 visualization, other useful utility functions.
 
 <i>ANTsPy</i> also provides a beautiful opportunity for users to quickly wrap their <i>ITK</i> (or general C++) 
-code without having to build an entire IO/plotting/wrapping code base from 
+code in Python without having to build an entire IO/plotting/wrapping code base from 
 scratch - see [ITK Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
 
 If you want to contribute to <i>ANTsPy</i> or simply want to learn about the package architecture
