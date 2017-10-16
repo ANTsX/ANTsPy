@@ -19,7 +19,7 @@ with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community.
 
 <i>ANTsPy</i> includes blazing-fast IO (40% faster than <i>nibabel</i> ([see script](https://github.com/ANTsX/ANTsPy/blob/master/tests/timings_io.py)) for loading Nifti images and 
 converting them to <i>numpy</i> arrays), registration, segmentation, statistical learning, 
-visualization, other useful utility functions.
+visualization, and other useful utility functions.
 
 <i>ANTsPy</i> also provides a low-barrier opportunity for users to quickly wrap their <i>ITK</i> (or general C++) 
 code in Python without having to build an entire IO/plotting/wrapping code base from 
