@@ -57,8 +57,9 @@ python documentation.
 This section describes the general architecture of the package.
 
 - The python code has the following modules:
-    - `core` : contains all core object class definitions such as `ANTsImage`, `ANTsTransform`,
-        and `ANTsImageToImageMetric`. Also contains all IO related to these objects.
+    - `contrib` : contains any experimental code or code which significantly differs from ANTsR.
+    - `core` : contains all core object class definitions such as ANTsImage, ANTsTransform,
+        and ANTsImageToImageMetric. Also contains all IO related to these objects.
     - `learn` : contains any code related to Statistical Learning, such as `sparse_decom2`.
     - `lib` : contains any C++ wrapping code. Any file which has code which does not 
         directly wrap ANTs functions are prefaced with `LOCAL_`. 
