@@ -36,7 +36,8 @@ _unsupported_ptype_map = {
 _image_type_map = {
     'scalar': '',
     'vector': 'V',
-    'rgb': 'RGB'
+    'rgb': 'RGB',
+    'rgba': 'RGBA'
 }
 _ptype_type_map = {
     'unsigned char': 'UC',
@@ -58,7 +59,7 @@ _npy_to_itk_map = {
     'float64': 'double'}
 
 _image_read_dict = {}
-for itype in {'scalar', 'vector', 'rgb'}:
+for itype in {'scalar', 'vector', 'rgb', 'rgba'}:
     _image_read_dict[itype] = {}
     for p in _supported_ptypes:
         _image_read_dict[itype][p] = {}

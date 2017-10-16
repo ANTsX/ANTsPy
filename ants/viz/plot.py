@@ -4,14 +4,17 @@ or a tile of slices from a 3D ANTsImage
 """
 
 
-__all__ = ['plot']
+__all__ = ['plot',
+           'plot_directory']
 
+import fnmatch
 import math
+import os
 import warnings
 
-import numpy as np
+from   matplotlib import gridspec
 import matplotlib.pyplot as plt
-from matplotlib import gridspec
+import numpy as np
 
 
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
@@ -182,4 +185,64 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
         # turn warnings back to default
         warnings.simplefilter('default')
+
+
+def plot_directory(directory, recursive=False, regex='*', 
+                   save_prefix='', save_suffix=''):
+    """
+    Create and save an ANTsPy plot for every image matching a given regular
+    expression in a directory, optionally recursively. This is a good function
+    for quick visualize exploration of all of images in a directory 
+    
+    ANTsR function: N/A
+
+    Arguments
+    ---------
+    directory : string
+        directory in which to search for images and plot them
+
+    recursive : boolean
+        If true, this function will search through all directories under 
+        the given directory recursively to make plots.
+        If false, this function will only create plots for images in the
+        given directory
+
+    regex : string
+        regular expression used to filter out certain filenames or suffixes
+
+    save_prefix : string
+        sub-string that will be appended to the beginning of all saved plot filenames. 
+        Default is to add nothing.
+
+    save_suffix : string
+        sub-string that will be appended to the end of all saved plot filenames. 
+        Default is add nothing.
+
+    Example
+    -------
+    >>> import ants
+    >>> ants.plot_directory(directory='~/desktop/testdir',
+                            recursive=False, regex='*', save_prefix='plot_')
+    """
+    def has_acceptable_suffix(fname):
+        suffixes = {'.nii.gz'}
+        return sum([fname.endswith(sx) for sx in suffixes]) > 0
+
+    if directory.startswith('~'):
+        directory = os.path.expanduser(directory)
+
+    if not os.path.isdir(directory):
+        raise ValueError('directory %s does not exist!' % directory)
+
+    for root, dirnames, fnames in os.walk(directory):
+        for fname in fnames:
+            if fnmatch.fnmatch(fname, regex) and has_acceptable_suffix(fname):
+                full_fname = os.path.join(root, fname)
+                print(full_fname)
+
+
+
+
+
+
 

@@ -1,5 +1,20 @@
 """
-Timings against numpy/itk/nibabel/etc where appropriate
+Timings against numpy/itk/nibabel/ants
+
+To run the timings, first install itk, nibabel, and ants.
+Then, run this file `timings_io.py` (e.g. `python timings_io.py`)
+
+On a Macbook Pro
+---------------
+1 Trial:
+NIBABEL TIME: 2.902 seconds
+ITK TIME: 4.375 seconds
+ANTS TIME: 1.713 seconds
+
+20 Trials:
+NIBABEL TIME: 56.121 seconds
+ITK TIME: 28.780 seconds
+ANTS TIME: 33.601 seconds
 """
 
 import os
@@ -48,6 +63,6 @@ def time_nifti_to_numpy(N_TRIALS):
 
 
 if __name__ == '__main__':
-    time_nifti_to_numpy(N_TRIALS=1)
+    time_nifti_to_numpy(N_TRIALS=1) # 
     time_nifti_to_numpy(N_TRIALS=20)
 
