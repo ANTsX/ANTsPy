@@ -16,6 +16,8 @@ from   matplotlib import gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ..core import ants_image_io as iio2
+
 
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
@@ -118,7 +120,11 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
             ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
 
         plt.axis('off')
-        plt.show()
+        if filename is not None:
+            plt.savefig(filename)
+            plt.close(fig)
+        else:
+            plt.show()
 
     # Plot 3D image
     elif image.dimension == 3:
@@ -180,15 +186,16 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
         if filename is not None:
             plt.savefig(filename)
-            
-        plt.show()
+            plt.close(fig)
+        else:
+            plt.show()
 
         # turn warnings back to default
         warnings.simplefilter('default')
 
 
 def plot_directory(directory, recursive=False, regex='*', 
-                   save_prefix='', save_suffix=''):
+                   save_prefix='', save_suffix='', **kwargs):
     """
     Create and save an ANTsPy plot for every image matching a given regular
     expression in a directory, optionally recursively. This is a good function
@@ -218,11 +225,15 @@ def plot_directory(directory, recursive=False, regex='*',
         sub-string that will be appended to the end of all saved plot filenames. 
         Default is add nothing.
 
+    kwargs : keyword arguments
+        any additional arguments to pass onto the `ants.plot` function.
+        e.g. overlay, alpha, cmap, etc. See `ants.plot` for more options.
+
     Example
     -------
     >>> import ants
     >>> ants.plot_directory(directory='~/desktop/testdir',
-                            recursive=False, regex='*', save_prefix='plot_')
+                            recursive=False, regex='*')
     """
     def has_acceptable_suffix(fname):
         suffixes = {'.nii.gz'}
@@ -237,8 +248,21 @@ def plot_directory(directory, recursive=False, regex='*',
     for root, dirnames, fnames in os.walk(directory):
         for fname in fnames:
             if fnmatch.fnmatch(fname, regex) and has_acceptable_suffix(fname):
-                full_fname = os.path.join(root, fname)
-                print(full_fname)
+                load_fname = os.path.join(root, fname)
+                fname = fname.replace('.'.join(fname.split('.')[1:]), 'png')
+                fname = fname.replace('.png', '%s.png' % save_suffix)
+                fname = '%s%s' % (save_prefix, fname)
+                save_fname = os.path.join(root, fname)
+                img = iio2.image_read(load_fname)
+                if img.dimension > 2:
+                    for axis_idx in range(img.dimension):
+                        filename = save_fname.replace('.png', '_axis%i.png' % axis_idx)
+                        ncol = int(math.sqrt(img.shape[axis_idx]))
+                        plot(img, axis=axis_idx, nslices=img.shape[axis_idx], ncol=ncol,
+                             filename=filename, **kwargs)
+                else:
+                    filename = save_fname
+                    plot(img, filename=filename, **kwargs)                    
 
 
 
