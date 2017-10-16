@@ -32,11 +32,11 @@ and wrapping process, please read the extensive [contributors guide](CONTRIBUTIN
 
 ### Method 1: Pre-Compiled Binaries (preferred)
 The fastest method is to install the pre-compiled binaries for the latest 
-stable release (takes ~1 min):
+stable, weekly release (takes ~1 min):
 
 If you have MacOS:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-macosx_10_7_x86_64.whl
+pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4a0-cp36-cp36m-macosx_10_7_x86_64.whl
 ```
 
 If you have Linux:

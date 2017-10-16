@@ -19,6 +19,9 @@ import setuptools.command.build_py
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 version = '0.1.4' # ANTsPy version
 
+if ('--weekly' in sys.argv):
+    sys.argv.remove('--weekly')
+    version = '%sa0' % version
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
