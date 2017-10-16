@@ -195,7 +195,7 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
 
 def plot_directory(directory, recursive=False, regex='*', 
-                   save_prefix='', save_suffix='', **kwargs):
+                   save_prefix='', save_suffix='', axis=None, **kwargs):
     """
     Create and save an ANTsPy plot for every image matching a given regular
     expression in a directory, optionally recursively. This is a good function
@@ -254,8 +254,14 @@ def plot_directory(directory, recursive=False, regex='*',
                 fname = '%s%s' % (save_prefix, fname)
                 save_fname = os.path.join(root, fname)
                 img = iio2.image_read(load_fname)
+
+                if axis is None:
+                    axis_range = [i for i in range(img.dimension)]
+                else:
+                    axis_range = axis if isinstance(axis,(list,tuple)) else [axis]
+
                 if img.dimension > 2:
-                    for axis_idx in range(img.dimension):
+                    for axis_idx in axis_range:
                         filename = save_fname.replace('.png', '_axis%i.png' % axis_idx)
                         ncol = int(math.sqrt(img.shape[axis_idx]))
                         plot(img, axis=axis_idx, nslices=img.shape[axis_idx], ncol=ncol,

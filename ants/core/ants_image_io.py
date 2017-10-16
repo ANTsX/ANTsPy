@@ -18,6 +18,7 @@ __all__ = ['image_header_info',
 import os
 import json
 import numpy as np
+import warnings
 
 from . import ants_image as iio
 from .. import utils
@@ -401,7 +402,8 @@ def image_read(filename, dimension=None, pixeltype='float'):
             ndim = dimension
 
         if ptype in _unsupported_ptypes:
-            raise ValueError('unsupported pixeltype %s' % ptype)
+            #warnings.warn('Casting image from unsupported type \'%s\' to closest supported type \'%s\'' % (ptype, _unsupported_ptype_map[ptype]))
+            ptype = _unsupported_ptype_map.get(ptype, 'unsupported')
 
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)

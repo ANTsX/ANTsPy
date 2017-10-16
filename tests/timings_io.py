@@ -41,7 +41,7 @@ def time_nifti_to_numpy(N_TRIALS):
 
     def test_ants():
         for img_path in img_paths:
-            array = ants.image_read(img_path).numpy()
+            array = ants.image_read(img_path, pixeltype='float').numpy()
 
     nib_start = time.time()
     for i in range(N_TRIALS):
