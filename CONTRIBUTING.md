@@ -65,7 +65,7 @@ This section describes the general architecture of the package.
         Any code which directly wraps ANTs functions are prefaced with "WRAP_".
     - `registration` : contains all code related to image registration.
     - `segmentation` : contains all code related to image segmentation.
-    - `utils` : contains all code which perform random functions or functions which are
+    - `utils` : contains all code which perform utility functions or functions which are
         not easily categorized elsewhere.
     - `viz` : contains any visualization code.
 
