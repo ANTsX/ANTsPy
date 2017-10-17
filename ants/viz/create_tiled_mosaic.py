@@ -9,11 +9,63 @@ from PIL import Image
 from .. import utils
 from ..core import ants_image_io as iio2
 
-def create_tiled_mosaic(img, rgb=None, output=None,  mask=None, overlay=None,
-                        alpha=1., direction=0, 
+
+def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
+                        output=None, alpha=1., direction=0, 
                         pad_or_crop=None, slices=None,
                         flip_slice=None, permute_axes=False):
     """
+    Create a tiled mosaic of 2D slice images from a 3D ANTsImage.
+    
+    ANTsR function : N/A
+    ANTs function  : `createTiledMosaic`
+
+    Arguments
+    ---------
+    image : ANTsImage
+        base image to visualize
+
+    rgb : ANTsImage
+        optional overlay image to display on top of base image
+
+    mask : ANTsImage
+        optional mask image
+
+    alpha : float
+        alpha value for rgb/overlay image
+
+    direction : integer or string
+        which axis to visualize
+        options: 0, 1, 2, 'x', 'y', 'z'
+
+    pad_or_crop : list of 2-tuples
+        padding or cropping values for each dimension and each side.
+        - to crop the X dimension, use the following:
+            pad_or_crop = [(10,10), 0, 0]
+        - to pad the X dimension, use the following:
+            pad_or_crop = [(-10,-10), 0, 0]
+
+    slices : list/numpy.ndarray or integer or 3-tuple
+        if list or numpy.ndarray:
+            slices to use
+        if integer:
+            number of slices to incremenet
+        if 3-tuple:
+            (# slices to increment, min slice, max slice)
+    
+    flip_slice : 2-tuple of boolean
+        (whether to flip X direction, whether to flip Y direction)
+    
+    permute_axes : boolean
+        whether to permute axes
+
+    output : string
+        output filename where mosaic image will be saved.
+        If not given, this function will save to a temp file,
+        then return the image as a PIL.Image object
+    
+    ANTs
+    ----
      -i, --input-image inputImageFilename
      -r, --rgb-image rgbImageFilename
      -x, --mask-image maskImageFilename
@@ -32,18 +84,24 @@ def create_tiled_mosaic(img, rgb=None, output=None,  mask=None, overlay=None,
      -g, --permute-axes doPermute
      -h 
 
+    CreateTiledMosaic -i OAS1_0457_MR1_mpr_n3_anon_sbj_111BrainSegmentation0N4 . nii . gz \
+    -r OAS1_0457_MR1_mpr_n3_anon_sbj_111CorticalThickness_hot . nii . gz \
+    -x OAS1_0457_MR1_mpr_n3_anon_sbj_111CorticalThickness_mask . nii . gz \
+    -o OAS1_0457_MR1_mpr_n3_anon_sbj_111_tiledMosaic . png \
+    -a 1.0 -t -1 x8 -d 2 -p [ -15x -50 , -15x -30 ,0] -s [2 ,100 ,160]
+
     Example
     -------
     >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('ch2'))
-    >>> plt = ants.create_tiled_mosaic(img)
+    >>> image = ants.image_read(ants.get_ants_data('ch2'))
+    >>> plt = ants.create_tiled_mosaic(image)
     """
-    # img needs to be unsigned char
-    if img.pixeltype != 'unsigned char':
+    # image needs to be unsigned char
+    if image.pixeltype != 'unsigned char':
         # transform between 0 and 255.
-        img = (img - img.max()) / (img.max() - img.min())
-        img = img * 255.
-        img = img.clone('unsigned char')
+        image = (image - image.max()) / (image.max() - image.min())
+        image = image * 255.
+        image = image.clone('unsigned char')
     
     output_is_temp = False
     if output is None:
@@ -51,15 +109,15 @@ def create_tiled_mosaic(img, rgb=None, output=None,  mask=None, overlay=None,
         output = mktemp(suffix='.jpg')
 
     if rgb is None:
-        rgb = img.clone()
+        rgb = image.clone()
 
 
-    imgpath = mktemp(suffix='.nii.gz')
-    iio2.image_write(img, imgpath)
+    imagepath = mktemp(suffix='.nii.gz')
+    iio2.image_write(image, imagepath)
     rgbpath = mktemp(suffix='.nii.gz')
     iio2.image_write(rgb, rgbpath)
     args = {
-        'i': imgpath,
+        'i': imagepath,
         'r': rgbpath,
         'o': output
     }
@@ -69,7 +127,7 @@ def create_tiled_mosaic(img, rgb=None, output=None,  mask=None, overlay=None,
     
     libfn(processed_args)
 
-    outimg = Image.open(output)
+    outimage = Image.open(output)
     if output_is_temp:
         os.remove(output)
-    return outimg
+    return outimage

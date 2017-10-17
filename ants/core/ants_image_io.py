@@ -415,7 +415,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
     return ants_image
 
 
-def image_write(image, filename):
+def image_write(image, filename, ri=False):
     """
     Write an ANTsImage to file
     
@@ -428,6 +428,11 @@ def image_write(image, filename):
 
     filename : string
         name of file to which image will be saved
+
+    ri : boolean
+        if True, return image. This allows for using this function in a pipeline:
+            >>> img2 = img.smooth_image(2.).image_write(file1, ri=True).threshold_image(0,20).image_write(file2, ri=True)
+        if False, do not return image
     """
     if filename.endswith('.npy'):
         img_array = image.numpy()
@@ -439,5 +444,8 @@ def image_write(image, filename):
             json.dump(img_header, outfile)
     else:
         image.to_file(filename)
+
+    if ri:
+        return image
 
 

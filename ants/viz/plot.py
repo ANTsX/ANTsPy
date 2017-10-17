@@ -23,7 +23,7 @@ from ..core import ants_image_io as iio2
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
          domain_image_map=None, crop=False, use_absolute_scale=True,
-         filename=None):
+         filename=None, ri=False):
     """
     Plot an ANTsImage
     
@@ -89,6 +89,11 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
     filename : string (optional)
         if given, the resulting image will be saved to this file
+
+    ri : boolean
+        if True, return image. This allows users to employ plotting in a pipeline:
+            >>> img.plot().smooth_image(2.).plot(ri=True).threshold_image(0,20).plot(ri=True)
+        if False, do not return image
 
     Example
     -------
@@ -242,6 +247,9 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
     # turn warnings back to default
     warnings.simplefilter('default')
+
+    if ri:
+        return image
 
 
 def plot_directory(directory, recursive=False, regex='*', 
