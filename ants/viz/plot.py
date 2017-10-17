@@ -12,27 +12,29 @@ import math
 import os
 import warnings
 
-from   matplotlib import gridspec
+from matplotlib import gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
 
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
+         domain_image_map=None, crop=False, use_absolute_scale=True,
          filename=None):
     """
     Plot an ANTsImage
     
-    ANTsR function: `plot`
+    ANTsR function: `plot.antsImage`
 
     Arguments
     ---------
     image : ANTsImage
         image to plot
 
-    overlay : ANTsImage (optional)
+    overlay : ANTsImage
         image to overlay on base image
 
     cmap : string
@@ -57,18 +59,33 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         This can be absolute array indices (e.g. (80,100,120)), or
         this can be relative array indices (e.g. (0.4,0.5,0.6))
 
-    ncol : integer (default is 4)
+    ncol : integer
         Number of columns to have on the plot if image is 3D.
 
-    slice_buffer : integer (default is 0)
+    slice_buffer : integer
         how many slices to buffer when finding the non-zero slices of
         a 3D images. So, if slice_buffer = 10, then the first slice
         in a 3D image will be the first non-zero slice index plus 10 more
         slices.
 
-    white_bg : boolean (default is False)
+    white_bg : boolean
         if True, the background of the image(s) will be white.
         if False, the background of the image(s) will be black
+
+    domain_image_map : ANTsImage
+        this input ANTsImage or list of ANTsImage types contains a reference image
+        `domain_image` and optional reference mapping named `domainMap`.
+        If supplied, the image(s) to be plotted will be mapped to the domain
+        image space before plotting - useful for non-standard image orientations.
+
+    do_cropping : boolean
+        if true, the image(s) will be cropped to their bounding boxes, resulting
+        in a potentially smaller image size.
+        if false, the image(s) will not be cropped
+
+    use_absolute_scale : boolean
+        if true, nothing will happen to intensities of image(s) and overlay(s)
+        if false, dynamic range will be maximized when visualizing overlays
 
     filename : string (optional)
         if given, the resulting image will be saved to this file
@@ -99,99 +116,132 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
     >>> overlay = img.clone()
     >>> overlay = overlay*(overlay>105.)
     >>> ants.plot(img, overlay)
+
+    Example 2
+    ---------
+    >>> import ants
+    >>> import numpy as np
+    >>> mnit = ants.image_read(ants.get_data('mni'))
+    >>> mniafn = ants.get_data('mnia')
+    >>> mnia  = ants.image_read(mniafn).threshold_image(22,25).smooth_image(1.5)
+    >>> mnia2 = ants.image_read(mniafn).threshold_image(1,4).smooth_image(1.5)
+    >>> ants.plot(mnit, mnia, overlay_cmap='Reds', axis=1, slices=np.arange(50, 140, step=5))
+    >>> ants.plot(mnit, (mnia, mnia2), slices=np.arange(50, 140, step=5),
+    >>>           axis=2, overlay_cmap=('Reds','Blues'))
     """
-    # need this hack because of a weird NaN warning (not an exception) from
-    # matplotlib with overlays
+    # need this hack because of a weird NaN warning from matplotlib with overlays
     warnings.simplefilter('ignore')
 
-    # Plot 2D image
-    if image.dimension == 2:
-        img_arr = image.numpy()
+    # check `image` argument
+    if not isinstance(image, iio.ANTsImage):
+        raise ValueError('image argument must be an ANTsImage type')
 
-        if overlay is not None:
-            ov_arr = overlay.numpy()
-            ov_arr[np.abs(ov_arr) == 0] = np.nan
+    # check `overlay` argument 
+    if overlay is not None:
+        pass
 
-        fig, ax = plt.subplots()
+    ## single-channel images ##
+    if image.components == 1:
 
-        ax.imshow(img_arr, cmap=cmap)
+        # Plot 2D image
+        if image.dimension == 2:
+            img_arr = image.numpy()
 
-        if overlay is not None:
-            ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
+            if overlay is not None:
+                ov_arr = overlay.numpy()
+                ov_arr[np.abs(ov_arr) == 0] = np.nan
 
-        plt.axis('off')
-        if filename is not None:
-            plt.savefig(filename)
-            plt.close(fig)
-        else:
-            plt.show()
+            fig, ax = plt.subplots()
 
-    # Plot 3D image
-    elif image.dimension == 3:
-        img_arr = image.numpy()
-        # reorder dims so that chosen axis is first
-        img_arr = np.rollaxis(img_arr, axis)
+            ax.imshow(img_arr, cmap=cmap)
 
-        if overlay is not None:
-            ov_arr = overlay.numpy()
-            ov_arr[np.abs(ov_arr) == 0] = np.nan
-            ov_arr = np.rollaxis(ov_arr, axis)
+            if overlay is not None:
+                ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
 
-        if slices is None:
-            if not isinstance(slice_buffer, (list, tuple)):
-                slice_buffer = (slice_buffer, slice_buffer)
-            nonzero = np.where(np.abs(img_arr)>0)[0]
-            min_idx = nonzero[0] + slice_buffer[0]
-            max_idx = nonzero[-1] - slice_buffer[1]
-            slice_idxs = np.linspace(min_idx, max_idx, nslices).astype('int')
-        else:
-            if isinstance(slices, (int,float)):
-                slices = [slices]
-            if slices[0] < 1:
-                slices = [int(s*img_arr.shape[0]) for s in slices]
-            slice_idxs = slices
-            nslices = len(slices)
+            plt.axis('off')
+            if filename is not None:
+                plt.savefig(filename)
+                plt.close(fig)
+            else:
+                plt.show()
 
-        # only have one row if nslices <= 6 and user didnt specify ncol
-        if (nslices <= 6) and (ncol==4):
-            ncol = nslices
+        # Plot 3D image
+        elif image.dimension == 3:
+            img_arr = image.numpy()
+            # reorder dims so that chosen axis is first
+            img_arr = np.rollaxis(img_arr, axis)
 
-        # calculate grid size
-        nrow = math.ceil(nslices / ncol)
+            if overlay is not None:
+                ov_arr = overlay.numpy()
+                ov_arr[np.abs(ov_arr) == 0] = np.nan
+                ov_arr = np.rollaxis(ov_arr, axis)
 
-        xdim = img_arr.shape[1]
-        ydim = img_arr.shape[2]
+            if slices is None:
+                if not isinstance(slice_buffer, (list, tuple)):
+                    slice_buffer = (slice_buffer, slice_buffer)
+                nonzero = np.where(np.abs(img_arr)>0)[0]
+                min_idx = nonzero[0] + slice_buffer[0]
+                max_idx = nonzero[-1] - slice_buffer[1]
+                slice_idxs = np.linspace(min_idx, max_idx, nslices).astype('int')
+            else:
+                if isinstance(slices, (int,float)):
+                    slices = [slices]
+                # if all slices are less than 1, infer that they are relative slices
+                if sum([s > 1 for s in slices]) == 0:
+                    slices = [int(s*img_arr.shape[0]) for s in slices]
+                slice_idxs = slices
+                nslices = len(slices)
 
-        fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5)) 
+            # only have one row if nslices <= 6 and user didnt specify ncol
+            if (nslices <= 6) and (ncol==4):
+                ncol = nslices
 
-        gs = gridspec.GridSpec(nrow, ncol,
-                 wspace=0.0, hspace=0.0, 
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
-                 left=0.5/(ncol+1), right=1-0.5/(ncol+1)) 
+            # calculate grid size
+            nrow = math.ceil(nslices / ncol)
 
-        slice_idx_idx = 0
-        for i in range(nrow):
-            for j in range(ncol):
-                if slice_idx_idx < len(slice_idxs):
-                    im = img_arr[slice_idxs[slice_idx_idx]]
-                    if white_bg:
-                        im[im<(im.min()+1e-5)] = None
+            xdim = img_arr.shape[1]
+            ydim = img_arr.shape[2]
+
+            fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5)) 
+
+            gs = gridspec.GridSpec(nrow, ncol,
+                     wspace=0.0, hspace=0.0, 
+                     top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+                     left=0.5/(ncol+1), right=1-0.5/(ncol+1)) 
+
+            slice_idx_idx = 0
+            for i in range(nrow):
+                for j in range(ncol):
+                    if slice_idx_idx < len(slice_idxs):
+                        #print(slice_idx_idx, len(slice_idxs))
+                        im = img_arr[slice_idxs[slice_idx_idx]]
+                        if white_bg:
+                            im[im<(im.min()+1e-5)] = None
+                    else:
+                        im = np.zeros_like(img_arr[0])
+
                     ax = plt.subplot(gs[i,j])
                     ax.imshow(im, cmap=cmap)
+
                     if overlay is not None:
-                        ov = ov_arr[slice_idxs[slice_idx_idx]]
-                        ax.imshow(ov, alpha=overlay_alpha, cmap=overlay_cmap)
+                        if slice_idx_idx < len(slice_idxs):
+                            ov = ov_arr[slice_idxs[slice_idx_idx]]
+                            ax.imshow(ov, alpha=overlay_alpha, cmap=overlay_cmap)
                     ax.axis('off')
                     slice_idx_idx += 1
+    
+    ## multi-channel images ##
+    elif image.components > 1:
+        raise ValueError('Multi-channel images not currently supported!')
 
-        if filename is not None:
-            plt.savefig(filename)
-            plt.close(fig)
-        else:
-            plt.show()
+    if filename is not None:
+        plt.savefig(filename)
+        plt.close(fig)
+    else:
+        plt.show()
 
-        # turn warnings back to default
-        warnings.simplefilter('default')
+    # turn warnings back to default
+    warnings.simplefilter('default')
 
 
 def plot_directory(directory, recursive=False, regex='*', 

@@ -16,11 +16,6 @@ class TestModule_iMath(unittest.TestCase):
         img2 = ants.iMath(img, 'Canny', 1, 5, 12)
 
     def test_iMath_options(self):
-        """
-        test all of the imath functions
-        Options:
-        - GD
-        """
         for img in self.imgs:
             # Grayscale dilation
             img_gd = ants.iMath(img, 'GD', 3)
@@ -79,9 +74,6 @@ class TestModule_iMath(unittest.TestCase):
             self.assertTrue(not ants.allclose(img_tx, img))
 
 """
-
-
- 
 
 import os
 import unittest
