@@ -32,7 +32,8 @@ def surf(x, y=None, z=None,
          quantlimits=(0.1,0.9),
          colormap='jet',
          alpha=None,
-         inflation_factor=25,
+         inflation_factor=0,
+         tol=0.03,
          smoothing_sigma=0.0,
          rotation_params=(90,0,270),
          overlay_limits=None,
@@ -70,6 +71,11 @@ def surf(x, y=None, z=None,
     
     inflation_factor : integer
         number of inflation iterations to run
+
+    tol : float
+        error tolerance for surface reconstruction. Smaller values will
+        lead to better surfaces, at the cost of taking longer.
+        Try decreasing this value if your surfaces look very block-y.
     
     smoothing_sigma : scalar
         gaussian smooth the overlay by this sigma
@@ -201,7 +207,10 @@ def surf(x, y=None, z=None,
         except:
             pass
 
-        surfcmd = surfcmd + ['-d', '%s[%s,255x255x255]'%(pngfnloc,rparamstring)]
+        surfcmd += ['-d', '%s[%s,255x255x255]'%(pngfnloc,rparamstring)]
+        surfcmd += ['-a', '%f' % tol]
+        surfcmd += ['-i', '%i' % inflation_factor]
+
         libfn = utils.get_lib_fn('antsSurf')
         libfn(surfcmd)
 
