@@ -1,6 +1,7 @@
 
 
 ## LOCAL ##
+from .antiAlias import *
 from .antsImage import *
 from .antsImageClone import *
 from .antsImageHeaderInfo import *

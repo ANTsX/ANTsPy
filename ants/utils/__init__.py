@@ -16,9 +16,10 @@ from .label_clusters import *
 from .label_image_centroids import *
 from .label_stats import *
 from .labels_to_matrix import *
-from .morphology import *
 from .mask_image import *
 from .mni2tal import *
+from .morphology import *
+from .multi_label_morphology import *
 from .process_args import *
 from .smooth_image import *
 from .threshold_image import *

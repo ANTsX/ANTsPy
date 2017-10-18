@@ -363,9 +363,12 @@ class ANTsImage(object):
     def nonzero(self):
         """ Return non-zero indices of image """
         return self.numpy().nonzero()
-    def unique(self):
+    def unique(self, sort=False):
         """ Return unique set of values in image """
-        return np.unique(self.numpy())
+        unique_vals = np.unique(self.numpy())
+        if sort:
+            unique_vals = np.sort(unique_vals)
+        return unique_vals
 
     ## OVERLOADED OPERATORS ##
     def __add__(self, other):
