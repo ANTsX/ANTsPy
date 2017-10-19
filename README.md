@@ -28,6 +28,8 @@ scratch - see [ITK Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
 If you want to contribute to <i>ANTsPy</i> or simply want to learn about the package architecture
 and wrapping process, please read the extensive [contributors guide](CONTRIBUTING.md).
 
+If you have any questions or feature requests, feel free to open an issue or email Nick (ncullen at pennmedicine dot upenn dot edu).
+
 ## Installation
 
 We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. Note
