@@ -30,7 +30,8 @@ and wrapping process, please read the extensive [contributors guide](CONTRIBUTIN
 
 ## Installation
 
-We recommend that users install the latest pre-compiled binaries, which takes ~1 minute:
+We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. 
+Copy the following command and paste it into your bash terminal:
 
 For MacOS:
 ```bash
