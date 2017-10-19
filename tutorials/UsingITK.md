@@ -54,6 +54,19 @@ The general steps are as follows:
 - optionally add an abstract python interface
 - re-build the ANTsPy package
 
+## Step 0. Build ANTsPy from source
+
+If you haven't already, build the ANTsPy package from source. A simple way to do this is the following:
+
+```bash
+git clone https://github.com/ANTsX/ANTsPy.git
+cd ANTsPy
+python setup.py develop
+```
+
+This step will generally take ~1 hour.
+
+
 ## Step 1. Altering function arguments & Adding a few headers
 
 The first thing to do is to convert the Input and Output argument types from `ImageType::Pointer` to
