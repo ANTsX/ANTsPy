@@ -27,6 +27,7 @@ from . import ants_image_io as iio2
 
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
+_supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
 _itk_to_npy_map = {
     'unsigned char': 'uint8',
     'unsigned int': 'uint32',
@@ -253,14 +254,17 @@ class ANTsImage(object):
         -------
         ANTsImage
         """
+        if pixeltype is None:
+            pixeltype = self.pixeltype
+
+        if pixeltype not in _supported_ptypes:
+            raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
+
         if self.has_components:
             comp_imgs = utils.split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
             return utils.merge_channels(comp_imgs_cloned)
         else:
-            if pixeltype is None:
-                pixeltype = self.pixeltype
-
             p1_short = utils.short_ptype(self.pixeltype)
             p2_short = utils.short_ptype(pixeltype)
             ndim = self.dimension
@@ -271,6 +275,22 @@ class ANTsImage(object):
                             dimension=self.dimension, 
                             components=self.components, 
                             pointer=pointer_cloned) 
+    
+    def astype(self, dtype):
+        """
+        Cast & clone an ANTsImage to a given numpy datatype.
+
+        Map:
+            uint8   : unsigned char
+            uint32  : unsigned int
+            float32 : float
+            float64 : double
+        """
+        if dtype not in _supported_dtypes:
+            raise ValueError('Datatype %s not supported. Supported types are %s' % (dtype, _supported_dtypes))
+
+        pixeltype = _npy_to_itk_map[dtype]
+        return self.clone(pixeltype)
 
     def new_image_like(self, data):
         """
@@ -513,7 +533,7 @@ class ANTsImage(object):
 
     def __repr__(self):
         s = "ANTsImage\n" +\
-            '\t {:<10} : {}\n'.format('Pixel Type', self.pixeltype)+\
+            '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
             '\t {:<10} : {}\n'.format('Components', self.components)+\
             '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
             '\t {:<10} : {}\n'.format('Spacing', self.spacing)+\

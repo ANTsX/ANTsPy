@@ -1,6 +1,10 @@
 """
 Create a static 2D image of a 2D ANTsImage
 or a tile of slices from a 3D ANTsImage
+
+TODO:
+- add `plot_multichannel` function for plotting multi-channel images
+
 """
 
 
@@ -16,8 +20,13 @@ from matplotlib import gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .. import utils
+from .. import registration as reg
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
+from ..core import ants_transform as tio
+from ..core import ants_transform_io as tio2
+
 
 
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
@@ -97,33 +106,6 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
     Example
     -------
-    >>> ## 2D images ##
-    >>> import ants
-    >>> img = ants.image_read(ants.get_data('r16'))
-    >>> ants.plot(img)
-    >>> overlay = (img.kmeans_segmentation(k=3)['segmentation']==3)*(img.clone())
-    >>> ants.plot(img, overlay)
-    >>> ## 3D images ##
-    >>> import ants
-    >>> img3d = ants.image_read(ants.get_data('ch2'))
-    >>> ants.plot(img3d)
-    >>> ants.plot(img3d, axis=0, nslices=5) # slice numbers
-    >>> ants.plot(img3d, axis=1, nslices=5) # different axis
-    >>> ants.plot(img3d, axis=2, nslices=5) # different slices
-    >>> ants.plot(img3d, nslices=1) # one slice
-    >>> ants.plot(img3d, slices=(50,70,90)) # absolute slices
-    >>> ants.plot(img3d, slices=(0.4,0.6,0.8)) # relative slices
-    >>> ants.plot(img3d, slices=50) # one absolute slice
-    >>> ants.plot(img3d, slices=0.6) # one relative slice
-    >>> ## Overlay Example ##
-    >>> import ants
-    >>> img = ants.image_read(ants.get_data('ch2'))
-    >>> overlay = img.clone()
-    >>> overlay = overlay*(overlay>105.)
-    >>> ants.plot(img, overlay)
-
-    Example 2
-    ---------
     >>> import ants
     >>> import numpy as np
     >>> mnit = ants.image_read(ants.get_data('mni'))
@@ -137,13 +119,42 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
     # need this hack because of a weird NaN warning from matplotlib with overlays
     warnings.simplefilter('ignore')
 
-    # check `image` argument
+    # handle `image` argument
     if not isinstance(image, iio.ANTsImage):
-        raise ValueError('image argument must be an ANTsImage type')
+        raise ValueError('image argument must be an ANTsImage')
 
-    # check `overlay` argument 
+    # handle `overlay` argument 
     if overlay is not None:
-        pass
+        if not isinstance(overlay, iio.ANTsImage):
+            raise ValueError('overlay argument must be an ANTsImage')
+
+        if not utils.image_physical_space_consistency(image, overlay):
+            overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
+
+    # handle `domain_image_map` argument
+    if domain_image_map is not None:
+        if isinstance(domain_image_map, iio.ANTsImage):
+            tx = tio2.new_ants_transform(precision='float', transform_type='AffineTransform',
+                                         dimension=image.dimension)
+            image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
+            if overlay is not None:
+                overlay = tio.apply_ants_transform_to_image(tx, overlay, 
+                                                            domain_image_map, 
+                                                            interpolation='linear')
+        elif isinstance(domain_image_map, (list, tuple)):
+            # expect an image and transformation
+            if len(domain_image_map) != 2:
+                raise ValueError('domain_image_map list or tuple must have length == 2')
+            
+            dimg = domain_image_map[0]
+            if not isinstance(dimg, iio.ANTsImage):
+                raise ValueError('domain_image_map first entry should be ANTsImage')
+
+            tx = domain_image_map[1]
+            image = reg.apply_transforms(dimg, image, transform_list=tx)
+            if overlay is not None:
+                overlay = reg.apply_transforms(dimg, overlay, transform_list=tx,
+                                               interpolator='linear')
 
     ## single-channel images ##
     if image.components == 1:
