@@ -30,21 +30,20 @@ and wrapping process, please read the extensive [contributors guide](CONTRIBUTIN
 
 ## Installation
 
-For detailed instructions on installing ANTsPy, we recommend you read the short 
-[installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
+We recommend that users install the latest pre-compiled binaries, which takes ~1 minute:
 
-In short, we recommend users to install the latest pre-compiled binaries, which take ~1 minute
-to install:
-
-If you have MacOS:
+For MacOS:
 ```bash
 pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4a0-cp36-cp36m-macosx_10_7_x86_64.whl
 ```
 
-If you have Linux:
+For Linux:
 ```bash
 pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
 ```
+
+More detailed instructions on installing ANTsPy can be found in the 
+[installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
 ------------------------------------------------------------------------------
 
