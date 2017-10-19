@@ -64,7 +64,8 @@ cd ANTsPy
 python setup.py develop
 ```
 
-This step will generally take ~1 hour.
+This step will generally take ~1 hour - during which time you can easily become an
+expert at integrating your C++ code into the ANTsPy package.
 
 
 ## Step 1. Altering function arguments & Adding a few headers
