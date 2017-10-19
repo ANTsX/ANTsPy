@@ -17,7 +17,7 @@
 matches much of the statistical capabilities of <i>[ANTsR](https://github.com/ANTsX/ANTsR)</i>, and allows seamless integration
 with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community. 
 
-<i>ANTsPy</i> includes blazing-fast IO (40% faster than <i>nibabel</i> ([see script](https://github.com/ANTsX/ANTsPy/blob/master/tests/timings_io.py)) for loading Nifti images and 
+<i>ANTsPy</i> includes blazing-fast IO (40% faster than <i>nibabel</i> for loading Nifti images and 
 converting them to <i>numpy</i> arrays), registration, segmentation, statistical learning, 
 visualization, and other useful utility functions.
 
@@ -91,6 +91,6 @@ segs1 = ants.atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 We provide numerous tutorials for new users.
 
 [5 minute Overview](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/tutorial_5min.md)
-
+[Nibabel Speed Comparison](https://github.com/ANTsX/ANTsPy/blob/master/tests/timings_io.py)
 
 
