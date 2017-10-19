@@ -30,7 +30,8 @@ and wrapping process, please read the extensive [contributors guide](CONTRIBUTIN
 
 ## Installation
 
-We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. 
+We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. Note
+that ANTsPy is not currently tested for Python 2.7 support.
 Copy the following command and paste it into your bash terminal:
 
 For MacOS:
@@ -62,10 +63,6 @@ By default, ANTsPy will search for an existing VTK build by checking if the `VTK
 environment variable is set. If that is not
 found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
 VTK. If you do not want VTK, then add the `--novtk` flag to setup (e.g. `python setup.py install --novtk`).
-
-ANTsPy is known to install on MacOS and Ubuntu, both with Python3.6. It's unlikely that
-it will work with Python2.7.
-
 
 ## ANTsR Comparison
 
