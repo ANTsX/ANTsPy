@@ -543,19 +543,21 @@ class ANTsImage(object):
 
 if HAS_PY3:
     # Set partial class methods for any functions which take an ANTsImage as the first argument
-    _utils_partial_dict = {k:v for k,v in utils.__dict__.items() if callable(v) and (inspect.getargspec(getattr(utils,k)).args[0] in {'img','image'})}
-    _reg_partial_dict = {k:v for k,v in registration.__dict__.items() if callable(v) and (inspect.getargspec(getattr(registration,k)).args[0] in {'img','image'})}
-    _seg_partial_dict = {k:v for k,v in segmentation.__dict__.items() if callable(v) and (inspect.getargspec(getattr(segmentation,k)).args[0] in {'img','image'})}
-    _viz_partial_dict = {k:v for k,v in viz.__dict__.items() if callable(v) and (inspect.getargspec(getattr(viz,k)).args[0] in {'img','image'})}
+    for k, v in utils.__dict__.items():
+        if callable(v) and (inspect.getargspec(getattr(utils,k)).args[0] in {'img','image'}):
+            setattr(ANTsImage, k, partialmethod(v))
+    
+    for k, v in registration.__dict__.items():
+        if callable(v) and (inspect.getargspec(getattr(registration,k)).args[0] in {'img','image'}):
+            setattr(ANTsImage, k, partialmethod(v))
 
-    for k, v in _utils_partial_dict.items():
-        setattr(ANTsImage, k, partialmethod(v))
-    for k, v in _reg_partial_dict.items():
-        setattr(ANTsImage, k, partialmethod(v))
-    for k, v in _seg_partial_dict.items():
-        setattr(ANTsImage, k, partialmethod(v))
-    for k, v in _viz_partial_dict.items():
-        setattr(ANTsImage, k, partialmethod(v))
+    for k, v in segmentation.__dict__.items():
+        if callable(v) and (inspect.getargspec(getattr(segmentation,k)).args[0] in {'img','image'}):
+            setattr(ANTsImage, k, partialmethod(v))
+
+    for k, v in viz.__dict__.items():
+        if callable(v) and (inspect.getargspec(getattr(viz,k)).args[0] in {'img','image'}):
+            setattr(ANTsImage, k, partialmethod(v))
 
 
 def copy_image_info(reference, target):
