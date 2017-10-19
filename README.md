@@ -47,6 +47,7 @@ If the above doesn't work, or you want more detailed instructions on installing 
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
 ------------------------------------------------------------------------------
+## ITK & VTK
 
 #### Insight Toolkit (ITK)
 
