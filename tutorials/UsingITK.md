@@ -47,11 +47,11 @@ Starting from the pure C++ ITK function above, we will demonstrate the sequentia
 needed to integrate this code into ANTsPy.
 
 The general steps are as follows:
-    - alter function arguments & add a few headers
-    - unwrap ANTsPy images & wrap ITK images
-    - declare the c++ function with pybind11
-    - build the function in CMakeLists.txt
-    - optionally add an abstract python interface
+- alter function arguments & add a few headers
+- unwrap ANTsPy images & wrap ITK images
+- declare the c++ function with pybind11
+- build the function in CMakeLists.txt
+- optionally add an abstract python interface
 
 ## Step 1. Altering function arguments & Adding a few headers
 
