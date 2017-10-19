@@ -23,7 +23,7 @@ visualization, and other useful utility functions.
 
 <i>ANTsPy</i> also provides a low-barrier opportunity for users to quickly wrap their <i>ITK</i> (or general C++) 
 code in Python without having to build an entire IO/plotting/wrapping code base from 
-scratch - see [ITK Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
+scratch - see [C++ Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
 
 If you want to contribute to <i>ANTsPy</i> or simply want to learn about the package architecture
 and wrapping process, please read the extensive [contributors guide](CONTRIBUTING.md).
