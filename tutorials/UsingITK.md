@@ -52,6 +52,7 @@ The general steps are as follows:
 - declare the c++ function with pybind11
 - build the function in CMakeLists.txt
 - optionally add an abstract python interface
+- re-build the ANTsPy package
 
 ## Step 1. Altering function arguments & Adding a few headers
 
@@ -86,7 +87,7 @@ py::capsule rescaleAntsImage( py::capsule & antsImage,
 
 ```
 
-## 2. Unwrapping ANTs images & Wrapping ITK images
+## Step 2. Unwrapping ANTs images & Wrapping ITK images
 
 Now, since we are passing in py::capsule types, we have to add the simple functions for
 converting py::capsules to ITK smartpointers and vice-versa. NOTE how we 
@@ -125,7 +126,7 @@ py::capsule rescaleAntsImage( py::capsule & antsImage,
 
 ```
 
-## 3. Declaring your function for Python
+## Step 3. Declaring your function for Python
 
 Now, in the file, we need to declare the function for `pybind11` to wrap it in python. 
 This is a simple process, but can be tedious since every image type needs to be declared
@@ -177,7 +178,7 @@ we named our module `rescaleImageModule` - this is what our python module will a
 You can also see how I named the functions based on the type of input image. This will lead to
 TWO functions available in python - rescaleImageModule.rescaleImageF2 and rescaleImagemodule.rescaleImageF3.
 
-## 4. Building the function in CMakeLists.txt
+## Step 4. Building the function in CMakeLists.txt
 
 Next (almost done), we need to actually build our function during the build process by adding
 it to the CMakeLists.txt file in the `antspy/ants/lib/` directory. We only need to add two
@@ -199,7 +200,7 @@ the package namespace - we need to import it in the `__init__.py` file found in 
 from .rescaleImageModule import *
 ```
 
-## 5. Adding an abstract Python interface
+## Step 5. Adding an abstract Python interface
 
 Now, we have full access to our C++ function in the python/ANTsPY namespace. We can use
 this function directly if we want, but for users it's better to have a small python 
@@ -261,10 +262,15 @@ then we would add the following line to the `__init__.py` file in the
 from .rescale_image import *
 ```
 
-Finally, we rebuild the package by going to the main directory and running setup.py again:
+## Step 6. Rebuild ANTsPy
+
+Finally, we rebuild the ANTsPy package by going to the main directory and running setup.py again:
 ```
 python setup.py develop
 ```
+
+This should be very quick if you've built ANTsPy before, since only the altered C++ code
+will need to be rebuilt.
 
 Now we can use this function quite easily:
 
