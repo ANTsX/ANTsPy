@@ -31,7 +31,7 @@ and wrapping process, please read the extensive [contributors guide](CONTRIBUTIN
 ## Installation
 
 We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. Note
-that ANTsPy is not currently tested for Python 2.7 support.
+that <i>ANTsPy</i> is not currently tested for Python 2.7 support.
 Copy the following command and paste it into your bash terminal:
 
 For MacOS:
@@ -44,7 +44,7 @@ For Linux:
 pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
 ```
 
-If the above doesn't work, or you want more detailed instructions on installing ANTsPy, you can 
+If the above doesn't work, or you want more detailed instructions on installing <i>ANTsPy</i>, you can 
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
 ------------------------------------------------------------------------------
@@ -52,14 +52,14 @@ read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tut
 
 #### Insight Toolkit (ITK)
 
-By default, ANTsPy will search for an existing ITK build by checking if the `ITK_DIR`
+By default, <i>ANTsPy</i> will search for an existing ITK build by checking if the `ITK_DIR`
 environment variable is set. If that is not
 found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
 ITK.
 
 #### Visualization Toolkit (VTK)
 
-By default, ANTsPy will search for an existing VTK build by checking if the `VTK_DIR`
+By default, <i>ANTsPy</i> will search for an existing VTK build by checking if the `VTK_DIR`
 environment variable is set. If that is not
 found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
 VTK. If you do not want VTK, then add the `--novtk` flag to setup (e.g. `python setup.py install --novtk`).
@@ -68,7 +68,7 @@ VTK. If you do not want VTK, then add the `--novtk` flag to setup (e.g. `python 
 
 Here is a quick example to show the similarity with <i>ANTsR</i>:
 
-ANTsR code:
+<i>ANTsR</i> code:
 ```R
 library(ANTsR)
 img   <- antsImageRead(getANTsRData("r16"))
@@ -77,7 +77,7 @@ mask  <- getMask(img)
 segs1 <- atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 ```
 
-ANTsPy code:
+<i>ANTsPy</i> code:
 ```python     
 import ants
 img   = ants.image_read(ants.get_data("r16"))
