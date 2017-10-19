@@ -6,7 +6,7 @@ IO, visualization, and greater python inter-operability provided by ANTsPy.
 This short tutorial demonstrates how you can wrap your ITK C++ functions 
 in 15 minutes or less.
 
-You'll notice how seemless the wrapping is between C++ and Python due to implicit
+You'll notice how seamless the wrapping is between C++ and Python due to implicit
 casting of standard types by `pybind11` - making the process immensely smoother than
 an Rcpp equivalent, for instance.
 
@@ -42,7 +42,10 @@ ImageType::Pointer rescaleAntsImage( typename ImageType::Pointer itkImage,
 
 # Problem Solution
 
-## 1. Functions take py::capsule types as input & output instead of ImageType::Pointer types
+Starting from the pure C++ ITK function above, we will demonstrate the sequential steps
+needed to integrate this code into ANTsPy.
+
+## Step 1. Altering function arguments & Adding a few headers
 
 The first thing to do is to convert the Input and Output argument types from `ImageType::Pointer` to
 `py::capsule`. Py::capsules are containers which hold the underlying ITK smartpointer and let
@@ -75,7 +78,7 @@ py::capsule rescaleAntsImage( py::capsule & antsImage,
 
 ```
 
-## 2. Input py::capsule types need to be un-wrapped. Output py::capsule types need to be wrapped.
+## 2. Unwrapping ANTs images & Wrapping ITK images
 
 Now, since we are passing in py::capsule types, we have to add the simple functions for
 converting py::capsules to ITK smartpointers and vice-versa. NOTE how we 
@@ -114,7 +117,7 @@ py::capsule rescaleAntsImage( py::capsule & antsImage,
 
 ```
 
-## 3. Functions need to be declared for pybind11
+## 3. Declaring your function for Python
 
 Now, in the file, we need to declare the function for `pybind11` to wrap it in python. 
 This is a simple process, but can be tedious since every image type needs to be declared
@@ -166,7 +169,7 @@ we named our module `rescaleImageModule` - this is what our python module will a
 You can also see how I named the functions based on the type of input image. This will lead to
 TWO functions available in python - rescaleImageModule.rescaleImageF2 and rescaleImagemodule.rescaleImageF3.
 
-## 4. Functions need to be built in CMakeLists.txt and imported in __init__.py
+## 4. Building the function in CMakeLists.txt
 
 Next (almost done), we need to actually build our function during the build process by adding
 it to the CMakeLists.txt file in the `antspy/ants/lib/` directory. We only need to add two
@@ -188,7 +191,7 @@ the package namespace - we need to import it in the `__init__.py` file found in 
 from .rescaleImageModule import *
 ```
 
-## 5. Wrapped C++ functions need a Python interface
+## 5. Adding an abstract Python interface
 
 Now, we have full access to our C++ function in the python/ANTsPY namespace. We can use
 this function directly if we want, but for users it's better to have a small python 
