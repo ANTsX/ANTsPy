@@ -24,7 +24,7 @@ from . import ants_image as iio
 from .. import utils
 from .. import registration as reg
 
-
+_supported_pclasses = {'scalar', 'vector', 'rgb', 'rgba'}
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_ntypes = {'uint8', 'uint32', 'float32', 'float64'}
 _unsupported_ptypes = {'char', 'unsigned short', 'short', 'int'}
@@ -401,9 +401,19 @@ def image_read(filename, dimension=None, pixeltype='float'):
         if dimension is not None:
             ndim = dimension
 
+        # error handling on pixelclass
+        if pclass not in _supported_pclasses:
+            raise ValueError('Pixel class %s not supported!' % pclass)
+            
+        # error handling on pixeltype
         if ptype in _unsupported_ptypes:
-            #warnings.warn('Casting image from unsupported type \'%s\' to closest supported type \'%s\'' % (ptype, _unsupported_ptype_map[ptype]))
             ptype = _unsupported_ptype_map.get(ptype, 'unsupported')
+            if ptype == 'unsupported':
+                raise ValueError('Pixeltype %s not supported' % ptype)
+        
+        # error handling on dimension
+        if (ndim < 2) or (ndim > 4):
+            raise ValueError('Found %i-dimensional image - not supported!' % ndim)
 
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
