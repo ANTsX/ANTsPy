@@ -20,7 +20,6 @@ from matplotlib import gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .. import utils
 from .. import registration as reg
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
@@ -128,7 +127,7 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         if not isinstance(overlay, iio.ANTsImage):
             raise ValueError('overlay argument must be an ANTsImage')
 
-        if not utils.image_physical_space_consistency(image, overlay):
+        if not iio.image_physical_space_consistency(image, overlay):
             overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
 
     # handle `domain_image_map` argument
