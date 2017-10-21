@@ -21,6 +21,7 @@ from .mni2tal import *
 from .morphology import *
 from .multi_label_morphology import *
 from .process_args import *
+from .quantile import *
 from .smooth_image import *
 from .threshold_image import *
 from .weingarten_image_curvature import *

@@ -30,8 +30,8 @@ from ..core import ants_transform_io as tio2
 
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
-         domain_image_map=None, crop=False, use_absolute_scale=True,
-         filename=None, ri=False):
+         domain_image_map=None, crop=True, scale=False,
+         filename=None):
     """
     Plot an ANTsImage
     
@@ -98,11 +98,6 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
     filename : string (optional)
         if given, the resulting image will be saved to this file
 
-    ri : boolean
-        if True, return image. This allows users to employ plotting in a pipeline:
-            >>> img.plot().smooth_image(2.).plot(ri=True).threshold_image(0,20).plot(ri=True)
-        if False, do not return image
-
     Example
     -------
     >>> import ants
@@ -157,9 +152,28 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
     ## single-channel images ##
     if image.components == 1:
+        
+        # potentially crop image
+        if crop:
+            plotmask = image.get_mask(cleanup=0)
+            if plotmask.max() == 0:
+                plotmask += 1
+            image = image.crop_image(plotmask)
+
+        # potentially find dynamic range
+        if scale == True:
+            vmin, vmax = image.quantile((0.05,0.95))
+        elif isinstance(scale, (list,tuple)):
+            if len(scale) != 2:
+                raise ValueError('scale argument must be boolean or list/tuple with two values')
+            vmin, vmax = scale
+        else:
+            vmin = None
+            vmax = None
 
         # Plot 2D image
         if image.dimension == 2:
+
             img_arr = image.numpy()
 
             if overlay is not None:
@@ -168,10 +182,14 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
             fig, ax = plt.subplots()
 
-            ax.imshow(img_arr, cmap=cmap)
+            # plot main image
+            ax.imshow(img_arr, cmap=cmap, 
+                      vmin=vmin, vmax=vmax)
 
             if overlay is not None:
-                ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
+                ax.imshow(ov_arr, 
+                          alpha=overlay_alpha, 
+                          cmap=overlay_cmap)
 
             plt.axis('off')
             if filename is not None:
@@ -236,7 +254,8 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
                         im = np.zeros_like(img_arr[0])
 
                     ax = plt.subplot(gs[i,j])
-                    ax.imshow(im, cmap=cmap)
+                    ax.imshow(im, cmap=cmap,
+                              vmin=vmin, vmax=vmax)
 
                     if overlay is not None:
                         if slice_idx_idx < len(slice_idxs):
@@ -257,9 +276,6 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
 
     # turn warnings back to default
     warnings.simplefilter('default')
-
-    if ri:
-        return image
 
 
 def plot_directory(directory, recursive=False, regex='*', 

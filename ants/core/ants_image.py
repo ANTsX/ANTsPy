@@ -371,12 +371,24 @@ class ANTsImage(object):
     def max(self, axis=None):
         """ Return max along specified axis """
         return self.numpy().max(axis=axis)
+    def range(self, axis=None):
+        """ Return range tuple along specified axis """
+        return (self.min(axis=axis), self.max(axis=axis))
     def argmin(self, axis=None):
         """ Return argmin along specified axis """
         return self.numpy().argmin(axis=axis)
     def argmax(self, axis=None):
         """ Return argmax along specified axis """
         return self.numpy().argmax(axis=axis)
+    def argrange(self, axis=None):
+        """ Return argrange along specified axis """
+        amin = self.argmin(axis=axis)
+        amax = self.argmax(axis=axis)
+        if axis is None:
+            return (amin, amax)
+        else:
+            return np.stack([amin, amax]).T
+
     def flatten(self):
         """ Flatten image data """
         return self.numpy().flatten()
