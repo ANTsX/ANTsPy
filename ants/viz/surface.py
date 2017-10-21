@@ -1,13 +1,11 @@
 
-__all__ = ['surf']
+__all__ = ['surf', 'convert_scalar_image_to_rgb']
 
 import os
 import numpy as np
 from tempfile import mktemp
-import scipy.misc
 
 from .. import core
-from ..core import ants_image as iio
 from .. import utils
 
 
