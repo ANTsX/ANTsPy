@@ -102,23 +102,44 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
     -------
     >>> import ants
     >>> import numpy as np
-    >>> mnit = ants.image_read(ants.get_data('mni'))
-    >>> mniafn = ants.get_data('mnia')
-    >>> mnia  = ants.image_read(mniafn).threshold_image(22,25).smooth_image(1.5)
-    >>> mnia2 = ants.image_read(mniafn).threshold_image(1,4).smooth_image(1.5)
-    >>> ants.plot(mnit, mnia, overlay_cmap='Reds', axis=1, slices=np.arange(50, 140, step=5))
-    >>> ants.plot(mnit, (mnia, mnia2), slices=np.arange(50, 140, step=5),
-    >>>           axis=2, overlay_cmap=('Reds','Blues'))
+    >>> img = ants.image_read(ants.get_data('r16'))
+    >>> segs = img.kmeans_segmentation(k=3)['segmentation']
+    >>> ants.plot(img, segs*(segs==1), crop=True)
+    >>> ants.plot(img, segs*(segs==1), crop=False)
+    >>> mni = ants.image_read(ants.get_data('mni'))
+    >>> segs = mni.kmeans_segmentation(k=3)['segmentation']
+    >>> ants.plot(mni, segs*(segs==1), crop=False)
     """
+    def mirror_matrix(x):
+        return x[::-1,:]
+    def rotate270_matrix(x):
+        return mirror_matrix(x.T)
+    def rotate180_matrix(x):
+        return x[::-1,:]
+    def rotate90_matrix(x):
+        return mirror_matrix(x).T
+    def flip_matrix(x):
+        return mirror_matrix(rotate180_matrix(x))
+    def reorient_slice(x, axis):
+        if (axis != 1):
+            x = rotate90_matrix(x)
+        if (axis == 1):
+            x = rotate90_matrix(x)
+        x = mirror_matrix(x)
+        return x
     # need this hack because of a weird NaN warning from matplotlib with overlays
     warnings.simplefilter('ignore')
 
     # handle `image` argument
+    if isinstance(image, str):
+        image = iio2.image_read(image)
     if not isinstance(image, iio.ANTsImage):
         raise ValueError('image argument must be an ANTsImage')
 
     # handle `overlay` argument 
     if overlay is not None:
+        if isinstance(overlay, str):
+            overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
             raise ValueError('overlay argument must be an ANTsImage')
 
@@ -159,6 +180,8 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
             if plotmask.max() == 0:
                 plotmask += 1
             image = image.crop_image(plotmask)
+            if overlay is not None:
+                overlay = overlay.crop_image(plotmask)
 
         # potentially find dynamic range
         if scale == True:
@@ -175,9 +198,11 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         if image.dimension == 2:
 
             img_arr = image.numpy()
+            img_arr = rotate90_matrix(img_arr)
 
             if overlay is not None:
                 ov_arr = overlay.numpy()
+                ov_arr = rotate90_matrix(ov_arr)
                 ov_arr[np.abs(ov_arr) == 0] = np.nan
 
             fig, ax = plt.subplots()
@@ -187,6 +212,7 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
                       vmin=vmin, vmax=vmax)
 
             if overlay is not None:
+
                 ax.imshow(ov_arr, 
                           alpha=overlay_alpha, 
                           cmap=overlay_cmap)
@@ -232,8 +258,8 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
             # calculate grid size
             nrow = math.ceil(nslices / ncol)
 
-            xdim = img_arr.shape[1]
-            ydim = img_arr.shape[2]
+            xdim = img_arr.shape[2]
+            ydim = img_arr.shape[1]
 
             fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5)) 
 
@@ -246,21 +272,22 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
             for i in range(nrow):
                 for j in range(ncol):
                     if slice_idx_idx < len(slice_idxs):
-                        #print(slice_idx_idx, len(slice_idxs))
-                        im = img_arr[slice_idxs[slice_idx_idx]]
+                        imslice = img_arr[slice_idxs[slice_idx_idx]]
+                        imslice = reorient_slice(imslice, axis)
                         if white_bg:
-                            im[im<(im.min()+1e-5)] = None
+                            imslice[imslice<(imslice.min()+1e-5)] = None
                     else:
-                        im = np.zeros_like(img_arr[0])
+                        imslice = np.zeros_like(img_arr[0])
 
                     ax = plt.subplot(gs[i,j])
-                    ax.imshow(im, cmap=cmap,
+                    ax.imshow(imslice, cmap=cmap,
                               vmin=vmin, vmax=vmax)
 
                     if overlay is not None:
                         if slice_idx_idx < len(slice_idxs):
-                            ov = ov_arr[slice_idxs[slice_idx_idx]]
-                            ax.imshow(ov, alpha=overlay_alpha, cmap=overlay_cmap)
+                            ovslice = ov_arr[slice_idxs[slice_idx_idx]]
+                            ovslice = reorient_slice(ovslice, axis)
+                            ax.imshow(ovslice, alpha=overlay_alpha, cmap=overlay_cmap)
                     ax.axis('off')
                     slice_idx_idx += 1
     
