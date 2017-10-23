@@ -30,7 +30,7 @@ from ..core import ants_transform_io as tio2
 
 def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
-         domain_image_map=None, crop=True, scale=False,
+         domain_image_map=None, crop=False, scale=True,
          filename=None):
     """
     Plot an ANTsImage
@@ -135,6 +135,9 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         image = iio2.image_read(image)
     if not isinstance(image, iio.ANTsImage):
         raise ValueError('image argument must be an ANTsImage')
+    
+    if image.pixeltype not in {'float', 'double'}:
+        scale = False # turn off scaling if image is discrete
 
     # handle `overlay` argument 
     if overlay is not None:

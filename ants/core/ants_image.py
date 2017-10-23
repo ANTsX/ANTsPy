@@ -1,6 +1,7 @@
 
 
 __all__ = ['ANTsImage',
+           'LabelImage',
            'copy_image_info',
            'set_origin',
            'get_origin',
@@ -14,6 +15,7 @@ __all__ = ['ANTsImage',
 
 import os
 import numpy as np
+import pandas as pd
 try:
     from functools import partialmethod
     HAS_PY3 = True
@@ -42,8 +44,7 @@ _npy_to_itk_map = {
 
 class ANTsImage(object):
 
-    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None,
-                origin=None, spacing=None, direction=None):
+    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None, label_image=None):
         """
         Initialize an ANTsImage
 
@@ -61,6 +62,9 @@ class ANTsImage(object):
         pointer : py::capsule (optional)
             pybind11 capsule holding the pointer to the underlying ITK image object
 
+        label_image : LabelImage
+            a discrete label image for mapping locations to atlas regions
+
         """
         ## Attributes which cant change without creating a new ANTsImage object
         self.pointer = pointer
@@ -76,12 +80,10 @@ class ANTsImage(object):
         self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
 
-        if origin is not None:
-            self.set_origin(origin)
-        if spacing is not None:
-            self.set_spacing(spacing)
-        if direction is not None:
-            self.set_direction(direction)
+        if label_image is not None:
+            if not isinstance(label_image, LabelImage):
+                raise ValueError('label_image argument must be a LabelImage type')
+            self.label_image = label_image
 
     @property
     def spacing(self):
@@ -275,6 +277,9 @@ class ANTsImage(object):
                             dimension=self.dimension, 
                             components=self.components, 
                             pointer=pointer_cloned) 
+
+    # pythonic alias for `clone` is `copy`
+    copy = clone
     
     def astype(self, dtype):
         """
@@ -351,6 +356,9 @@ class ANTsImage(object):
         this_array = self.numpy()
         new_array = fn(this_array)
         return self.new_image_like(new_array)
+
+    def as_label_image(self, label_info=None):
+        return LabelImage(image=self, label_info=label_info)
 
     ## NUMPY FUNCTIONS ##
     def mean(self, axis=None):
@@ -544,7 +552,7 @@ class ANTsImage(object):
             arr.__setitem__(idx, value)
 
     def __repr__(self):
-        s = "ANTsImage\n" +\
+        s = 'ANTsImage\n' +\
             '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
             '\t {:<10} : {}\n'.format('Components', self.components)+\
             '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
@@ -570,6 +578,198 @@ if HAS_PY3:
     for k, v in viz.__dict__.items():
         if callable(v) and (inspect.getargspec(getattr(viz,k)).args[0] in {'img','image'}):
             setattr(ANTsImage, k, partialmethod(v))
+
+
+class Dictlist(dict):
+    def __setitem__(self, key, value):
+        try:
+            self[key]
+        except KeyError:
+            super(Dictlist, self).__setitem__(key, [])
+        self[key].append(value)
+
+class LabelImage(ANTsImage):
+    """
+    A LabelImage is a special class of ANTsImage which has discrete values
+    and string labels or other metadata (e.g. another string label such as the
+    "lobe" of the region) associated with each of the discrete values. 
+    A canonical example of a LabelImage is a brain label_image or parcellation.
+
+    This class provides convenient functionality for manipulating and visualizing
+    images where you have real values associated with aggregated image regions (e.g.
+    if you have cortical thickness values associated with brain regions)
+
+    Commonly-used functionality for LabelImage types:
+        - create publication-quality figures of an label_image
+    
+    Nomenclature
+    ------------
+    - key : a string representing the name of the associated index in the atlas image
+        - e.g. if the index is 1001 and the key may be InferiorTemporalGyrus`
+    - value : an integer value in the atlas image
+    - metakey : a string representing one of the possible sets of label key
+        - e.g. 'Lobes' or 'Regions'
+    Notes
+    -----
+    - indexing works by creating a separate dict for each metakey, where 
+    """
+    def __init__(self, label_image, label_info=None, template=None):
+        """
+        Initialize a LabelImage 
+
+        ANTsR function: N/A
+
+        Arguments
+        ---------
+        label_image : ANTsImage
+            discrete (integer) image as label_image
+
+        label_info : dict or pandas.DataFrame
+            mapping between discrete values in `image` and string names
+            - if dict, the keys should be the discrete integer label values
+              and the values should be the label names or another dict with
+              any metadata
+            - if pd.DataFrame, the index (df.index) should be the discrete integer
+              label values and the other column(s) should be the label names and
+              any metadata
+
+        template : ANTsImage
+            default real-valued image to use for plotting or creating new images.
+            This image should be in the same space as the `label_image` image and the
+            two should be aligned.
+
+        Example
+        -------
+        >>> import ants
+        >>> square = np.zeros((20,20))
+        >>> square[:10,:10] = 0
+        >>> square[:10,10:] = 1
+        >>> square[10:,:10] = 2
+        >>> square[10:,10:] = 3
+        >>> img = ants.from_numpy(square).astype('uint8')
+        >>> label_image = ants.LabelImage(label_image=img, label_info=label_dict)
+        """
+        if label_image.pixeltype not in {'unsigned char', 'unsigned int'}:
+            raise ValueError('Label images must have discrete pixeltype - got %s' % label_image.pixeltype)
+        if label_image.components > 1:
+            raise ValueError('Label images must have only one component - got %i' % label_image.components)
+        
+        if label_info is None:
+            label_info = {k:'Label%i'%k for k in range(len(label_image.unique()))}
+
+        if isinstance(label_info, pd.DataFrame):
+            pass
+        elif isinstance(label_info, dict):
+            if isinstance(label_info[list(label_info.keys())[0]], dict):
+                label_info = pd.DataFrame(label_info).T.to_dict()
+            else:
+                label_info = pd.DataFrame(label_info, index=np.arange(len(label_info))).T.to_dict()
+        else:
+            raise ValueError('label_label_info argument must be pd.DataFrame')
+
+        self.label_info = label_info
+        self.label_image = label_image
+        self.template = template
+        self.generate_data()
+        
+        super(LabelImage, self).__init__(pixeltype=label_image.pixeltype, dimension=label_image.dimension,
+            components=label_image.components, pointer=label_image.pointer)
+
+    def generate_data(self):
+        self._metakeys = list(self.label_info.columns)
+        self._uniquekeys = {mk:list(np.unique(self.label_info[mk])) for mk in self._metakeys}
+        self._keys = {mk:list(self.label_info[mk]) for mk in self._metakeys}
+        self._values = list(self.label_info.index)
+        self._n_values = len(self._values)
+        
+        items = {}
+        for mk in self._metakeys:
+            items[mk] = {}
+            for k, v in zip(self.keys(mk), self.values()):
+                if k in items[mk]:
+                    if isinstance(items[mk][k], list):
+                        items[mk][k].append(v)
+                    else:
+                        items[mk][k] = [items[mk][k]] + [v]
+                else:
+                    items[mk][k] = v
+        self._items = items
+
+    def uniquekeys(self, metakey=None):
+        """
+        Get keys for a given metakey
+        """
+        if metakey is None:
+            return self._uniquekeys
+        else:
+            if metakey not in self.metakeys():
+                raise ValueError('metakey %s does not exist' % metakey)
+            return self._uniquekeys[metakey]
+
+    def keys(self, metakey=None):
+        if metakey is None:
+            return self._keys
+        else:
+            if metakey not in self.metakeys():
+                raise ValueError('metakey %s does not exist' % metakey)
+            return self._keys[metakey]
+
+    def metakeys(self):
+        return self._metakeys
+
+    def parentkey(self, key):
+        parent = None
+        for mk in self.metakeys():
+            if key in self.keys(mk):
+                parent = mk
+        if parent is None:
+            raise ValueError('key does not have a parent')
+        return parent
+
+    def values(self):
+        return self._values
+
+    def items(self, metakey):
+        if metakey not in self.metakeys():
+            raise ValueError('metakey %s does not exist' % metakey)
+        return self._items[metakey]
+
+    def n_values(self):
+        return self._n_values
+
+    def __getitem__(self, key):
+        # get metakey of key
+        metakey = self.parentkey(key)
+        # get key,value pairs for metakey
+        items = self.items(metakey)
+        # return value at the given key
+        return items[key]
+
+    def __setitem__(self, key, value):
+        label_value = self.__getitem__(key)
+        if isinstance(label_value, list):
+            if isinstance(value, list):
+                if len(value) != len(label_value):
+                    raise ValueError('must give either single value or one value '+\
+                                     'for each index (got %i, expected %i)' % (len(value), len(label_value)))
+                    for old_val, new_val in zip(label_value, value):
+                        self.label_image[self.label_image==old_val] = new_val
+                else:
+                    for lv in label_value:
+                        self.label_image[self.label_image==lv] = value
+        else:
+            self.label_image[self.label_image==label_value] = value
+
+    def __repr__(self):
+        s = 'LabelImage\n' +\
+            '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
+            '\t {:<10} : {}\n'.format('Components', self.components)+\
+            '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
+            '\t {:<10} : {}\n'.format('Spacing', self.spacing)+\
+            '\t {:<10} : {}\n'.format('Origin', self.origin)+\
+            '\t {:<10} : {}\n'.format('Direction', self.direction.flatten())+\
+            '\t {:<10} : {}\n'.format('Num Values', self.n_values())
+        return s
 
 
 def copy_image_info(reference, target):

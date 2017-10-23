@@ -126,8 +126,10 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
-        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image,
-                                   origin=origin, spacing=spacing, direction=direction)
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image)
+        ants_image.set_origin(origin)
+        ants_image.set_spacing(spacing)
+        ants_image.set_direction(direction)
         ants_image._ndarr = data
     else:
         arrays = [data[i,...].copy() for i in range(data.shape[0])]
@@ -138,10 +140,10 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
             tmp_img = iio.ANTsImage(pixeltype=ptype, 
                                     dimension=ndim, 
                                     components=1, 
-                                    pointer=tmp_ptr,
-                                    origin=origin, 
-                                    spacing=spacing, 
-                                    direction=direction)
+                                    pointer=tmp_ptr)
+            tmp_img.set_origin(origin)
+            tmp_img.set_spacing(spacing)
+            tmp_img.set_direction(direction)
             tmp_img._ndarr = arrays[i]
             ants_images.append(tmp_img)
         ants_image = utils.merge_channels(ants_images)
