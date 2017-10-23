@@ -9,13 +9,13 @@ def quantile(image, q, nonzero=True):
     """
     img_arr = image.numpy()
     if isinstance(q, (list,tuple)):
-        q = [qq*100. if qq < 1. else qq for qq in q]
+        q = [qq*100. if qq <= 1. else qq for qq in q]
         if nonzero:
             img_arr = img_arr[img_arr>0]
         vals = [np.percentile(img_arr, qq) for qq in q]
         return tuple(vals)
     elif isinstance(q, (float,int)):
-        if q < 1.:
+        if q <= 1.:
             q = q*100.
         if nonzero:
             img_arr = img_arr[img_arr>0]

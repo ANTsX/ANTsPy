@@ -32,8 +32,8 @@ from ..core import ants_transform_io as tio2
 
 def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, black_bg=True,
-         bg_thresh_quant=0.01, bg_val_quant=1.0, domain_image_map=None, crop=False, scale=True,
-         title=None, filename=None):
+         bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
+         reverse=False, title=None, filename=None, dpi=500):
     """
     Plot an ANTsImage
     
@@ -111,10 +111,16 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
         in a potentially smaller image size.
         if false, the image(s) will not be cropped
 
-    scale : boolean
+    scale : boolean or 2-tuple
         if true, nothing will happen to intensities of image(s) and overlay(s)
         if false, dynamic range will be maximized when visualizing overlays
+        if 2-tuple, the image will be dynamically scaled between these quantiles
     
+    reverse : boolean
+        if true, the order in which the slices are plotted will be reversed.
+        This is useful if you want to plot from the front of the brain first 
+        to the back of the brain, or vice-versa
+
     title : string 
         add a title to the plot
 
@@ -215,7 +221,7 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
         elif isinstance(scale, (list,tuple)):
             if len(scale) != 2:
                 raise ValueError('scale argument must be boolean or list/tuple with two values')
-            vmin, vmax = scale
+            vmin, vmax = image.quantile(scale)
         else:
             vmin = None
             vmax = None
@@ -226,7 +232,7 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
             img_arr = image.numpy()
             img_arr = rotate90_matrix(img_arr)
 
-            if white_bg:
+            if not black_bg:
                 img_arr[img_arr<image.quantile(bg_thresh_quant)] = image.quantile(bg_val_quant)
 
             if overlay is not None:
@@ -272,6 +278,8 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                 min_idx = nonzero[0] + slice_buffer[0]
                 max_idx = nonzero[-1] - slice_buffer[1]
                 slice_idxs = np.linspace(min_idx, max_idx, nslices).astype('int')
+                if reverse:
+                    slice_idxs = np.array(list(reversed(slice_idxs)))
             else:
                 if isinstance(slices, (int,float)):
                     slices = [slices]
@@ -291,12 +299,12 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
             xdim = img_arr.shape[2]
             ydim = img_arr.shape[1]
 
-            fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5)) 
+            fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5))
 
             gs = gridspec.GridSpec(nrow, ncol,
                      wspace=0.0, hspace=0.0, 
                      top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
-                     left=0.5/(ncol+1), right=1-0.5/(ncol+1)) 
+                     left=0.5/(ncol+1), right=1-0.5/(ncol+1))
 
             slice_idx_idx = 0
             for i in range(nrow):
@@ -304,10 +312,12 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                     if slice_idx_idx < len(slice_idxs):
                         imslice = img_arr[slice_idxs[slice_idx_idx]]
                         imslice = reorient_slice(imslice, axis)
-                        if white_bg:
-                            imslice[imslice<image.quantile(bg_thresh_quant)] = image.quantil(bg_val_quant)
+                        if not black_bg:
+                        
+                            imslice[imslice<image.quantile(bg_thresh_quant)] = image.quantile(bg_val_quant)
                     else:
                         imslice = np.zeros_like(img_arr[0])
+                        imslice = reorient_slice(imslice, axis)
 
                     ax = plt.subplot(gs[i,j])
                     ax.imshow(imslice, cmap=cmap,
@@ -326,7 +336,7 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
         raise ValueError('Multi-channel images not currently supported!')
 
     if filename is not None:
-        plt.savefig(filename)
+        plt.savefig(filename, dpi=dpi)
         plt.close(fig)
     else:
         plt.show()
