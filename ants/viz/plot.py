@@ -33,7 +33,7 @@ from ..core import ants_transform_io as tio2
 def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, black_bg=True,
          bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
-         reverse=False, title=None, filename=None, dpi=500):
+         reverse=False, title=None, filename=None, dpi=500, figsize=1.5):
     """
     Plot an ANTsImage
     
@@ -273,6 +273,8 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                     if new_spacing[i] == max_spacing:
                         new_spacing[i] = min_spacing
                 image = image.resample_image(tuple(new_spacing))
+                if overlay is not None:
+                    overlay = overlay.resample_image(tuple(new_spacing))
 
             img_arr = image.numpy()
             # reorder dims so that chosen axis is first
@@ -311,7 +313,7 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
             ydim = img_arr.shape[1]
 
             dim_ratio = ydim/xdim
-            fig = plt.figure(figsize=((ncol+1)*1.5*dim_ratio, (nrow+1)*1.5))
+            fig = plt.figure(figsize=((ncol+1)*figsize*dim_ratio, (nrow+1)*figsize))
 
             gs = gridspec.GridSpec(nrow, ncol,
                      wspace=0.0, hspace=0.0, 
