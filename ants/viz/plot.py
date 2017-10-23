@@ -3,8 +3,10 @@ Create a static 2D image of a 2D ANTsImage
 or a tile of slices from a 3D ANTsImage
 
 TODO:
+- add `ortho` function for plotting 3d ortho slices
 - add `plot_multichannel` function for plotting multi-channel images
-
+    - support for quivers as well
+- add `plot_grid` function for plotting slices in arbitrary grids
 """
 
 
@@ -28,10 +30,10 @@ from ..core import ants_transform_io as tio2
 
 
 
-def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
-         axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, white_bg=False,
-         domain_image_map=None, crop=False, scale=True,
-         filename=None):
+def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
+         axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, black_bg=True,
+         bg_thresh_quant=0.01, bg_val_quant=1.0, domain_image_map=None, crop=False, scale=True,
+         title=None, filename=None):
     """
     Plot an ANTsImage
     
@@ -76,9 +78,27 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         in a 3D image will be the first non-zero slice index plus 10 more
         slices.
 
-    white_bg : boolean
-        if True, the background of the image(s) will be white.
-        if False, the background of the image(s) will be black
+    black_bg : boolean
+        if True, the background of the image(s) will be black.
+        if False, the background of the image(s) will be determined by the
+            values `bg_thresh_quant` and `bg_val_quant`.
+
+    bg_thresh_quant : float 
+        if white_bg=True, the background will be determined by thresholding
+        the image at the `bg_thresh` quantile value and setting the background
+        intensity to the `bg_val` quantile value. 
+        This value should be in [0, 1] - somewhere around 0.01 is recommended.
+            - equal to 1 will threshold the entire image
+            - equal to 0 will threshold none of the image
+
+    bg_val_quant : float
+        if white_bg=True, the background will be determined by thresholding
+        the image at the `bg_thresh` quantile value and setting the background
+        intensity to the `bg_val` quantile value.
+        This value should be in [0, 1] 
+            - equal to 1 is pure white
+            - equal to 0 is pure black
+            - somewhere in between is gray
 
     domain_image_map : ANTsImage
         this input ANTsImage or list of ANTsImage types contains a reference image
@@ -86,16 +106,19 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
         If supplied, the image(s) to be plotted will be mapped to the domain
         image space before plotting - useful for non-standard image orientations.
 
-    do_cropping : boolean
+    crop : boolean
         if true, the image(s) will be cropped to their bounding boxes, resulting
         in a potentially smaller image size.
         if false, the image(s) will not be cropped
 
-    use_absolute_scale : boolean
+    scale : boolean
         if true, nothing will happen to intensities of image(s) and overlay(s)
         if false, dynamic range will be maximized when visualizing overlays
+    
+    title : string 
+        add a title to the plot
 
-    filename : string (optional)
+    filename : string
         if given, the resulting image will be saved to this file
 
     Example
@@ -203,6 +226,9 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
             img_arr = image.numpy()
             img_arr = rotate90_matrix(img_arr)
 
+            if white_bg:
+                img_arr[img_arr<image.quantile(bg_thresh_quant)] = image.quantile(bg_val_quant)
+
             if overlay is not None:
                 ov_arr = overlay.numpy()
                 ov_arr = rotate90_matrix(ov_arr)
@@ -211,7 +237,8 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
             fig, ax = plt.subplots()
 
             # plot main image
-            ax.imshow(img_arr, cmap=cmap, 
+            ax.imshow(img_arr, cmap=cmap,
+                      alpha=alpha, 
                       vmin=vmin, vmax=vmax)
 
             if overlay is not None:
@@ -278,7 +305,7 @@ def plot(image, overlay=None, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=
                         imslice = img_arr[slice_idxs[slice_idx_idx]]
                         imslice = reorient_slice(imslice, axis)
                         if white_bg:
-                            imslice[imslice<(imslice.min()+1e-5)] = None
+                            imslice[imslice<image.quantile(bg_thresh_quant)] = image.quantil(bg_val_quant)
                     else:
                         imslice = np.zeros_like(img_arr[0])
 
