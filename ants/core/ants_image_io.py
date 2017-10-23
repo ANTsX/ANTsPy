@@ -5,6 +5,7 @@ Image IO
 __all__ = ['image_header_info',
            'image_clone',
            'image_read',
+           'dicom_read',
            'image_write',
            'make_image',
            'matrix_to_images',
@@ -425,6 +426,46 @@ def image_read(filename, dimension=None, pixeltype='float'):
             ants_image = ants_image.clone(pixeltype)
 
     return ants_image
+
+
+def dicom_read(directory, pixeltype='float'):
+    """
+    Read a set of dicom files in a directory into a single ANTsImage.
+    The origin of the resulting 3D image will be the origin of the 
+    first dicom image read.
+
+    Arguments
+    ---------
+    directory : string
+        folder in which all the dicom images exist
+
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.dicom_read('~/desktop/dicom-subject/')
+    """
+    slices = []
+    imgidx = 0
+    for imgpath in os.listdir(directory):
+        if imgpath.endswith('.dcm'):
+            if imgidx == 0:
+                tmp = image_read(os.path.join(directory,imgpath), dimension=3, pixeltype=pixeltype)
+                origin = tmp.origin
+                spacing = tmp.spacing
+                direction = tmp.direction
+                tmp = tmp.numpy()[:,:,0]
+            else:
+                tmp = image_read(os.path.join(directory,imgpath), dimension=2, pixeltype=pixeltype).numpy()
+            
+            slices.append(tmp)
+            imgidx += 1
+    
+    slices = np.stack(slices, axis=-1)
+    return from_numpy(slices, origin=origin, spacing=spacing, direction=direction)
 
 
 def image_write(image, filename, ri=False):

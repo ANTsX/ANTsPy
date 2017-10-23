@@ -263,6 +263,17 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
 
         # Plot 3D image
         elif image.dimension == 3:
+            # resample image if spacing is very unbalanced
+            spacing = [s for i,s in enumerate(image.spacing) if i != axis]
+            if (max(spacing) / min(spacing)) > 3.:
+                new_spacing = list(image.spacing)
+                max_spacing = max(spacing)
+                min_spacing = min(spacing)
+                for i in range(len(new_spacing)):
+                    if new_spacing[i] == max_spacing:
+                        new_spacing[i] = min_spacing
+                image = image.resample_image(tuple(new_spacing))
+
             img_arr = image.numpy()
             # reorder dims so that chosen axis is first
             img_arr = np.rollaxis(img_arr, axis)
@@ -296,11 +307,11 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
 
             # calculate grid size
             nrow = math.ceil(nslices / ncol)
-
             xdim = img_arr.shape[2]
             ydim = img_arr.shape[1]
 
-            fig = plt.figure(figsize=((ncol+1)*1.5*(ydim/xdim), (nrow+1)*1.5))
+            dim_ratio = ydim/xdim
+            fig = plt.figure(figsize=((ncol+1)*1.5*dim_ratio, (nrow+1)*1.5))
 
             gs = gridspec.GridSpec(nrow, ncol,
                      wspace=0.0, hspace=0.0, 

@@ -396,7 +396,6 @@ class ANTsImage(object):
             return (amin, amax)
         else:
             return np.stack([amin, amax]).T
-
     def flatten(self):
         """ Flatten image data """
         return self.numpy().flatten()
