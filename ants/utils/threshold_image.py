@@ -7,7 +7,7 @@ from .process_args import _int_antsProcessArguments
 from .. import utils
 
 
-def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0):
+def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0, binary=True):
     """
     Converts a scalar image into a binary image by thresholding operations
 
@@ -29,6 +29,10 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0)
     
     outval : scalar
         Output value for image voxels lower than lothresh or higher than hithresh
+
+    binary : boolean
+        if true, returns binary thresholded image
+        if false, return binary thresholded image multiplied by original image
     
     Returns
     -------
@@ -46,4 +50,8 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0)
     processed_args = _int_antsProcessArguments(args)
     libfn = utils.get_lib_fn('ThresholdImage')
     libfn(processed_args)
-    return outimage
+    if binary:
+        return outimage
+    else:
+        return outimage*image
+

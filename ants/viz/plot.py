@@ -127,6 +127,11 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
     filename : string
         if given, the resulting image will be saved to this file
 
+    dpi : integer
+        determines resolution of image if saved to file. Higher values
+        result in higher resolution images, but at a cost of having a 
+        larger file size
+
     Example
     -------
     >>> import ants
