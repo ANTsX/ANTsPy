@@ -245,7 +245,8 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                 ov_arr = rotate90_matrix(ov_arr)
                 ov_arr[np.abs(ov_arr) == 0] = np.nan
 
-            fig, ax = plt.subplots()
+            fig = plt.figure()
+            ax = plt.subplot(111)
 
             # plot main image
             ax.imshow(img_arr, cmap=cmap,
@@ -259,11 +260,6 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                           cmap=overlay_cmap)
 
             plt.axis('off')
-            if filename is not None:
-                plt.savefig(filename)
-                plt.close(fig)
-            else:
-                plt.show()
 
         # Plot 3D image
         elif image.dimension == 3:
