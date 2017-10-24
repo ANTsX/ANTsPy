@@ -32,7 +32,7 @@ from ..core import ants_transform as tio
 from ..core import ants_transform_io as tio2
 
 def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Greys_r', alpha=1, 
-              overlay_cmap='jet', overlay_alpha=0.9, xyz_cmap='Blues_r', xyz_alpha=1., 
+              overlay_cmap='jet', overlay_alpha=0.9, xyz_cmap='Reds_r', xyz_alpha=1., 
               black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
               domain_image_map=None, crop=False, scale=True, title=None, 
               filename=None, dpi=500, figsize=1.):
@@ -243,15 +243,13 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
         # resample image if spacing is very unbalanced
         spacing = [s for i,s in enumerate(image.spacing)]
         if (max(spacing) / min(spacing)) > 3.:
-            new_spacing = list(image.spacing)
-            max_spacing = max(spacing)
-            min_spacing = min(spacing)
-            for i in range(len(new_spacing)):
-                if new_spacing[i] == max_spacing:
-                    new_spacing[i] = min_spacing
+            new_spacing = (1,1,1)
             image = image.resample_image(tuple(new_spacing))
             if overlay is not None:
                 overlay = overlay.resample_image(tuple(new_spacing))
+            if xyz is not None:
+                xyz_image = xyz_image.resample_image(tuple(new_spacing), interp_type=1)
+            slices = [int(sl*(sold/snew)) for sl,sold,snew in zip(slices,spacing,new_spacing)]
 
         if not flat:
             nrow = 2
@@ -281,7 +279,7 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
             xyz_image[np.abs(xyz_image) == 0] = np.nan
 
         yz_slice = reorient_slice(image[slices[0],:,:],0)
-        ax = plt.subplot(gs[0,0])
+        ax = plt.subplot(gs[0,1])
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             yz_overlay = reorient_slice(overlay[slices[0],:,:],0)
@@ -291,28 +289,28 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
             ax.imshow(yz_line, cmap=xyz_cmap, alpha=xyz_alpha)
         ax.axis('off')
 
-        xz_slice = reorient_slice(image[:,slices[0],:],1)
-        ax = plt.subplot(gs[0,1])
+        xz_slice = reorient_slice(image[:,slices[1],:],1)
+        ax = plt.subplot(gs[0,0])
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xz_overlay = reorient_slice(overlay[:,slices[0],:],1)
+            xz_overlay = reorient_slice(overlay[:,slices[1],:],1)
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz is not None:
-            xz_line = reorient_slice(xyz_image[:,slices[0],:],0)
+            xz_line = reorient_slice(xyz_image[:,slices[1],:],1)
             ax.imshow(xz_line, cmap=xyz_cmap, alpha=xyz_alpha)
         ax.axis('off')
 
-        xy_slice = reorient_slice(image[:,:,slices[0]],2)
+        xy_slice = reorient_slice(image[:,:,slices[2]],2)
         if not flat:
             ax = plt.subplot(gs[1,0])
         else:
             ax = plt.subplot(gs[0,2])
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xy_overlay = reorient_slice(overlay[:,:,slices[0]],2)
+            xy_overlay = reorient_slice(overlay[:,:,slices[2]],2)
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz is not None:
-            xy_line = reorient_slice(xyz_image[:,:,slices[0]],0)
+            xy_line = reorient_slice(xyz_image[:,:,slices[2]],2)
             ax.imshow(xy_line, cmap=xyz_cmap, alpha=xyz_alpha)
         ax.axis('off')
 
@@ -337,7 +335,7 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
 
 
 def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
-         axis=0, nslices=12, slices=None, ncol=4, slice_buffer=0, black_bg=True,
+         axis=0, nslices=12, slices=None, ncol=4, slice_buffer=None, black_bg=True,
          bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
          reverse=False, title=None, filename=None, dpi=500, figsize=1.5):
     """
@@ -450,6 +448,13 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
     >>> segs = mni.kmeans_segmentation(k=3)['segmentation']
     >>> ants.plot(mni, segs*(segs==1), crop=False)
     """
+    if (axis == 'x') or (axis == 'saggittal'):
+        axis = 0
+    if (axis == 'y') or (axis == 'coronal'):
+        axis = 1
+    if (axis == 'z') or (axis == 'axial'):
+        axis = 2
+
     def mirror_matrix(x):
         return x[::-1,:]
     def rotate270_matrix(x):
@@ -571,13 +576,10 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
         elif image.dimension == 3:
             # resample image if spacing is very unbalanced
             spacing = [s for i,s in enumerate(image.spacing) if i != axis]
+            was_resampled = False
             if (max(spacing) / min(spacing)) > 3.:
-                new_spacing = list(image.spacing)
-                max_spacing = max(spacing)
-                min_spacing = min(spacing)
-                for i in range(len(new_spacing)):
-                    if new_spacing[i] == max_spacing:
-                        new_spacing[i] = min_spacing
+                was_resampled = True
+                new_spacing = (1,1,1)
                 image = image.resample_image(tuple(new_spacing))
                 if overlay is not None:
                     overlay = overlay.resample_image(tuple(new_spacing))
@@ -593,8 +595,11 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
 
             if slices is None:
                 if not isinstance(slice_buffer, (list, tuple)):
-                    slice_buffer = (slice_buffer, slice_buffer)
-                nonzero = np.where(np.abs(img_arr)>0)[0]
+                    if slice_buffer is None:
+                        slice_buffer = (int(img_arr.shape[1]*0.1), int(img_arr.shape[2]*0.1))
+                    else:
+                        slice_buffer = (slice_buffer, slice_buffer)
+                nonzero = np.where(img_arr.sum(axis=(1,2)) > 0.01)[0]
                 min_idx = nonzero[0] + slice_buffer[0]
                 max_idx = nonzero[-1] - slice_buffer[1]
                 slice_idxs = np.linspace(min_idx, max_idx, nslices).astype('int')
@@ -608,6 +613,10 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                     slices = [int(s*img_arr.shape[0]) for s in slices]
                 slice_idxs = slices
                 nslices = len(slices)
+
+            if was_resampled:
+                # re-calculate slices to account for new image shape
+                slice_idxs = np.unique(np.array([int(s*(image.shape[axis]/img_arr.shape[0])) for s in slice_idxs]))
 
             # only have one row if nslices <= 6 and user didnt specify ncol
             if (nslices <= 6) and (ncol==4):
