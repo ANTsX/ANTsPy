@@ -11,7 +11,7 @@ TODO:
 
 
 __all__ = ['plot',
-           'plot_ortho',
+           'ortho',
            'plot_directory']
 
 import fnmatch
@@ -31,7 +31,7 @@ from ..core import ants_image_io as iio2
 from ..core import ants_transform as tio
 from ..core import ants_transform_io as tio2
 
-def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Greys_r', alpha=1, 
+def ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Greys_r', alpha=1, 
               overlay_cmap='jet', overlay_alpha=0.9, xyz_cmap='Reds_r', xyz_alpha=1., 
               black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
               domain_image_map=None, crop=False, scale=True, title=None, 
