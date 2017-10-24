@@ -361,6 +361,9 @@ class ANTsImage(object):
         return LabelImage(image=self, label_info=label_info)
 
     ## NUMPY FUNCTIONS ##
+    def abs(self, axis=None):
+        """ Return absolute value of image """
+        return self.numpy().abs()
     def mean(self, axis=None):
         """ Return mean along specified axis """
         return self.numpy().mean(axis=axis)
