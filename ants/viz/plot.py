@@ -11,7 +11,8 @@ TODO:
 
 
 __all__ = ['plot',
-           'ortho',
+           'plot_grid',
+           'plot_ortho',
            'plot_directory']
 
 import fnmatch
@@ -21,7 +22,6 @@ import warnings
 
 from matplotlib import gridspec
 import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
 
 import numpy as np
 
@@ -31,13 +31,106 @@ from ..core import ants_image_io as iio2
 from ..core import ants_transform as tio
 from ..core import ants_transform_io as tio2
 
-def ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Greys_r', alpha=1, 
+
+def plot_grid(images, slices=None, axis=2, figsize=1.):
+    """
+    Plot a collection of images in an arbitrarily-defined grid
+
+    Arguments
+    ---------
+    images : list of ANTsImage types
+        image(s) to plot.
+        if one image, this image will be used for all grid locations.
+        if multiple images, they should be arrange in a list the same
+        shape as the `gridsize` argument.
+
+    slices : integer or list of integers
+        slice indices to plot
+        if one integer, this slice index will be used for all images
+        if multiple integers, they should be arranged in a list the same
+        shape as the `gridsize` argument
+
+    axis : integer or list of integer
+        axis or axes along which to plot image slices
+        if one integer, this axis will be used for all images
+        if multiple integers, they should be arranged in a list the same
+        shape as the `gridsize` argument
+
+    Example
+    -------
+    >>> import ants
+    >>> mni = ants.image_read(ants.get_data('mni'))
+    >>> mni2 = mni.copy() + 10.
+    >>> mni3 = mni.copy() + 20.
+    >>> mni4 = mni.copy() + 30.
+    >>> ants.plot_grid([[mni,mni2],[mni3,mni4]], slices=[[100,100],[100,100]])
+    """
+    def mirror_matrix(x):
+        return x[::-1,:]
+    def rotate270_matrix(x):
+        return mirror_matrix(x.T)
+    def rotate180_matrix(x):
+        return x[::-1,:]
+    def rotate90_matrix(x):
+        return mirror_matrix(x).T
+    def flip_matrix(x):
+        return mirror_matrix(rotate180_matrix(x))
+    def reorient_slice(x, axis):
+        if (axis != 1):
+            x = rotate90_matrix(x)
+        if (axis == 1):
+            x = rotate90_matrix(x)
+        x = mirror_matrix(x)
+        return x
+
+    if not isinstance(images, list):
+        raise ValueError('images argument must be of type list')
+    if not isinstance(images[0], list):
+        images = [images]
+
+    if isinstance(slices, int):
+        one_slice = True
+    elif isinstance(slices, list):
+        one_slice = False
+        if not isinstance(slices[0], list):
+            slices = [slices]
+        nslicerow = len(slices)
+        nslicecol = len(slices[0])
+    
+    nrow = len(images)
+    ncol = len(images[0])
+
+    if (not one_slice):
+        if (nrow != nslicerow) or (ncol != nslicecol):
+            raise ValueError('`images` arg shape (%i,%i) must equal `slices` arg shape (%i,%i)!' % (nrow,ncol,nslicerow,nslicecol))
+
+    fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
+
+    gs = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.0,
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+                 left=0.5/(ncol+1), right=1-0.5/(ncol+1))
+
+    for rowidx in range(nrow):
+        for colidx in range(ncol):
+            ax = plt.subplot(gs[rowidx, colidx])
+
+            tmpimg = images[rowidx][colidx]
+            sliceidx = slices[rowidx][colidx] if not one_slice else slices
+            tmpslice = reorient_slice(tmpimg[:,sliceidx,:],0)
+            ax.imshow(tmpslice, cmap='Greys_r')
+            ax.axis('off')
+
+    plt.show()
+
+
+
+def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Greys_r', alpha=1, 
               overlay_cmap='jet', overlay_alpha=0.9, xyz_cmap='Reds_r', xyz_alpha=1., 
               black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
               domain_image_map=None, crop=False, scale=True, title=None, 
               filename=None, dpi=500, figsize=1.):
     """
-    Plot an orthographic view of a 3D ANTsImage
+    Plot an orthographic view of a 3D image
     
     ANTsR function: N/A
 
