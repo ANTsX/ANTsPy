@@ -22,6 +22,7 @@ import warnings
 
 from matplotlib import gridspec
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
 
 import numpy as np
 
@@ -32,9 +33,18 @@ from ..core import ants_transform as tio
 from ..core import ants_transform_io as tio2
 
 
-def plot_grid(images, slices=None, axis=2, figsize=1.):
+def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpad=0.,
+              # row label arguments
+              textsize=20, fontsize=14, fontweight='bold', textpadleft=0, row_labels=None,
+              # column label arguments 
+              ctextsize=20, cfontsize=14, cfontweight='bold', ctextpad=0., clabels=None,
+              # save arguments
+              filename=None, dpi=400):
+
     """
     Plot a collection of images in an arbitrarily-defined grid
+    
+    Matplotlib named colors: https://matplotlib.org/examples/color/named_colors.html
 
     Arguments
     ---------
@@ -64,6 +74,16 @@ def plot_grid(images, slices=None, axis=2, figsize=1.):
     >>> mni3 = mni.copy() + 20.
     >>> mni4 = mni.copy() + 30.
     >>> ants.plot_grid([[mni,mni2],[mni3,mni4]], slices=[[100,100],[100,100]])
+    >>> # more complex plotting
+    >>> ants.plot_grid([[mni,mni2,mni],[mni3,mni4,mni]],slices=[[100,100,100],[100,100,100]],
+                 figsize=1.,fontsize=22,fontweight='normal',textsize=24.5,
+                 textpadleft=-0.02,horgridpad=0.0,vertgridpad=0.02,
+                 row_labels=['Row Label 1', 'Row Label 2'])
+    >>> ants.plot_grid([[mni,mni2,mni],[mni3,mni4,mni]],slices=[[100,100,100],[100,100,100]],
+                 figsize=1.,fontsize=22,fontweight='normal',textsize=24.5,
+                 textpadleft=-0.02,horgridpad=0.0,vertgridpad=0.02,
+                 row_labels=['Row Label 1', 'Row Label 2'], 
+                 col_labels=['Col Label 1', 'Col Label 2', 'Col Label 3'])
     """
     def mirror_matrix(x):
         return x[::-1,:]
@@ -100,19 +120,64 @@ def plot_grid(images, slices=None, axis=2, figsize=1.):
     nrow = len(images)
     ncol = len(images[0])
 
+    if row_labels is None:
+        row_labels = [None]*nrow
+    if clabels is None:
+        clabels = [None]*ncol
+
     if (not one_slice):
         if (nrow != nslicerow) or (ncol != nslicecol):
             raise ValueError('`images` arg shape (%i,%i) must equal `slices` arg shape (%i,%i)!' % (nrow,ncol,nslicerow,nslicecol))
 
     fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
 
-    gs = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
-                 left=0.5/(ncol+1), right=1-0.5/(ncol+1))
+    if (vertgridpad > 0) and (horgridpad > 0):
+        bothgridpad = max(vertgridpad, horgridpad)
+        vertgridpad = 0
+        horgridpad = 0
+    else:
+        bothgridpad = 0.0
+
+    gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + horgridpad, 
+                 left=0.5/(ncol+1) + vertgridpad, right=1-0.5/(ncol+1))
 
     for rowidx in range(nrow):
         for colidx in range(ncol):
             ax = plt.subplot(gs[rowidx, colidx])
+
+            if colidx == 0:
+                left, width = .25, .5
+                bottom, height = .25, .5
+                right = left + width
+                top = bottom + height
+                if row_labels[rowidx] is not None:
+                    plt.text(-0.07-textpadleft, 0.5*(bottom+top), row_labels[rowidx],
+                            horizontalalignment='right',
+                            verticalalignment='center',
+                            rotation='vertical',
+                            bbox={'facecolor':'darkcyan', 'edgecolor':'none',
+                                 'alpha':0.9, 'pad':8},
+                            transform=ax.transAxes, fontsize=fontsize, color='white',
+                            weight=fontweight, size=textsize,
+                            path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
+                                          path_effects.Normal()])
+            if rowidx == 0:
+                left, width = .25, .5
+                bottom, height = .25, .5
+                right = left + width
+                top = bottom + height
+                if clabels[colidx] is not None:
+                    ax.text(0.5*(left+right), top+bottom+0.12-ctextpad, clabels[colidx],
+                            horizontalalignment='center',
+                            verticalalignment='center',
+                            rotation='horizontal',
+                            bbox={'facecolor':'darkcyan', 'edgecolor':'none',
+                                 'alpha':0.9, 'pad':8},
+                            transform=ax.transAxes, fontsize=fontsize, color='white',
+                            weight=fontweight, size=textsize,
+                            path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
+                                          path_effects.Normal()])
 
             tmpimg = images[rowidx][colidx]
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
@@ -120,7 +185,11 @@ def plot_grid(images, slices=None, axis=2, figsize=1.):
             ax.imshow(tmpslice, cmap='Greys_r')
             ax.axis('off')
 
-    plt.show()
+    if filename is not None:
+        plt.savefig(filename, dpi=dpi)
+        plt.close(fig)
+    else:
+        plt.show()
 
 
 
