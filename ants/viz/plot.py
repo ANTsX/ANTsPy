@@ -33,11 +33,13 @@ from ..core import ants_transform as tio
 from ..core import ants_transform_io as tio2
 
 
-def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpad=0.,
+def plot_grid(images, slices=None, axis=2, figsize=1., vpad=0., hpad=0.,
               # row label arguments
-              textsize=20, fontsize=14, fontweight='bold', textpadleft=0, row_labels=None,
+              textsize=20, fontsize=14, fontweight='bold', textpadleft=0, rlabels=None,
+              rboxstyle='round',
               # column label arguments 
               ctextsize=20, cfontsize=14, cfontweight='bold', ctextpad=0., clabels=None,
+              cboxstyle='round',
               # save arguments
               filename=None, dpi=400):
 
@@ -60,7 +62,7 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
         if multiple integers, they should be arranged in a list the same
         shape as the `gridsize` argument
 
-    axis : integer or list of integer
+    axis : integer or list of integers
         axis or axes along which to plot image slices
         if one integer, this axis will be used for all images
         if multiple integers, they should be arranged in a list the same
@@ -69,21 +71,25 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
     Example
     -------
     >>> import ants
-    >>> mni = ants.image_read(ants.get_data('mni'))
+    >>> mni1 = ants.image_read(ants.get_data('mni'))
     >>> mni2 = mni.copy() + 10.
     >>> mni3 = mni.copy() + 20.
     >>> mni4 = mni.copy() + 30.
-    >>> ants.plot_grid([[mni,mni2],[mni3,mni4]], slices=[[100,100],[100,100]])
+    >>> images = [[mni1, mni2],
+    ...           [mni3, mni4]]
+    >>> slices = [[100, 100],
+    ...           [100, 100]]
+    >>> ants.plot_grid(images=images, slices=slices)
     >>> # more complex plotting
     >>> ants.plot_grid([[mni,mni2,mni],[mni3,mni4,mni]],slices=[[100,100,100],[100,100,100]],
                  figsize=1.,fontsize=22,fontweight='normal',textsize=24.5,
-                 textpadleft=-0.02,horgridpad=0.0,vertgridpad=0.02,
-                 row_labels=['Row Label 1', 'Row Label 2'])
+                 textpadleft=-0.02,hpad=0.0,vpad=0.02,
+                 rlabels=['Row Label 1', 'Row Label 2'])
     >>> ants.plot_grid([[mni,mni2,mni],[mni3,mni4,mni]],slices=[[100,100,100],[100,100,100]],
                  figsize=1.,fontsize=22,fontweight='normal',textsize=24.5,
-                 textpadleft=-0.02,horgridpad=0.0,vertgridpad=0.02,
-                 row_labels=['Row Label 1', 'Row Label 2'], 
-                 col_labels=['Col Label 1', 'Col Label 2', 'Col Label 3'])
+                 textpadleft=-0.02,hpad=0.0,vpad=0.02,
+                 rlabels=['Row Label 1', 'Row Label 2'], 
+                 clabels=['Col Label 1', 'Col Label 2', 'Col Label 3'])
     """
     def mirror_matrix(x):
         return x[::-1,:]
@@ -103,6 +109,8 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
         x = mirror_matrix(x)
         return x
 
+    if isinstance(images, np.ndarray):
+        images = images.tolist()
     if not isinstance(images, list):
         raise ValueError('images argument must be of type list')
     if not isinstance(images[0], list):
@@ -110,7 +118,9 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
 
     if isinstance(slices, int):
         one_slice = True
-    elif isinstance(slices, list):
+    if isinstance(slices, np.ndarray):
+        slices = slices.tolist()
+    if isinstance(slices, list):
         one_slice = False
         if not isinstance(slices[0], list):
             slices = [slices]
@@ -120,8 +130,8 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
     nrow = len(images)
     ncol = len(images[0])
 
-    if row_labels is None:
-        row_labels = [None]*nrow
+    if rlabels is None:
+        rlabels = [None]*nrow
     if clabels is None:
         clabels = [None]*ncol
 
@@ -131,16 +141,16 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
 
     fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
 
-    if (vertgridpad > 0) and (horgridpad > 0):
-        bothgridpad = max(vertgridpad, horgridpad)
-        vertgridpad = 0
-        horgridpad = 0
+    if (vpad > 0) and (hpad > 0):
+        bothgridpad = max(vpad, hpad)
+        vpad = 0
+        hpad = 0
     else:
         bothgridpad = 0.0
 
     gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + horgridpad, 
-                 left=0.5/(ncol+1) + vertgridpad, right=1-0.5/(ncol+1))
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + hpad, 
+                 left=0.5/(ncol+1) + vpad, right=1-0.5/(ncol+1))
 
     for rowidx in range(nrow):
         for colidx in range(ncol):
@@ -151,13 +161,13 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
                 bottom, height = .25, .5
                 right = left + width
                 top = bottom + height
-                if row_labels[rowidx] is not None:
-                    plt.text(-0.07-textpadleft, 0.5*(bottom+top), row_labels[rowidx],
+                if rlabels[rowidx] is not None:
+                    plt.text(-0.07-textpadleft, 0.5*(bottom+top), rlabels[rowidx],
                             horizontalalignment='right',
                             verticalalignment='center',
                             rotation='vertical',
                             bbox={'facecolor':'darkcyan', 'edgecolor':'none',
-                                 'alpha':0.9, 'pad':8},
+                                 'alpha':0.9, 'pad':8, 'boxstyle':rboxstyle},
                             transform=ax.transAxes, fontsize=fontsize, color='white',
                             weight=fontweight, size=textsize,
                             path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
@@ -168,12 +178,12 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vertgridpad=0., horgridpa
                 right = left + width
                 top = bottom + height
                 if clabels[colidx] is not None:
-                    ax.text(0.5*(left+right), top+bottom+0.12-ctextpad, clabels[colidx],
+                    ax.text(0.5*(left+right), top+bottom+0.12, clabels[colidx],
                             horizontalalignment='center',
                             verticalalignment='center',
                             rotation='horizontal',
                             bbox={'facecolor':'darkcyan', 'edgecolor':'none',
-                                 'alpha':0.9, 'pad':8},
+                                 'alpha':0.9, 'pad':8, 'boxstyle':cboxstyle},
                             transform=ax.transAxes, fontsize=fontsize, color='white',
                             weight=fontweight, size=textsize,
                             path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
