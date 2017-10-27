@@ -3,10 +3,28 @@ Create a static 2D image of a 2D ANTsImage
 or a tile of slices from a 3D ANTsImage
 
 TODO:
-- add `ortho` function for plotting 3d ortho slices
 - add `plot_multichannel` function for plotting multi-channel images
     - support for quivers as well
-- add `plot_grid` function for plotting slices in arbitrary grids
+
+            if colidx == 0:
+                left, width = .25, .5
+                bottom, height = .25, .5
+                right = left + width
+                top = bottom + height
+                if rlabels[rowidx] is not None:
+                    ax.text(-0.07-textpadleft, 0.5*(bottom+top), rlabels[rowidx],
+                            horizontalalignment='right',
+                            verticalalignment='center',
+                            rotation='vertical',
+                            bbox={'facecolor':'darkcyan', 'edgecolor':'none',
+                                 'alpha':0.9, 'pad':8},
+                            transform=ax.transAxes, fontsize=fontsize, color='white',
+                            weight=fontweight, size=textsize,
+                            path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
+                                          path_effects.Normal()])
+
+              ctextsize=20, cfontsize=14, cfontweight='bold', ctextpad=0., clabels=None,
+              cboxstyle='round',
 """
 
 
@@ -23,6 +41,7 @@ import warnings
 from matplotlib import gridspec
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
+import matplotlib.patches as patches
 
 import numpy as np
 
@@ -33,16 +52,19 @@ from ..core import ants_transform as tio
 from ..core import ants_transform_io as tio2
 
 
-def plot_grid(images, slices=None, axis=2, figsize=1., vpad=0., hpad=0.,
-              # row label arguments
-              textsize=20, fontsize=14, fontweight='bold', textpadleft=0, rlabels=None,
-              rboxstyle='round',
-              # column label arguments 
-              ctextsize=20, cfontsize=14, cfontweight='bold', ctextpad=0., clabels=None,
-              cboxstyle='round',
+def plot_grid(images, slices=None, axes=2, 
+              # general figure arguments
+              figsize=1., rpad=0, cpad=0,
+              # title arguments
+              title=None, tfontsize=20, tdx=0, tdy=0,
+              # row arguments
+              rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black', 
+              # column arguments 
+              clabels=None, cfontsize=14, cfontcolor='white', cfacecolor='black',
               # save arguments
-              filename=None, dpi=400):
-
+              filename=None, dpi=400, transparent=True,
+              # other args
+              **kwargs):
     """
     Plot a collection of images in an arbitrarily-defined grid
     
@@ -62,7 +84,7 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vpad=0., hpad=0.,
         if multiple integers, they should be arranged in a list the same
         shape as the `gridsize` argument
 
-    axis : integer or list of integers
+    axes : integer or list of integers
         axis or axes along which to plot image slices
         if one integer, this axis will be used for all images
         if multiple integers, they should be arranged in a list the same
@@ -71,25 +93,36 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vpad=0., hpad=0.,
     Example
     -------
     >>> import ants
+    >>> import numpy as np
     >>> mni1 = ants.image_read(ants.get_data('mni'))
-    >>> mni2 = mni.copy() + 10.
-    >>> mni3 = mni.copy() + 20.
-    >>> mni4 = mni.copy() + 30.
-    >>> images = [[mni1, mni2],
-    ...           [mni3, mni4]]
-    >>> slices = [[100, 100],
-    ...           [100, 100]]
-    >>> ants.plot_grid(images=images, slices=slices)
-    >>> # more complex plotting
-    >>> ants.plot_grid([[mni,mni2,mni],[mni3,mni4,mni]],slices=[[100,100,100],[100,100,100]],
-                 figsize=1.,fontsize=22,fontweight='normal',textsize=24.5,
-                 textpadleft=-0.02,hpad=0.0,vpad=0.02,
-                 rlabels=['Row Label 1', 'Row Label 2'])
-    >>> ants.plot_grid([[mni,mni2,mni],[mni3,mni4,mni]],slices=[[100,100,100],[100,100,100]],
-                 figsize=1.,fontsize=22,fontweight='normal',textsize=24.5,
-                 textpadleft=-0.02,hpad=0.0,vpad=0.02,
-                 rlabels=['Row Label 1', 'Row Label 2'], 
-                 clabels=['Col Label 1', 'Col Label 2', 'Col Label 3'])
+    >>> mni2 = mni1.smooth_image(1.)
+    >>> mni3 = mni1.smooth_image(2.)
+    >>> mni4 = mni1.smooth_image(3.)
+    >>> images = np.asarray([[mni1, mni2],
+    ...                      [mni3, mni4]])
+    >>> slices = np.asarray([[100, 100],
+    ...                      [100, 100]])
+
+    >>> # standard plotting
+    >>> ants.plot_grid(images=images, slices=slices, title='2x2 Grid')
+    >>> ants.plot_grid(images.reshape(1,4), slices.reshape(1,4), title='1x4 Grid')
+    >>> ants.plot_grid(images.reshape(4,1), slices.reshape(4,1), title='4x1 Grid')
+
+    >>> # Padding between rows and/or columns
+    >>> ants.plot_grid(images, slices, cpad=0.02, title='Col Padding')
+    >>> ants.plot_grid(images, slices, rpad=0.02, title='Row Padding')
+    >>> ants.plot_grid(images, slices, rpad=0.02, cpad=0.02, title='Row and Col Padding')
+
+    >>> # Adding plain row and/or column labels 
+    >>> ants.plot_grid(images, slices, title='Adding Row Labels', rlabels=['Row #1', 'Row #2'])
+    >>> ants.plot_grid(images, slices, title='Adding Col Labels', clabels=['Col #1', 'Col #2'])
+    >>> ants.plot_grid(images, slices, title='Row and Col Labels',
+                       rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2'])
+    >>> ants.plot_grid(images, slices, title='Publication Figures with ANTsPy',
+                       tfontsize=20, tdy=0.03, tdx=-0.04,
+                       rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2'],
+                       rfontsize=16, cfontsize=16,
+                       filename='/users/ncullen/desktop/img1.png', dpi=600)
     """
     def mirror_matrix(x):
         return x[::-1,:]
@@ -141,53 +174,60 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vpad=0., hpad=0.,
 
     fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
 
-    if (vpad > 0) and (hpad > 0):
-        bothgridpad = max(vpad, hpad)
-        vpad = 0
-        hpad = 0
+    if title is not None:
+        basex = 0.5
+        basey = 0.9 if clabels[0] is None else 0.95
+        fig.suptitle(title, fontsize=tfontsize, x=basex+tdx, y=basey+tdy)
+
+    if (cpad > 0) and (rpad > 0):
+        bothgridpad = max(cpad, rpad)
+        cpad = 0
+        rpad = 0
     else:
         bothgridpad = 0.0
 
     gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + hpad, 
-                 left=0.5/(ncol+1) + vpad, right=1-0.5/(ncol+1))
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + cpad, 
+                 left=0.5/(ncol+1) + rpad, right=1-0.5/(ncol+1))
 
     for rowidx in range(nrow):
         for colidx in range(ncol):
             ax = plt.subplot(gs[rowidx, colidx])
 
             if colidx == 0:
-                left, width = .25, .5
-                bottom, height = .25, .5
-                right = left + width
-                top = bottom + height
                 if rlabels[rowidx] is not None:
-                    plt.text(-0.07-textpadleft, 0.5*(bottom+top), rlabels[rowidx],
-                            horizontalalignment='right',
-                            verticalalignment='center',
-                            rotation='vertical',
-                            bbox={'facecolor':'darkcyan', 'edgecolor':'none',
-                                 'alpha':0.9, 'pad':8, 'boxstyle':rboxstyle},
-                            transform=ax.transAxes, fontsize=fontsize, color='white',
-                            weight=fontweight, size=textsize,
-                            path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
-                                          path_effects.Normal()])
+                    bottom, height = .25, .5
+                    top = bottom + height
+                    # add label text
+                    ax.text(-0.07, 0.5*(bottom+top), rlabels[rowidx],
+                            horizontalalignment='right', verticalalignment='center',
+                            rotation='vertical', transform=ax.transAxes,
+                            color=rfontcolor, fontsize=rfontsize)
+
+                    # add label background
+                    extra = 0.3 if rowidx == 0 else 0.0
+
+                    rect = patches.Rectangle((-0.3, 0), 0.3, 1.0+extra, 
+                        facecolor=rfacecolor,
+                        alpha=1., transform=ax.transAxes, clip_on=False)
+                    ax.add_patch(rect)
+
             if rowidx == 0:
-                left, width = .25, .5
-                bottom, height = .25, .5
-                right = left + width
-                top = bottom + height
                 if clabels[colidx] is not None:
-                    ax.text(0.5*(left+right), top+bottom+0.12, clabels[colidx],
-                            horizontalalignment='center',
-                            verticalalignment='center',
-                            rotation='horizontal',
-                            bbox={'facecolor':'darkcyan', 'edgecolor':'none',
-                                 'alpha':0.9, 'pad':8, 'boxstyle':cboxstyle},
-                            transform=ax.transAxes, fontsize=fontsize, color='white',
-                            weight=fontweight, size=textsize,
-                            path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
-                                          path_effects.Normal()])
+                    bottom, height = .25, .5
+                    left, width = .25, .5
+                    right = left + width
+                    top = bottom + height
+                    ax.text(0.5*(left+right), 0.09+top+bottom, clabels[colidx],
+                            horizontalalignment='center', verticalalignment='center',
+                            rotation='horizontal', transform=ax.transAxes,
+                            color=cfontcolor, fontsize=cfontsize)
+
+                    # add label background
+                    rect = patches.Rectangle((0, 1.), 1.0, 0.3, 
+                        facecolor=cfacecolor, 
+                        alpha=1., transform=ax.transAxes, clip_on=False)
+                    ax.add_patch(rect)
 
             tmpimg = images[rowidx][colidx]
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
@@ -196,7 +236,8 @@ def plot_grid(images, slices=None, axis=2, figsize=1., vpad=0., hpad=0.,
             ax.axis('off')
 
     if filename is not None:
-        plt.savefig(filename, dpi=dpi)
+        filename = os.path.expanduser(filename)
+        plt.savefig(filename, dpi=dpi, transparent=transparent, bbox_inches='tight')
         plt.close(fig)
     else:
         plt.show()
