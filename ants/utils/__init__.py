@@ -20,6 +20,7 @@ from .mask_image import *
 from .mni2tal import *
 from .morphology import *
 from .multi_label_morphology import *
+from .pad_image import *
 from .process_args import *
 from .quantile import *
 from .smooth_image import *

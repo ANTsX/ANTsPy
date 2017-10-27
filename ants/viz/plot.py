@@ -5,26 +5,7 @@ or a tile of slices from a 3D ANTsImage
 TODO:
 - add `plot_multichannel` function for plotting multi-channel images
     - support for quivers as well
-
-            if colidx == 0:
-                left, width = .25, .5
-                bottom, height = .25, .5
-                right = left + width
-                top = bottom + height
-                if rlabels[rowidx] is not None:
-                    ax.text(-0.07-textpadleft, 0.5*(bottom+top), rlabels[rowidx],
-                            horizontalalignment='right',
-                            verticalalignment='center',
-                            rotation='vertical',
-                            bbox={'facecolor':'darkcyan', 'edgecolor':'none',
-                                 'alpha':0.9, 'pad':8},
-                            transform=ax.transAxes, fontsize=fontsize, color='white',
-                            weight=fontweight, size=textsize,
-                            path_effects=[path_effects.Stroke(linewidth=3, foreground='black'),
-                                          path_effects.Normal()])
-
-              ctextsize=20, cfontsize=14, cfontweight='bold', ctextpad=0., clabels=None,
-              cboxstyle='round',
+- add `plot_gif` function for making a gif/video or 2D slices across a 3D image
 """
 
 
@@ -118,11 +99,18 @@ def plot_grid(images, slices=None, axes=2,
     >>> ants.plot_grid(images, slices, title='Adding Col Labels', clabels=['Col #1', 'Col #2'])
     >>> ants.plot_grid(images, slices, title='Row and Col Labels',
                        rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2'])
-    >>> ants.plot_grid(images, slices, title='Publication Figures with ANTsPy',
+
+    >>> # Making a publication-quality image 
+    >>> images = np.asarray([[mni1, mni2, mni2],
+    ...                      [mni3, mni4, mni4]])
+    >>> slices = np.asarray([[100, 100, 100],
+    ...                      [100, 100, 100]])
+    >>> axes = np.asarray([[0, 1, 2],
+                           [0, 1, 2]])
+    >>> ants.plot_grid(images, slices, axes, title='Publication Figures with ANTsPy',
                        tfontsize=20, tdy=0.03, tdx=-0.04,
-                       rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2'],
-                       rfontsize=16, cfontsize=16,
-                       filename='/users/ncullen/desktop/img1.png', dpi=600)
+                       rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2', 'Col 3'],
+                       rfontsize=16, cfontsize=16)
     """
     def mirror_matrix(x):
         return x[::-1,:]
@@ -141,6 +129,21 @@ def plot_grid(images, slices=None, axes=2,
             x = rotate90_matrix(x)
         x = mirror_matrix(x)
         return x
+    def slice_image(img, axis, idx):
+        if axis == 0:
+            return img[idx,:,:]
+        elif axis == 1:
+            return img[:,idx,:]
+        elif axis == 2:
+            return img[:,:,idx]
+        elif axis == -1:
+            return img[:,:,idx]
+        elif axis == -2:
+            return img[:,idx,:]
+        elif axis == -3:
+            return img[idx,:,:]
+        else:
+            raise ValueError('axis %i not valid' % axis)
 
     if isinstance(images, np.ndarray):
         images = images.tolist()
@@ -230,9 +233,11 @@ def plot_grid(images, slices=None, axes=2,
                     ax.add_patch(rect)
 
             tmpimg = images[rowidx][colidx]
+            tmpaxis = axes[rowidx][colidx]
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
-            tmpslice = reorient_slice(tmpimg[:,sliceidx,:],0)
-            ax.imshow(tmpslice, cmap='Greys_r')
+            tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
+            tmpslice = reorient_slice(tmpslice, tmpaxis)
+            ax.imshow(tmpslice, cmap='Greys_r', aspect='auto')
             ax.axis('off')
 
     if filename is not None:
@@ -244,10 +249,12 @@ def plot_grid(images, slices=None, axes=2,
 
 
 
-def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Greys_r', alpha=1, 
+def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alpha=1,
+               xyz=None, 
               overlay_cmap='jet', overlay_alpha=0.9, xyz_cmap='Reds_r', xyz_alpha=1., 
               black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
-              domain_image_map=None, crop=False, scale=True, title=None, 
+              domain_image_map=None, crop=False, scale=True, 
+              title=None, tfontsize=20, tdx=0, tdy=0,
               filename=None, dpi=500, figsize=1.):
     """
     Plot an orthographic view of a 3D image
@@ -423,12 +430,7 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
                 overlay = reg.apply_transforms(dimg, overlay, transform_list=tx,
                                                interpolator='linear')
 
-    # handle xyz argument
-    if xyz is not None:
-        xyz_image = image.new_image_like(np.zeros(image.shape))
-        xyz_image[xyz[0],:,:] = 1
-        xyz_image[:,xyz[1],:] = 1
-        xyz_image[:,:,xyz[2]] = 1
+
 
     ## single-channel images ##
     if image.components == 1:
@@ -441,6 +443,13 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
             image = image.crop_image(plotmask)
             if overlay is not None:
                 overlay = overlay.crop_image(plotmask)
+
+        # handle xyz argument
+        if xyz is not None:
+            xyz_image = image.new_image_like(np.zeros(image.shape))
+            xyz_image[xyz[0],:,:] = 1 if xyz[0] != slices[0] else 0
+            xyz_image[:,xyz[1],:] = 1 if xyz[1] != slices[1] else 0
+            xyz_image[:,:,xyz[2]] = 1 if xyz[1] != slices[2] else 0
 
         # potentially find dynamic range
         if scale == True:
@@ -471,7 +480,11 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
             nrow = 1
             ncol = 3
 
-        fig = plt.figure(figsize=(10*figsize,10*figsize))
+        fig = plt.figure(figsize=(9*figsize,9*figsize))
+        if title is not None:
+            basey = 0.88 if not flat else 0.66
+            basex = 0.5
+            fig.suptitle(title, fontsize=tfontsize, x=basex+tdx, y=basey+tdy)
 
         gs = gridspec.GridSpec(nrow, ncol,
                  wspace=0.0, hspace=0.0, 
@@ -492,7 +505,7 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
             xyz_image[np.abs(xyz_image) == 0] = np.nan
 
         yz_slice = reorient_slice(image[slices[0],:,:],0)
-        ax = plt.subplot(gs[0,1])
+        ax = plt.subplot(gs[0,0])
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             yz_overlay = reorient_slice(overlay[slices[0],:,:],0)
@@ -503,7 +516,7 @@ def plot_ortho(image, overlay=None, slices=None, xyz=None, flat=False, cmap='Gre
         ax.axis('off')
 
         xz_slice = reorient_slice(image[:,slices[1],:],1)
-        ax = plt.subplot(gs[0,0])
+        ax = plt.subplot(gs[0,1])
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             xz_overlay = reorient_slice(overlay[:,slices[1],:],1)

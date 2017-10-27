@@ -15,6 +15,7 @@ from .getNeighborhoodMatrix import *
 from .invariantImageSimilarity import *
 from .labelStats import *
 from .mergeChannels import *
+from .padImage import *
 from .readImage import *
 from .readTransform import *
 from .reflectionMatrix import *
