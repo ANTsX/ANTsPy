@@ -44,6 +44,10 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0,
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> timage = ants.threshold_image(image, 0.5, 1e15)
     """
+    if high_thresh is None:
+        high_thresh = image.max() + 0.01
+    if low_thresh is None:
+        low_thresh = image.min() - 0.01
     dim = image.dimension
     outimage = image.clone()
     args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]

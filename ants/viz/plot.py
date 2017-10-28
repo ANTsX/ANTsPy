@@ -584,7 +584,7 @@ def plot_ortho(image, overlay=None,
 
 
 def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
-         axis=0, nslices=12, slices=None, ncol=4, slice_buffer=None, black_bg=True,
+         axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
          bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
          reverse=False, title=None, filename=None, dpi=500, figsize=1.5):
     """
@@ -868,8 +868,11 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                 slice_idxs = np.unique(np.array([int(s*(image.shape[axis]/img_arr.shape[0])) for s in slice_idxs]))
 
             # only have one row if nslices <= 6 and user didnt specify ncol
-            if (nslices <= 6) and (ncol==4):
-                ncol = nslices
+            if ncol is None:
+                if (nslices <= 6):
+                    ncol = nslices
+                else:
+                    ncol = int(round(math.sqrt(nslices)))
 
             # calculate grid size
             nrow = math.ceil(nslices / ncol)
