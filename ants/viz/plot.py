@@ -22,6 +22,7 @@ import warnings
 from matplotlib import gridspec
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
+import matplotlib.lines as mlines
 import matplotlib.patches as patches
 
 import numpy as np
@@ -37,7 +38,7 @@ def plot_grid(images, slices=None, axes=2,
               # general figure arguments
               figsize=1., rpad=0, cpad=0,
               # title arguments
-              title=None, tfontsize=20, tdx=0, tdy=0,
+              title=None, tfontsize=20, title_dx=0, title_dy=0,
               # row arguments
               rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black', 
               # column arguments 
@@ -108,7 +109,7 @@ def plot_grid(images, slices=None, axes=2,
     >>> axes = np.asarray([[0, 1, 2],
                            [0, 1, 2]])
     >>> ants.plot_grid(images, slices, axes, title='Publication Figures with ANTsPy',
-                       tfontsize=20, tdy=0.03, tdx=-0.04,
+                       tfontsize=20, title_dy=0.03, title_dx=-0.04,
                        rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2', 'Col 3'],
                        rfontsize=16, cfontsize=16)
     """
@@ -180,7 +181,7 @@ def plot_grid(images, slices=None, axes=2,
     if title is not None:
         basex = 0.5
         basey = 0.9 if clabels[0] is None else 0.95
-        fig.suptitle(title, fontsize=tfontsize, x=basex+tdx, y=basey+tdy)
+        fig.suptitle(title, fontsize=tfontsize, x=basex+title_dx, y=basey+title_dy)
 
     if (cpad > 0) and (rpad > 0):
         bothgridpad = max(cpad, rpad)
@@ -249,13 +250,23 @@ def plot_grid(images, slices=None, axes=2,
 
 
 
-def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alpha=1,
-               xyz=None, 
-              overlay_cmap='jet', overlay_alpha=0.9, xyz_cmap='Reds_r', xyz_alpha=1., 
-              black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
-              domain_image_map=None, crop=False, scale=True, 
-              title=None, tfontsize=20, tdx=0, tdy=0,
-              filename=None, dpi=500, figsize=1.):
+def plot_ortho(image, overlay=None, 
+               # xyz arguments
+               xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+               # base image arguments
+               cmap='Greys_r', alpha=1,
+               # overlay arguments
+               overlay_cmap='jet', overlay_alpha=0.9,   
+               # background arguments
+               black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+               # scale/crop/domain arguments
+               crop=False, scale=True, domain_image_map=None, 
+               # title arguments
+               title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+               # 4th panel text arguemnts
+               text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+               # save & size arguments
+               filename=None, dpi=500, figsize=1., flat=False, transparent=True):
     """
     Plot an orthographic view of a 3D image
     
@@ -350,12 +361,15 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
     -------
     >>> import ants
     >>> mni = ants.image_read(ants.get_data('mni'))
-    >>> ants.plot_ortho(mni, slices=(100,100,100))
-    >>> mni2 = mni.threshold_image(7000,mni.max())
+    >>> ants.plot_ortho(mni, xyz=(100,100,100))
+    >>> mni2 = mni.threshold_image(7000, mni.max())
     >>> ants.plot_ortho(mni, overlay=mni2)
     >>> ants.plot_ortho(mni, overlay=mni2, flat=True)
-    >>> ants.plot_ortho(mni, slices=(100,100,100), xyz=(110,110,110))
-    >>> ants.plot_ortho(mni, overlay=mni2, slices=(100,100,100), xyz=(110,110,110))
+    >>> ants.plot_ortho(mni, overlay=mni2, xyz=(110,110,110), xyz_lines=False,
+                        text='Lines Turned Off', textfontsize=22)
+    >>> ants.plot_ortho(mni, mni2, xyz=(120,100,100),
+                        text=' Example \nOrtho Text', textfontsize=26, 
+                        title='Example Ortho Title', titlefontsize=26)
     """
     def mirror_matrix(x):
         return x[::-1,:]
@@ -402,8 +416,8 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
             overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
 
     # handle `slices` argument
-    if slices is None:
-        slices = [int(s/2) for s in image.shape]
+    if xyz is None:
+        xyz = [int(s/2) for s in image.shape]
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
@@ -430,8 +444,6 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
                 overlay = reg.apply_transforms(dimg, overlay, transform_list=tx,
                                                interpolator='linear')
 
-
-
     ## single-channel images ##
     if image.components == 1:
         
@@ -443,13 +455,6 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
             image = image.crop_image(plotmask)
             if overlay is not None:
                 overlay = overlay.crop_image(plotmask)
-
-        # handle xyz argument
-        if xyz is not None:
-            xyz_image = image.new_image_like(np.zeros(image.shape))
-            xyz_image[xyz[0],:,:] = 1 if xyz[0] != slices[0] else 0
-            xyz_image[:,xyz[1],:] = 1 if xyz[1] != slices[1] else 0
-            xyz_image[:,:,xyz[2]] = 1 if xyz[1] != slices[2] else 0
 
         # potentially find dynamic range
         if scale == True:
@@ -469,9 +474,7 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
             image = image.resample_image(tuple(new_spacing))
             if overlay is not None:
                 overlay = overlay.resample_image(tuple(new_spacing))
-            if xyz is not None:
-                xyz_image = xyz_image.resample_image(tuple(new_spacing), interp_type=1)
-            slices = [int(sl*(sold/snew)) for sl,sold,snew in zip(slices,spacing,new_spacing)]
+            xyz = [int(sl*(sold/snew)) for sl,sold,snew in zip(xyz,spacing,new_spacing)]
 
         if not flat:
             nrow = 2
@@ -484,7 +487,7 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
         if title is not None:
             basey = 0.88 if not flat else 0.66
             basex = 0.5
-            fig.suptitle(title, fontsize=tfontsize, x=basex+tdx, y=basey+tdy)
+            fig.suptitle(title, fontsize=titlefontsize, x=basex+title_dx, y=basey+title_dy)
 
         gs = gridspec.GridSpec(nrow, ncol,
                  wspace=0.0, hspace=0.0, 
@@ -492,66 +495,86 @@ def plot_ortho(image, overlay=None, slices=None, flat=False, cmap='Greys_r', alp
                  left=0.5/(ncol+1), right=1-0.5/(ncol+1))
 
         # pad image to have isotropic array dimensions
-        old_shape = list(image.shape)
-        max_shape = max(old_shape)
-        new_shape = [max_shape]*3
-        pad_vals = [(math.ceil((new-old)/2),math.floor((new-old)/2)) for new,old in zip(new_shape, old_shape)]
-        image = np.pad(image.numpy(), pad_vals, mode='constant', constant_values=image.min())
+        image = image.pad_image().numpy()
         if overlay is not None:
-            overlay = np.pad(overlay.numpy(), pad_vals, mode='constant', constant_values=image.min())
+            overlay = overlay.pad_image().numpy()
             overlay[np.abs(overlay) == 0] = np.nan
-        if xyz is not None:
-            xyz_image = np.pad(xyz_image.numpy(), pad_vals, mode='constant', constant_values=image.min())
-            xyz_image[np.abs(xyz_image) == 0] = np.nan
 
-        yz_slice = reorient_slice(image[slices[0],:,:],0)
-        ax = plt.subplot(gs[0,0])
+        yz_slice = reorient_slice(image[xyz[0],:,:],0)
+        ax = plt.subplot(gs[0,1])
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            yz_overlay = reorient_slice(overlay[slices[0],:,:],0)
+            yz_overlay = reorient_slice(overlay[xyz[0],:,:],0)
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
-        if xyz is not None:
-            yz_line = reorient_slice(xyz_image[slices[0],:,:],0)
-            ax.imshow(yz_line, cmap=xyz_cmap, alpha=xyz_alpha)
+        if xyz_lines:
+            # add lines
+            l = mlines.Line2D([xyz[1],xyz[1]], [xyz_pad,yz_slice.shape[0]-xyz_pad],
+                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            ax.add_line(l)
+            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad], [xyz[2],xyz[2]],
+                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            ax.add_line(l)
         ax.axis('off')
 
-        xz_slice = reorient_slice(image[:,slices[1],:],1)
-        ax = plt.subplot(gs[0,1])
+        xz_slice = reorient_slice(image[:,xyz[1],:],1)
+        ax = plt.subplot(gs[0,0])
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xz_overlay = reorient_slice(overlay[:,slices[1],:],1)
+            xz_overlay = reorient_slice(overlay[:,xyz[1],:],1)
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
-        if xyz is not None:
-            xz_line = reorient_slice(xyz_image[:,slices[1],:],1)
-            ax.imshow(xz_line, cmap=xyz_cmap, alpha=xyz_alpha)
+        if xyz_lines:
+            # add lines
+            l = mlines.Line2D([xyz[0],xyz[0]], [xyz_pad,xz_slice.shape[0]-xyz_pad],
+                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            ax.add_line(l)
+            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad], [xyz[2],xyz[2]],
+                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            ax.add_line(l)
         ax.axis('off')
 
-        xy_slice = reorient_slice(image[:,:,slices[2]],2)
+        xy_slice = reorient_slice(image[:,:,xyz[2]],2)
         if not flat:
             ax = plt.subplot(gs[1,0])
         else:
             ax = plt.subplot(gs[0,2])
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xy_overlay = reorient_slice(overlay[:,:,slices[2]],2)
+            xy_overlay = reorient_slice(overlay[:,:,xyz[2]],2)
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
-        if xyz is not None:
-            xy_line = reorient_slice(xyz_image[:,:,slices[2]],2)
-            ax.imshow(xy_line, cmap=xyz_cmap, alpha=xyz_alpha)
+        if xyz_lines:
+            # add lines
+            l = mlines.Line2D([xyz[0],xyz[0]], [xyz_pad,xy_slice.shape[0]-xyz_pad],
+                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            ax.add_line(l)
+            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad], [xyz[1],xyz[1]],
+                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            ax.add_line(l)
         ax.axis('off')
 
         if not flat:
             # empty corner
             ax = plt.subplot(gs[1,1])
+            if text is not None:
+                # add text
+                left, width = .25, .5
+                bottom, height = .25, .5
+                right = left + width
+                top = bottom + height
+                ax.text(0.5*(left+right)+text_dx, 0.5*(bottom+top)+text_dy, text,
+                        horizontalalignment='center',
+                        verticalalignment='center',
+                        fontsize=textfontsize, color=textfontcolor,
+                        transform=ax.transAxes)
+            #ax.text(0.5, 0.5)
             ax.imshow(np.zeros(image.shape[:-1]), cmap='Greys_r')
             ax.axis('off')
-
+            
     ## multi-channel images ##
     elif image.components > 1:
         raise ValueError('Multi-channel images not currently supported!')
 
     if filename is not None:
-        plt.savefig(filename, dpi=dpi)
+        plt.savefig(filename, dpi=dpi, transparent=transparent)
         plt.close(fig)
     else:
         plt.show()

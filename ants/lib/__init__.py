@@ -21,6 +21,7 @@ from .readTransform import *
 from .reflectionMatrix import *
 from .reorientImage import *
 from .sccaner import *
+from .sliceImage import *
 from .SmoothImage import *
 from .weingartenImageCurvature import *
 
