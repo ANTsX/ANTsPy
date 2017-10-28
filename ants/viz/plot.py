@@ -586,9 +586,17 @@ def plot_ortho(image, overlay=None,
 def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
          bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
-         reverse=False, title=None, filename=None, dpi=500, figsize=1.5):
+         reverse=False, title=None, filename=None, dpi=500, figsize=1.5, reorient=True):
     """
-    Plot an ANTsImage
+    Plot an ANTsImage. 
+
+    By default, images will be reoriented to 'LAI' orientation before plotting. 
+    So, if axis == 0, the images will be ordered from the
+    left side of the brain to the right side of the brain. If axis == 1,
+    the images will be ordered from the anterior (front) of the brain to
+    the posterior (back) of the brain. And if axis == 2, the images will
+    be ordered from the inferior (bottom) of the brain to the superior (top)
+    of the brain.
     
     ANTsR function: `plot.antsImage`
 
@@ -715,10 +723,10 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
     def flip_matrix(x):
         return mirror_matrix(rotate180_matrix(x))
     def reorient_slice(x, axis):
-        if (axis != 1):
+        if (axis != 2):
             x = rotate90_matrix(x)
-        if (axis == 1):
-            x = rotate90_matrix(x)
+        if (axis == 2):
+            x = rotate270_matrix(x)
         x = mirror_matrix(x)
         return x
     # need this hack because of a weird NaN warning from matplotlib with overlays
@@ -833,11 +841,15 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
                 if overlay is not None:
                     overlay = overlay.resample_image(tuple(new_spacing))
 
+            if reorient:
+                image = image.reorient_image2('LAI')
             img_arr = image.numpy()
             # reorder dims so that chosen axis is first
             img_arr = np.rollaxis(img_arr, axis)
 
             if overlay is not None:
+                if reorient:
+                    overlay = overlay.reorient_image2('LAI')
                 ov_arr = overlay.numpy()
                 ov_arr[np.abs(ov_arr) == 0] = np.nan
                 ov_arr = np.rollaxis(ov_arr, axis)

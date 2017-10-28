@@ -190,6 +190,13 @@ class ANTsImage(object):
         libfn = utils.get_lib_fn('setDirection%s'%self._libsuffix)
         libfn(self.pointer, new_direction)
 
+    @property
+    def orientation(self):
+        if self.dimension == 3:
+            return self.get_orientation()
+        else:
+            return None
+
     def view(self, single_components=False):
         """
         Geet a numpy array providing direct, shared access to the image data. 
@@ -554,7 +561,11 @@ class ANTsImage(object):
             arr.__setitem__(idx, value)
 
     def __repr__(self):
-        s = 'ANTsImage\n' +\
+        if self.dimension == 3:
+            s = 'ANTsImage ({})\n'.format(self.orientation)
+        else:
+            s = 'ANTsImage\n'
+        s = s +\
             '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
             '\t {:<10} : {}\n'.format('Components', self.components)+\
             '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
@@ -566,20 +577,28 @@ class ANTsImage(object):
 if HAS_PY3:
     # Set partial class methods for any functions which take an ANTsImage as the first argument
     for k, v in utils.__dict__.items():
-        if callable(v) and (inspect.getargspec(getattr(utils,k)).args[0] in {'img','image'}):
-            setattr(ANTsImage, k, partialmethod(v))
+        if callable(v):
+            args = inspect.getargspec(getattr(utils,k)).args
+            if (len(args) > 0) and (args[0] in {'img','image'}):
+                setattr(ANTsImage, k, partialmethod(v))
     
     for k, v in registration.__dict__.items():
-        if callable(v) and (inspect.getargspec(getattr(registration,k)).args[0] in {'img','image'}):
-            setattr(ANTsImage, k, partialmethod(v))
+        if callable(v):
+            args = inspect.getargspec(getattr(registration,k)).args
+            if (len(args) > 0) and (args[0] in {'img','image'}):
+                setattr(ANTsImage, k, partialmethod(v))
 
     for k, v in segmentation.__dict__.items():
-        if callable(v) and (inspect.getargspec(getattr(segmentation,k)).args[0] in {'img','image'}):
-            setattr(ANTsImage, k, partialmethod(v))
+        if callable(v):
+            args = inspect.getargspec(getattr(segmentation,k)).args
+            if (len(args) > 0) and (args[0] in {'img','image'}):
+                setattr(ANTsImage, k, partialmethod(v))
 
     for k, v in viz.__dict__.items():
-        if callable(v) and (inspect.getargspec(getattr(viz,k)).args[0] in {'img','image'}):
-            setattr(ANTsImage, k, partialmethod(v))
+        if callable(v):
+            args = inspect.getargspec(getattr(viz,k)).args
+            if (len(args) > 0) and (args[0] in {'img','image'}):
+                setattr(ANTsImage, k, partialmethod(v))
 
 
 class Dictlist(dict):
