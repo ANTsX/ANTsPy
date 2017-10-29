@@ -269,6 +269,10 @@ def plot_ortho(image, overlay=None, reorient=True,
                filename=None, dpi=500, figsize=1., flat=False, transparent=True):
     """
     Plot an orthographic view of a 3D image
+
+    TODO:
+        - add colorbar option
+        - add orientation labels option
     
     ANTsR function: N/A
 
@@ -375,19 +379,8 @@ def plot_ortho(image, overlay=None, reorient=True,
         return x[::-1,:]
     def rotate270_matrix(x):
         return mirror_matrix(x.T)
-    def rotate180_matrix(x):
-        return x[::-1,:]
-    def rotate90_matrix(x):
-        return mirror_matrix(x).T
-    def flip_matrix(x):
-        return mirror_matrix(rotate180_matrix(x))
     def reorient_slice(x, axis):
-        if (axis != 1):
-            x = rotate90_matrix(x)
-        if (axis == 1):
-            x = rotate90_matrix(x)
-        x = mirror_matrix(x)
-        return x
+        return rotate270_matrix(x)
 
     # need this hack because of a weird NaN warning from matplotlib with overlays
     warnings.simplefilter('ignore')
