@@ -569,9 +569,9 @@ class ANTsImage(object):
             '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
             '\t {:<10} : {}\n'.format('Components', self.components)+\
             '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
-            '\t {:<10} : {}\n'.format('Spacing', self.spacing)+\
-            '\t {:<10} : {}\n'.format('Origin', self.origin)+\
-            '\t {:<10} : {}\n'.format('Direction', self.direction.flatten())
+            '\t {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
+            '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
+            '\t {:<10} : {}\n'.format('Direction', np.round(self.direction.flatten(),4))
         return s
 
 if HAS_PY3:
