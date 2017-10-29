@@ -1,6 +1,7 @@
 
 from .bias_correction import *
 from .channels import *
+from .convert_nibabel import *
 from .crop_image import *
 from .denoise_image import *
 from .get_ants_data import *
