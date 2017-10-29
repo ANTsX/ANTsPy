@@ -7,7 +7,7 @@ from ..core import ants_image as iio
 from .. import utils
 
 
-def pad_image(image, shape=None, pad_width=None, value=0.0):
+def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False):
     """
     Pad an image to have the given shape or to be isotropic.
 
@@ -67,7 +67,11 @@ def pad_image(image, shape=None, pad_width=None, value=0.0):
     libfn = utils.get_lib_fn('padImageF%i' % ndim)
     itkimage = libfn(image.pointer, lower_pad_vals, upper_pad_vals, value)
 
-    return iio.ANTsImage(pixeltype='float', dimension=ndim, 
+    new_image = iio.ANTsImage(pixeltype='float', dimension=ndim, 
                          components=image.components, pointer=itkimage).clone(inpixeltype)
+    if return_padvals:
+        return new_image, lower_pad_vals, upper_pad_vals
+    else:
+        return new_image
 
 
