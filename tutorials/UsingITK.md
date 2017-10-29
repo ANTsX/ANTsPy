@@ -182,8 +182,8 @@ py::capsule rescaleAntsImage( py::capsule & antsImage,
 // DECLARE OUR FUNCTION FOR APPROPRIATE TYPES 
 PYBIND11_MODULE(rescaleImageModule, m)
 {
-    m.def("rescaleImageF2", &rescaleAntsImage2D<itk::Image<float,2>>);
-    m.def("rescaleImageF3", &rescaleAntsImage2D<itk::Image<float,3>>);
+    m.def("rescaleImageF2", &rescaleAntsImage<itk::Image<float,2>>);
+    m.def("rescaleImageF3", &rescaleAntsImage<itk::Image<float,3>>);
 }
 ```
 
