@@ -3,7 +3,32 @@
 
 __all__ = ['iMath',
            'image_math',
-           'multiply_images']
+           'multiply_images',
+           'iMath_GetLargestComponent',
+           'iMath_Normalize',
+           'iMath_TruncateIntensity',
+           'iMath_Sharpen',
+           'iMath_Pad',
+           'iMath_MaurerDistance',
+           'iMath_PeronaMalik',
+           'iMath_Grad',
+           'iMath_Laplacian',
+           'iMath_Canny',
+           'iMath_HistogramEqualization',
+           'iMath_MD',
+           'iMath_ME',
+           'iMath_MO',
+           'iMath_MC',
+           'iMath_GD',
+           'iMath_GE',
+           'iMath_GO',
+           'iMath_GC',
+           'iMath_FillHoles',
+           'iMath_GetLargestComponent',
+           'iMath_Normalize',
+           'iMath_TruncateIntensity',
+           'iMath_Sharpen',
+           'iMath_PropagateLabelsThroughMask']
 
 
 from .process_args import _int_antsProcessArguments
@@ -37,6 +62,10 @@ _iMathOps = {'FillHoles',
             'TruncateIntensity',
             'Sharpen',
             'PropagateLabelsThroughMask'}
+
+
+def multiply_images(image1, image2):
+    return image1 * image2
 
 
 def iMath(image, operation, *args):
@@ -83,6 +112,77 @@ def iMath_ops():
     return _iMathOps
 
 
-def multiply_images(image1, image2):
-    return image1 * image2
+def iMath_Canny(image, sigma, lower, upper):
+    return iMath(image, 'Canny', sigma, lower, upper)
+
+def iMath_DistanceMap(image, use_spacing):
+    return iMath(image, 'DistanceMap', use_spacing)
+
+def iMath_FillHoles(image, hole_type):
+    return iMath(image, 'FillHoles', hole_type)
+
+def iMath_GC(image, radius):
+    return iMath(image, 'GC', radius)
+
+def iMath_GD(image, radius):
+    return iMath(image, 'GD', radius)
+
+def iMath_GE(image, radius):
+    return iMath(image, 'GE', radius)
+
+def iMath_GO(image, radius):
+    return iMath(image, 'GO', radius)
+
+def iMath_GetLargestComponent(image, min_size):
+    return iMath(image, 'GetLargestComponent', min_size)
+
+def iMath_Grad(image, sigma, normalize):
+    return iMath(image, 'Grad', sigma, normalize)
+
+def iMath_HistogramEqualization(image, alpha, beta):
+    return iMath(image, 'HistogramEqualization', alpha, beta)
+
+def iMath_Laplacian(image, sigma, normalize):
+    return iMath(image, 'Laplacian', sigma, normalize)
+
+def iMath_MC(image, radius, value, shape, parametric, lines, thickness, include_center):
+    return iMath(image, 'MC', radius, value, shape, parametric, lines, thickness, include_center)
+
+def iMath_MD(image, radius, value, shape, parametric, lines, thickness, include_center):
+    return iMath(image, 'MD', radius, value, shape, parametric, lines, thickness, include_center)
+
+def iMath_ME(image, radius, value, shape, parametric, lines, thickness, include_center):
+    return iMath(image, 'ME', radius, value, shape, parametric, lines, thickness, include_center)
+
+def iMath_MO(image, radius, value, shape, parametric, lines, thickness, include_center):
+    return iMath(image, 'MO', radius, value, shape, parametric, lines, thickness, include_center)
+
+def iMath_MaurerDistance(image, foreground):
+    return iMath(image, 'MaurerDistance', foreground)
+
+def iMath_Normalize(image):
+    return iMath(image, 'Normalize')
+
+def iMath_Pad(image, padding):
+    return iMath(image, 'Pad', padding)
+
+def iMath_PeronaMalik(image, conductance, n_iterations):
+    return iMath(image, 'PeronaMalik', conductance, n_iterations)
+
+def iMath_Sharpen(image):
+    return iMath(image, 'Sharpen')
+
+def iMath_PropagateLabelsThroughMask(image, mask, labels, stopping_value, propagation_method):
+    return iMath(image, 'PropagateLabelsThroughMask', mask, labels, stopping_value, propagation_method)
+
+def iMath_TruncateIntensity(image, n_bins, lower_q, upper_q, mask):
+    return iMath(image, 'TruncateIntensity', n_bins, lower_q, upper_q, mask)
+
+
+
+
+
+
+
+
 
