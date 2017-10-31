@@ -1031,11 +1031,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
     warnings.simplefilter('default')
 
 
-def plot_ortho(image, overlay=None, reorient=True,
+def plot_ortho(image, overlay=None, reorient=True, blend=False,
                # xyz arguments
                xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
                # base image arguments
-               cmap='Greys_r', alpha=1,
+               alpha=1, cmap='Greys_r', 
                # overlay arguments
                overlay_cmap='jet', overlay_alpha=0.9,   
                # background arguments
@@ -1185,6 +1185,13 @@ def plot_ortho(image, overlay=None, reorient=True,
 
         if not iio.image_physical_space_consistency(image, overlay):
             overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
+
+    if blend:
+        if alpha == 1:
+            alpha = 0.5
+        image = image*alpha + overlay*(1-alpha)
+        overlay = None
+        alpha = 1.
 
     if image.pixeltype not in {'float', 'double'}:
         scale = False # turn off scaling if image is discrete
@@ -1380,7 +1387,8 @@ def plot_ortho(image, overlay=None, reorient=True,
     warnings.simplefilter('default')
 
 
-def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overlay_alpha=0.9,
+def plot(image, overlay=None,  blend=False,
+         alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
          bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
          reverse=False, title=None, filename=None, dpi=500, figsize=1.5, reorient=True):
@@ -1547,6 +1555,13 @@ def plot(image, overlay=None, cmap='Greys_r', alpha=1, overlay_cmap='jet', overl
 
         if not iio.image_physical_space_consistency(image, overlay):
             overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
+
+        if blend:
+            if alpha == 1:
+                alpha = 0.5
+            image = image*alpha + overlay*(1-alpha)
+            overlay = None
+            alpha = 1.
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
