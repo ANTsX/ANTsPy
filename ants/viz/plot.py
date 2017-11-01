@@ -1220,6 +1220,15 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             overlay = overlay.resample_image(tuple(new_spacing))
         xyz = [int(sl*(sold/snew)) for sl,sold,snew in zip(xyz,spacing,new_spacing)]
 
+    # potentially crop image
+    if crop:
+        plotmask = image.get_mask(cleanup=0)
+        if plotmask.max() == 0:
+            plotmask += 1
+        image = image.crop_image(plotmask)
+        if overlay is not None:
+            overlay = overlay.crop_image(plotmask)
+
     # pad images
     image, lowpad, uppad = image.pad_image(return_padvals=True)
     xyz = [v+l for v,l in zip(xyz,lowpad)]
@@ -1253,15 +1262,6 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
     ## single-channel images ##
     if image.components == 1:
-        
-        # potentially crop image
-        if crop:
-            plotmask = image.get_mask(cleanup=0)
-            if plotmask.max() == 0:
-                plotmask += 1
-            image = image.crop_image(plotmask)
-            if overlay is not None:
-                overlay = overlay.crop_image(plotmask)
 
         # potentially find dynamic range
         if scale == True:
