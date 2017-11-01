@@ -1034,7 +1034,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
 def plot_ortho(image, overlay=None, reorient=True, blend=False,
                # xyz arguments
                xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
-               dir_labels=True,
+               orient_labels=True,
                # base image arguments
                alpha=1, cmap='Greys_r', 
                # overlay arguments
@@ -1054,7 +1054,6 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
     TODO:
         - add colorbar option
-        - add orientation labels option
     
     ANTsR function: N/A
 
@@ -1315,7 +1314,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                               [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-        if dir_labels:
+        if orient_labels:
             ax.text(0.5,0.98, 'S',
                     horizontalalignment='center',
                     verticalalignment='top',
@@ -1354,7 +1353,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                               [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-        if dir_labels:
+        if orient_labels:
             ax.text(0.5,0.98, 'S',
                     horizontalalignment='center',
                     verticalalignment='top',
@@ -1396,7 +1395,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                               [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-        if dir_labels:
+        if orient_labels:
             ax.text(0.5,0.98, 'A',
                     horizontalalignment='center',
                     verticalalignment='top',
