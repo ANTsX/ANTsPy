@@ -26,9 +26,59 @@ def convert_scalar_image_to_rgb(dimension, img, outimg, mask, colormap='red', cu
     libfn(processed_args)
 
 
+def surf2(image, 
+          #overlay=None, overlay_mask=None, overlay_colormap='jet',
+          smooth=0.5, dilation=1., threshold=0.5, scale_intensity=True,
+          inflation=50,
+          views=None, rotation=None):
+    """
+    views : string or list of strings
+        Canonical views of the surface.
+        Options: left, right, inner_left, inner_right, 
+                 inferior, superior, anterior, posterios
+    
+COMMAND: 
+     antsSurf
+
+OPTIONS: 
+     -s, --surface-image surfaceImageFilename
+                         [surfaceImageFilename,<defaultColor=255x255x255x1>]
+     -m, --mesh meshFilename
+     -f, --functional-overlay [rgbImageFileName,maskImageFileName,<alpha=1>]
+     -a, --anti-alias-rmse value
+     -i, --inflation numberOfIterations
+                     [numberOfIterations]
+     -d, --display doWindowDisplay
+                   filename
+                   <filename>[rotateXxrotateYxrotateZ,<backgroundColor=255x255x255>]
+     -o, --output surfaceFilename
+                  imageFilename[spacing]
+     -b, --scalar-bar lookupTable
+                      [lookupTable,<title=antsSurf>,<numberOfLabels=5>,<widthxheight>]
+     -h 
+     --help 
+
+    """
+    view_map = {
+        'left': (270,0,270),
+        'inner_left': (270,0,90),
+        'right': (270,0,90),
+        'inner_right': (270,0,270)
+    }
+    image = image.threshold_image(image.min()+0.01)
+    image = image.iMath_MD(dilation).reorient_image('RPI')
+    image = image.smooth_image(smooth).threshold_image(0.5)
+
+    cmd = '-s %s -m %s -f %s -a %s -i %s -d %s -o %s -b %s'
+
+
+
+
 def surf(x, y=None, z=None,
          quantlimits=(0.1,0.9),
          colormap='jet',
+         grayscale=0.7,
+         bg_grayscale=0.9,
          alpha=None,
          inflation_factor=0,
          tol=0.03,
@@ -155,7 +205,8 @@ def surf(x, y=None, z=None,
     core.image_write(x, xfn)
 
     pngs = []
-    background_color = '255x255x255x%s' % (str(alpha[0]))
+    gs = int(grayscale*255)
+    background_color = '%ix%ix%ix%s' % (gs,gs,gs,str(alpha[0]))
 
     for myrot in range(rotation_params.shape[0]):
         surfcmd = ['-s', '[%s,%s]' %(xfn,background_color)]
@@ -205,7 +256,8 @@ def surf(x, y=None, z=None,
         except:
             pass
 
-        surfcmd += ['-d', '%s[%s,255x255x255]'%(pngfnloc,rparamstring)]
+        gs2 = int(bg_grayscale * 255.)
+        surfcmd += ['-d', '%s[%s,%ix%ix%i]'%(pngfnloc,rparamstring,gs2,gs2,gs2)]
         surfcmd += ['-a', '%f' % tol]
         surfcmd += ['-i', '%i' % inflation_factor]
 

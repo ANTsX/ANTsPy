@@ -4,17 +4,17 @@
 __all__ = ['iMath',
            'image_math',
            'multiply_images',
-           'iMath_GetLargestComponent',
-           'iMath_Normalize',
-           'iMath_TruncateIntensity',
-           'iMath_Sharpen',
-           'iMath_Pad',
-           'iMath_MaurerDistance',
-           'iMath_PeronaMalik',
-           'iMath_Grad',
-           'iMath_Laplacian',
-           'iMath_Canny',
-           'iMath_HistogramEqualization',
+           'iMath_get_largest_component',
+           'iMath_normalize',
+           'iMath_truncate_intensity',
+           'iMath_sharpen',
+           'iMath_pad',
+           'iMath_maurer_distance',
+           'iMath_perona_malik',
+           'iMath_grad',
+           'iMath_laplacian',
+           'iMath_canny',
+           'iMath_histogram_equalization',
            'iMath_MD',
            'iMath_ME',
            'iMath_MO',
@@ -23,12 +23,12 @@ __all__ = ['iMath',
            'iMath_GE',
            'iMath_GO',
            'iMath_GC',
-           'iMath_FillHoles',
-           'iMath_GetLargestComponent',
-           'iMath_Normalize',
-           'iMath_TruncateIntensity',
-           'iMath_Sharpen',
-           'iMath_PropagateLabelsThroughMask']
+           'iMath_fill_holes',
+           'iMath_get_largest_component',
+           'iMath_normalize',
+           'iMath_truncate_intensity',
+           'iMath_sharpen',
+           'iMath_propagate_labels_through_mask']
 
 
 from .process_args import _int_antsProcessArguments
@@ -112,70 +112,70 @@ def iMath_ops():
     return _iMathOps
 
 
-def iMath_Canny(image, sigma, lower, upper):
+def iMath_canny(image, sigma, lower, upper):
     return iMath(image, 'Canny', sigma, lower, upper)
 
-def iMath_DistanceMap(image, use_spacing):
+def iMath_distance_map(image, use_spacing=True):
     return iMath(image, 'DistanceMap', use_spacing)
 
-def iMath_FillHoles(image, hole_type):
+def iMath_fill_holes(image, hole_type=2):
     return iMath(image, 'FillHoles', hole_type)
 
-def iMath_GC(image, radius):
+def iMath_GC(image, radius=1):
     return iMath(image, 'GC', radius)
 
-def iMath_GD(image, radius):
+def iMath_GD(image, radius=1):
     return iMath(image, 'GD', radius)
 
-def iMath_GE(image, radius):
+def iMath_GE(image, radius=1):
     return iMath(image, 'GE', radius)
 
-def iMath_GO(image, radius):
+def iMath_GO(image, radius=1):
     return iMath(image, 'GO', radius)
 
-def iMath_GetLargestComponent(image, min_size):
+def iMath_get_largest_component(image, min_size=50):
     return iMath(image, 'GetLargestComponent', min_size)
 
-def iMath_Grad(image, sigma, normalize):
+def iMath_grad(image, sigma=0.5, normalize=False):
     return iMath(image, 'Grad', sigma, normalize)
 
-def iMath_HistogramEqualization(image, alpha, beta):
+def iMath_histogram_equalization(image, alpha, beta):
     return iMath(image, 'HistogramEqualization', alpha, beta)
 
-def iMath_Laplacian(image, sigma, normalize):
+def iMath_laplacian(image, sigma=0.5, normalize=False):
     return iMath(image, 'Laplacian', sigma, normalize)
 
-def iMath_MC(image, radius, value, shape, parametric, lines, thickness, include_center):
+def iMath_MC(image, radius=1, value=1, shape=1, parametric=False, lines=3, thickness=1, include_center=False):
     return iMath(image, 'MC', radius, value, shape, parametric, lines, thickness, include_center)
 
-def iMath_MD(image, radius, value, shape, parametric, lines, thickness, include_center):
+def iMath_MD(image, radius=1, value=1, shape=1, parametric=False, lines=3, thickness=1, include_center=False):
     return iMath(image, 'MD', radius, value, shape, parametric, lines, thickness, include_center)
 
-def iMath_ME(image, radius, value, shape, parametric, lines, thickness, include_center):
+def iMath_ME(image, radius=1, value=1, shape=1, parametric=False, lines=3, thickness=1, include_center=False):
     return iMath(image, 'ME', radius, value, shape, parametric, lines, thickness, include_center)
 
-def iMath_MO(image, radius, value, shape, parametric, lines, thickness, include_center):
+def iMath_MO(image, radius=1, value=1, shape=1, parametric=False, lines=3, thickness=1, include_center=False):
     return iMath(image, 'MO', radius, value, shape, parametric, lines, thickness, include_center)
 
-def iMath_MaurerDistance(image, foreground):
+def iMath_maurer_distance(image, foreground=1):
     return iMath(image, 'MaurerDistance', foreground)
 
-def iMath_Normalize(image):
+def iMath_normalize(image):
     return iMath(image, 'Normalize')
 
-def iMath_Pad(image, padding):
+def iMath_pad(image, padding):
     return iMath(image, 'Pad', padding)
 
-def iMath_PeronaMalik(image, conductance, n_iterations):
+def iMath_perona_malik(image, conductance=0.25, n_iterations=1):
     return iMath(image, 'PeronaMalik', conductance, n_iterations)
 
-def iMath_Sharpen(image):
+def iMath_sharpen(image):
     return iMath(image, 'Sharpen')
 
-def iMath_PropagateLabelsThroughMask(image, mask, labels, stopping_value, propagation_method):
+def iMath_propagate_labels_through_mask(image, mask, labels, stopping_value=100, propagation_method=0):
     return iMath(image, 'PropagateLabelsThroughMask', mask, labels, stopping_value, propagation_method)
 
-def iMath_TruncateIntensity(image, n_bins, lower_q, upper_q, mask):
+def iMath_truncate_intensity(image, lower_q, upper_q, mask, n_bins=64):
     return iMath(image, 'TruncateIntensity', n_bins, lower_q, upper_q, mask)
 
 

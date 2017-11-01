@@ -351,7 +351,7 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
                      # background arguments
                      black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
                      # scale/crop/domain arguments
-                     crop=False, scale=True, domain_image_map=None, 
+                     crop=False, scale=False, domain_image_map=None, 
                      # title arguments
                      title=None, titlefontsize=24, title_dx=0, title_dy=0, 
                      # 4th panel text arguemnts
@@ -628,7 +628,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
                      # background arguments
                      black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
                      # scale/crop/domain arguments
-                     crop=False, scale=True, crop2=False, scale2=True, domain_image_map=None, 
+                     crop=False, scale=False, crop2=False, scale2=True, domain_image_map=None, 
                      # title arguments
                      title=None, titlefontsize=24, title_dx=0, title_dy=0, 
                      # 4th panel text arguemnts
@@ -1034,6 +1034,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
 def plot_ortho(image, overlay=None, reorient=True, blend=False,
                # xyz arguments
                xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+               dir_labels=True,
                # base image arguments
                alpha=1, cmap='Greys_r', 
                # overlay arguments
@@ -1041,7 +1042,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                # background arguments
                black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
                # scale/crop/domain arguments
-               crop=False, scale=True, domain_image_map=None, 
+               crop=False, scale=False, domain_image_map=None, 
                # title arguments
                title=None, titlefontsize=24, title_dx=0, title_dy=0, 
                # 4th panel text arguemnts
@@ -1314,6 +1315,27 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                               [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if dir_labels:
+            ax.text(0.5,0.98, 'S',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'I',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'A',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'P',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
         xz_slice = reorient_slice(image[:,xyz[1],:],1)
@@ -1332,6 +1354,27 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                               [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if dir_labels:
+            ax.text(0.5,0.98, 'S',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'I',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'R',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'L',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
         xy_slice = reorient_slice(image[:,:,xyz[2]],2)
@@ -1353,6 +1396,27 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                               [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if dir_labels:
+            ax.text(0.5,0.98, 'A',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'P',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'R',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'L',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
         if not flat:
@@ -1390,7 +1454,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 def plot(image, overlay=None,  blend=False,
          alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
          axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
-         bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=True,
+         bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=False,
          reverse=False, title=None, filename=None, dpi=500, figsize=1.5, reorient=True):
     """
     Plot an ANTsImage. 
