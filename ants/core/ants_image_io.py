@@ -71,7 +71,7 @@ for itype in {'scalar', 'vector', 'rgb', 'rgba'}:
             _image_read_dict[itype][p][d] = 'imageRead%s%s%i' % (ita,pa,d)
 
 
-def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
+def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False):
     """
     Create an ANTsImage object from a numpy array
     
@@ -99,15 +99,16 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     ANTsImage
         image with given data and any given information 
     """
-    data = data.astype('float32') # need to remove this eventually.. double precision issues
-    img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
+    #data = data.astype('float32') # need to remove this eventually.. double precision issues
+    img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
     return img
 
 
-def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=False):
+def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False):
     """
     Internal function for creating an ANTsImage
     """
+    if is_rgb: has_components = True
     ndim = data.ndim
     if has_components:
         ndim -= 1
@@ -116,12 +117,9 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
 
     data = np.array(data)
 
-    if origin is None:
-        origin = tuple([0.]*ndim)
-    if spacing is None:
-        spacing = tuple([1.]*ndim)
-    if direction is None:
-        direction = np.eye(ndim)
+    if origin is None: origin = tuple([0.]*ndim)
+    if spacing is None: spacing = tuple([1.]*ndim)
+    if direction is None: direction = np.eye(ndim)
 
     libfn = utils.get_lib_fn('fromNumpy%s%i' % (_ntype_type_map[dtype], ndim))
 
@@ -148,7 +146,7 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
             tmp_img._ndarr = arrays[i]
             ants_images.append(tmp_img)
         ants_image = utils.merge_channels(ants_images)
-
+        if is_rgb: ants_image = ants_image.vector_to_rgb()
     return ants_image
 
 
@@ -401,6 +399,7 @@ def image_read(filename, dimension=None, pixeltype='float'):
         pclass = hinfo['pixelclass']
         ndim = hinfo['nDimensions']
         ncomp = hinfo['nComponents']
+        is_rgb = True if pclass == 'rgb' else False
         if dimension is not None:
             ndim = dimension
 
@@ -420,7 +419,9 @@ def image_read(filename, dimension=None, pixeltype='float'):
 
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
-        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=ncomp, pointer=itk_pointer)
+        
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=ncomp, 
+            pointer=itk_pointer, is_rgb=is_rgb)
 
         if pixeltype is not None:
             ants_image = ants_image.clone(pixeltype)

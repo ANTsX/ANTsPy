@@ -1,5 +1,5 @@
 
-__all__ = ['surf', 'convert_scalar_image_to_rgb']
+__all__ = ['surf']
 
 import os
 import numpy as np
@@ -7,23 +7,8 @@ from tempfile import mktemp
 
 from .. import core
 from .. import utils
-
-
-def convert_scalar_image_to_rgb(dimension, img, outimg, mask, colormap='red', custom_colormap_file=None, 
-                                min_input=None, max_input=None, min_rgb_output=None, max_rgb_output=None,
-                                vtk_lookup_table=None):
-    """
-    Usage: ConvertScalarImageToRGB imageDimension inputImage outputImage mask colormap [customColormapFile] [minimumInput] [maximumInput] [minimumRGBOutput=0] [maximumRGBOutput=255] <vtkLookupTable>
-    Possible colormaps: grey, red, green, blue, copper, jet, hsv, spring, summer, autumn, winter, hot, cool, overunder, custom
-    """
-    if custom_colormap_file is None:
-        custom_colormap_file = 'none'
-
-    args = [dimension, img, outimg, mask, colormap, custom_colormap_file,
-            min_input, max_input, min_rgb_output, max_rgb_output, vtk_lookup_table]
-    processed_args = utils._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
-    libfn(processed_args)
+from ..core import ants_image as iio
+from ..core import ants_image_io as iio2
 
 
 def surf2(image, 
@@ -235,7 +220,7 @@ def surf(x, y=None, z=None,
                 TEMPFILES.append(csvlutfn)
                 overlayrgbfn = mktemp(suffix='.nii.gz')
                 TEMPFILES.append(overlayrgbfn)
-                convert_scalar_image_to_rgb(dimension=3, img=overlayfn, outimg=overlayrgbfn, 
+                iio.scalar_to_rgb(dimension=3, img=overlayfn, outimg=overlayrgbfn, 
                     mask=kblobfn, colormap=colormap[ct-1], custom_colormap_file=None, 
                     min_input=myquants[0], max_input=myquants[1],
                     min_rgb_output=0, max_rgb_output=255, vtk_lookup_table=csvlutfn)

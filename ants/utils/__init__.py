@@ -24,6 +24,7 @@ from .multi_label_morphology import *
 from .pad_image import *
 from .process_args import *
 from .quantile import *
+from .scalar_rgb_vector import *
 from .slice_image import *
 from .smooth_image import *
 from .threshold_image import *

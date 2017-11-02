@@ -55,6 +55,88 @@ py::capsule mergeChannels( std::vector<void *> imageList )
   return wrap<VectorImageType>( vectorImage );
 }
 
+template< class ImageType, class VectorImageType >
+py::capsule mergeChannels2( std::vector<py::capsule> imageList )
+{
+  typedef typename ImageType::Pointer       ImagePointerType;
+  typedef typename VectorImageType::Pointer VectorImagePointerType;
+
+  unsigned int nImages = imageList.size();
+
+  std::vector<ImagePointerType> images;
+  for ( unsigned int i=0; i<nImages; i++)
+  {
+    images.push_back( as<ImageType>( imageList[i] ) );
+  }
+
+  VectorImagePointerType vectorImage = VectorImageType::New();
+  vectorImage->SetRegions( images[0]->GetLargestPossibleRegion() );
+  vectorImage->SetSpacing( images[0]->GetSpacing() );
+  vectorImage->SetOrigin( images[0]->GetOrigin() );
+  vectorImage->SetDirection( images[0]->GetDirection() );
+  vectorImage->SetNumberOfComponentsPerPixel( nImages );
+  vectorImage->Allocate();
+
+  // Fill image data
+  itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
+    vectorImage->GetLargestPossibleRegion() );
+
+  while (!it.IsAtEnd() )
+    {
+    typename VectorImageType::PixelType pix;
+    pix.SetSize( nImages );
+    for (unsigned int i=0; i<nImages; i++)
+      {
+      pix[i] = images[i]->GetPixel(it.GetIndex());
+      }
+    vectorImage->SetPixel(it.GetIndex(), pix);
+    ++it;
+    }
+
+  return wrap<VectorImageType>( vectorImage );
+}
+
+template< class ImageType, class VectorImageType >
+py::capsule mergeChannels3( std::vector<py::capsule> imageList )
+{
+  typedef typename ImageType::Pointer       ImagePointerType;
+  typedef typename VectorImageType::Pointer VectorImagePointerType;
+
+  unsigned int nImages = imageList.size();
+
+  std::vector<ImagePointerType> images;
+  for ( unsigned int i=0; i<nImages; i++)
+  {
+    images.push_back( as<ImageType>( imageList[i] ) );
+  }
+
+  VectorImagePointerType vectorImage = VectorImageType::New();
+  vectorImage->SetRegions( images[0]->GetLargestPossibleRegion() );
+  vectorImage->SetSpacing( images[0]->GetSpacing() );
+  vectorImage->SetOrigin( images[0]->GetOrigin() );
+  vectorImage->SetDirection( images[0]->GetDirection() );
+  //vectorImage->SetNumberOfComponentsPerPixel( nImages );
+  vectorImage->Allocate();
+
+  // Fill image data
+  itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
+    vectorImage->GetLargestPossibleRegion() );
+
+  while (!it.IsAtEnd() )
+    {
+
+    typename VectorImageType::PixelType pix;
+    //pix.SetSize( nImages );
+    for (unsigned int i=0; i<nImages; i++)
+      {
+      pix[i] = images[i]->GetPixel(it.GetIndex());
+      }
+    vectorImage->SetPixel(it.GetIndex(), pix);
+    ++it;
+    }
+
+  return wrap<VectorImageType>( vectorImage );
+}
 
 template< class VectorImageType, class ImageType>
 std::vector<py::capsule > splitChannels( py::capsule & antsimage )

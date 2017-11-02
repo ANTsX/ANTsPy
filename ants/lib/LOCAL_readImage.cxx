@@ -94,6 +94,7 @@ PYBIND11_MODULE(readImage, m) {
     wrapReadImage<itk::VectorImage<float, 3>>(m, "VF3");
     wrapReadImage<itk::VectorImage<float, 4>>(m, "VF4");
 
+    wrapReadImage<itk::Image<itk::RGBPixel<unsigned char>, 2>>(m, "RGBUC2");
     wrapReadImage<itk::Image<itk::RGBPixel<unsigned char>, 3>>(m, "RGBUC3");
 
     m.def("fromNumpyUC2", &fromNumpy<itk::Image<unsigned char, 2>>);
@@ -105,6 +106,9 @@ PYBIND11_MODULE(readImage, m) {
     m.def("fromNumpyF2", &fromNumpy<itk::Image<float, 2>>);
     m.def("fromNumpyF3", &fromNumpy<itk::Image<float, 3>>);
     m.def("fromNumpyF4", &fromNumpy<itk::Image<float, 4>>);
+
+    //m.def("fromNumpyRGBUC2", &fromNumpy<itk::Image<itk::RGBPixel<unsigned char>, 2>>);
+    //m.def("fromNumpyRGBUC3", &fromNumpy<itk::Image<itk::RGBPixel<unsigned char>, 3>>);
 
 }
 

@@ -44,7 +44,7 @@ _npy_to_itk_map = {
 
 class ANTsImage(object):
 
-    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None, label_image=None):
+    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None, is_rgb=False, label_image=None):
         """
         Initialize an ANTsImage
 
@@ -73,8 +73,14 @@ class ANTsImage(object):
         self.components = components
         self.has_components = self.components > 1
         self.dtype = _itk_to_npy_map[self.pixeltype]
+        self.is_rgb = is_rgb
+
         self._pixelclass = 'vector' if self.has_components else 'scalar'
         self._shortpclass = 'V' if self._pixelclass == 'vector' else ''
+        if is_rgb:
+            self._pixelclass = 'rgb'
+            self._shortpclass = 'RGB'
+
         self._libsuffix = '%s%s%i' % (self._shortpclass, utils.short_ptype(self.pixeltype), self.dimension)
 
         self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
@@ -236,10 +242,17 @@ class ANTsImage(object):
         -------
         ndarray
         """
-        array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
-        if self.has_components or (single_components == True):
-            array = np.rollaxis(array, 0, self.dimension+1)
-        return array
+        if self.is_rgb:
+            img = self.rgb_to_vector()
+            array = np.array(img.view(single_components=single_components), copy=True, dtype=img.dtype)
+            if img.has_components or (single_components == True):
+                array = np.rollaxis(array, 0, img.dimension+1)
+            return array
+        else:
+            array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
+            if self.has_components or (single_components == True):
+                array = np.rollaxis(array, 0, self.dimension+1)
+            return array
 
     def clone(self, pixeltype=None):
         """
@@ -567,7 +580,7 @@ class ANTsImage(object):
             s = 'ANTsImage\n'
         s = s +\
             '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
-            '\t {:<10} : {}\n'.format('Components', self.components)+\
+            '\t {:<10} : {}{}\n'.format('Components', self.components, ' (RGB)' if 'RGB' in self._libsuffix else '')+\
             '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
             '\t {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
             '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
@@ -978,5 +991,3 @@ def allclose(image1, image2):
     Check if two images have the same array values
     """
     return np.allclose(image1.numpy(), image2.numpy())
-
-

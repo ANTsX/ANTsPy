@@ -67,6 +67,7 @@ PYBIND11_MODULE(antsImageClone, m)
   wrapantsImageClone<itk::Image<double,2>,itk::Image<float,2>>(m, "D2F2");
   wrapantsImageClone<itk::Image<double,2>,itk::Image<double,2>>(m, "D2D2");
 
+  wrapantsImageClone<itk::Image<itk::RGBPixel<unsigned char>,2>,itk::Image<itk::RGBPixel<unsigned char>,2>>(m, "RGBUC2RGBUC2");
 
   // dim = 3
   wrapantsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>(m, "UC3UC3");
@@ -88,6 +89,7 @@ PYBIND11_MODULE(antsImageClone, m)
   wrapantsImageClone<itk::Image<double,3>,itk::Image<unsigned int,3>>(m, "D3UI3");
   wrapantsImageClone<itk::Image<double,3>,itk::Image<float,3>>(m, "D3F3");
   wrapantsImageClone<itk::Image<double,3>,itk::Image<double,3>>(m, "D3D3");
+  wrapantsImageClone<itk::Image<itk::RGBPixel<unsigned char>,3>,itk::Image<itk::RGBPixel<unsigned char>,3>>(m, "RGBUC3RGBUC3");
 
   // dim = 4
   wrapantsImageClone<itk::Image<unsigned char,4>,itk::Image<unsigned char,4>>(m, "UC4UC4");
