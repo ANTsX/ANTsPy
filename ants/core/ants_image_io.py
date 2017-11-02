@@ -99,7 +99,7 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     ANTsImage
         image with given data and any given information 
     """
-    #data = data.astype('float32') # need to remove this eventually.. double precision issues
+    data = data.astype('float32') if data.dtype.name == 'float64' else data
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
     return img
 

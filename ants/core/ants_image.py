@@ -219,12 +219,16 @@ class ANTsImage(object):
         -------
         ndarray
         """
-        dtype = self.dtype
-        shape = self.shape[::-1]
-        if self.has_components or (single_components == True):
-            shape = list(shape) + [self.components]
-        libfn = utils.get_lib_fn('toNumpy%s'%self._libsuffix)
-        memview = libfn(self.pointer)
+        if self.is_rgb:
+            img = self.rgb_to_vector()
+        else:
+            img = self
+        dtype = img.dtype
+        shape = img.shape[::-1]
+        if img.has_components or (single_components == True):
+            shape = list(shape) + [img.components]
+        libfn = utils.get_lib_fn('toNumpy%s'%img._libsuffix)
+        memview = libfn(img.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
     def numpy(self, single_components=False):
@@ -242,17 +246,10 @@ class ANTsImage(object):
         -------
         ndarray
         """
-        if self.is_rgb:
-            img = self.rgb_to_vector()
-            array = np.array(img.view(single_components=single_components), copy=True, dtype=img.dtype)
-            if img.has_components or (single_components == True):
-                array = np.rollaxis(array, 0, img.dimension+1)
-            return array
-        else:
-            array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
-            if self.has_components or (single_components == True):
-                array = np.rollaxis(array, 0, self.dimension+1)
-            return array
+        array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
+        if self.has_components or (single_components == True):
+            array = np.rollaxis(array, 0, self.dimension+1)
+        return array
 
     def clone(self, pixeltype=None):
         """
