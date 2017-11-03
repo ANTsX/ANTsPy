@@ -1,5 +1,5 @@
 
-__all__ = ['surf', 'surf_wm']
+__all__ = ['surf', 'surf_fold', 'surf_smooth', 'get_canonical_views']
 
 import os
 import numpy as np
@@ -11,6 +11,7 @@ from .. import utils
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
+
 _view_map = {
     'left': (270,0,270),
     'inner_left': (270,0,90),
@@ -18,73 +19,61 @@ _view_map = {
     'inner_right': (270,0,270)
 }
 
-def surf_wm(image, outfile, inflation=200,
+
+def get_canonical_views():
+    """
+    Get the canonical views used for surface and volume rendering. You can use
+    this as a reference for slightly altering rotation parameters in ants.surf
+    and ants.vol functions.
+
+    Note that these views are for images that have 'RPI' orientation. 
+    Images are automatically reoriented to RPI in ANTs surface and volume rendering
+    functions but you can reorient images yourself with `img.reorient_image2('RPI')
+    """
+    return _view_map
+
+
+def surf_fold(wm, outfile, 
+            # processing args
+            inflation=10, 
             # overlay args
             #overlay=None, overlay_mask=None, overlay_dilation=1., overlay_smooth=1.,
             # display args
             rotation=None, grayscale=0.7, bg_grayscale=0.9,
             verbose=False):
     """
-    Display an inflated, smooth White Matter surface and optional overlay. 
-
-    This is great for displaying functional activations as are typically seen
-    in the neuroimaging literature.
-
-    Arguments
-    ---------
-    image : ANTsImage
-        A binary segmentation of the white matter surface.
-        If you don't have a white matter segmentation, you can use
-        `kmeans_segmentation` or `atropos` on a full-brain image.
-    
-    inflation : integer
-        how much to inflate the final surface
-
-    rotation : 3-tuple | string
-        if tuple, this is rotation of X, Y, Z 
-        if string, this is a canonical view..
-            Options: 'left', 'right', 'inner_left', 'inner_right', 
-            'anterior', 'posterior', 'inferior', 'superior'
-    
-    grayscale : float
-        value between 0 and 1 representing how light to make the base image.
-        grayscale = 1 will make the base image completely white and 
-        grayscale = 0 will make the base image completely black
-
-    background : float
-        value between 0 and 1 representing how light to make the base image.
-        see `grayscale` arg.
-
-    outfile : string
-        filepath to which the surface plot will be saved
+    Generate a cortical folding surface of the gray matter of a brain image. 
 
     Example
     -------
     >>> import ants
     >>> mni = ants.image_read(ants.get_data('mni'))
-    >>> mniseg = mni.threshold_image( 'Otsu', 3 )
-    >>> wm = mniseg.threshold_image(3, 3)
-    >>> ants.surf_wm(wm, outfile='~/desktop/surf_fig_nomd.png', inflation=200)
+    >>> seg = mni.otsu_segmentation(k=3)
+    >>> wm_img = seg.threshold_image(3,3)
+    >>> ants.surf_fold(wm_img, outfile='~/desktop/surf_fold_example.png')
     """
     # handle rotation argument
     if rotation is None:
         rotation = (270,0,270)
     if not isinstance(rotation, (str, tuple)):
-        raise ValueError('rotation must be a 3-tuple or string')
+        raise ValueError('rotation must be a tuple or string')
     if isinstance(rotation, str):
         rotation = _view_map[rotation.lower()]
 
     # handle filename argument
     if outfile is None:
-        outfile = mktemp()
+        outfile = mktemp(suffix='.png')
     else:
         outfile = os.path.expanduser(outfile)
 
-    # preprocessing white matter segmentation
-    image = image.reorient_image2('RPI')
-    image = image.iMath_fill_holes().iMath_get_largest_component()
-    image = image.iMath_MD(1.0)
-    image = image.smooth_image(1.0).threshold_image(0.5)
+    ## PROCESSING ##
+    thal = wm
+    #wm = wm + thal
+    wm = wm.iMath_fill_holes().iMath_get_largest_component().iMath_MD()
+    wms = wm.smooth_image(0.5)
+    wmt_label = wms.iMath_propagate_labels_through_mask(thal, 500, 0 )
+    image = wmt_label.threshold_image(1,1)
+    ##
 
     # surface arg
     # save base image to temp file
@@ -124,52 +113,245 @@ def surf_wm(image, outfile, inflation=200,
     os.remove(image_tmp_file)
 
 
-
-def surf2(image, 
-          #overlay=None, overlay_mask=None, overlay_colormap='jet',
-          smooth=0.5, dilation=1., threshold=0.5, scale_intensity=True,
-          inflation=50,
-          views=None, rotation=None):
+def surf_smooth_multi(image, outfile,
+                      # processing args
+                      dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, 
+                      # overlay args
+                      #overlay=None, overlay_mask=None, overlay_dilation=1., overlay_smooth=1.,
+                      # display args
+                      rotation=[['left','inner_left'],
+                                ['right','inner_right']], 
+                      grayscale=0.7, bg_grayscale=0.9,
+                      # extraneous args
+                      verbose=False):
     """
-    views : string or list of strings
-        Canonical views of the surface.
-        Options: left, right, inner_left, inner_right, 
-                 inferior, superior, anterior, posterios
+    Generate a surface of the smooth white matter of a brain image. 
+
+    This is great for displaying functional activations as are typically seen
+    in the neuroimaging literature.
+
+    Arguments
+    ---------
+    image : ANTsImage
+        A binary segmentation of the white matter surface.
+        If you don't have a white matter segmentation, you can use
+        `kmeans_segmentation` or `atropos` on a full-brain image.
     
-COMMAND: 
-     antsSurf
+    inflation : integer
+        how much to inflate the final surface
 
-OPTIONS: 
-     -s, --surface-image surfaceImageFilename
-                         [surfaceImageFilename,<defaultColor=255x255x255x1>]
-     -m, --mesh meshFilename
-     -f, --functional-overlay [rgbImageFileName,maskImageFileName,<alpha=1>]
-     -a, --anti-alias-rmse value
-     -i, --inflation numberOfIterations
-                     [numberOfIterations]
-     -d, --display doWindowDisplay
-                   filename
-                   <filename>[rotateXxrotateYxrotateZ,<backgroundColor=255x255x255>]
-     -o, --output surfaceFilename
-                  imageFilename[spacing]
-     -b, --scalar-bar lookupTable
-                      [lookupTable,<title=antsSurf>,<numberOfLabels=5>,<widthxheight>]
-     -h 
-     --help 
+    rotation : 3-tuple | string | list of 3-tuples | list of string
+        if tuple, this is rotation of X, Y, Z 
+        if string, this is a canonical view..
+            Options: 'left', 'right', 'inner_left', 'inner_right', 
+            'anterior', 'posterior', 'inferior', 'superior'
+        if list of tuples or strings, the surface images will be arranged
+        in a grid according to the shape of the list.
+        
+        e.g. rotation=[['left', 'inner_left' ],
+                       ['right','inner_right']] 
+        will result in a 2x2 grid of the above 4 canonical views
+    
+    grayscale : float
+        value between 0 and 1 representing how light to make the base image.
+        grayscale = 1 will make the base image completely white and 
+        grayscale = 0 will make the base image completely black
 
+    background : float
+        value between 0 and 1 representing how light to make the base image.
+        see `grayscale` arg.
+
+    outfile : string
+        filepath to which the surface plot will be saved
+
+    Example
+    -------
+    >>> import ants
+    >>> mni = ants.image_read(ants.get_data('mni'))
+    >>> seg = mni.otsu_segmentation(k=3)
+    >>> wm_img = seg.threshold_image(3,3)
+    >>> ants.surf_smooth(wm_img, outfile='~/desktop/surf_smooth_example.png')
     """
-    view_map = {
-        'left': (270,0,270),
-        'inner_left': (270,0,90),
-        'right': (270,0,90),
-        'inner_right': (270,0,270)
-    }
-    #image = image.threshold_image(image.min()+0.01)
-    #image = image.iMath_MD(dilation).reorient_image('RPI')
-    #image = image.smooth_image(smooth).threshold_image(0.5)
+    # handle rotation argument
+    if rotation is None:
+        rotation = (270,0,270)
+    if not isinstance(rotation, (str, tuple)):
+        raise ValueError('rotation must be a 3-tuple or string')
+    if isinstance(rotation, str):
+        rotation = _view_map[rotation.lower()]
 
-    cmd = '-s %s -m %s -f %s -a %s -i %s -d %s -o %s -b %s'
+    # handle filename argument
+    if outfile is None:
+        outfile = mktemp(suffix='.png')
+    else:
+        outfile = os.path.expanduser(outfile)
 
+    # preprocessing white matter segmentation
+    image = image.reorient_image2('RPI')
+    image = image.iMath_fill_holes().iMath_get_largest_component()
+    if dilation > 0:
+        image = image.iMath_MD(dilation)
+    if smooth > 0:
+        image = image.smooth_image(smooth)
+    if threshold > 0:
+        image = image.threshold_image(threshold)
+
+    # surface arg
+    # save base image to temp file
+    image_tmp_file = mktemp(suffix='.nii.gz')
+    image.to_file(image_tmp_file)
+    # build image color
+    grayscale = int(grayscale*255)
+    alpha = 1.
+    image_color = '%sx%.1f' % ('x'.join([str(grayscale)]*3),
+                               alpha)
+    cmd = '-s [%s,%s] ' % (image_tmp_file, image_color)
+
+    # anti-alias arg
+    tolerance = 0.01
+    cmd += '-a %.3f ' % tolerance
+
+    # inflation arg
+    cmd += '-i %i ' % inflation
+
+    # display arg
+    bg_grayscale = int(bg_grayscale*255)
+    cmd += '-d %s[%s,%s]' % (outfile,
+                              'x'.join([str(s) for s in rotation]),
+                              'x'.join([str(bg_grayscale)]*3))
+
+    if verbose:
+        print(cmd)
+        time.sleep(1)
+
+    cmd = cmd.split(' ')
+    libfn = utils.get_lib_fn('antsSurf')
+    retval = libfn(cmd)
+    if retval != 0:
+        print('ERROR: Non-Zero Return Value!')
+
+    # cleanup temp file
+    os.remove(image_tmp_file)
+
+
+def surf_smooth(image, outfile,
+            # processing args
+            dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, 
+            # overlay args
+            #overlay=None, overlay_mask=None, overlay_dilation=1., overlay_smooth=1.,
+            # display args
+            rotation=[['left','inner_left'],['right','inner_right']], 
+            grayscale=0.7, bg_grayscale=0.9,
+            # extraneous args
+            verbose=False):
+    """
+    Generate a surface of the smooth white matter of a brain image. 
+
+    This is great for displaying functional activations as are typically seen
+    in the neuroimaging literature.
+
+    Arguments
+    ---------
+    image : ANTsImage
+        A binary segmentation of the white matter surface.
+        If you don't have a white matter segmentation, you can use
+        `kmeans_segmentation` or `atropos` on a full-brain image.
+    
+    inflation : integer
+        how much to inflate the final surface
+
+    rotation : 3-tuple | string | list of 3-tuples | list of string
+        if tuple, this is rotation of X, Y, Z 
+        if string, this is a canonical view..
+            Options: 'left', 'right', 'inner_left', 'inner_right', 
+            'anterior', 'posterior', 'inferior', 'superior'
+        if list of tuples or strings, the surface images will be arranged
+        in a grid according to the shape of the list.
+        
+        e.g. rotation=[['left', 'inner_left' ],
+                       ['right','inner_right']] 
+        will result in a 2x2 grid of the above 4 canonical views
+    
+    grayscale : float
+        value between 0 and 1 representing how light to make the base image.
+        grayscale = 1 will make the base image completely white and 
+        grayscale = 0 will make the base image completely black
+
+    background : float
+        value between 0 and 1 representing how light to make the base image.
+        see `grayscale` arg.
+
+    outfile : string
+        filepath to which the surface plot will be saved
+
+    Example
+    -------
+    >>> import ants
+    >>> mni = ants.image_read(ants.get_data('mni'))
+    >>> seg = mni.otsu_segmentation(k=3)
+    >>> wm_img = seg.threshold_image(3,3)
+    >>> ants.surf_smooth(wm_img, outfile='~/desktop/surf_smooth_example.png')
+    """
+    # handle rotation argument
+    if rotation is None:
+        rotation = (270,0,270)
+    if not isinstance(rotation, (str, tuple)):
+        raise ValueError('rotation must be a 3-tuple or string')
+    if isinstance(rotation, str):
+        rotation = _view_map[rotation.lower()]
+
+    # handle filename argument
+    if outfile is None:
+        outfile = mktemp(suffix='.png')
+    else:
+        outfile = os.path.expanduser(outfile)
+
+    # preprocessing white matter segmentation
+    image = image.reorient_image2('RPI')
+    image = image.iMath_fill_holes().iMath_get_largest_component()
+    if dilation > 0:
+        image = image.iMath_MD(dilation)
+    if smooth > 0:
+        image = image.smooth_image(smooth)
+    if threshold > 0:
+        image = image.threshold_image(threshold)
+
+    # surface arg
+    # save base image to temp file
+    image_tmp_file = mktemp(suffix='.nii.gz')
+    image.to_file(image_tmp_file)
+    # build image color
+    grayscale = int(grayscale*255)
+    alpha = 1.
+    image_color = '%sx%.1f' % ('x'.join([str(grayscale)]*3),
+                               alpha)
+    cmd = '-s [%s,%s] ' % (image_tmp_file, image_color)
+
+    # anti-alias arg
+    tolerance = 0.01
+    cmd += '-a %.3f ' % tolerance
+
+    # inflation arg
+    cmd += '-i %i ' % inflation
+
+    # display arg
+    bg_grayscale = int(bg_grayscale*255)
+    cmd += '-d %s[%s,%s]' % (outfile,
+                              'x'.join([str(s) for s in rotation]),
+                              'x'.join([str(bg_grayscale)]*3))
+
+    if verbose:
+        print(cmd)
+        time.sleep(1)
+
+    cmd = cmd.split(' ')
+    libfn = utils.get_lib_fn('antsSurf')
+    retval = libfn(cmd)
+    if retval != 0:
+        print('ERROR: Non-Zero Return Value!')
+
+    # cleanup temp file
+    os.remove(image_tmp_file)
 
 
 

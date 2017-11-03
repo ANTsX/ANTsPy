@@ -102,6 +102,7 @@ def iMath(image, operation, *args):
     outimage = image.clone()
     args = [imagedim, outimage, operation, image] + [a for a in args]
     processed_args = _int_antsProcessArguments(args)
+        
     libfn = utils.get_lib_fn('iMath')
     libfn(processed_args)
     return outimage
@@ -172,8 +173,14 @@ def iMath_perona_malik(image, conductance=0.25, n_iterations=1):
 def iMath_sharpen(image):
     return iMath(image, 'Sharpen')
 
-def iMath_propagate_labels_through_mask(image, mask, labels, stopping_value=100, propagation_method=0):
-    return iMath(image, 'PropagateLabelsThroughMask', mask, labels, stopping_value, propagation_method)
+def iMath_propagate_labels_through_mask(image, labels, stopping_value=100, propagation_method=0):
+    """
+    >>> import ants
+    >>> wms = ants.image_read('~/desktop/wms.nii.gz')
+    >>> thal = ants.image_read('~/desktop/thal.nii.gz')
+    >>> img2 = ants.iMath_propagate_labels_through_mask(wms, thal, 500, 0)
+    """
+    return iMath(image, 'PropagateLabelsThroughMask', labels, stopping_value, propagation_method)
 
 def iMath_truncate_intensity(image, lower_q, upper_q, mask, n_bins=64):
     return iMath(image, 'TruncateIntensity', n_bins, lower_q, upper_q, mask)
