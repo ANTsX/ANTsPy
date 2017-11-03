@@ -63,8 +63,8 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
 
     outimg = iio2.image_read(filename, pixeltype=None)
     # clean up temp files
-    #os.remove(filename)
-    #os.remove(tmpimgfile)
+    os.remove(filename)
+    os.remove(tmpimgfile)
 
     return outimg
 

@@ -50,9 +50,9 @@ OPTIONS:
         'right': (270,0,90),
         'inner_right': (270,0,270)
     }
-    image = image.threshold_image(image.min()+0.01)
-    image = image.iMath_MD(dilation).reorient_image('RPI')
-    image = image.smooth_image(smooth).threshold_image(0.5)
+    #image = image.threshold_image(image.min()+0.01)
+    #image = image.iMath_MD(dilation).reorient_image('RPI')
+    #image = image.smooth_image(smooth).threshold_image(0.5)
 
     cmd = '-s %s -m %s -f %s -a %s -i %s -d %s -o %s -b %s'
 

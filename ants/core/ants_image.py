@@ -279,7 +279,7 @@ class ANTsImage(object):
         if pixeltype not in _supported_ptypes:
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
-        if self.has_components:
+        if self.has_components and (not self.is_rgb):
             comp_imgs = utils.split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
             return utils.merge_channels(comp_imgs_cloned)
@@ -293,6 +293,7 @@ class ANTsImage(object):
             return ANTsImage(pixeltype=pixeltype, 
                             dimension=self.dimension, 
                             components=self.components, 
+                            is_rgb=self.is_rgb,
                             pointer=pointer_cloned) 
 
     # pythonic alias for `clone` is `copy`

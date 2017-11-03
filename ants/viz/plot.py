@@ -1587,7 +1587,7 @@ def plot(image, overlay=None,  blend=False,
     def rotate180_matrix(x):
         return x[::-1,:]
     def rotate90_matrix(x):
-        return mirror_matrix(x).T
+        return x.T
     def flip_matrix(x):
         return mirror_matrix(rotate180_matrix(x))
     def reorient_slice(x, axis):
@@ -1606,7 +1606,7 @@ def plot(image, overlay=None,  blend=False,
     if not isinstance(image, iio.ANTsImage):
         raise ValueError('image argument must be an ANTsImage')
     
-    if image.pixeltype not in {'float', 'double'}:
+    if (image.pixeltype not in {'float', 'double'}) or (image.is_rgb):
         scale = False # turn off scaling if image is discrete
 
     # handle `overlay` argument
@@ -1801,10 +1801,23 @@ def plot(image, overlay=None,  blend=False,
     
     ## multi-channel images ##
     elif image.components > 1:
-        raise ValueError('Multi-channel images not currently supported!')
+        if not image.is_rgb:
+            raise ValueError('Multi-component images only supported if they are RGB')
+        
+        img_arr = image.numpy()
+        img_arr = np.stack([rotate90_matrix(img_arr[:,:,i]) for i in range(3)], axis=-1)
+
+        fig = plt.figure()
+        ax = plt.subplot(111)
+
+        # plot main image
+        ax.imshow(img_arr, alpha=alpha)
+
+        plt.axis('off')
 
     if filename is not None:
-        plt.savefig(filename, dpi=dpi)
+        filename = os.path.expanduser(filename)
+        plt.savefig(filename, dpi=dpi, transparent=True, bbox_inches='tight')
         plt.close(fig)
     else:
         plt.show()
