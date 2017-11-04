@@ -96,7 +96,7 @@ def vol(volume, overlays=None,
     >>> import ants
     >>> ch2i = ants.image_read( ants.get_ants_data("mni") )
     >>> ch2seg = ants.threshold_image( ch2i, "Otsu", 3 )
-    >>> wm   = ants.threshold_image( ch2seg, 3, 3 )
+    >>> wm   = ants.threshold_image( ch2seg, 2, 2 )
     >>> kimg = ants.weingarten_image_curvature( ch2i, 1.5  ).smooth_image( 1 )
     >>> rp = [(90,180,90), (90,180,270), (90,180,180)]
     >>> result = ants.vol( wm, [kimg], quantlimits=(0.01,0.99), filename='/users/ncullen/desktop/voltest.png')

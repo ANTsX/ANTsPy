@@ -14,9 +14,9 @@ from ..core import ants_image_io as iio2
 
 _view_map = {
     'left': (270,0,270),
-    'inner_left': (270,0,90),
+    'inner_left': (270,0,270),
     'right': (270,0,90),
-    'inner_right': (270,0,270)
+    'inner_right': (270,0,90)
 }
 
 
@@ -33,24 +33,28 @@ def get_canonical_views():
     return _view_map
 
 
-def surf_fold(wm, outfile, 
-            # processing args
-            inflation=10, 
-            # overlay args
-            #overlay=None, overlay_mask=None, overlay_dilation=1., overlay_smooth=1.,
-            # display args
-            rotation=None, grayscale=0.7, bg_grayscale=0.9,
-            verbose=False):
+def surf_fold(image, outfile, 
+             # processing args
+             inflation=10, alpha=1.,
+             # overlay args
+             overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False,
+             overlay_alpha=1.,
+             # display args
+             rotation=None, grayscale=0.7, bg_grayscale=0.9,
+             verbose=False):
     """
     Generate a cortical folding surface of the gray matter of a brain image. 
-
+    
     Example
     -------
     >>> import ants
     >>> mni = ants.image_read(ants.get_data('mni'))
     >>> seg = mni.otsu_segmentation(k=3)
     >>> wm_img = seg.threshold_image(3,3)
-    >>> ants.surf_fold(wm_img, outfile='~/desktop/surf_fold_example.png')
+    >>> ants.surf_fold(wm_img, outfile='~/desktop/surf_fold.png')
+    >>> # with overlay
+    >>> overlay = ants.weingarten_image_curvature( mni, 1.5  ).smooth_image( 1 )
+    >>> ants.surf_fold(image=wm_img, overlay=overlay, outfile='~/desktop/surf_fold2.png')
     """
     # handle rotation argument
     if rotation is None:
@@ -66,8 +70,14 @@ def surf_fold(wm, outfile,
     else:
         outfile = os.path.expanduser(outfile)
 
+    # handle overlay argument
+    if overlay is not None:
+        if overlay_mask is None:
+            overlay_mask = image.iMath_MD(3)
+
     ## PROCESSING ##
-    thal = wm
+    thal = image
+    wm = image
     #wm = wm + thal
     wm = wm.iMath_fill_holes().iMath_get_largest_component().iMath_MD()
     wms = wm.smooth_image(0.5)
@@ -81,7 +91,6 @@ def surf_fold(wm, outfile,
     image.to_file(image_tmp_file)
     # build image color
     grayscale = int(grayscale*255)
-    alpha = 1.
     image_color = '%sx%.1f' % ('x'.join([str(grayscale)]*3),
                                alpha)
     cmd = '-s [%s,%s] ' % (image_tmp_file, image_color)
@@ -99,126 +108,28 @@ def surf_fold(wm, outfile,
                               'x'.join([str(s) for s in rotation]),
                               'x'.join([str(bg_grayscale)]*3))
 
-    if verbose:
-        print(cmd)
-        time.sleep(1)
+    # overlay arg
+    if overlay is not None:
+        #-f [rgbImageFileName,maskImageFileName,<alpha=1>]
+        if overlay_scale == True:
+            min_overlay, max_overlay = overlay.quantile((0.05,0.95))
+            overlay[overlay<min_overlay] = min_overlay
+            overlay[overlay>max_overlay] = max_overlay
+        elif isinstance(overlay_scale, tuple):
+            min_overlay, max_overlay = overlay.quantile((overlay_scale[0], overlay_scale[1]))
+            overlay[overlay<min_overlay] = min_overlay
+            overlay[overlay>max_overlay] = max_overlay
 
-    cmd = cmd.split(' ')
-    libfn = utils.get_lib_fn('antsSurf')
-    retval = libfn(cmd)
-    if retval != 0:
-        print('ERROR: Non-Zero Return Value!')
+        # make tempfile for overlay
+        overlay_tmp_file = mktemp(suffix='.nii.gz')
+        # convert overlay image to RGB
+        overlay.scalar_to_rgb(mask=overlay_mask, cmap=overlay_cmap,
+                              filename=overlay_tmp_file)
+        # make tempfile for overlay mask
+        overlay_mask_tmp_file = mktemp(suffix='.nii.gz')
+        overlay_mask.to_file(overlay_mask_tmp_file)
 
-    # cleanup temp file
-    os.remove(image_tmp_file)
-
-
-def surf_smooth_multi(image, outfile,
-                      # processing args
-                      dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, 
-                      # overlay args
-                      #overlay=None, overlay_mask=None, overlay_dilation=1., overlay_smooth=1.,
-                      # display args
-                      rotation=[['left','inner_left'],
-                                ['right','inner_right']], 
-                      grayscale=0.7, bg_grayscale=0.9,
-                      # extraneous args
-                      verbose=False):
-    """
-    Generate a surface of the smooth white matter of a brain image. 
-
-    This is great for displaying functional activations as are typically seen
-    in the neuroimaging literature.
-
-    Arguments
-    ---------
-    image : ANTsImage
-        A binary segmentation of the white matter surface.
-        If you don't have a white matter segmentation, you can use
-        `kmeans_segmentation` or `atropos` on a full-brain image.
-    
-    inflation : integer
-        how much to inflate the final surface
-
-    rotation : 3-tuple | string | list of 3-tuples | list of string
-        if tuple, this is rotation of X, Y, Z 
-        if string, this is a canonical view..
-            Options: 'left', 'right', 'inner_left', 'inner_right', 
-            'anterior', 'posterior', 'inferior', 'superior'
-        if list of tuples or strings, the surface images will be arranged
-        in a grid according to the shape of the list.
-        
-        e.g. rotation=[['left', 'inner_left' ],
-                       ['right','inner_right']] 
-        will result in a 2x2 grid of the above 4 canonical views
-    
-    grayscale : float
-        value between 0 and 1 representing how light to make the base image.
-        grayscale = 1 will make the base image completely white and 
-        grayscale = 0 will make the base image completely black
-
-    background : float
-        value between 0 and 1 representing how light to make the base image.
-        see `grayscale` arg.
-
-    outfile : string
-        filepath to which the surface plot will be saved
-
-    Example
-    -------
-    >>> import ants
-    >>> mni = ants.image_read(ants.get_data('mni'))
-    >>> seg = mni.otsu_segmentation(k=3)
-    >>> wm_img = seg.threshold_image(3,3)
-    >>> ants.surf_smooth(wm_img, outfile='~/desktop/surf_smooth_example.png')
-    """
-    # handle rotation argument
-    if rotation is None:
-        rotation = (270,0,270)
-    if not isinstance(rotation, (str, tuple)):
-        raise ValueError('rotation must be a 3-tuple or string')
-    if isinstance(rotation, str):
-        rotation = _view_map[rotation.lower()]
-
-    # handle filename argument
-    if outfile is None:
-        outfile = mktemp(suffix='.png')
-    else:
-        outfile = os.path.expanduser(outfile)
-
-    # preprocessing white matter segmentation
-    image = image.reorient_image2('RPI')
-    image = image.iMath_fill_holes().iMath_get_largest_component()
-    if dilation > 0:
-        image = image.iMath_MD(dilation)
-    if smooth > 0:
-        image = image.smooth_image(smooth)
-    if threshold > 0:
-        image = image.threshold_image(threshold)
-
-    # surface arg
-    # save base image to temp file
-    image_tmp_file = mktemp(suffix='.nii.gz')
-    image.to_file(image_tmp_file)
-    # build image color
-    grayscale = int(grayscale*255)
-    alpha = 1.
-    image_color = '%sx%.1f' % ('x'.join([str(grayscale)]*3),
-                               alpha)
-    cmd = '-s [%s,%s] ' % (image_tmp_file, image_color)
-
-    # anti-alias arg
-    tolerance = 0.01
-    cmd += '-a %.3f ' % tolerance
-
-    # inflation arg
-    cmd += '-i %i ' % inflation
-
-    # display arg
-    bg_grayscale = int(bg_grayscale*255)
-    cmd += '-d %s[%s,%s]' % (outfile,
-                              'x'.join([str(s) for s in rotation]),
-                              'x'.join([str(bg_grayscale)]*3))
+        cmd += ' -f [%s,%s,%.2f]' % (overlay_tmp_file, overlay_mask_tmp_file, overlay_alpha)
 
     if verbose:
         print(cmd)
@@ -232,18 +143,23 @@ def surf_smooth_multi(image, outfile,
 
     # cleanup temp file
     os.remove(image_tmp_file)
+    if overlay is not None:
+        os.remove(overlay_tmp_file)
+        os.remove(overlay_mask_tmp_file)
 
 
 def surf_smooth(image, outfile,
-            # processing args
-            dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, 
-            # overlay args
-            #overlay=None, overlay_mask=None, overlay_dilation=1., overlay_smooth=1.,
-            # display args
-            rotation=[['left','inner_left'],['right','inner_right']], 
-            grayscale=0.7, bg_grayscale=0.9,
-            # extraneous args
-            verbose=False):
+                # processing args
+                dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, alpha=1.,
+                cutidx=None, cutside='left',
+                # overlay args
+                overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False, 
+                overlay_alpha=1.,
+                # display args
+                rotation=None,
+                grayscale=0.7, bg_grayscale=0.9,
+                # extraneous args
+                verbose=False):
     """
     Generate a surface of the smooth white matter of a brain image. 
 
@@ -290,15 +206,24 @@ def surf_smooth(image, outfile,
     >>> mni = ants.image_read(ants.get_data('mni'))
     >>> seg = mni.otsu_segmentation(k=3)
     >>> wm_img = seg.threshold_image(3,3)
-    >>> ants.surf_smooth(wm_img, outfile='~/desktop/surf_smooth_example.png')
+    >>> #ants.surf_smooth(wm_img, outfile='~/desktop/surf_smooth.png')
+    >>> ants.surf_smooth(wm_img, rotation='inner_right', outfile='~/desktop/surf_smooth_innerright.png')
+    >>> # with overlay
+    >>> overlay = ants.weingarten_image_curvature( mni, 1.5  ).smooth_image( 1 ).iMath_GD(3)
+    >>> ants.surf_smooth(image=wm_img, overlay=overlay, outfile='~/desktop/surf_smooth2.png')
     """
+
     # handle rotation argument
     if rotation is None:
         rotation = (270,0,270)
     if not isinstance(rotation, (str, tuple)):
         raise ValueError('rotation must be a 3-tuple or string')
     if isinstance(rotation, str):
+        if 'inner' in rotation:
+            cutidx = int(image.shape[2]/2)
+            cutside = rotation.replace('inner_','')
         rotation = _view_map[rotation.lower()]
+
 
     # handle filename argument
     if outfile is None:
@@ -306,7 +231,12 @@ def surf_smooth(image, outfile,
     else:
         outfile = os.path.expanduser(outfile)
 
-    # preprocessing white matter segmentation
+    # handle overlay argument
+    if overlay is not None:
+        if overlay_mask is None:
+            overlay_mask = image.iMath_MD(3)
+
+    # PROCESSING IMAGE
     image = image.reorient_image2('RPI')
     image = image.iMath_fill_holes().iMath_get_largest_component()
     if dilation > 0:
@@ -315,6 +245,14 @@ def surf_smooth(image, outfile,
         image = image.smooth_image(smooth)
     if threshold > 0:
         image = image.threshold_image(threshold)
+    if cutidx is not None:
+        print(cutidx, cutside)
+        if cutside == 'left':
+            image = image.crop_indices((0,0,0),(cutidx,image.shape[1],image.shape[2]))
+        elif cutside == 'right':
+            image = image.crop_indices((cutidx,0,0),image.shape)
+        else:
+            raise ValueError('not valid cutside argument')
 
     # surface arg
     # save base image to temp file
@@ -339,6 +277,28 @@ def surf_smooth(image, outfile,
     cmd += '-d %s[%s,%s]' % (outfile,
                               'x'.join([str(s) for s in rotation]),
                               'x'.join([str(bg_grayscale)]*3))
+
+    # overlay arg
+    if overlay is not None:
+        if overlay_scale == True:
+            min_overlay, max_overlay = overlay.quantile((0.05,0.95))
+            overlay[overlay<min_overlay] = min_overlay
+            overlay[overlay>max_overlay] = max_overlay
+        elif isinstance(overlay_scale, tuple):
+            min_overlay, max_overlay = overlay.quantile((overlay_scale[0], overlay_scale[1]))
+            overlay[overlay<min_overlay] = min_overlay
+            overlay[overlay>max_overlay] = max_overlay
+
+        # make tempfile for overlay
+        overlay_tmp_file = mktemp(suffix='.nii.gz')
+        # convert overlay image to RGB
+        overlay.scalar_to_rgb(mask=overlay_mask, cmap=overlay_cmap,
+                              filename=overlay_tmp_file)
+        # make tempfile for overlay mask
+        overlay_mask_tmp_file = mktemp(suffix='.nii.gz')
+        overlay_mask.to_file(overlay_mask_tmp_file)
+
+        cmd += ' -f [%s,%s,%.2f]' % (overlay_tmp_file, overlay_mask_tmp_file, overlay_alpha)
 
     if verbose:
         print(cmd)

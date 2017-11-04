@@ -29,7 +29,10 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
     """
 
     if filename is None:
+        file_is_temp = True
         filename = mktemp(suffix='.png')
+    else:
+        file_is_temp = False
 
     args = 'imageDimension inputImage outputImage mask colormap'.split(' ')
     args[0] = image.dimension
@@ -53,20 +56,23 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
         args.append('minRGBOutput=%f' % min_rgb_output)
     if max_rgb_output is not None:
         args.append('maxRGBOutput=%f' % min_rgb_output)
-    if vtk_lookup_table is None:
+    if vtk_lookup_table is not None:
         vtk_lookup_table = mktemp(suffix='.csv')
-    args.append('vtkLookupTable=%s' % vtk_lookup_table)
+        args.append('vtkLookupTable=%s' % vtk_lookup_table)
     
     processed_args = utils._int_antsProcessArguments(args)
     libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
     libfn(processed_args)
 
-    outimg = iio2.image_read(filename, pixeltype=None)
-    # clean up temp files
-    os.remove(filename)
-    os.remove(tmpimgfile)
+    if file_is_temp:
+        outimg = iio2.image_read(filename, pixeltype=None)
+        # clean up temp files
+        os.remove(filename)
+        os.remove(tmpimgfile)
 
-    return outimg
+        return outimg
+    else:
+        os.remove(tmpimgfile)
 
 
 def rgb_to_vector(image):

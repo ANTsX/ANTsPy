@@ -6,7 +6,7 @@ __all__ = ['multi_label_morphology']
 
 import numpy as np
 
-def multi_label_morphology(image, operation, radius, dilation_mask=None, label_list=None):
+def multi_label_morphology(image, operation, radius, dilation_mask=None, label_list=None, force=False):
     """
     Morphology on multi label images.
     
@@ -59,6 +59,10 @@ def multi_label_morphology(image, operation, radius, dilation_mask=None, label_l
     """
     if (label_list is None) or (len(label_list) == 1):
         label_list = np.sort(np.unique(image[image > 0]))
+        if (len(label_list) > 200) and (not force):
+            raise ValueError('More than 200 labels... Make sure the image is discrete'
+                             ' and call this function again with `force=True` if you'
+                             ' really want to do this.')
 
     image_binary = image.clone()
     image_binary[image_binary > 1] = 1
