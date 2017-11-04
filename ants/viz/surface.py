@@ -33,14 +33,15 @@ def get_canonical_views():
     return _view_map
 
 
-def surf_fold(image, outfile, 
+def surf_fold(image, outfile,
              # processing args
              inflation=10, alpha=1.,
              # overlay args
              overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False,
              overlay_alpha=1.,
              # display args
-             rotation=None, grayscale=0.7, bg_grayscale=0.9,
+             rotation=None, cut_idx=None, cut_side='left',
+             grayscale=0.7, bg_grayscale=0.9,
              verbose=False):
     """
     Generate a cortical folding surface of the gray matter of a brain image. 
@@ -62,6 +63,10 @@ def surf_fold(image, outfile,
     if not isinstance(rotation, (str, tuple)):
         raise ValueError('rotation must be a tuple or string')
     if isinstance(rotation, str):
+        if 'inner' in rotation:
+            if cut_idx is None: cut_idx = 0
+            cut_idx = int(image.get_centroids()[0][0]) + cut_idx
+            cut_side = rotation.replace('inner_','')
         rotation = _view_map[rotation.lower()]
 
     # handle filename argument
@@ -83,6 +88,14 @@ def surf_fold(image, outfile,
     wms = wm.smooth_image(0.5)
     wmt_label = wms.iMath_propagate_labels_through_mask(thal, 500, 0 )
     image = wmt_label.threshold_image(1,1)
+    if cut_idx is not None:
+        print('cutting the %s side at %i index' % (cut_side, cut_idx))
+        if cut_side == 'left':
+            image = image.crop_indices((0,0,0),(cut_idx,image.shape[1],image.shape[2]))
+        elif cut_side == 'right':
+            image = image.crop_indices((cut_idx,0,0),image.shape)
+        else:
+            raise ValueError('cut_side argument must be `left` or `right`')
     ##
 
     # surface arg
@@ -151,7 +164,7 @@ def surf_fold(image, outfile,
 def surf_smooth(image, outfile,
                 # processing args
                 dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, alpha=1.,
-                cutidx=None, cutside='left',
+                cut_idx=None, cut_side='left',
                 # overlay args
                 overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False, 
                 overlay_alpha=1.,
@@ -220,8 +233,8 @@ def surf_smooth(image, outfile,
         raise ValueError('rotation must be a 3-tuple or string')
     if isinstance(rotation, str):
         if 'inner' in rotation:
-            cutidx = int(image.shape[2]/2)
-            cutside = rotation.replace('inner_','')
+            cut_idx = int(image.shape[2]/2)
+            cut_side = rotation.replace('inner_','')
         rotation = _view_map[rotation.lower()]
 
 
@@ -245,14 +258,13 @@ def surf_smooth(image, outfile,
         image = image.smooth_image(smooth)
     if threshold > 0:
         image = image.threshold_image(threshold)
-    if cutidx is not None:
-        print(cutidx, cutside)
-        if cutside == 'left':
-            image = image.crop_indices((0,0,0),(cutidx,image.shape[1],image.shape[2]))
-        elif cutside == 'right':
-            image = image.crop_indices((cutidx,0,0),image.shape)
+    if cut_idx is not None:
+        if cut_side == 'left':
+            image = image.crop_indices((0,0,0),(cut_idx,image.shape[1],image.shape[2]))
+        elif cut_side == 'right':
+            image = image.crop_indices((cut_idx,0,0),image.shape)
         else:
-            raise ValueError('not valid cutside argument')
+            raise ValueError('not valid cut_side argument')
 
     # surface arg
     # save base image to temp file

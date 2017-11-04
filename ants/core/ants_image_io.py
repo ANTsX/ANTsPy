@@ -349,7 +349,7 @@ def image_clone(image, pixeltype=None):
     return image.clone(pixeltype)
 
 
-def image_read(filename, dimension=None, pixeltype='float'):
+def image_read(filename, dimension=None, pixeltype='float', reorient=False):
     """
     Read an ANTsImage from file
 
@@ -369,6 +369,13 @@ def image_read(filename, dimension=None, pixeltype='float'):
         C++ datatype to be used to represent the pixels read. This datatype 
         need not be the same as the datatype used in the file. 
         Options: unsigned char, unsigned int, float, double
+
+    reorient : boolean | string
+        if True, the image will be reoriented to RPI if it is 3D
+        if False, nothing will happen
+        if string, this should be the 3-letter orientation to which the
+            input image will reoriented if 3D.
+        if the image is 2D, this argument is ignored
 
     Returns
     -------
@@ -425,6 +432,12 @@ def image_read(filename, dimension=None, pixeltype='float'):
 
         if pixeltype is not None:
             ants_image = ants_image.clone(pixeltype)
+
+    if (reorient != False) and (ants_image.dimension == 3):
+        if reorient == True:
+            ants_image = ants_image.reorient_image2('RPI')
+        elif isinstance(reorient, str):
+            ants_image = ants_image.reorient_image2(reorient)
 
     return ants_image
 
