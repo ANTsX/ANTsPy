@@ -283,18 +283,9 @@ def surf_fold(image, outfile,
                         os.remove(ij_filename)
 
 
-def surf_smooth(image, outfile,
-                # processing args
-                dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, alpha=1.,
-                cut_idx=None, cut_side='left',
-                # overlay args
-                overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False, 
-                overlay_alpha=1.,
-                # display args
-                rotation=None,
-                grayscale=0.7, bg_grayscale=0.9,
-                # extraneous args
-                verbose=False):
+def _surf_smooth_single(image,outfile,dilation,smooth,threshold,inflation,alpha,
+                cut_idx,cut_side,overlay,overlay_mask,overlay_cmap,overlay_scale, 
+                overlay_alpha,rotation,grayscale,bg_grayscale,verbose):
     """
     Generate a surface of the smooth white matter of a brain image. 
 
@@ -446,6 +437,138 @@ def surf_smooth(image, outfile,
 
     # cleanup temp file
     os.remove(image_tmp_file)
+
+
+def surf_smooth(image, outfile,
+                # processing args
+                dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, alpha=1.,
+                cut_idx=None, cut_side='left',
+                # overlay args
+                overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False, 
+                overlay_alpha=1.,
+                # display args
+                rotation=None,
+                grayscale=0.7, bg_grayscale=0.9,
+                # extraneous args
+                verbose=False, cleanup=True):
+    """
+    Generate a cortical folding surface of the gray matter of a brain image. 
+    
+    rotation : 3-tuple | string | 2-tuple of string & 3-tuple
+        if 3-tuple, this will be the rotation from RPI about x-y-z axis
+        if string, this should be a canonical view (see : ants.get_canonical_views())
+        if 2-tuple, the first value should be a string canonical view, and the second
+                    value should be a 3-tuple representing a delta change in each
+                    axis from the canonical view (useful for apply slight changes
+                    to canonical views)
+        NOTE:
+            rotation=(0,0,0) will be a view of the top of the brain with the 
+                       front of the brain facing the bottom of the image
+        NOTE:
+            1st value : controls rotation about x axis (anterior/posterior tilt)
+                note : the x axis extends to the side of you
+            2nd value : controls rotation about y axis (inferior/superior tilt)
+                note : the y axis extends in front and behind you
+            3rd value : controls rotation about z axis (left/right tilt) 
+                note : thte z axis extends up and down
+
+    Example
+    -------
+    >>> import ants
+    >>> mni = ants.image_read(ants.get_data('mni'))
+    >>> seg = mni.otsu_segmentation(k=3)
+    >>> wm_img = seg.threshold_image(3,3)
+    >>> ants.surf_fold(wm_img, outfile='~/desktop/surf_fold.png')
+    >>> # with overlay
+    >>> overlay = ants.weingarten_image_curvature( mni, 1.5  ).smooth_image( 1 )
+    >>> ants.surf_fold(image=wm_img, overlay=overlay, outfile='~/desktop/surf_fold2.png')
+    """
+    if not isinstance(rotation, list):
+        rotation = [rotation]
+    if not isinstance(rotation[0], list):
+        rotation = [rotation]
+
+    nrow = len(rotation)
+    ncol = len(rotation[0])
+    
+    # preprocess outfile arg
+    outfile = os.path.expanduser(outfile)
+    if not outfile.endswith('.png'):
+        outfile = outfile.split('.')[0] + '.png'
+
+    # create all of the individual filenames by appending to outfile
+    rotation_filenames = []
+    for rowidx in range(nrow):
+        rotation_filenames.append([])
+        for colidx in range(ncol):
+            if rotation[rowidx][colidx] is not None:
+                ij_filename = outfile.replace('.png','_%i%i.png' % (rowidx,colidx))
+            else:
+                ij_filename = None
+            rotation_filenames[rowidx].append(ij_filename)
+
+    # create each individual surface image
+    for rowidx in range(nrow):
+        for colidx in range(ncol):
+            ij_filename = rotation_filenames[rowidx][colidx]
+            if ij_filename is not None:
+                ij_rotation = rotation[rowidx][colidx]
+                _surf_smooth_single(image=image,outfile=ij_filename,rotation=ij_rotation,
+                                    dilation=dilation,smooth=smooth,threshold=threshold,
+                                    inflation=inflation,alpha=alpha,cut_idx=cut_idx,
+                                    cut_side=cut_side,overlay=overlay,overlay_mask=overlay_mask,
+                                    overlay_cmap=overlay_cmap,overlay_scale=overlay_scale,
+                                    overlay_alpha=overlay_alpha,grayscale=grayscale,
+                                    bg_grayscale=bg_grayscale,verbose=verbose)
+            rotation_filenames[rowidx][colidx] = ij_filename
+
+    # if only one view just rename the file, otherwise stitch images together according
+    # to the `rotation` list structure
+    if (nrow==1) and (ncol==1):
+        os.rename(rotation_filenames[0][0], outfile)
+    else:
+        # read first image to calculate shape of stitched image
+        first_actual_file = None
+        for rowidx in range(nrow):
+            for colidx in range(ncol):
+                if rotation_filenames[rowidx][colidx] is not None:
+                    first_actual_file = rotation_filenames[rowidx][colidx]
+                    break
+
+        if first_actual_file is None:
+            raise ValueError('No images were created... check your rotation argument')
+
+        mypngimg = scipy.misc.imread(first_actual_file)
+        img_shape = mypngimg.shape
+        array_shape = (mypngimg.shape[0]*nrow, mypngimg.shape[1]*ncol, mypngimg.shape[-1])
+        mypngarray = np.zeros(array_shape).astype('uint8')
+
+        # read each individual image and place it in the larger stitch
+        for rowidx in range(nrow):
+            for colidx in range(ncol):
+                ij_filename = rotation_filenames[rowidx][colidx]
+                if ij_filename is not None:
+                    mypngimg = scipy.misc.imread(ij_filename)
+                else:
+                    mypngimg = np.zeros(img_shape) + int(255*bg_grayscale)
+                
+                row_start = rowidx*img_shape[0]
+                row_end   = (rowidx+1)*img_shape[0]
+                col_start = colidx*img_shape[1]
+                col_end   = (colidx+1)*img_shape[1]
+                
+                mypngarray[row_start:row_end,col_start:col_end:] = mypngimg
+
+        # save the stitch to the outfile
+        scipy.misc.imsave(outfile, mypngarray)
+
+        # delete all of the individual images if cleanup arg is True
+        if cleanup:
+            for rowidx in range(nrow):
+                for colidx in range(ncol):
+                    ij_filename = rotation_filenames[rowidx][colidx]
+                    if ij_filename is not None:
+                        os.remove(ij_filename)
 
 
 
