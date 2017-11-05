@@ -39,8 +39,9 @@ def get_canonical_views():
     return _view_map
 
 
-def _surf_fold_single(image, outfile, inflation, alpha,overlay, overlay_mask, overlay_cmap, overlay_scale,overlay_alpha,
-    rotation, cut_idx, cut_side,grayscale, bg_grayscale,verbose):
+def _surf_fold_single(image, outfile, inflation, alpha, overlay, overlay_mask, 
+    overlay_cmap, overlay_scale, overlay_alpha,
+    rotation, cut_idx, cut_side, grayscale, bg_grayscale,verbose):
     """
     Helper function for making a single surface fold image.
     """
@@ -53,17 +54,33 @@ def _surf_fold_single(image, outfile, inflation, alpha,overlay, overlay_mask, ov
             rotation_dx = rotation[1]
             rotation = rotation[0]
             if 'inner' in rotation:
-                if cut_idx is None: cut_idx = 0
+                if rotation.count('_') == 2:
+                    rsplit = rotation.split('_')
+                    rotation = '_'.join(rsplit[:-1])
+                    cut_idx = int(rsplit[-1])
+                else:
+                    cut_idx = 0
                 cut_idx = int(image.get_centroids()[0][0]) + cut_idx
                 cut_side = rotation.replace('inner_','')
+            else:
+                cut_idx = int(image.get_centroids()[0][0])
+            rotation_string = rotation
             rotation = _view_map[rotation.lower()]
             rotation = (r+rd for r,rd in zip(rotation,rotation_dx))
 
-    if isinstance(rotation, str):
+    elif isinstance(rotation, str):
         if 'inner' in rotation:
-            if cut_idx is None: cut_idx = 0
+            if rotation.count('_') == 2:
+                rsplit = rotation.split('_')
+                rotation = '_'.join(rsplit[:-1])
+                cut_idx = int(rsplit[-1])
+            else:
+                cut_idx = 0
             cut_idx = int(image.get_centroids()[0][0]) + cut_idx
             cut_side = rotation.replace('inner_','')
+        else:
+            cut_idx = int(image.get_centroids()[0][0])
+        rotation_string = rotation
         rotation = _view_map[rotation.lower()]
 
     # handle filename argument
@@ -71,6 +88,11 @@ def _surf_fold_single(image, outfile, inflation, alpha,overlay, overlay_mask, ov
 
     # handle overlay argument
     if overlay is not None:
+        if not iio.image_physical_space_consistency(image, overlay):
+            overlay = overlay.resample_image_to_target(image)
+            if verbose:
+                print('Resampled overlay to base image space')
+
         if overlay_mask is None:
             overlay_mask = image.iMath_MD(3)
 
@@ -83,13 +105,22 @@ def _surf_fold_single(image, outfile, inflation, alpha,overlay, overlay_mask, ov
     wmt_label = wms.iMath_propagate_labels_through_mask(thal, 500, 0 )
     image = wmt_label.threshold_image(1,1)
     if cut_idx is not None:
-        print('cutting the %s side at %i index' % (cut_side, cut_idx))
-        if cut_side == 'left':
-            image = image.crop_indices((0,0,0),(cut_idx,image.shape[1],image.shape[2]))
-        elif cut_side == 'right':
-            image = image.crop_indices((cut_idx,0,0),image.shape)
+        if cut_idx > image.shape[0]:
+            raise ValueError('cut_idx (%i) must be less than image X dimension (%i)' % (cut_idx, image.shape[0]))
+        cut_mask = image*0 + 1.
+        if 'inner' in rotation_string:
+            if cut_side == 'left':
+                cut_mask[cut_idx:,:,:] = 0
+            elif cut_side == 'right':
+                cut_mask[:cut_idx,:,:] = 0
+            else:
+                raise ValueError('cut_side argument must be `left` or `right`')
         else:
-            raise ValueError('cut_side argument must be `left` or `right`')
+            if 'left' in rotation:
+                cut_mask[cut_idx:,:,:] = 0
+            elif 'right' in rotation:
+                cut_mask[:cut_idx,:,:] = 0
+        image = image * cut_mask
     ##
 
     # surface arg
@@ -98,8 +129,7 @@ def _surf_fold_single(image, outfile, inflation, alpha,overlay, overlay_mask, ov
     image.to_file(image_tmp_file)
     # build image color
     grayscale = int(grayscale*255)
-    image_color = '%sx%.1f' % ('x'.join([str(grayscale)]*3),
-                               alpha)
+    image_color = '%sx%.1f' % ('x'.join([str(grayscale)]*3), alpha)
     cmd = '-s [%s,%s] ' % (image_tmp_file, image_color)
 
     # anti-alias arg
