@@ -38,7 +38,7 @@ Copy the following command and paste it into your bash terminal:
 
 For MacOS:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4a0-cp36-cp36m-macosx_10_7_x86_64.whl
+pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4-cp36-cp36m-macosx_10_7_x86_64.whl
 ```
 
 For Linux:

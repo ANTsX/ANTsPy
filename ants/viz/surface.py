@@ -60,7 +60,8 @@ def _surf_fold_single(image, outfile, inflation, alpha, overlay, overlay_mask,
                     cut_idx = int(rsplit[-1])
                 else:
                     cut_idx = 0
-                cut_idx = int(image.get_centroids()[0][0]) + cut_idx
+                centroid = int(-1*image.origin[0] + image.get_center_of_mass()[0])
+                cut_idx = centroid + cut_idx
                 cut_side = rotation.replace('inner_','')
             else:
                 cut_idx = int(image.get_centroids()[0][0])
@@ -76,8 +77,13 @@ def _surf_fold_single(image, outfile, inflation, alpha, overlay, overlay_mask,
                 cut_idx = int(rsplit[-1])
             else:
                 cut_idx = 0
-            cut_idx = int(image.get_centroids()[0][0]) + cut_idx
+            centroid = int(-1*image.origin[0] + image.get_center_of_mass()[0])
+            if verbose:
+                print('Found centroid at %i index' % centroid)
+            cut_idx = centroid + cut_idx
             cut_side = rotation.replace('inner_','')
+            if verbose:
+                print('Cutting image on %s side at %i index' % (cut_side,cut_idx))
         else:
             cut_idx = int(image.get_centroids()[0][0])
         rotation_string = rotation
@@ -269,6 +275,8 @@ def surf_fold(image, outfile,
     if (nrow==1) and (ncol==1):
         os.rename(rotation_filenames[0][0], outfile)
     else:
+        if verbose:
+            print('Stitching images together..')
         # read first image to calculate shape of stitched image
         first_actual_file = None
         for rowidx in range(nrow):
