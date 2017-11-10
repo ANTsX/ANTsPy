@@ -40,8 +40,8 @@ def get_canonical_views():
 
 
 def _surf_fold_single(image, outfile, dilation, inflation, alpha, overlay, overlay_mask, 
-    overlay_cmap, overlay_scale, overlay_alpha,
-    rotation, cut_idx, cut_side, grayscale, bg_grayscale,verbose):
+    overlay_cmap, overlay_scale, overlay_alpha, rotation, 
+    cut_idx, cut_side, grayscale, bg_grayscale, verbose):
     """
     Helper function for making a single surface fold image.
     """
