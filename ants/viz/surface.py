@@ -39,7 +39,7 @@ def get_canonical_views():
     return _view_map
 
 
-def _surf_fold_single(image, outfile, inflation, alpha, overlay, overlay_mask, 
+def _surf_fold_single(image, outfile, dilation, inflation, alpha, overlay, overlay_mask, 
     overlay_cmap, overlay_scale, overlay_alpha,
     rotation, cut_idx, cut_side, grayscale, bg_grayscale,verbose):
     """
@@ -103,6 +103,9 @@ def _surf_fold_single(image, outfile, inflation, alpha, overlay, overlay_mask,
             overlay_mask = image.iMath_MD(3)
 
     ## PROCESSING ##
+    if dilation > 0:
+        image = image.iMath_MD(dilation)
+        
     thal = image
     wm = image
     #wm = wm + thal
@@ -193,7 +196,7 @@ def _surf_fold_single(image, outfile, inflation, alpha, overlay, overlay_mask,
 
 def surf_fold(image, outfile,
               # processing args
-              inflation=10, alpha=1.,
+              dilation=0, inflation=10, alpha=1.,
               # overlay args
               overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False,
               overlay_alpha=1.,
@@ -263,7 +266,7 @@ def surf_fold(image, outfile,
             ij_filename = rotation_filenames[rowidx][colidx]
             if ij_filename is not None:
                 ij_rotation = rotation[rowidx][colidx]
-                _surf_fold_single(image=image, outfile=ij_filename, inflation=inflation, alpha=alpha,
+                _surf_fold_single(image=image, outfile=ij_filename, dilation=dilation, inflation=inflation, alpha=alpha,
                                   overlay=overlay, overlay_mask=overlay_mask, overlay_cmap=overlay_cmap, 
                                   overlay_scale=overlay_scale,overlay_alpha=overlay_alpha,rotation=ij_rotation, 
                                   cut_idx=cut_idx,cut_side=cut_side,grayscale=grayscale, 
