@@ -356,6 +356,7 @@ class ANTsImage(object):
         filename = os.path.expanduser(filename)
         libfn = utils.get_lib_fn('toFile%s'%self._libsuffix)
         libfn(self.pointer, filename)
+    to_filename = to_file
 
     def apply(self, fn):
         """

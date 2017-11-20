@@ -1449,7 +1449,8 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
 
 def plot(image, overlay=None,  blend=False,
-    alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
+    alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9, 
+    cbar=False, cbar_length=0.8, cbar_dx=0., cbar_vertical=True,
     axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
     bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=False,
     reverse=False, title=None, title_fontsize=20, title_dx=0., title_dy=0.,
@@ -1694,15 +1695,18 @@ def plot(image, overlay=None,  blend=False,
             ax = plt.subplot(111)
 
             # plot main image
-            ax.imshow(img_arr, cmap=cmap,
+            im = ax.imshow(img_arr, cmap=cmap,
                       alpha=alpha, 
                       vmin=vmin, vmax=vmax)
 
             if overlay is not None:
+                im = ax.imshow(ov_arr, 
+                               alpha=overlay_alpha, 
+                               cmap=overlay_cmap)
 
-                ax.imshow(ov_arr, 
-                          alpha=overlay_alpha, 
-                          cmap=overlay_cmap)
+            if cbar:
+                cbar_orient = 'vertical' if cbar_vertical else 'horizontal'
+                fig.colorbar(im, orientation=cbar_orient)
 
             plt.axis('off')
 
@@ -1791,16 +1795,26 @@ def plot(image, overlay=None,  blend=False,
                         imslice = reorient_slice(imslice, axis)
 
                     ax = plt.subplot(gs[i,j])
-                    ax.imshow(imslice, cmap=cmap,
+                    im = ax.imshow(imslice, cmap=cmap,
                               vmin=vmin, vmax=vmax)
 
                     if overlay is not None:
                         if slice_idx_idx < len(slice_idxs):
                             ovslice = ov_arr[slice_idxs[slice_idx_idx]]
                             ovslice = reorient_slice(ovslice, axis)
-                            ax.imshow(ovslice, alpha=overlay_alpha, cmap=overlay_cmap)
+                            im = ax.imshow(ovslice, alpha=overlay_alpha, cmap=overlay_cmap)
                     ax.axis('off')
                     slice_idx_idx += 1
+
+            if cbar:
+                cbar_start = (1-cbar_length) / 2
+                if cbar_vertical:
+                    cax = fig.add_axes([0.9+cbar_dx, cbar_start, 0.03, cbar_length])
+                    cbar_orient = 'vertical'
+                else:
+                    cax = fig.add_axes([cbar_start, 0.08+cbar_dx, cbar_length, 0.03])
+                    cbar_orient = 'horizontal'
+                fig.colorbar(im, cax=cax, orientation=cbar_orient)
     
     ## multi-channel images ##
     elif image.components > 1:
