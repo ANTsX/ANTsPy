@@ -381,7 +381,7 @@ class ANTsImage(object):
     ## NUMPY FUNCTIONS ##
     def abs(self, axis=None):
         """ Return absolute value of image """
-        return self.numpy().abs()
+        return np.abs(self.numpy())
     def mean(self, axis=None):
         """ Return mean along specified axis """
         return self.numpy().mean(axis=axis)

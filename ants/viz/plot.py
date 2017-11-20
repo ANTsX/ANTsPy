@@ -88,12 +88,11 @@ def movie(image, filename=None, writer=None, fps=30):
         plt.show()
 
 
-
 def plot_hist(image, threshold=0., fit_line=False, normfreq=True,
-              ## plot label arguments
-              title=None, grid=True, xlabel=None, ylabel=None,
-              ## other plot arguments
-              facecolor='green', alpha=0.75):
+    ## plot label arguments
+    title=None, grid=True, xlabel=None, ylabel=None,
+    ## other plot arguments
+    facecolor='green', alpha=0.75):
     """
     Plot a histogram from an ANTsImage
 
@@ -125,20 +124,19 @@ def plot_hist(image, threshold=0., fit_line=False, normfreq=True,
     plt.show()
 
 
-
 def plot_grid(images, slices=None, axes=2, 
-              # general figure arguments
-              figsize=1., rpad=0, cpad=0,
-              # title arguments
-              title=None, tfontsize=20, title_dx=0, title_dy=0,
-              # row arguments
-              rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black', 
-              # column arguments 
-              clabels=None, cfontsize=14, cfontcolor='white', cfacecolor='black',
-              # save arguments
-              filename=None, dpi=400, transparent=True,
-              # other args
-              **kwargs):
+    # general figure arguments
+    figsize=1., rpad=0, cpad=0,
+    # title arguments
+    title=None, tfontsize=20, title_dx=0, title_dy=0,
+    # row arguments
+    rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black', 
+    # column arguments 
+    clabels=None, cfontsize=14, cfontcolor='white', cfacecolor='black',
+    # save arguments
+    filename=None, dpi=400, transparent=True,
+    # other args
+    **kwargs):
     """
     Plot a collection of images in an arbitrarily-defined grid
     
@@ -342,23 +340,23 @@ def plot_grid(images, slices=None, axes=2,
 
 
 def plot_ortho_stack(images, overlays=None, reorient=True,
-                     # xyz arguments
-                     xyz=None, xyz_lines=False, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
-                     # base image arguments
-                     cmap='Greys_r', alpha=1,
-                     # overlay arguments
-                     overlay_cmap='jet', overlay_alpha=0.9, 
-                     # background arguments
-                     black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
-                     # scale/crop/domain arguments
-                     crop=False, scale=False, domain_image_map=None, 
-                     # title arguments
-                     title=None, titlefontsize=24, title_dx=0, title_dy=0, 
-                     # 4th panel text arguemnts
-                     text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
-                     # save & size arguments
-                     filename=None, dpi=500, figsize=1., colpad=0, rowpad=0,
-                     transpose=False, transparent=True):
+    # xyz arguments
+    xyz=None, xyz_lines=False, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+    # base image arguments
+    cmap='Greys_r', alpha=1,
+    # overlay arguments
+    overlay_cmap='jet', overlay_alpha=0.9, 
+    # background arguments
+    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+    # scale/crop/domain arguments
+    crop=False, scale=False, domain_image_map=None, 
+    # title arguments
+    title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+    # 4th panel text arguemnts
+    text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+    # save & size arguments
+    filename=None, dpi=500, figsize=1., colpad=0, rowpad=0,
+    transpose=False, transparent=True):
     """
     Example
     -------
@@ -619,22 +617,22 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
 
 
 def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
-                     # xyz arguments
-                     xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
-                     # base image arguments
-                     cmap='Greys_r', alpha=1, cmap2='Greys_r', alpha2=1,
-                     # overlay arguments
-                     overlay_cmap='jet', overlay_alpha=0.9, overlay_cmap2='jet', overlay_alpha2=0.9,  
-                     # background arguments
-                     black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
-                     # scale/crop/domain arguments
-                     crop=False, scale=False, crop2=False, scale2=True, domain_image_map=None, 
-                     # title arguments
-                     title=None, titlefontsize=24, title_dx=0, title_dy=0, 
-                     # 4th panel text arguemnts
-                     text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
-                     # save & size arguments
-                     filename=None, dpi=500, figsize=1., flat=True, transpose=False, transparent=True):
+    # xyz arguments
+    xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+    # base image arguments
+    cmap='Greys_r', alpha=1, cmap2='Greys_r', alpha2=1,
+    # overlay arguments
+    overlay_cmap='jet', overlay_alpha=0.9, overlay_cmap2='jet', overlay_alpha2=0.9,  
+    # background arguments
+    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+    # scale/crop/domain arguments
+    crop=False, scale=False, crop2=False, scale2=True, domain_image_map=None, 
+    # title arguments
+    title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+    # 4th panel text arguemnts
+    text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+    # save & size arguments
+    filename=None, dpi=500, figsize=1., flat=True, transpose=False, transparent=True):
     """
     Example
     -------
@@ -1032,23 +1030,23 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
 
 
 def plot_ortho(image, overlay=None, reorient=True, blend=False,
-               # xyz arguments
-               xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
-               orient_labels=True,
-               # base image arguments
-               alpha=1, cmap='Greys_r', 
-               # overlay arguments
-               overlay_cmap='jet', overlay_alpha=0.9,   
-               # background arguments
-               black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
-               # scale/crop/domain arguments
-               crop=False, scale=False, domain_image_map=None, 
-               # title arguments
-               title=None, titlefontsize=24, title_dx=0, title_dy=0, 
-               # 4th panel text arguemnts
-               text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
-               # save & size arguments
-               filename=None, dpi=500, figsize=1., flat=False, transparent=True):
+    # xyz arguments
+    xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+    orient_labels=True,
+    # base image arguments
+    alpha=1, cmap='Greys_r', 
+    # overlay arguments
+    overlay_cmap='jet', overlay_alpha=0.9,   
+    # background arguments
+    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+    # scale/crop/domain arguments
+    crop=False, scale=False, domain_image_map=None, 
+    # title arguments
+    title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+    # 4th panel text arguemnts
+    text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+    # save & size arguments
+    filename=None, dpi=500, figsize=1., flat=False, transparent=True):
     """
     Plot an orthographic view of a 3D image
 
@@ -1451,10 +1449,11 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
 
 def plot(image, overlay=None,  blend=False,
-         alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
-         axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
-         bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=False,
-         reverse=False, title=None, filename=None, dpi=500, figsize=1.5, reorient=True):
+    alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
+    axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
+    bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=False,
+    reverse=False, title=None, title_fontsize=20, title_dx=0., title_dy=0.,
+    filename=None, dpi=500, figsize=1.5, reorient=True):
     """
     Plot an ANTsImage. 
 
@@ -1689,6 +1688,9 @@ def plot(image, overlay=None,  blend=False,
                 ov_arr[np.abs(ov_arr) == 0] = np.nan
 
             fig = plt.figure()
+            if title is not None:
+                fig.suptitle(title, fontsize=title_fontsize, x=0.5+title_dx, y=0.95+title_dy)
+
             ax = plt.subplot(111)
 
             # plot main image
@@ -1768,6 +1770,8 @@ def plot(image, overlay=None,  blend=False,
 
             dim_ratio = ydim/xdim
             fig = plt.figure(figsize=((ncol+1)*figsize*dim_ratio, (nrow+1)*figsize))
+            if title is not None:
+                fig.suptitle(title, fontsize=title_fontsize, x=0.5+title_dx, y=0.95+title_dy)
 
             gs = gridspec.GridSpec(nrow, ncol,
                      wspace=0.0, hspace=0.0, 
@@ -1781,7 +1785,6 @@ def plot(image, overlay=None,  blend=False,
                         imslice = img_arr[slice_idxs[slice_idx_idx]]
                         imslice = reorient_slice(imslice, axis)
                         if not black_bg:
-                        
                             imslice[imslice<image.quantile(bg_thresh_quant)] = image.quantile(bg_val_quant)
                     else:
                         imslice = np.zeros_like(img_arr[0])
@@ -1827,7 +1830,7 @@ def plot(image, overlay=None,  blend=False,
 
 
 def plot_directory(directory, recursive=False, regex='*', 
-                   save_prefix='', save_suffix='', axis=None, **kwargs):
+    save_prefix='', save_suffix='', axis=None, **kwargs):
     """
     Create and save an ANTsPy plot for every image matching a given regular
     expression in a directory, optionally recursively. This is a good function
