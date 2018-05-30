@@ -195,15 +195,15 @@ def _surf_fold_single(image, outfile, dilation, inflation, alpha, overlay, overl
 
 
 def surf_fold(image, outfile,
-              # processing args
-              dilation=0, inflation=10, alpha=1.,
-              # overlay args
-              overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False,
-              overlay_alpha=1.,
-              # display args
-              rotation=None, cut_idx=None, cut_side='left',
-              grayscale=0.7, bg_grayscale=0.9,
-              verbose=False, cleanup=True):
+    # processing args
+    dilation=0, inflation=10, alpha=1.,
+    # overlay args
+    overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False,
+    overlay_alpha=1.,
+    # display args
+    rotation=None, cut_idx=None, cut_side='left',
+    grayscale=0.7, bg_grayscale=0.9,
+    verbose=False, cleanup=True):
     """
     Generate a cortical folding surface of the gray matter of a brain image. 
     
@@ -243,6 +243,10 @@ def surf_fold(image, outfile,
 
     nrow = len(rotation)
     ncol = len(rotation[0])
+
+    #image = image.reorient_image2('RPI')
+    #if overlay is not None:
+    #    overlay = overlay.reorient_image2('RPI')
     
     # preprocess outfile arg
     outfile = os.path.expanduser(outfile)
@@ -325,8 +329,8 @@ def surf_fold(image, outfile,
 
 
 def _surf_smooth_single(image,outfile,dilation,smooth,threshold,inflation,alpha,
-                cut_idx,cut_side,overlay,overlay_mask,overlay_cmap,overlay_scale, 
-                overlay_alpha,rotation,grayscale,bg_grayscale,verbose):
+    cut_idx,cut_side,overlay,overlay_mask,overlay_cmap,overlay_scale, 
+    overlay_alpha,rotation,grayscale,bg_grayscale,verbose):
     """
     Generate a surface of the smooth white matter of a brain image. 
 
@@ -446,6 +450,7 @@ def _surf_smooth_single(image,outfile,dilation,smooth,threshold,inflation,alpha,
 
     # overlay arg
     if overlay is not None:
+        overlay = overlay.reorient_image2('RPI')
         if overlay_scale == True:
             min_overlay, max_overlay = overlay.quantile((0.05,0.95))
             overlay[overlay<min_overlay] = min_overlay
@@ -481,17 +486,17 @@ def _surf_smooth_single(image,outfile,dilation,smooth,threshold,inflation,alpha,
 
 
 def surf_smooth(image, outfile,
-                # processing args
-                dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, alpha=1.,
-                cut_idx=None, cut_side='left',
-                # overlay args
-                overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False, 
-                overlay_alpha=1.,
-                # display args
-                rotation=None,
-                grayscale=0.7, bg_grayscale=0.9,
-                # extraneous args
-                verbose=False, cleanup=True):
+    # processing args
+    dilation=1.0, smooth=1.0, threshold=0.5, inflation=200, alpha=1.,
+    cut_idx=None, cut_side='left',
+    # overlay args
+    overlay=None, overlay_mask=None, overlay_cmap='jet', overlay_scale=False, 
+    overlay_alpha=1.,
+    # display args
+    rotation=None,
+    grayscale=0.7, bg_grayscale=0.9,
+    # extraneous args
+    verbose=False, cleanup=True):
     """
     Generate a cortical folding surface of the gray matter of a brain image. 
     
