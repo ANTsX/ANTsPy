@@ -64,16 +64,16 @@ from .antsImageAugment import *
 
 
 ## VIZ ##
-try:
-    from .antsSurf import *
-except:
-    pass
-try:
-    from .antsVol import *
-except:
-    pass
-try:
-    from .ConvertScalarImageToRGB import *
-except:
-    pass
+#try:
+#    from .antsSurf import *
+#except:
+#    pass
+#try:
+#    from .antsVol import *
+#except:
+#    pass
+#try:
+#    from .ConvertScalarImageToRGB import *
+#except:
+#    pass
 
