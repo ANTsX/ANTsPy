@@ -174,7 +174,7 @@ def plot_grid(images, slices=None, axes=2,
     ...                      [mni3, mni4]])
     >>> slices = np.asarray([[100, 100],
     ...                      [100, 100]])
-
+    >>> #axes = np.asarray([[2,2],[2,2]])
     >>> # standard plotting
     >>> ants.plot_grid(images=images, slices=slices, title='2x2 Grid')
     >>> ants.plot_grid(images.reshape(1,4), slices.reshape(1,4), title='1x4 Grid')
@@ -324,7 +324,10 @@ def plot_grid(images, slices=None, axes=2,
                     ax.add_patch(rect)
 
             tmpimg = images[rowidx][colidx]
-            tmpaxis = axes[rowidx][colidx]
+            if isinstance(axes, int):
+                tmpaxis = axes
+            else:
+                tmpaxis = axes[rowidx][colidx]
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
             tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
             tmpslice = reorient_slice(tmpslice, tmpaxis)

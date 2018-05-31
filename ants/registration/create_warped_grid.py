@@ -108,7 +108,7 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
     gimage = image.new_image_like(garr)
 
     if (transform is not None) and (fixed_reference_image is not None):
-        apply_transforms( fixed=fixed_reference_image, moving=gimage,
+        return apply_transforms( fixed=fixed_reference_image, moving=gimage,
                                transformlist=transform ) 
     else:
         return gimage
