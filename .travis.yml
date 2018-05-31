@@ -11,23 +11,6 @@ cache:
         - $TRAVIS_BUILD_DIR/vtksource-linux
         - $HOME/vtksource-mac
 
-before_install: |
-  if [[ $TRAVIS_OS_NAME == 'osx' ]]; 
-    then
-      brew update;
-      brew install ccache;
-      unset CCACHE_DISABLE;
-      export CCACHE_DIR=$HOME/.ccache;
-      ccache --show-stats;
-      export PATH="/usr/local/opt/ccache/libexec:$PATH";
-      
-      brew install python3;
-      python3 -m venv venv;
-      source venv/bin/activate;
-  fi
-  
-
-
 
 jobs:
   include:
