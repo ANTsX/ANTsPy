@@ -60,7 +60,7 @@ cmake \
     -DModule_MGHIO:BOOL=ON \
     -DModule_ITKDeprecated:BOOL=OFF \
     -DModule_ITKReview:BOOL=ON \
-    -DModule_ITKVtkGlue:BOOL=ON \
+    -DModule_ITKVtkGlue:BOOL=OFF \
     -DITKGroup_Core=ON \
     -DModule_ITKReview=ON \
     -DITKGroup_Filtering=ON \

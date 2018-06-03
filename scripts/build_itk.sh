@@ -33,7 +33,7 @@ cmake \
     -DModule_MGHIO:BOOL=ON \
     -DModule_ITKDeprecated:BOOL=OFF \
     -DModule_ITKReview:BOOL=ON \
-    -DModule_ITKVtkGlue:BOOL=ON \
+    -DModule_ITKVtkGlue:BOOL=OFF \
     -D ITKGroup_Core=ON \
     -D Module_ITKReview=ON \
     -D ITKGroup_Filtering=ON \
