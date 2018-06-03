@@ -22,7 +22,8 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=fb874ebe977b84b57b7c5a2b124608f748e8e1e2 # pixeltype in resampleImage
+antstag=9a7ed051d194485b8039fa6879ef962d9f292911 # new - updated June 3 2018
+#antstag=fb874ebe977b84b57b7c5a2b124608f748e8e1e2 # old
 
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
