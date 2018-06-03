@@ -660,7 +660,7 @@ def registration(fixed,
                 if len(iwarpfns) == 0:
                     iwarpfns = ''
 
-                alltx = glob.glob(outprefix+'*'+'[0-9]*')
+                alltx = sorted(glob.glob(outprefix+'*'+'[0-9]*'))
                 findinv = np.where([re.search('[0-9]InverseWarp.nii.gz',ff) for ff in alltx])[0]
                 findfwd = np.where([re.search('[0-9]Warp.nii.gz', ff) for ff in alltx])[0]
                 if len(findinv) > 0:
