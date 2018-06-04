@@ -18,7 +18,7 @@
 namespace py = pybind11;
 
 template< class ImageType >
-typename ImageType::Pointer cropImageHelper(  typename ImageType::Pointer image, 
+typename ImageType::Pointer cropImageHelper(  typename ImageType::Pointer image,
                                               typename ImageType::Pointer labimage,
                                               unsigned int whichLabel  )
 {
@@ -56,7 +56,7 @@ typename ImageType::Pointer cropImageHelper(  typename ImageType::Pointer image,
     cropper->GetOutput()->SetOrigin( neworig );
     return cropper->GetOutput();
     }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -108,7 +108,7 @@ typename ImageType::Pointer cropIndHelper(  typename ImageType::Pointer image,
     cropper->GetOutput()->SetOrigin( neworig );
     return cropper->GetOutput();
     }
-  return NULL;
+  return nullptr;
 }
 
 template< class ImageType >
@@ -137,12 +137,12 @@ typename ImageType::Pointer decropImageHelper(  typename ImageType::Pointer cima
     pasteFilter->Update();
     return pasteFilter->GetOutput();
     }
-  return NULL;
+  return nullptr;
 }
 
 template <typename ImageType>
-py::capsule cropImage( py::capsule &in_image1, 
-                                  py::capsule &in_image2,  
+py::capsule cropImage( py::capsule &in_image1,
+                                  py::capsule &in_image2,
                                   unsigned int label,
                                   unsigned int decrop,
                                   std::vector<int> loind,
@@ -151,7 +151,7 @@ py::capsule cropImage( py::capsule &in_image1,
   typedef typename ImageType::Pointer ImagePointerType;
 
   ImagePointerType antsimage1 = as< ImageType >( in_image1 );
-  ImagePointerType antsimage2 = as< ImageType >( in_image2 );  
+  ImagePointerType antsimage2 = as< ImageType >( in_image2 );
 
   if ( decrop == 0 )
   {
@@ -176,7 +176,7 @@ py::capsule cropImage( py::capsule &in_image1,
   ImagePointerType out_image = ImageType::New();
   py::capsule out_ants_image = wrap<ImageType>( out_image );
   return out_ants_image;
-  
+
 }
 
 

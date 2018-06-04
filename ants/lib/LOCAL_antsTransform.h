@@ -67,11 +67,11 @@ namespace py = pybind11;
 
 
 template <typename TransformType>
-void capsuleDestructor_transform( void * f ) 
+void capsuleDestructor_transform( void * f )
 {
     //std::cout << "calling capsule destructor" << std::endl;
     typename TransformType::Pointer * foo  = reinterpret_cast<typename TransformType::Pointer *>( f );
-    *foo = ITK_NULLPTR;
+    *foo = nullptr;
 }
 
 template <typename TransformType>
@@ -96,7 +96,7 @@ template <typename TransformType>
 std::vector<float> getTransformParameters( py::capsule & myTx)
 {
     typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
-    
+
     std::vector<float> parameterslist;
     for (unsigned int i = 0; i < itkTransform->GetNumberOfParameters(); i++ )
     {
@@ -110,7 +110,7 @@ template <typename TransformType>
 void setTransformParameters( py::capsule & myTx, std::vector<float> new_parameters )
 {
     typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
-    
+
     typename TransformType::ParametersType itkParameters;
     itkParameters.SetSize( itkTransform->GetNumberOfParameters() );
 
@@ -128,7 +128,7 @@ template <typename TransformType>
 std::vector<float> getTransformFixedParameters( py::capsule & myTx )
 {
     typename TransformType::Pointer itkTransform = as_transform<TransformType>( myTx );
-    
+
     std::vector<float> parameterslist;
     for (unsigned int i = 0; i < itkTransform->GetNumberOfFixedParameters(); i++ )
     {
@@ -164,13 +164,13 @@ std::vector< float > transformPoint( py::capsule & myTx, std::vector< double > i
     typedef typename TransformType::OutputPointType  OutputPointType;
 
     TransformPointerType itkTransform = as_transform<TransformType>( myTx );
-    
+
     InputPointType inItkPoint;
     for (unsigned int i = 0; i < InputPointType::PointDimension; i++)
     {
         inItkPoint[i] = inPoint[i];
     }
-    
+
     OutputPointType outItkPoint = itkTransform->TransformPoint( inItkPoint );
 
     std::vector< float > outPoint( OutputPointType::PointDimension );
@@ -256,7 +256,7 @@ py::capsule transformImage( py::capsule & myTx, py::capsule & image, py::capsule
     typename FilterType::Pointer filter = FilterType::New();
 
     typedef itk::InterpolateImageFunction<ImageType, PrecisionType> InterpolatorType;
-    typename InterpolatorType::Pointer interpolator = ITK_NULLPTR;
+    typename InterpolatorType::Pointer interpolator = nullptr;
 
   if( interp == "linear" )
     {
@@ -340,7 +340,7 @@ py::capsule transformImage( py::capsule & myTx, py::capsule & image, py::capsule
     multiLabelInterpolator->SetParameters( sigma, alpha );
     interpolator = multiLabelInterpolator;
     }
-    
+
     filter->SetInput( inputImage );
     filter->SetSize( refImage->GetLargestPossibleRegion().GetSize() );
     filter->SetOutputSpacing( refImage->GetSpacing() );
@@ -358,7 +358,7 @@ py::capsule transformImage( py::capsule & myTx, py::capsule & image, py::capsule
 
 
 template <typename TransformBaseType, typename PrecisionType, unsigned int Dimension>
-py::capsule composeTransforms( std::vector<void *> tformlist, 
+py::capsule composeTransforms( std::vector<void *> tformlist,
                                 std::string precision, unsigned int dimension)
 {
     typedef typename TransformBaseType::Pointer  TransformBasePointerType;
@@ -407,7 +407,7 @@ py::capsule readTransform( std::string filename, unsigned int dimension, std::st
         transform = dynamic_cast<TransformBaseType *>( transformList->front().GetPointer() );
         return wrap_transform< TransformBaseType >( transform );
     }
-    
+
     return wrap_transform< TransformBaseType >( transform );
 }
 
@@ -429,7 +429,7 @@ void writeTransform( py::capsule & transform, std::string filename )
 // ------------------------------------------------------------------
 
 template< typename TransformBaseType, class PrecisionType, unsigned int Dimension >
-py::capsule matrixOffset(  std::string type, std::string precision, unsigned int dimension, 
+py::capsule matrixOffset(  std::string type, std::string precision, unsigned int dimension,
                            std::vector<std::vector<float> > matrix,
                            std::vector<float> offset,
                            std::vector<float> center,
@@ -442,85 +442,85 @@ py::capsule matrixOffset(  std::string type, std::string precision, unsigned int
     typedef typename MatrixOffsetBaseType::Pointer                               MatrixOffsetBasePointerType;
     typedef typename TransformBaseType::Pointer                                  TransformBasePointerType;
 
-    MatrixOffsetBasePointerType matrixOffset = NULL;
+    MatrixOffsetBasePointerType matrixOffset = nullptr;
 
     // Initialize transform by type
     if ( type == "AffineTransform" )
     {
         typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "CenteredAffineTransform" )
     {
         typedef itk::CenteredAffineTransform<PrecisionType,Dimension> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "Euler3DTransform" )
     {
         typedef itk::Euler3DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "Euler2DTransform" )
     {
         typedef itk::Euler2DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "QuaternionRigidTransform" )
     {
         typedef itk::QuaternionRigidTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "Rigid2DTransform" )
     {
         typedef itk::Rigid2DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "Rigid3DTransform" )
     {
         typedef itk::Rigid3DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "CenteredEuler3DTransform" )
     {
         typedef itk::CenteredEuler3DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "CenteredRigid2DTransform" )
     {
         typedef itk::CenteredRigid2DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "Similarity3DTransform" )
     {
         typedef itk::Similarity3DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "Similarity2DTransform" )
     {
         typedef itk::Similarity2DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else if ( type == "CenteredSimilarity2DTransform" )
     {
         typedef itk::CenteredSimilarity2DTransform<PrecisionType> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
     else
     {
         typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
-        typename TransformType::Pointer transformPointer = TransformType::New();
+        auto transformPointer = TransformType::New();
         matrixOffset = dynamic_cast<MatrixOffsetBaseType*>( transformPointer.GetPointer() );
     }
 
@@ -534,9 +534,9 @@ py::capsule matrixOffset(  std::string type, std::string precision, unsigned int
             {
                 itkMatrix(i,j) = matrix[i][j];
             }
-        matrixOffset->SetMatrix( itkMatrix );    
+        matrixOffset->SetMatrix( itkMatrix );
     }
-    
+
     if (translation.size() > 0)
     {
         typename MatrixOffsetBaseType::OutputVectorType itkTranslation;
@@ -590,7 +590,7 @@ py::capsule matrixOffset(  std::string type, std::string precision, unsigned int
     }
 
     TransformBasePointerType itkTransform = dynamic_cast<TransformBaseType*>( matrixOffset.GetPointer() );
-    
+
     return wrap_transform< TransformBaseType >( itkTransform );
 }
 

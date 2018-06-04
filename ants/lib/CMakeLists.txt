@@ -10,9 +10,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
-## SETUP VTK ##
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
 
 ## SETUP PYBIND11 ##
 add_subdirectory(pybind11)
@@ -29,7 +26,7 @@ add_library(registrationUtilities STATIC  antscore/antsRegistrationTemplateHeade
                                           antscore/antsRegistration3DDouble.cxx antscore/antsRegistration3DFloat.cxx
                                           antscore/antsRegistration4DDouble.cxx antscore/antsRegistration4DFloat.cxx)
 
-add_library(imageMathUtilities STATIC   antscore/ImageMathHelper.cxx antscore/ImageMathHelper2D.cxx  
+add_library(imageMathUtilities STATIC   antscore/ImageMathHelper.cxx antscore/ImageMathHelper2D.cxx
                                         antscore/ImageMathHelper3D.cxx  antscore/ImageMathHelper4D.cxx)
 target_link_libraries(antsUtilities ${ITK_LIBRARIES})
 target_link_libraries(registrationUtilities ${ITK_LIBRARIES})
@@ -172,4 +169,3 @@ target_link_libraries(antsImageAugment PRIVATE ${ITK_LIBRARIES})
 #target_link_libraries(antsSurf PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
 #target_link_libraries(antsVol PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
 #target_link_libraries(ConvertScalarImageToRGB PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
-

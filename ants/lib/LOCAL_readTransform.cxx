@@ -84,14 +84,14 @@ std::string getTransformNameFromFile( std::string filename )
 
 template <typename PrecisionType, unsigned int Dimension>
 py::capsule newAntsTransform( std::string precision, unsigned int dimension, std::string type)
-{   
+{
 
-    //typename TransformType::Pointer transformPointer = TransformType::New();
+    //auto transformPointer = TransformType::New();
   // Initialize transform by type
   if ( type == "AffineTransform" )
     {
     typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -102,7 +102,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "CenteredAffineTransform" )
     {
     typedef itk::CenteredAffineTransform<PrecisionType,Dimension> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -113,7 +113,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "Euler3DTransform" )
     {
     typedef itk::Euler3DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -125,7 +125,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "Euler2DTransform" )
     {
     typedef itk::Euler2DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -136,7 +136,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "QuaternionRigidTransform" )
     {
     typedef itk::QuaternionRigidTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -147,7 +147,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "Rigid2DTransform" )
     {
     typedef itk::Rigid2DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -158,7 +158,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "Rigid3DTransform" )
     {
     typedef itk::Rigid3DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -169,7 +169,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "CenteredEuler3DTransform" )
     {
     typedef itk::CenteredEuler3DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -180,7 +180,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "CenteredRigid2DTransform" )
     {
     typedef itk::CenteredRigid2DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -191,7 +191,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "Similarity3DTransform" )
     {
     typedef itk::Similarity3DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -202,7 +202,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "Similarity2DTransform" )
     {
     typedef itk::Similarity2DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -213,7 +213,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
   else if ( type == "CenteredSimilarity2DTransform" )
     {
     typedef itk::CenteredSimilarity2DTransform<PrecisionType> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -223,7 +223,7 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     }
 
     typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
-    typename TransformType::Pointer transformPointer = TransformType::New();
+    auto transformPointer = TransformType::New();
 
     typedef itk::Transform<PrecisionType,Dimension,Dimension> TransformBaseType;
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
@@ -243,5 +243,3 @@ PYBIND11_MODULE(readTransform, m)
     m.def("getTransformDimensionFromFile", &getTransformDimensionFromFile);
     m.def("getTransformNameFromFile", &getTransformNameFromFile);
 }
-
-

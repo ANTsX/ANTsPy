@@ -96,7 +96,7 @@ PyBuffer<TImage>
     {
     PyErr_SetString( PyExc_RuntimeError, "Cannot get an instance of NumPy array." );
     PyBuffer_Release(&pyBuffer);
-    return NULL;
+    return nullptr;
     }
   else
     {
@@ -130,7 +130,7 @@ PyBuffer<TImage>
     PyErr_SetString( PyExc_RuntimeError, "Size mismatch of image and Buffer." );
     PyBuffer_Release(&pyBuffer);
     Py_DECREF(shapeseq);
-    return NULL;
+    return nullptr;
     }
 
   IndexType start;
