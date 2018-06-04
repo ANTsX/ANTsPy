@@ -36,11 +36,11 @@ $PYCMD test_registation.py $@
 echo "Running segmentation tests"
 $PYCMD test_segmentation.py $@
 
-echo "Running utils tests"
-$PYCMD test_utils.py $@
+# echo "Running utils tests"
+# $PYCMD test_utils.py $@
 
-echo "Running viz tests"
-$PYCMD test_viz.py $@
+# echo "Running viz tests"
+# $PYCMD test_viz.py $@
 
 echo "Running bug tests"
 $PYCMD test_bugs.py $@
