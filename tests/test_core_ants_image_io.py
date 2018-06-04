@@ -51,7 +51,7 @@ class TestModule_ants_image_io(unittest.TestCase):
             new_spacing = tuple([3.6]*arr.ndim)
             new_direction = np.eye(arr.ndim)*9.6
             img2 = ants.from_numpy(arr, origin=new_origin, spacing=new_spacing, direction=new_direction)
-            
+
             self.assertEqual(img2.origin, new_origin)
             self.assertEqual(img2.spacing, new_spacing)
             nptest.assert_allclose(img2.direction, new_direction)
@@ -101,7 +101,7 @@ class TestModule_ants_image_io(unittest.TestCase):
 
         # set from image
         for img in self.imgs:
-            mask = img > img.mean()
+            mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
             arr = img[mask]
             img2 = ants.make_image(mask, voxval=arr)
             nptest.assert_allclose(img2.numpy(), (img*mask).numpy())
@@ -120,7 +120,7 @@ class TestModule_ants_image_io(unittest.TestCase):
     def test_matrix_to_images(self):
         # def matrix_to_images(data_matrix, mask):
         for img in self.imgs:
-            imgmask = img > img.mean()
+            imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
             data = img[imgmask]
             dataflat = data.reshape(1,-1)
             mat = np.vstack([dataflat,dataflat]).astype('float32')
@@ -129,7 +129,7 @@ class TestModule_ants_image_io(unittest.TestCase):
             nptest.assert_allclose((img*imgmask).numpy(), imglist[1].numpy())
             self.assertTrue(ants.image_physical_space_consistency(img,imglist[0]))
             self.assertTrue(ants.image_physical_space_consistency(img,imglist[1]))
-            
+
             # go back to matrix
             mat2 = ants.images_to_matrix(imglist, imgmask)
             nptest.assert_allclose(mat, mat2)
@@ -137,9 +137,9 @@ class TestModule_ants_image_io(unittest.TestCase):
             # test with matrix.ndim > 2
             img = img.clone()
             img.set_direction(img.direction*2)
-            imgmask = img > img.mean()
+            imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
             arr = (img*imgmask).numpy()
-            arr = arr[arr>0.5]
+            arr = arr[arr>=0.5]
             arr2 = arr.copy()
             mat = np.stack([arr,arr2])
             imglist = ants.matrix_to_images(mat, imgmask)
@@ -158,7 +158,7 @@ class TestModule_ants_image_io(unittest.TestCase):
     def test_images_to_matrix(self):
         # def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
         for img in self.imgs:
-            mask = img > img.mean()
+            mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
             imglist = [img.clone(),img.clone(),img.clone()]
             imgmat = ants.images_to_matrix(imglist, mask=mask)
             self.assertTrue(imgmat.shape[0] == len(imglist))
@@ -172,12 +172,12 @@ class TestModule_ants_image_io(unittest.TestCase):
 
             if img.dimension == 2:
                 # with sigma
-                mask = img > img.mean()
+                mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
                 imglist = [img.clone(),img.clone(),img.clone()]
                 imgmat = ants.images_to_matrix(imglist, mask=mask, sigma=2.)
 
                 # with no mask
-                mask = img > img.mean()
+                mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
                 imglist = [img.clone(),img.clone(),img.clone()]
                 imgmat = ants.images_to_matrix(imglist)
 
@@ -205,7 +205,7 @@ class TestModule_ants_image_io(unittest.TestCase):
             self.assertEqual(info['pixeltype'], img.pixeltype)
             self.assertEqual(info['pixelclass'], 'vector' if img.has_components else 'scalar')
             self.assertEqual(info['spacing'], img.spacing)
-            
+
             try:
                 os.remove(tmpfile)
             except:
@@ -309,22 +309,22 @@ class TestModule_ants_image_io(unittest.TestCase):
             tmpfile = mktemp(suffix='.npy')
             ants.image_write(img, tmpfile)
             img2 = ants.image_read(tmpfile)
-            
+
             self.assertTrue(ants.image_physical_space_consistency(img,img2))
             self.assertEqual(img2.components, img.components)
-            nptest.assert_allclose(img.numpy(), img2.numpy())   
+            nptest.assert_allclose(img.numpy(), img2.numpy())
 
             # with no json header
             arr = img.numpy()
             tmpfile = mktemp(suffix='.npy')
             np.save(tmpfile, arr)
             img2 = ants.image_read(tmpfile)
-            nptest.assert_allclose(img.numpy(), img2.numpy())  
+            nptest.assert_allclose(img.numpy(), img2.numpy())
 
         # non-existant file
         with self.assertRaises(Exception):
             tmpfile = mktemp(suffix='.nii.gz')
-            ants.image_read(tmpfile)  
+            ants.image_read(tmpfile)
 
 
 if __name__ == '__main__':

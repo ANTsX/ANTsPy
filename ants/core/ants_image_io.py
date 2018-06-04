@@ -229,20 +229,20 @@ def matrix_to_images(data_matrix, mask):
 
     numimages = len(data_matrix)
     numVoxelsInMatrix = data_matrix.shape[1]
-    numVoxelsInMask = (mask>0.5).sum()
+    numVoxelsInMask = (mask >= 0.5).sum()
     if numVoxelsInMask != numVoxelsInMatrix:
         raise ValueError('Num masked voxels %i must match data matrix %i' % (numVoxelsInMask, numVoxelsInMatrix))
 
     imagelist = []
     for i in range(numimages):
         img = mask.clone()
-        img[mask > 0.5] = data_matrix[i,:]
+        img[mask >= 0.5] = data_matrix[i,:]
         imagelist.append(img)
     return imagelist
 images_from_matrix = matrix_to_images
 
 
-def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
+def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5 ):
     """
     Read images into rows of a matrix, given a mask - much faster for
     large datasets as it is based on C++ implementations.
@@ -286,7 +286,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
         mask = utils.get_mask(image_list[0])
 
     num_images = len(image_list)
-    mask_arr = mask.numpy() > epsilon
+    mask_arr = mask.numpy() >= epsilon
     num_voxels = np.sum(mask_arr)
 
     data_matrix = np.empty((num_images, num_voxels))
