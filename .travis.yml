@@ -4,8 +4,8 @@ cache:
     - directories:
         - $TRAVIS_BUILD_DIR/itkbuild-linux
         - $HOME/itkbuild-mac
-        - $TRAVIS_BUILD_DIR/itksource-linux
-        - $HOME/itksource-mac
+        - ${HOME}/ITK
+        - ${TRAVIS_BUILD_DIR}/ITK
         - $TRAVIS_BUILD_DIR/vtkbuild-linux
         - $HOME/vtkbuild-mac
         - $TRAVIS_BUILD_DIR/vtksource-linux

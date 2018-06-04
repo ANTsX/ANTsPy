@@ -12,7 +12,6 @@ if [[ $TRAVIS -eq true ]] ; then
   JTHREADS=2
 fi
 
-#mkdir $HOME/itkbuild-linux;
 
 #cd /home/travis/
 cd $TRAVIS_BUILD_DIR
@@ -23,13 +22,17 @@ itktag=902c9d0e0a2d8349796b1b2b805fd94648e8a197 # 5.0
 # remove it
 
 # if no directory, clone ITK in `itksource-linux` dir
-git clone $itkgit itksource-linux;
-cd itksource-linux;
-git checkout master;
-git checkout $itktag;
+if [[ ! -d ITK ]] ; then
+  git clone $itkgit
+fi
+cd ITK
+git checkout master
+git checkout $itktag
 cd ../
 
-mkdir itkbuild-linux
+if [[ ! -d itkbuild-linux ]] ; then
+  mkdir itkbuild-linux
+fi
 cd itkbuild-linux
 compflags=" -fPIC -O2  "
 cmake \
