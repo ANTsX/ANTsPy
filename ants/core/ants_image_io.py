@@ -74,7 +74,7 @@ for itype in {'scalar', 'vector', 'rgb', 'rgba'}:
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False):
     """
     Create an ANTsImage object from a numpy array
-    
+
     ANTsR function: `as.antsImage`
 
     Arguments
@@ -97,7 +97,7 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
     Returns
     -------
     ANTsImage
-        image with given data and any given information 
+        image with given data and any given information
     """
     data = data.astype('float32') if data.dtype.name == 'float64' else data
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
@@ -136,9 +136,9 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
         ants_images = []
         for i in range(len(arrays)):
             tmp_ptr = libfn(arrays[i], data_shape[::-1])
-            tmp_img = iio.ANTsImage(pixeltype=ptype, 
-                                    dimension=ndim, 
-                                    components=1, 
+            tmp_img = iio.ANTsImage(pixeltype=ptype,
+                                    dimension=ndim,
+                                    components=1,
                                     pointer=tmp_ptr)
             tmp_img.set_origin(origin)
             tmp_img.set_spacing(spacing)
@@ -153,29 +153,29 @@ def _from_numpy(data, origin=None, spacing=None, direction=None, has_components=
 def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, has_components=False, pixeltype='float'):
     """
     Make an image with given size and voxel value or given a mask and vector
-    
+
     ANTsR function: `makeImage`
 
     Arguments
     ---------
-    shape : tuple/ANTsImage 
+    shape : tuple/ANTsImage
         input image size or mask
-    
+
     voxval : scalar
         input image value or vector, size of mask
-    
+
     spacing : tuple/list
         image spatial resolution
-    
+
     origin  : tuple/list
         image spatial origin
-    
-    direction : list/ndarray 
+
+    direction : list/ndarray
         direction matrix to convert from index to physical space
-    
-    components : boolean 
+
+    components : boolean
         whether there are components per pixel or not
-    
+
     pixeltype : float
         data type of image values
 
@@ -198,7 +198,7 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
             array = np.asarray(voxval).astype('float32').reshape(imagesize)
         else:
             array = np.full(imagesize,voxval,dtype='float32')
-        image = from_numpy(array, origin=origin, spacing=spacing, 
+        image = from_numpy(array, origin=origin, spacing=spacing,
                             direction=direction, has_components=has_components)
         return image.clone(pixeltype)
 
@@ -206,7 +206,7 @@ def make_image(imagesize, voxval=0, spacing=None, origin=None, direction=None, h
 def matrix_to_images(data_matrix, mask):
     """
     Unmasks rows of a matrix and writes as images
-    
+
     ANTsR function: `matrixToImages`
 
     Arguments
@@ -214,9 +214,9 @@ def matrix_to_images(data_matrix, mask):
     data_matrix : numpy.ndarray
         each row corresponds to an image
         array should have number of columns equal to non-zero voxels in the mask
-    
+
     mask : ANTsImage
-        image containing a binary mask. Rows of the matrix are 
+        image containing a binary mask. Rows of the matrix are
         unmasked and written as images. The mask defines the output image space
 
     Returns
@@ -244,9 +244,9 @@ images_from_matrix = matrix_to_images
 
 def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
     """
-    Read images into rows of a matrix, given a mask - much faster for 
+    Read images into rows of a matrix, given a mask - much faster for
     large datasets as it is based on C++ implementations.
-    
+
     ANTsR function: `imagesToMatrix`
 
     Arguments
@@ -304,7 +304,7 @@ matrix_from_images = images_to_matrix
 def image_header_info(filename):
     """
     Read file info from image header
-    
+
     ANTsR function: `antsImageHeaderInfo`
 
     Arguments
@@ -333,7 +333,7 @@ def image_clone(image, pixeltype=None):
     Clone an ANTsImage
 
     ANTsR function: `antsImageClone`
-    
+
     Arguments
     ---------
     image : ANTsImage
@@ -359,15 +359,15 @@ def image_read(filename, dimension=None, pixeltype='float', reorient=False):
     ---------
     filename : string
         Name of the file to read the image from.
-    
+
     dimension : int
-        Number of dimensions of the image read. This need not be the same as 
-        the dimensions of the image in the file. Allowed values: 2, 3, 4. 
+        Number of dimensions of the image read. This need not be the same as
+        the dimensions of the image in the file. Allowed values: 2, 3, 4.
         If not provided, the dimension is obtained from the image file
-    
+
     pixeltype : string
-        C++ datatype to be used to represent the pixels read. This datatype 
-        need not be the same as the datatype used in the file. 
+        C++ datatype to be used to represent the pixels read. This datatype
+        need not be the same as the datatype used in the file.
         Options: unsigned char, unsigned int, float, double
 
     reorient : boolean | string
@@ -388,9 +388,9 @@ def image_read(filename, dimension=None, pixeltype='float', reorient=False):
             with open(filename.replace('.npy', '.json')) as json_data:
                 img_header = json.load(json_data)
             ants_image = from_numpy(img_array,
-                                    origin=img_header.get('origin', None), 
-                                    spacing=img_header.get('spacing', None), 
-                                    direction=np.asarray(img_header.get('direction',None)), 
+                                    origin=img_header.get('origin', None),
+                                    spacing=img_header.get('spacing', None),
+                                    direction=np.asarray(img_header.get('direction',None)),
                                     has_components=img_header.get('components',1)>1)
         else:
             img_header = {}
@@ -413,21 +413,21 @@ def image_read(filename, dimension=None, pixeltype='float', reorient=False):
         # error handling on pixelclass
         if pclass not in _supported_pclasses:
             raise ValueError('Pixel class %s not supported!' % pclass)
-            
+
         # error handling on pixeltype
         if ptype in _unsupported_ptypes:
             ptype = _unsupported_ptype_map.get(ptype, 'unsupported')
             if ptype == 'unsupported':
                 raise ValueError('Pixeltype %s not supported' % ptype)
-        
+
         # error handling on dimension
         if (ndim < 2) or (ndim > 4):
             raise ValueError('Found %i-dimensional image - not supported!' % ndim)
 
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
-        
-        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=ncomp, 
+
+        ants_image = iio.ANTsImage(pixeltype=ptype, dimension=ndim, components=ncomp,
             pointer=itk_pointer, is_rgb=is_rgb)
 
         if pixeltype is not None:
@@ -445,7 +445,7 @@ def image_read(filename, dimension=None, pixeltype='float', reorient=False):
 def dicom_read(directory, pixeltype='float'):
     """
     Read a set of dicom files in a directory into a single ANTsImage.
-    The origin of the resulting 3D image will be the origin of the 
+    The origin of the resulting 3D image will be the origin of the
     first dicom image read.
 
     Arguments
@@ -474,10 +474,10 @@ def dicom_read(directory, pixeltype='float'):
                 tmp = tmp.numpy()[:,:,0]
             else:
                 tmp = image_read(os.path.join(directory,imgpath), dimension=2, pixeltype=pixeltype).numpy()
-            
+
             slices.append(tmp)
             imgidx += 1
-    
+
     slices = np.stack(slices, axis=-1)
     return from_numpy(slices, origin=origin, spacing=spacing, direction=direction)
 
@@ -485,9 +485,9 @@ def dicom_read(directory, pixeltype='float'):
 def image_write(image, filename, ri=False):
     """
     Write an ANTsImage to file
-    
+
     ANTsR function: `antsImageWrite`
-    
+
     Arguments
     ---------
     image : ANTsImage
@@ -514,5 +514,3 @@ def image_write(image, filename, ri=False):
 
     if ri:
         return image
-
-
