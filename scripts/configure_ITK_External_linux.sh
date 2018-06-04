@@ -20,16 +20,8 @@ itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 itktag=902c9d0e0a2d8349796b1b2b805fd94648e8a197 # 5.0
 # if ther is a directory but no git,
 # remove it
-
-# if no directory, clone ITK in `itksource-linux` dir
-if [[ ! -d ITK ]] ; then
-  git clone $itkgit
-fi
-cd ITK
-git checkout master
-git checkout $itktag
-cd ../
-
+rm -r -f ITK
+git clone $itkgit
 if [[ ! -d itkbuild-linux ]] ; then
   mkdir itkbuild-linux
 fi
