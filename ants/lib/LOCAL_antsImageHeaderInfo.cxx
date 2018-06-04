@@ -39,7 +39,6 @@ py::dict antsImageHeaderInfo( std::string fname )
 
   for (unsigned int i=0; i<numDimensions; i++)
     {
-
     dimensions[i] = imageIO->GetDimensions(i);
     spacing[i] = imageIO->GetSpacing(i);
     origin[i] = imageIO->GetOrigin(i);
