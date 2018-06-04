@@ -115,7 +115,7 @@ class TestModule_bias_correction(unittest.TestCase):
         image_n4 = ants.n4_bias_field_correction(image_ui)
 
         # weight mask
-        mask = image > image.mean()
+        mask = ants.image_clone( image > image.mean(), pixeltype='float')
         ants.n4_bias_field_correction(image, weight_mask=mask)
 
         # len(spline_param) != img.dimension
@@ -132,7 +132,7 @@ class TestModule_bias_correction(unittest.TestCase):
         #                     spline_param=200, verbose=False, weight_mask=None):
         for img in self.imgs:
             image_n4 = ants.n4_bias_field_correction(img)
-            mask = img > img.mean()
+            mask = ants.image_clone( image > image.mean(), pixeltype='float')
             image_n4 = ants.n4_bias_field_correction(img, mask=mask)
 
     def test_abp_n4_example(self):
@@ -148,7 +148,7 @@ class TestModule_bias_correction(unittest.TestCase):
 
         # intensity trunction doesnt have three values
         with self.assertRaises(Exception):
-            img = self.imgs[0]  
+            img = self.imgs[0]
             ants.abp_n4(img, intensity_truncation=(1,2))
 
 
@@ -321,7 +321,7 @@ class TestModule_get_neighborhood(unittest.TestCase):
 
     def test_get_neighborhood_in_mask_example(self):
         img = ants.image_read(ants.get_ants_data('r16'))
-        mask = img > img.mean()
+        mask = ants.get_mask(img)
         mat = ants.get_neighborhood_in_mask(img, mask, radius=(2,2))
 
         # image not ANTsImage
@@ -485,7 +485,6 @@ class TestModule_label_stats(unittest.TestCase):
     def test_label_stats_example(self):
         image = ants.image_read( ants.get_ants_data('r16') , 2 )
         image = ants.resample_image( image, (64,64), 1, 0 )
-        mask = image > image.mean()
         segs1 = ants.kmeans_segmentation( image, 3 )
         stats = ants.label_stats(image, segs1['segmentation'])
 
@@ -501,7 +500,7 @@ class TestModule_labels_to_matrix(unittest.TestCase):
 
     def test_labels_to_matrix_example(self):
         fi = ants.image_read(ants.get_ants_data('r16')).resample_image((60,60),1,0)
-        mask = fi > fi.mean()
+        mask = ants.get_mask( fi )
         labs = ants.kmeans_segmentation(fi,3)['segmentation']
         labmat = ants.labels_to_matrix(labs, mask)
 
@@ -517,7 +516,7 @@ class TestModule_mask_image(unittest.TestCase):
 
     def test_mask_image_example(self):
         myimage = ants.image_read(ants.get_ants_data('r16'))
-        mask = myimage > myimage.mean()
+        mask = ants.get_mask( myimage )
         myimage_mask = ants.mask_image(myimage, mask, 3)
         seg = ants.kmeans_segmentation(myimage, 3)
         myimage_mask = ants.mask_image(myimage, seg['segmentation'], (1,3))
@@ -545,7 +544,7 @@ class TestModule_morphology(unittest.TestCase):
 
     def test_morphology(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
-        mask = fi > fi.mean()
+        mask = ants.get_mask( fi )
         dilated_ball = ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='ball')
         eroded_box = ants.morphology( mask, operation='erode', radius=3, mtype='binary', shape='box')
         opened_annulus = ants.morphology( mask, operation='open', radius=5, mtype='binary', shape='annulus', thickness=2)
@@ -574,7 +573,7 @@ class TestModule_morphology(unittest.TestCase):
         with self.assertRaises(Exception):
             ants.morphology( img, operation='dilate', radius=3, mtype='invalid-morphology')
 
-        # invalid shape 
+        # invalid shape
         with self.assertRaises(Exception):
             ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='invalid-shape')
 
@@ -649,8 +648,7 @@ class TestModule_scalar_rgb_vector(unittest.TestCase):
         vec_img = ants.from_numpy(np.random.randint(0,255,(20,20,3)).astype('uint8'), has_components=True)
         rgb_img = vec_img.vector_to_rgb()
         print(ants.allclose(rgb_img, vec_img))
-        
+
 
 if __name__ == '__main__':
     run_tests()
-
