@@ -27,6 +27,9 @@ py::dict antsImageHeaderInfo( std::string fname )
   const size_t numDimensions =  imageIO->GetNumberOfDimensions();
   const size_t numComponents = imageIO->GetNumberOfComponents();
   const std::string pixelClass( imageIO->GetPixelTypeAsString(imageIO->GetPixelType()) );
+  std::cout << imageIO->GetPixelType() << std::endl;
+  std::cout << imageIO->GetComponentType() << std::endl;
+  std::cout << pixelClass << std::endl;
   const unsigned int pixelCode = imageIO->GetComponentType();
 
   std::vector<float> dimensions( numDimensions );
@@ -50,37 +53,43 @@ py::dict antsImageHeaderInfo( std::string fname )
 
   switch( pixelCode )
     {
-    case 0: // UNKNOWNCOMPONENTTYPE - exception here?
+    case itk::ImageIOBase::IOComponentType::UNKNOWNCOMPONENTTYPE: // UNKNOWNCOMPONENTTYPE - exception here?
       pixeltype = "unknown";
       break;
-    case 1: // UCHAR
+    case itk::ImageIOBase::IOComponentType::UCHAR: // UCHAR
       pixeltype = "unsigned char";
       break;
-    case 2: // CHAR
+    case itk::ImageIOBase::IOComponentType::CHAR: // CHAR
       pixeltype = "char";
       break;
-    case 3: // USHORT
+    case itk::ImageIOBase::IOComponentType::USHORT: // USHORT
       pixeltype = "unsigned short";
       break;
-    case 4: // SHORT
+    case itk::ImageIOBase::IOComponentType::SHORT: // SHORT
       pixeltype = "short";
       break;
-    case 5: // UINT
+    case itk::ImageIOBase::IOComponentType::UINT: // UINT
       pixeltype = "unsigned int";
       break;
-    case 6: // INT
+    case itk::ImageIOBase::IOComponentType::INT: // INT
       pixeltype = "int";
       break;
-    case 7: // ULONG
+    case itk::ImageIOBase::IOComponentType::ULONG: // ULONG
       pixeltype = "unsigned long";
       break;
-    case 8: // LONG
+    case itk::ImageIOBase::IOComponentType::LONG: // LONG
       pixeltype = "long";
       break;
-    case 9: // FLOAT
+    case itk::ImageIOBase::IOComponentType::ULONGLONG: // LONGLONG
+      pixeltype = "ulonglong";
+      break;
+    case itk::ImageIOBase::IOComponentType::LONGLONG: // LONGLONG
+      pixeltype = "longlong";
+      break;
+    case itk::ImageIOBase::IOComponentType::FLOAT: // FLOAT
       pixeltype = "float";
       break;
-    case 10: // DOUBLE
+    case itk::ImageIOBase::IOComponentType::DOUBLE: // DOUBLE
       pixeltype = "double";
       break;
     default:
