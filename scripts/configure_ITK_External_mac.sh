@@ -59,7 +59,7 @@ cmake \
     -D ITKGroup_Segmentation=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource-mac/
+    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../ITK/
 make -j 3
 #make install
 cd ../
