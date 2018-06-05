@@ -80,10 +80,13 @@ jobs:
     - stage: install
       script: |
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME}
+        echo $ITK_DIR
+        ls $ITK_DIR
+        alias cmake=/usr/local/bin/cmake
         export VTK_DIR=$HOME/vtkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
         travis_retry pip install -r requirements.txt --only-binary=scipy
-        travis_retry pip install coveralls coverage plotly webcolors scikit-image fancyimpute
+        travis_retry pip install coveralls coverage plotly webcolors scikit-image
         python setup.py install
         ./tests/run_tests_travis.sh
       os: osx
