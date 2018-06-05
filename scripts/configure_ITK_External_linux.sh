@@ -16,8 +16,9 @@ cd ITK
 git pull
 git checkout $itktag
 cd ..
+/usr/local/bin/cmake --version
 compflags=" -fPIC -O2  "
-cmake \
+/usr/local/bin/cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
