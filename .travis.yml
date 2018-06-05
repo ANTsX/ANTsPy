@@ -2,14 +2,9 @@ language: python
 
 cache:
     - directories:
-        - $TRAVIS_BUILD_DIR/itkbuild-linux
-        - $HOME/itkbuild-mac
-        - ${HOME}/ITK
-        - ${TRAVIS_BUILD_DIR}/ITK
-        - $TRAVIS_BUILD_DIR/vtkbuild-linux
-        - $HOME/vtkbuild-mac
-        - $TRAVIS_BUILD_DIR/vtksource-linux
-        - $HOME/vtksource-mac
+        - ${TRAVIS_BUILD_DIR}/itkjunk/
+        - ${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-linux
+        - ${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-osx
 
 
 jobs:
