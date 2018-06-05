@@ -43,6 +43,10 @@ jobs:
         unset CCACHE_DISABLE
         export CCACHE_DIR=$HOME/.ccache
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
+        CMAKE_INSTALLER=install-cmake.sh;
+        curl -sSL https://cmake.org/files/v3.11/cmake-3.11.3-Linux-x86_64.sh -o ${CMAKE_INSTALLER};
+        chmod +x ${CMAKE_INSTALLER}
+        sudo ./${CMAKE_INSTALLER} --prefix=/usr/local --skip-license;
         ./scripts/configure_ITK_External_linux.sh
       os: linux
       sudo: required
