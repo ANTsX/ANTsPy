@@ -5,6 +5,7 @@ cache:
         - ${TRAVIS_BUILD_DIR}/itkjunk/
         - ${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-linux
         - ${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-osx
+        - /usr/local
 
 
 jobs:
@@ -62,6 +63,7 @@ jobs:
         cmake --version;
         ./scripts/configure_ITK_External_linux.sh
       os: osx
+      python: 3.6
       sudo: required
       language: generic
 
@@ -80,8 +82,6 @@ jobs:
     - stage: install
       script: |
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME}
-        echo $ITK_DIR
-        ls $ITK_DIR
         alias cmake=/usr/local/bin/cmake
         export VTK_DIR=$HOME/vtkbuild-mac
         travis_retry pip install --upgrade pip setuptools wheel
@@ -90,6 +90,7 @@ jobs:
         python setup.py install
         ./tests/run_tests_travis.sh
       os: osx
+      python: 3.6
       sudo: required
       language: generic
 
