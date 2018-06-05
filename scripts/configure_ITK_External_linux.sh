@@ -1,31 +1,21 @@
 #!/bin/bash
-
-# make this where you want to build ITK
-
 CXX_STD=CXX11
 JTHREADS=2
-if [[ `uname` -eq Darwin ]] ; then
-  CMAKE_BUILD_TYPE=Release
+CMAKE_BUILD_TYPE=Release
+itkdir=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME}
+if [[ ! -d $itkdir ]] ; then
+  mkdir $itkdir
 fi
-if [[ $TRAVIS -eq true ]] ; then
-  CMAKE_BUILD_TYPE=Release
-  JTHREADS=2
-fi
-
-
-#cd /home/travis/
-cd $TRAVIS_BUILD_DIR
-
+cd $itkdir
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 itktag=902c9d0e0a2d8349796b1b2b805fd94648e8a197 # 5.0
-# if ther is a directory but no git,
-# remove it
-rm -r -f ITK
-git clone $itkgit
-if [[ ! -d itkbuild-linux ]] ; then
-  mkdir itkbuild-linux
+if [[ ! -d ITK ]] ; then
+  git clone $itkgit
 fi
-cd itkbuild-linux
+cd ITK
+git pull
+git checkout $itktag
+cd ..
 compflags=" -fPIC -O2  "
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
@@ -55,7 +45,6 @@ cmake \
     -D ITKGroup_Segmentation=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../ITK/
-make -j 3
-#make install
+    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ./ITK/
+make -j $JTHREADS
 cd ../

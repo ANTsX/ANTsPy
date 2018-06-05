@@ -1,35 +1,17 @@
 #!/bin/bash
-
-# make this where you want to build ITK
-
 CXX_STD=CXX11
 JTHREADS=2
-if [[ `uname` -eq Darwin ]] ; then
-  CMAKE_BUILD_TYPE=Release
-fi
-if [[ $TRAVIS -eq true ]] ; then
-  CMAKE_BUILD_TYPE=Release
-  JTHREADS=2
-fi
-
+CMAKE_BUILD_TYPE=Release
 cd $HOME
-
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 itktag=902c9d0e0a2d8349796b1b2b805fd94648e8a197 # 5.0
-
-# if no directory, clone ITK in `itksource-linux` dir
 if [[ ! -d ITK ]] ; then
   git clone $itkgit
 fi
-cd ITK
-git checkout master
-git checkout $itktag
-cd ../
-
-if [[ ! -d itkbuild-mac ]] ; then
-  mkdir itkbuild-mac
+if [[ ! -d itkbuild-linux ]] ; then
+  mkdir itkbuild-linux
 fi
-cd itkbuild-mac
+cd itkbuild-linux
 compflags=" -fPIC -O2  "
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
@@ -61,5 +43,4 @@ cmake \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../ITK/
 make -j 3
-#make install
 cd ../
