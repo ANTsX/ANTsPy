@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-PYCMD=${PYCMD:="python"}
+PYCMD=${PYCMD:="python3"}
 COVERAGE=0
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -39,8 +39,8 @@ $PYCMD test_segmentation.py $@
 echo "Running utils tests"
 $PYCMD test_utils.py $@
 
-echo "Running viz tests"
-$PYCMD test_viz.py $@
+# echo "Running viz tests"
+# $PYCMD test_viz.py $@
 
 echo "Running bug tests"
 $PYCMD test_bugs.py $@

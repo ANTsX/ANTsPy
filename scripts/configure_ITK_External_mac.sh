@@ -1,37 +1,17 @@
 #!/bin/bash
-
-# make this where you want to build ITK
-
 CXX_STD=CXX11
 JTHREADS=2
-if [[ `uname` -eq Darwin ]] ; then
-  CMAKE_BUILD_TYPE=Release
-fi
-if [[ $TRAVIS -eq true ]] ; then
-  CMAKE_BUILD_TYPE=Release
-  JTHREADS=2
-fi
-
-#mkdir $HOME/itkbuild-mac;
-
-#cd /users/travis/
+CMAKE_BUILD_TYPE=Release
 cd $HOME
-
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-# itktag=2714cc1805f50504f5b9a60d0f62ffec8e73989 # 4.11
-itktag=c5138560409c75408ff76bccff938f21e5dcafc6 #4.12
-# if ther is a directory but no git,
-# remove it
-
-# if no directory, clone ITK in `itksource-mac` dir
-git clone $itkgit itksource-mac;
-cd itksource-mac;
-git checkout master;
-git checkout $itktag;
-cd ../
-
-mkdir itkbuild-mac
-cd itkbuild-mac
+itktag=902c9d0e0a2d8349796b1b2b805fd94648e8a197 # 5.0
+if [[ ! -d ITK ]] ; then
+  git clone $itkgit
+fi
+if [[ ! -d itkbuild-linux ]] ; then
+  mkdir itkbuild-linux
+fi
+cd itkbuild-linux
 compflags=" -fPIC -O2  "
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
@@ -61,9 +41,6 @@ cmake \
     -D ITKGroup_Segmentation=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource-mac/
+    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../ITK/
 make -j 3
-#make install
 cd ../
-
-

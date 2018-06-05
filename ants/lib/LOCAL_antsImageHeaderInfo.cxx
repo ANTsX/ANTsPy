@@ -36,7 +36,6 @@ py::dict antsImageHeaderInfo( std::string fname )
 
   for (unsigned int i=0; i<numDimensions; i++)
     {
-
     dimensions[i] = imageIO->GetDimensions(i);
     spacing[i] = imageIO->GetSpacing(i);
     origin[i] = imageIO->GetOrigin(i);
@@ -50,37 +49,43 @@ py::dict antsImageHeaderInfo( std::string fname )
 
   switch( pixelCode )
     {
-    case 0: // UNKNOWNCOMPONENTTYPE - exception here?
+    case itk::ImageIOBase::IOComponentType::UNKNOWNCOMPONENTTYPE: // UNKNOWNCOMPONENTTYPE - exception here?
       pixeltype = "unknown";
       break;
-    case 1: // UCHAR
+    case itk::ImageIOBase::IOComponentType::UCHAR: // UCHAR
       pixeltype = "unsigned char";
       break;
-    case 2: // CHAR
+    case itk::ImageIOBase::IOComponentType::CHAR: // CHAR
       pixeltype = "char";
       break;
-    case 3: // USHORT
+    case itk::ImageIOBase::IOComponentType::USHORT: // USHORT
       pixeltype = "unsigned short";
       break;
-    case 4: // SHORT
+    case itk::ImageIOBase::IOComponentType::SHORT: // SHORT
       pixeltype = "short";
       break;
-    case 5: // UINT
+    case itk::ImageIOBase::IOComponentType::UINT: // UINT
       pixeltype = "unsigned int";
       break;
-    case 6: // INT
+    case itk::ImageIOBase::IOComponentType::INT: // INT
       pixeltype = "int";
       break;
-    case 7: // ULONG
+    case itk::ImageIOBase::IOComponentType::ULONG: // ULONG
       pixeltype = "unsigned long";
       break;
-    case 8: // LONG
+    case itk::ImageIOBase::IOComponentType::LONG: // LONG
       pixeltype = "long";
       break;
-    case 9: // FLOAT
+    case itk::ImageIOBase::IOComponentType::ULONGLONG: // LONGLONG
+      pixeltype = "ulonglong";
+      break;
+    case itk::ImageIOBase::IOComponentType::LONGLONG: // LONGLONG
+      pixeltype = "longlong";
+      break;
+    case itk::ImageIOBase::IOComponentType::FLOAT: // FLOAT
       pixeltype = "float";
       break;
-    case 10: // DOUBLE
+    case itk::ImageIOBase::IOComponentType::DOUBLE: // DOUBLE
       pixeltype = "double";
       break;
     default:

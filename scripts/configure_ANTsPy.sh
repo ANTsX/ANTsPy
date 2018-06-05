@@ -6,13 +6,13 @@
 cd ants/lib # go to lib dir
 if [[ ! -d ~/pybind11 ]]; then
     git clone https://github.com/ncullen93/pybind11.git
-fi 
+fi
 cd ../../ # go back to main dir
 
 # ---------------------------------------------
 # create local ~/.antspy dir and move package data to it
 
-if [[ ! -d ~/.antspy ]]; then 
+if [[ ! -d ~/.antspy ]]; then
     mkdir ~/.antspy
 fi
 
@@ -22,9 +22,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=9a7ed051d194485b8039fa6879ef962d9f292911 # new - updated June 3 2018
-#antstag=fb874ebe977b84b57b7c5a2b124608f748e8e1e2 # old
-
+antstag=1d5d805c8a2f29f71050488caa7314aae1ef1520 # compiles with itkv5
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
@@ -64,7 +62,3 @@ if [[ ! -d antscore ]] ; then
 fi
 
 cd  ../../ # go back to main dir
-
-
-
-
