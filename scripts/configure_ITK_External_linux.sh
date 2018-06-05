@@ -4,7 +4,7 @@ JTHREADS=2
 CMAKE_BUILD_TYPE=Release
 itkdir=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME}
 if [[ ! -d $itkdir ]] ; then
-  mkdir $itkdir
+  mkdir -p $itkdir
 fi
 cd $itkdir
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
