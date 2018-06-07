@@ -22,7 +22,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=1d5d805c8a2f29f71050488caa7314aae1ef1520 # compiles with itkv5
+antstag=73cf3b188648fd5df0df792b674caeb2d71f5bbf # v5 jacobian fix
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
