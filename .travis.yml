@@ -63,82 +63,49 @@ jobs:
         cmake --version;
         ./scripts/configure_ITK_External_linux.sh
       os: osx
-      language: generic
-      env: PIP=pip2
       python: 3.6
       sudo: required
       language: generic
 
     - stage: install
+      env: PIP=pip
       script: |
         $PIP install cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
-        travis_retry pip install --upgrade pip setuptools wheel;
-        travis_retry pip install -r requirements.txt --only-binary=scipy;
-        travis_retry pip install coveralls plotly webcolors scikit-image;
+        travis_retry $PIP install --upgrade $PIP setuptools wheel;
+        travis_retry $PIP install -r requirements.txt --only-binary=scipy;
+        travis_retry $PIP install coveralls plotly webcolors scikit-image;
         python setup.py install
         ./tests/run_tests_travis.sh
+        ls wheelhouse
+
       os: linux
       python: 3.6
       sudo: required
     - stage: install
+      env: PIP=pip2
       script: |
         $PIP install cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
-        python -m pip install --upgrade pip;
-        pip install --upgrade wheel;
-        pip install --upgrade numpy;
-        pip install --upgrade setuptools;
+        python -m $PIP install --upgrade $PIP;
+        $PIP install --upgrade wheel;
+        $PIP install --upgrade numpy;
+        $PIP install --upgrade setuptools;
         alias cmake=/usr/local/bin/cmake;
         export VTK_DIR=$HOME/vtkbuild-mac;
-        travis_retry pip install --upgrade pip setuptools wheel;
-        travis_retry pip install -r requirements.txt --only-binary=scipy;
-        travis_retry pip install coveralls coverage plotly webcolors scikit-image;
+        travis_retry $PIP install --upgrade $PIP setuptools wheel;
+        travis_retry $PIP install -r requirements.txt --only-binary=scipy;
+        travis_retry $PIP install coveralls coverage plotly webcolors scikit-image;
         python setup.py install;
-        ./tests/run_tests_travis.sh
+        ./tests/run_tests_travis.sh;
+        ls wheelhouse
       os: osx
-      env: PIP=pip2
       python: 3.6
       sudo: required
       language: generic
-
-    - stage: "Deployment"
-      if: tag IS present
-      script:
-        - travis_wait 100 R CMD INSTALL --debug --build ${PROJ_DIR};
-      deploy:
-        provider: releases
-        api_key:
-          secure: VevZHK5WDwd2mFSrF3+b2jTRzImb6juOgewcOvZ8LJ2S70khn64Kx4+JGUvk5miKWVbKnHIhPxOJY50muO9sT15ApP+HFZYpiVpx4l/hEypk9zmJD+f+ERuN7j8elCzUZqet3v77XD+pBcYMxFARew4gGDkG2LO5casij0YNiyQ=
-        file_glob: true
-        file: ${PROJ_DIR}*.t*gz
-        skip_cleanup: true
-        overwrite: true
-        on:
-          repo: ANTsX/ANTsPy
-          tags: true
-          all_branches: true
-      os: linux
-    - stage: "Deployment"
-      if: tag IS present
-      script:
-        - travis_wait 100 R CMD INSTALL --debug --build ${PROJ_DIR};
-      deploy:
-        provider: releases
-        api_key:
-          secure: VevZHK5WDwd2mFSrF3+b2jTRzImb6juOgewcOvZ8LJ2S70khn64Kx4+JGUvk5miKWVbKnHIhPxOJY50muO9sT15ApP+HFZYpiVpx4l/hEypk9zmJD+f+ERuN7j8elCzUZqet3v77XD+pBcYMxFARew4gGDkG2LO5casij0YNiyQ=
-        file_glob: true
-        file: *ANTsPy*whl
-        skip_cleanup: true
-        overwrite: true
-        on:
-          repo: ANTsX/ANTsPy
-          tags: true
-          all_branches: true
-      os: osx
 
   allow_failures:
     - os: osx
