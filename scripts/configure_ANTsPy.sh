@@ -22,7 +22,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=ca32228f3f23b12612658724b5aab5c58d50bc6c # denoise image bug
+antstag=6f403d7b204b12423ac2448e1b179a95aca27459 # geo jac
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
