@@ -65,7 +65,7 @@ for itype in {'scalar', 'vector', 'rgb', 'rgba'}:
     _image_read_dict[itype] = {}
     for p in _supported_ptypes:
         _image_read_dict[itype][p] = {}
-        for d in {2,3}:
+        for d in {2,3,4}:
             ita = _image_type_map[itype]
             pa = _ptype_type_map[p]
             _image_read_dict[itype][p][d] = 'imageRead%s%s%i' % (ita,pa,d)
