@@ -214,7 +214,7 @@ def registration(fixed,
         if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
             inpixeltype = fixed.pixeltype
             ttexists = False
-            allowable_tx =  {'SynBold','SynBoldAff', 'ElasticSyn','SyN','SyNRA',
+            allowable_tx =  {'SyNBold','SyNBoldAff', 'ElasticSyn','SyN','SyNRA',
                             'SyNOnly','SyNAggro','SyNCC','TRSAA','SyNabp','SyNLessAggro',
                             'TVMSQ','TVMSQC','Rigid','Similarity','Translation','Affine',
                             'AffineFast','BOLDAffine','QuickRigid','DenseRigid','BOLDRigid'}
@@ -248,7 +248,7 @@ def registration(fixed,
                 if initx is None:
                     initx = '[%s,%s,1]' % (f, m)
                 # ------------------------------------------------------------
-                if type_of_transform == 'SynBold':
+                if type_of_transform == 'SyNBold':
                     args = ['-d', str(fixed.dimension),
                         '-r', initx,
                         '-m', '%s[%s,%s,1,%s,regular,0.2]' % (aff_metric, f, m, aff_sampling),
