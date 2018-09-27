@@ -273,7 +273,7 @@ def registration(fixed,
                         args.append('-x')
                         args.append('[NA,NA]')
                 # ------------------------------------------------------------
-                elif type_of_transform == 'SynBoldAff':
+                elif type_of_transform == 'SyNBoldAff':
                     args = ['-d', str(fixed.dimension),
                         '-r', initx,
                         '-m', '%s[%s,%s,1,%s,regular,0.2]' % (aff_metric, f, m, aff_sampling),
