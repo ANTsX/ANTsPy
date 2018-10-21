@@ -23,6 +23,7 @@ cp data/* ~/.antspy/
 
 antsgit=https://github.com/ANTsX/ANTs.git
 antstag=6f403d7b204b12423ac2448e1b179a95aca27459 # geo jac
+antstag=0b4e8751bfb61d35a6f22994a259813aaae51fb2
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
