@@ -41,7 +41,7 @@ before_install:
 install:
   - python3 setup.py install
 
-script: echo 0 # ./tests/run_tests_travis.sh
+script: ./tests/run_tests_travis.sh
 
 branches:
   only:
