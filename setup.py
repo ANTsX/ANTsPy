@@ -72,7 +72,7 @@ class CMakeBuild(build_ext):
         print('Configuring ITK')
         if os.getenv('ITK_DIR'):
             print('Using Local ITK Installation at:\n %s' % os.getenv('ITK_DIR'))
-        elif os.path.exists(os.path.join(setup_py_dir, 'itkbuild')):
+        elif os.path.exists(os.path.join(setup_py_dir, 'itkbuild/ITKConfig.cmake')):
             print('Using local ITK already built for this package')
             os.environ['ITK_DIR'] = os.path.join(setup_py_dir, 'itkbuild')
         else:
@@ -124,7 +124,7 @@ class CMakeBuild(build_ext):
                                                                     env.get('CXXFLAGS', ''),
                                                                     self.distribution.get_version())
         env['LINKFLAGS'] = '{}'.format("-Wno-inconsistent-missing-override")
-        
+
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
@@ -147,5 +147,3 @@ setup(
     url='https://github.com/ANTsX/ANTsPy',
     classifiers=['Programming Language :: Python :: 3.6'],
 )
-
-

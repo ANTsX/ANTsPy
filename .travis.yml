@@ -4,7 +4,6 @@ python:
 
 os:
   - linux
-  - osx
 
 cache:
     - directories:
@@ -31,19 +30,6 @@ before_install:
     fi
   - pip3 install scipy pandas numpy matplotlib
   - pip3 install coveralls plotly webcolors scikit-image;
-
-#  - pip install  --user -r cibuildwheel==0.9.1;
-#  - pip3 install --upgrade pip setuptools wheel
-#  - pip3 install -r requirements.txt
-
-matrix:
-    include:
-        - os: linux
-          python: 3.6
-          env: TOXENV=py36
-        - os: osx
-          python: 3.5
-          env: TOXENV=py35
 
 install:
   - python3 setup.py install;
