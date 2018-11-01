@@ -93,7 +93,7 @@ class TestModule_create_warped_grid(unittest.TestCase):
         fi = ants.image_read( ants.get_ants_data( 'r16' ) )
         mi = ants.image_read( ants.get_ants_data( 'r64' ) )
         mygr = ants.create_warped_grid( mi )
-        
+
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=('SyN') )
         mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
                             transform=mytx['fwdtransforms'], fixed_reference_image=fi )
@@ -117,9 +117,9 @@ class TestModule_fsl2antstransform(unittest.TestCase):
 class TestModule_interface(unittest.TestCase):
 
     def setUp(self):
-        self.transform_types = {'SynBold',
-                                'SynBoldAff',
-                                'ElasticSyn',
+        self.transform_types = {'SyNBold',
+                                'SyNBoldAff',
+                                'ElasticSyN',
                                 'SyN',
                                 'SyNRA',
                                 'SyNOnly',
@@ -158,11 +158,12 @@ class TestModule_interface(unittest.TestCase):
         mi = ants.resample_image(mi, (60,60), 1, 0)
 
         for ttype in self.transform_types:
+            print( ttype )
             mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=ttype)
 
             # with mask
             fimask = fi > fi.mean()
-            mytx = ants.registration(fixed=fi, moving=mi, mask=fimask, type_of_transform=ttype)   
+            mytx = ants.registration(fixed=fi, moving=mi, mask=fimask, type_of_transform=ttype)
         print('Finished long registration interface test')
 
 class TestModule_metrics(unittest.TestCase):
@@ -211,20 +212,20 @@ class TestModule_reorient_image(unittest.TestCase):
         ants.reorient_image(image, (1,0))
 
     def test_get_center_of_mass(self):
-        fi = ants.image_read( ants.get_ants_data("r16")) 
-        com = ants.get_center_of_mass( fi ) 
+        fi = ants.image_read( ants.get_ants_data("r16"))
+        com = ants.get_center_of_mass( fi )
 
         self.assertEqual(len(com), fi.dimension)
 
-        fi = ants.image_read( ants.get_ants_data("r64")) 
-        com = ants.get_center_of_mass( fi ) 
+        fi = ants.image_read( ants.get_ants_data("r64"))
+        com = ants.get_center_of_mass( fi )
         self.assertEqual(len(com), fi.dimension)
 
         fi = fi.clone('unsigned int')
-        com = ants.get_center_of_mass( fi ) 
+        com = ants.get_center_of_mass( fi )
         self.assertEqual(len(com), fi.dimension)
 
-        # 3d 
+        # 3d
         img = ants.image_read(ants.get_ants_data('mni'))
         com = ants.get_center_of_mass(img)
         self.assertEqual(len(com), img.dimension)
