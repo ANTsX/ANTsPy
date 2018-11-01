@@ -7,8 +7,8 @@ if [[ ! -d $itkdir ]] ; then
   mkdir -p $itkdir
 fi
 cd $itkdir
-itkgit=https://github.com/stnava/ITK.git
-itktag=20a456c3803d5d8e38b1c0a62df484fd10b8b71b
+itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
+itktag=407989d73f5a50ac9f2251663b2f497cf900cbd7
 if [[ ! -d ITK ]] ; then
   git clone $itkgit
 fi

@@ -11,10 +11,8 @@ fi
 
 #cd ./src
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itkgit=https://github.com/stnava/ITK.git
-itktag=20a456c3803d5d8e38b1c0a62df484fd10b8b71b
-# if ther is a directory but no git,
-# remove it
+itktag=407989d73f5a50ac9f2251663b2f497cf900cbd7
+# if there is a directory but no git, remove it
 if [[ -d itksource ]]; then
     if [[ ! -d itksource/.git ]]; then
         rm -rf itksource/

@@ -44,7 +44,7 @@ jobs:
         chmod +x ${CMAKE_INSTALLER};
         sudo ./${CMAKE_INSTALLER} --prefix=/usr/local --skip-license;
         cmake --version;
-        ./scripts/configure_ITK_External_linux.sh ;
+        ./scripts/configure_ITK.sh ;
         find /usr/local -name cmake
       os: linux
       sudo: required
@@ -61,7 +61,7 @@ jobs:
         brew install cmake;
         brew upgrade cmake;
         cmake --version;
-        ./scripts/configure_ITK_External_linux.sh
+        ./scripts/configure_ITK.sh
       os: osx
       python: 3.6
       sudo: required
@@ -70,10 +70,12 @@ jobs:
     - stage: install
       env: PIP=pip
       script: |
+        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
+        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
+        echo "myITK is"; echo $ITK_DIR;
         $PIP install cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
-        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
         travis_retry $PIP install --upgrade $PIP setuptools wheel;
         travis_retry $PIP install -r requirements.txt --only-binary=scipy;
         travis_retry $PIP install coveralls plotly webcolors scikit-image;
@@ -87,15 +89,16 @@ jobs:
     - stage: install
       env: PIP=pip2
       script: |
+        export VTK_DIR=$HOME/vtkbuild-mac;
+        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
+        echo "myITK is"; echo $ITK_DIR;
         $PIP install cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
-        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         python -m $PIP install --upgrade $PIP;
         $PIP install --upgrade wheel;
         $PIP install --upgrade numpy;
         $PIP install --upgrade setuptools;
         alias cmake=/usr/local/bin/cmake;
-        export VTK_DIR=$HOME/vtkbuild-mac;
         travis_retry $PIP install --upgrade $PIP setuptools wheel;
         travis_retry $PIP install -r requirements.txt --only-binary=scipy;
         travis_retry $PIP install coveralls coverage plotly webcolors scikit-image;
