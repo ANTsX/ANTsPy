@@ -101,8 +101,8 @@ class TestModule_joint_label_fusion(unittest.TestCase):
             seglist[i] = seg
         r = 2
         pp = ants.joint_label_fusion(ref, refmask, ilist, r_search=2,
-                            label_list=seglist, rad=[r]*ref.dimension )
-        pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=[r]*ref.dimension)
+                            label_list=seglist, rad=2 )
+        pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=2 )
 
 
 
@@ -120,7 +120,7 @@ class TestModule_kelly_kapowski(unittest.TestCase):
         mask = ants.get_mask( img )
         segs = ants.kmeans_segmentation( img, k=3, kmask = mask)
         thick = ants.kelly_kapowski(s=segs['segmentation'], g=segs['probabilityimages'][1],
-                                    w=segs['probabilityimages'][2], its=45, 
+                                    w=segs['probabilityimages'][2], its=45,
                                     r=0.5, m=1)
 
 
