@@ -31,7 +31,7 @@ before_install:
   - pip3 install scipy pandas numpy matplotlib
   - pip3 install coveralls plotly webcolors scikit-image;
   - cd ..
-  - bash ${TRAVIS_BUILD_DIR}/scripts/configure_ITK.sh
+  - if [ ! -f /home/travis/build/ANTsX/itkbuild/ITKConfig.cmake ]; then bash ${TRAVIS_BUILD_DIR}/scripts/configure_ITK.sh; fi
   - temp=`find ./ -name "ITKConfig.cmake"`
   - echo $temp
   - cd ${TRAVIS_BUILD_DIR}
