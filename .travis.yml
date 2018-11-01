@@ -30,6 +30,11 @@ before_install:
         export PATH="/usr/local/opt/ccache/libexec:$PATH"
     fi
   - pip install --user -r requirements.txt
+  - pip install  --user -r cibuildwheel==0.9.1;
+  - pip install  --user -r --upgrade $PIP setuptools wheel;
+  - pip install  --user -r requirements.txt --only-binary=scipy;
+  - pip install  --user -r coveralls plotly webcolors scikit-image;
+
 
 jobs:
   include:
@@ -97,12 +102,8 @@ jobs:
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
         echo "myITK is"; echo $ITK_DIR;
         ls $ITK_DIR;
-        $PIP install  --user -r cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
-        travis_retry $PIP install  --user -r --upgrade $PIP setuptools wheel;
-        travis_retry $PIP install  --user -r requirements.txt --only-binary=scipy;
-        travis_retry $PIP install  --user -r coveralls plotly webcolors scikit-image;
         python3 setup.py install
         ./tests/run_tests_travis.sh
         ls wheelhouse
@@ -116,16 +117,7 @@ jobs:
         export VTK_DIR=$HOME/vtkbuild-mac;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         echo "myITK is"; echo $ITK_DIR;
-        $PIP install  --user -r cibuildwheel==0.9.1;
-        cibuildwheel --output-dir wheelhouse;
-        python3 -m $PIP install --upgrade $PIP;
-        $PIP install  --user -r --upgrade wheel;
-        $PIP install  --user -r --upgrade numpy;
-        $PIP install  --user -r --upgrade setuptools;
         alias cmake=/usr/local/bin/cmake;
-        travis_retry $PIP install  --user -r --upgrade $PIP setuptools wheel;
-        travis_retry $PIP install  --user -r  requirements.txt --only-binary=scipy;
-        travis_retry $PIP install  --user -r coveralls coverage plotly webcolors scikit-image;
         python3 setup.py install;
         ./tests/run_tests_travis.sh;
         ls wheelhouse
