@@ -30,6 +30,13 @@ before_install:
     fi
   - pip3 install scipy pandas numpy matplotlib
   - pip3 install coveralls plotly webcolors scikit-image;
+  - echo ${TRAVIS_BUILD_DIR}/itkbuild
+  - ls ${TRAVIS_BUILD_DIR}/itkbuild
+  - echo ${TRAVIS_BUILD_DIR}/itkbuild
+  - temp=`find ./ -name "ITKConfig.cmake"`
+  - echo $temp
+  - idir=`dirname $temp`
+  - echo $idir
 
 install:
   - python3 setup.py install;
