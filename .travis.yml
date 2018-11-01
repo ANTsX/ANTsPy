@@ -4,9 +4,7 @@ python:
 
 cache:
     - directories:
-        - ${TRAVIS_BUILD_DIR}/itkjunk/
-        - ${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-linux
-        - ${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-osx
+        - ${TRAVIS_BUILD_DIR}/itkbuild
         - /usr/local
 
 
@@ -38,7 +36,7 @@ before_install:
 
 install:
   - echo "skip this"
-  
+
 jobs:
   include:
 
@@ -102,7 +100,7 @@ jobs:
     - stage: install
       env: PIP=pip
       script: |
-        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
+        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkbuild;
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
         echo "myITK is"; echo $ITK_DIR;
         ls $ITK_DIR;
@@ -117,8 +115,9 @@ jobs:
       env: PIP=pip2
       script: |
         export VTK_DIR=$HOME/vtkbuild-mac;
-        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
+        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkbuild;
         echo "myITK is"; echo $ITK_DIR;
+        ls $ITK_DIR;
         alias cmake=/usr/local/bin/cmake;
         python3 setup.py install;
         ./tests/run_tests_travis.sh;
