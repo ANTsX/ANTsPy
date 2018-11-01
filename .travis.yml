@@ -34,7 +34,7 @@ before_install:
   - ls ${TRAVIS_BUILD_DIR}/itkbuild
   - echo ${TRAVIS_BUILD_DIR}/itkbuild
   - cd /usr/local
-  - bash ./scripts/configure_ITK.sh
+  - bash ${TRAVIS_BUILD_DIR}/scripts/configure_ITK.sh
   - temp=`find ./ -name "ITKConfig.cmake"`
   - echo $temp
   - cd ${TRAVIS_BUILD_DIR}
