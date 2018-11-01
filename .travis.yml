@@ -39,9 +39,9 @@ before_install:
   - export ITK_DIR=/home/travis/build/ANTsX/itkbuild/
 
 install:
-  - python3 setup.py install
+  - echo 0 # python3 setup.py install
 
-script: ./tests/run_tests_travis.sh
+script: echo 0 # ./tests/run_tests_travis.sh
 
 branches:
   only:
