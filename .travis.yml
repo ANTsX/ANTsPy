@@ -27,101 +27,35 @@ before_install:
         export PATH="/usr/local/opt/ccache/libexec:$PATH"
     fi
   - pip3 install scipy pandas numpy matplotlib
-#  - pip install  --user -r cibuildwheel==0.9.1;
   - pip3 install coveralls plotly webcolors scikit-image;
 
+#  - pip install  --user -r cibuildwheel==0.9.1;
 #  - pip3 install --upgrade pip setuptools wheel
-
 #  - pip3 install -r requirements.txt
 
 install:
   - echo "skip this"
 
 jobs:
-  include:
-
-#    - stage: makeVTK
-#      script: |
-#        unset CCACHE_DISABLE
-#        export CCACHE_DIR=$HOME/.ccache
-#        ./scripts/configure_VTK_External_linux.sh;
+    - stage: install
+      env: PIP=pip
+      script: |
+#        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkbuild;
 #        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
-#      os: linux
-#      sudo: required
-#      python: 3.6
-#    - stage: makeVTK
-#      script: |
-#        brew update;
-#        brew install ccache;
-#        unset CCACHE_DISABLE;
-#        export CCACHE_DIR=$HOME/.ccache;
-#        ccache --show-stats;
-#        export PATH="/usr/local/opt/ccache/libexec:$PATH";
-#        ./scripts/configure_VTK_External_mac.sh;
-#        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-mac;
-#      os: osx
-#      sudo: required
-#      language: generic
-
-    - stage: makeITK
-      script: |
-        unset CCACHE_DISABLE
-        export CCACHE_DIR=$HOME/.ccache
-        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
-        CMAKE_INSTALLER=install-cmake.sh;
-        curl -sSL https://cmake.org/files/v3.11/cmake-3.11.3-Linux-x86_64.sh -o ${CMAKE_INSTALLER};
-        chmod +x ${CMAKE_INSTALLER};
-        sudo ./${CMAKE_INSTALLER} --prefix=/usr/local --skip-license;
-        cmake --version;
-        ./scripts/configure_ITK.sh ;
-        find /usr/local -name cmake
+#        echo "myITK is"; echo $ITK_DIR;
+#        ls $ITK_DIR;
+        python3 setup.py install;
+        ./tests/run_tests_travis.sh
       os: linux
+      python: 3.6
       sudo: required
-      python: "3.6"
-
-    - stage: makeITK
-      script: |
-        brew update;
-        brew install ccache;
-        unset CCACHE_DISABLE;
-        export CCACHE_DIR=$HOME/.ccache;
-        ccache --show-stats;
-        export PATH="/usr/local/opt/ccache/libexec:$PATH";
-        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-mac;
-        brew install cmake;
-        brew upgrade cmake;
-        cmake --version;
-        ./scripts/configure_ITK.sh
-      os: osx
-      python: "3.6"
-      sudo: required
-      language: generic
 
     - stage: install
       env: PIP=pip
       script: |
-        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkbuild;
-        export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
-        echo "myITK is"; echo $ITK_DIR;
-        ls $ITK_DIR;
-        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
-        python3 setup.py install
-        ./tests/run_tests_travis.sh
-
-      os: linux
-      python: 3.6
-      sudo: required
-    - stage: install
-      env: PIP=pip2
-      script: |
-        export VTK_DIR=$HOME/vtkbuild-mac;
-        export ITK_DIR=${TRAVIS_BUILD_DIR}/itkbuild;
-        echo "myITK is"; echo $ITK_DIR;
-        ls $ITK_DIR;
         alias cmake=/usr/local/bin/cmake;
         python3 setup.py install;
-        ./tests/run_tests_travis.sh;
-
+        ./tests/run_tests_travis.sh
       os: osx
       python: 3.6
       sudo: required
