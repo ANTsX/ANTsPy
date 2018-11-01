@@ -9,6 +9,8 @@ cache:
     - directories:
         - /home/travis/build/ANTsX/itkbuild
         - /home/travis/build/ANTsX/itksource
+        - /home/travis/build/ANTsX/ANTsPy/ants/lib
+        - /home/travis/build/ANTsX/ANTsPy/build
         - /usr/local
 
 before_install:
