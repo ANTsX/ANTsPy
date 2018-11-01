@@ -33,13 +33,14 @@ before_install:
   - echo ${TRAVIS_BUILD_DIR}/itkbuild
   - ls ${TRAVIS_BUILD_DIR}/itkbuild
   - echo ${TRAVIS_BUILD_DIR}/itkbuild
+  - bash ./scripts/configure_ITK.sh
   - temp=`find ./ -name "ITKConfig.cmake"`
   - echo $temp
-  - idir=`dirname $temp`
-  - echo $idir
+#  - idir=`dirname $temp`
+#  - echo $idir
 
 install:
-  - python3 setup.py install;
+  - travis wait 100 python3 setup.py install;
 
 script: ./tests/run_tests_travis.sh
 
