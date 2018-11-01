@@ -92,12 +92,12 @@ jobs:
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
         echo "myITK is"; echo $ITK_DIR;
-        $PIP install cibuildwheel==0.9.1;
+        $PIP install  --user -r cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
-        travis_retry $PIP install --upgrade $PIP setuptools wheel;
-        travis_retry $PIP install -r requirements.txt --only-binary=scipy;
-        travis_retry $PIP install coveralls plotly webcolors scikit-image;
+        travis_retry $PIP install  --user -r --upgrade $PIP setuptools wheel;
+        travis_retry $PIP install  --user -r requirements.txt --only-binary=scipy;
+        travis_retry $PIP install  --user -r coveralls plotly webcolors scikit-image;
         python setup.py install
         ./tests/run_tests_travis.sh
         ls wheelhouse
@@ -111,16 +111,16 @@ jobs:
         export VTK_DIR=$HOME/vtkbuild-mac;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         echo "myITK is"; echo $ITK_DIR;
-        $PIP install cibuildwheel==0.9.1;
+        $PIP install  --user -r cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         python -m $PIP install --upgrade $PIP;
-        $PIP install --upgrade wheel;
-        $PIP install --upgrade numpy;
-        $PIP install --upgrade setuptools;
+        $PIP install  --user -r --upgrade wheel;
+        $PIP install  --user -r --upgrade numpy;
+        $PIP install  --user -r --upgrade setuptools;
         alias cmake=/usr/local/bin/cmake;
-        travis_retry $PIP install --upgrade $PIP setuptools wheel;
-        travis_retry $PIP install -r requirements.txt --only-binary=scipy;
-        travis_retry $PIP install coveralls coverage plotly webcolors scikit-image;
+        travis_retry $PIP install  --user -r --upgrade $PIP setuptools wheel;
+        travis_retry $PIP install  --user -r  requirements.txt --only-binary=scipy;
+        travis_retry $PIP install  --user -r coveralls coverage plotly webcolors scikit-image;
         python setup.py install;
         ./tests/run_tests_travis.sh;
         ls wheelhouse
