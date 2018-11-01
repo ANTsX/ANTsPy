@@ -1,4 +1,4 @@
-language: python
+language: python3
 
 cache:
     - directories:
@@ -9,6 +9,8 @@ cache:
 
 
 before_install:
+  - virtualenv .venv
+  - source .venv/bin/activate
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       CMAKE_INSTALLER=install-cmake.sh && \
@@ -20,7 +22,7 @@ before_install:
   - export PATH=/usr/local/bin/cmake/bin:/usr/local/bin:${PATH}
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      echo "need cmake 3.2" && \
+      echo "need cmake 3.12" && \
         brew update && \
         brew install ccache && \
         brew upgrade cmake && \
@@ -98,7 +100,7 @@ jobs:
         travis_retry $PIP install  --user -r --upgrade $PIP setuptools wheel;
         travis_retry $PIP install  --user -r requirements.txt --only-binary=scipy;
         travis_retry $PIP install  --user -r coveralls plotly webcolors scikit-image;
-        python setup.py install
+        python3 setup.py install
         ./tests/run_tests_travis.sh
         ls wheelhouse
 
@@ -113,7 +115,7 @@ jobs:
         echo "myITK is"; echo $ITK_DIR;
         $PIP install  --user -r cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
-        python -m $PIP install --upgrade $PIP;
+        python3 -m $PIP install --upgrade $PIP;
         $PIP install  --user -r --upgrade wheel;
         $PIP install  --user -r --upgrade numpy;
         $PIP install  --user -r --upgrade setuptools;
@@ -121,7 +123,7 @@ jobs:
         travis_retry $PIP install  --user -r --upgrade $PIP setuptools wheel;
         travis_retry $PIP install  --user -r  requirements.txt --only-binary=scipy;
         travis_retry $PIP install  --user -r coveralls coverage plotly webcolors scikit-image;
-        python setup.py install;
+        python3 setup.py install;
         ./tests/run_tests_travis.sh;
         ls wheelhouse
       os: osx
