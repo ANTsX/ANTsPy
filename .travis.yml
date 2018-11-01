@@ -9,8 +9,8 @@ cache:
 
 
 before_install:
-  - python3 -m venv .venv
-  - source .venv/bin/activate
+#  - python3 -m venv .venv
+#  - source .venv/bin/activate
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       CMAKE_INSTALLER=install-cmake.sh && \
