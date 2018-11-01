@@ -7,7 +7,7 @@ os:
 
 cache:
     - directories:
-        - ${TRAVIS_BUILD_DIR}/itkbuild
+        - /home/travis/build/ANTsX/itkbuild
         - /usr/local
 
 before_install:
@@ -30,19 +30,16 @@ before_install:
     fi
   - pip3 install scipy pandas numpy matplotlib
   - pip3 install coveralls plotly webcolors scikit-image;
-  - echo ${TRAVIS_BUILD_DIR}/itkbuild
-  - ls ${TRAVIS_BUILD_DIR}/itkbuild
-  - echo ${TRAVIS_BUILD_DIR}/itkbuild
   - cd ..
   - bash ${TRAVIS_BUILD_DIR}/scripts/configure_ITK.sh
   - temp=`find ./ -name "ITKConfig.cmake"`
   - echo $temp
   - cd ${TRAVIS_BUILD_DIR}
-#  - idir=`dirname $temp`
-#  - echo $idir
+  - export ITK_DIR=/home/travis/build/ANTsX/itkbuild/
 
 install:
-  - echo nothing #  travis wait 100 python3 setup.py install;
+  - echo "exit 0" > test.sh
+  - bash test.sh #  travis wait 100 python3 setup.py install;
 
 script: ./tests/run_tests_travis.sh
 
