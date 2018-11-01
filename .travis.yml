@@ -2,11 +2,14 @@ language: python
 python:
   - "3.6"
 
+os:
+  - linux
+  - osx
+
 cache:
     - directories:
         - ${TRAVIS_BUILD_DIR}/itkbuild
         - /usr/local
-
 
 before_install:
   - |
