@@ -38,8 +38,7 @@ before_install:
   - export ITK_DIR=/home/travis/build/ANTsX/itkbuild/
 
 install:
-  - echo "exit 0" > test.sh
-  - bash test.sh #  travis wait 100 python3 setup.py install;
+  - python3 setup.py install
 
 script: ./tests/run_tests_travis.sh
 
