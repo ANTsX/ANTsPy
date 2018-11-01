@@ -9,7 +9,7 @@ cache:
 
 
 before_install:
-  - virtualenv .venv
+  - python3 -m venv .venv
   - source .venv/bin/activate
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
