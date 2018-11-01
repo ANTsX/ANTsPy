@@ -36,7 +36,7 @@ cd ../
 
 echo "Dependency;GitTag" > ./data/softwareVersions.csv
 echo "ITK;${itktag}" >> ./data/softwareVersions.csv
-
+exit 0
 mkdir -p itkbuild
 cd itkbuild
 compflags=" -fPIC -O2  "

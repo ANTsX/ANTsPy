@@ -8,6 +8,7 @@ os:
 cache:
     - directories:
         - /home/travis/build/ANTsX/itkbuild
+        - /home/travis/build/ANTsX/itksource
         - /usr/local
 
 before_install:
