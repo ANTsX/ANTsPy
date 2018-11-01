@@ -28,11 +28,11 @@ before_install:
         brew upgrade cmake && \
         export PATH="/usr/local/opt/ccache/libexec:$PATH"
     fi
-  - pip3 install --user --only-binary=scipy;
+  - pip3 install --only-binary=scipy;
 #  - pip install  --user -r cibuildwheel==0.9.1;
-  - pip3 install --user coveralls plotly webcolors scikit-image;
-  - pip3 install --user --upgrade pip setuptools wheel;
-  - pip3 install --user -r requirements.txt
+  - pip3 install coveralls plotly webcolors scikit-image;
+  - pip3 install --upgrade pip setuptools wheel;
+  - pip3 install -r requirements.txt
 
 
 jobs:
