@@ -42,7 +42,7 @@ before_install:
 #  - echo $idir
 
 install:
-  - travis wait 100 python3 setup.py install;
+  - echo nothing #  travis wait 100 python3 setup.py install;
 
 script: ./tests/run_tests_travis.sh
 
