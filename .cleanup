@@ -1,3 +1,2 @@
 
-rm -r -f itkbuild/ build/ itksource/
-
+rm -r -f itkbuild/ build/ itksource/ ./ants/lib/antscore
