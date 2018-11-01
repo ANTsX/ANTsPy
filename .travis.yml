@@ -1,5 +1,8 @@
 language: python3
 
+virtualenv:
+  system_site_packages: true
+
 cache:
     - directories:
         - ${TRAVIS_BUILD_DIR}/itkjunk/
@@ -9,8 +12,6 @@ cache:
 
 
 before_install:
-#  - python3 -m venv .venv
-#  - source .venv/bin/activate
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       CMAKE_INSTALLER=install-cmake.sh && \
@@ -28,6 +29,7 @@ before_install:
         brew upgrade cmake && \
         export PATH="/usr/local/opt/ccache/libexec:$PATH"
     fi
+  - pip install --user -r requirements.txt
 
 jobs:
   include:
@@ -94,6 +96,7 @@ jobs:
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
         echo "myITK is"; echo $ITK_DIR;
+        ls $ITK_DIR;
         $PIP install  --user -r cibuildwheel==0.9.1;
         cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
