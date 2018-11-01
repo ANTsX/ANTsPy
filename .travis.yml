@@ -31,7 +31,8 @@ before_install:
   - pip3 install scipy pandas numpy matplotlib
 #  - pip install  --user -r cibuildwheel==0.9.1;
   - pip3 install coveralls plotly webcolors scikit-image;
-  - pip3 install --upgrade pip setuptools wheel
+
+#  - pip3 install --upgrade pip setuptools wheel
 
 #  - pip3 install -r requirements.txt
 
@@ -102,11 +103,9 @@ jobs:
         export VTK_DIR=$TRAVIS_BUILD_DIR/vtkbuild-linux;
         echo "myITK is"; echo $ITK_DIR;
         ls $ITK_DIR;
-        cibuildwheel --output-dir wheelhouse;
         export ITK_DIR=${TRAVIS_BUILD_DIR}/itkjunk/itkbuild-${TRAVIS_OS_NAME};
         python3 setup.py install
         ./tests/run_tests_travis.sh
-        ls wheelhouse
 
       os: linux
       python: 3.6
@@ -120,7 +119,7 @@ jobs:
         alias cmake=/usr/local/bin/cmake;
         python3 setup.py install;
         ./tests/run_tests_travis.sh;
-        ls wheelhouse
+
       os: osx
       python: 3.6
       sudo: required
