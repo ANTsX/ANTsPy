@@ -2,7 +2,7 @@
 Atropos segmentation
 """
 
- 
+
 
 __all__ = ['atropos']
 
@@ -15,14 +15,14 @@ from ..core import ants_image_io as iio2
 from .. import utils
 
 
-def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]', 
+def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             priorweight=0.25, **kwargs):
     """
-    A finite mixture modeling (FMM) segmentation approach with possibilities 
-    for specifying prior constraints. These prior constraints include the 
-    specification of a prior label image, prior probability images (one for 
-    each class), and/or an MRF prior to enforce spatial smoothing of the 
-    labels. Similar algorithms include FAST and SPM. atropos can also perform 
+    A finite mixture modeling (FMM) segmentation approach with possibilities
+    for specifying prior constraints. These prior constraints include the
+    specification of a prior label image, prior probability images (one for
+    each class), and/or an MRF prior to enforce spatial smoothing of the
+    labels. Similar algorithms include FAST and SPM. atropos can also perform
     multivariate segmentation if you pass a list of images in: e.g. a=(img1,img2).
 
     ANTsR function: `atropos`
@@ -30,42 +30,42 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     Arguments
     ---------
     a : ANTsImage or list/tuple of ANTsImage types
-        One or more scalar images to segment. If priors are not used, 
-        the intensities of the first image are used to order the classes 
-        in the segmentation output, from lowest to highest intensity. Otherwise 
+        One or more scalar images to segment. If priors are not used,
+        the intensities of the first image are used to order the classes
+        in the segmentation output, from lowest to highest intensity. Otherwise
         the order of the classes is dictated by the order of the prior images.
-    
+
     x : ANTsImage
         mask image.
-    
-    i : string 
+
+    i : string
         initialization usually KMeans[N] for N classes or a list of N prior
         probability images. See Atropos in ANTs for full set of options.
-    
+
     m : string
-        mrf parameters as a string, usually "[smoothingFactor,radius]" where 
-        smoothingFactor determines the amount of smoothing and radius determines 
-        the MRF neighborhood, as an ANTs style neighborhood vector eg "1x1x1" 
-        for a 3D image. The radius must match the dimensionality of the image, 
-        eg 1x1 for 2D and The default in ANTs is smoothingFactor=0.3 and 
+        mrf parameters as a string, usually "[smoothingFactor,radius]" where
+        smoothingFactor determines the amount of smoothing and radius determines
+        the MRF neighborhood, as an ANTs style neighborhood vector eg "1x1x1"
+        for a 3D image. The radius must match the dimensionality of the image,
+        eg 1x1 for 2D and The default in ANTs is smoothingFactor=0.3 and
         radius=1. See Atropos for more options.
-    
+
     c : string
-        convergence parameters, "[numberOfIterations,convergenceThreshold]". 
-        A threshold of 0 runs the full numberOfIterations, otherwise Atropos 
-        tests convergence by comparing the mean maximum posterior probability 
+        convergence parameters, "[numberOfIterations,convergenceThreshold]".
+        A threshold of 0 runs the full numberOfIterations, otherwise Atropos
+        tests convergence by comparing the mean maximum posterior probability
         over the whole region of interest defined by the mask x.
-    
+
     priorweight : scalar
         usually 0 (priors used for initialization only), 0.25 or 0.5.
-    
-    kwargs : keyword arguments 
+
+    kwargs : keyword arguments
         more parameters, see Atropos help in ANTs
-    
+
     Returns
     -------
     dictionary with the following key/value pairs:
-        `segmentation`: ANTsImage 
+        `segmentation`: ANTsImage
             actually segmented image
         `probabilityimages` : list of ANTsImage types
             one image for each segmentation class
@@ -136,11 +136,12 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     processed_args = utils._int_antsProcessArguments(myargs)
     libfn = utils.get_lib_fn('Atropos')
     retval = libfn(processed_args)
-    
+
     if retval != 0:
         warnings.warn('ERROR: Non-zero exit status!')
-    
+
     probsout = glob.glob(os.path.join(tdir,'*'+searchpattern))
+    probsout.sort()
     probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
@@ -148,5 +149,3 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     outimg = outimg.clone('float')
     return {'segmentation': outimg,
             'probabilityimages': probimgs}
-
-    
