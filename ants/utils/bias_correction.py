@@ -1,5 +1,5 @@
 
- 
+
 
 __all__ = ['n3_bias_field_correction',
            'n4_bias_field_correction',
@@ -31,7 +31,7 @@ def n3_bias_field_correction(image, downsample_factor=3):
     Returns
     -------
     ANTsImage
-    
+
     Example
     -------
     >>> import ants
@@ -58,30 +58,30 @@ def n4_bias_field_correction(image, mask=None, shrink_factor=4,
     ---------
     image : ANTsImage
         image to bias correct
-    
-    mask : ANTsImage   
+
+    mask : ANTsImage
         input mask, if one is not passed one will be made
-    
-    shrink_factor : scalar   
+
+    shrink_factor : scalar
         Shrink factor for multi-resolution correction, typically integer less than 4
-    
+
     convergence : dict w/ keys `iters` and `tol`
         iters : vector of maximum number of iterations for each shrinkage factor
         tol : the convergence tolerance.
-    
+
     spline_param : integer
         Parameter controlling number of control points in spline. Either single value, indicating how many control points, or vector with one entry per dimension of image, indicating the spacing in each direction.
-    
+
     verbose : boolean
         enables verbose output.
-    
+
     weight_mask : ANTsImage (optional)
         antsImage of weight mask
 
     Returns
     -------
     ANTsImage
-    
+
     Example
     -------
     >>> image = ants.image_read( ants.get_ants_data('r16') )
@@ -129,7 +129,7 @@ def n4_bias_field_correction(image, mask=None, shrink_factor=4,
 def abp_n4(image, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False):
     """
     Truncate outlier intensities and bias correct with the N4 algorithm.
-    
+
     ANTsR function: `abpN4`
 
     Arguments
@@ -158,8 +158,7 @@ def abp_n4(image, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False
     """
     if (not isinstance(intensity_truncation, (list,tuple))) or (len(intensity_truncation) != 3):
         raise ValueError('intensity_truncation must be list/tuple with 3 values')
-
-    outimage = iMath(image, 'TruncateIntensity', 
+    outimage = iMath(image, 'TruncateIntensity',
             intensity_truncation[0], intensity_truncation[1], intensity_truncation[2])
     if usen3 == True:
         outimage = n3_bias_field_correction(outimage, 4)
@@ -168,5 +167,3 @@ def abp_n4(image, intensity_truncation=(0.025,0.975,256), mask=None, usen3=False
     else:
         outimage = n4_bias_field_correction(outimage, mask)
         return outimage
-
-

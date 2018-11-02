@@ -98,10 +98,11 @@ class TestModule_joint_label_fusion(unittest.TestCase):
                     transformlist=mytx['fwdtransforms'])
             ilist[i] = mywarpedimage
             seg = ants.threshold_image(ilist[i],'Otsu', 3)
-            seglist[i] = seg
+            seglist[i] = ( seg ) + ants.threshold_image( seg, 1, 3 ).morphology( operation='dilate', radius=3 )
+
         r = 2
         pp = ants.joint_label_fusion(ref, refmask, ilist, r_search=2,
-                            label_list=seglist, rad=2 )
+                    label_list=seglist, rad=[r]*ref.dimension )
         pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=2 )
 
 

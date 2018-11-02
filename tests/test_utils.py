@@ -443,8 +443,6 @@ class TestModule_invariant_image_similarity(unittest.TestCase):
         fi = ants.image_read(ants.get_ants_data('r16'))
         convimg = ants.make_image( (3,3), (1,0,1,0,-4,0,1,0,1) )
         convout = ants.convolve_image( fi, convimg )
-        convimg2 = ants.make_image( (3,3), (0,1,0,1,0,-1,0,-1,0) )
-        convout2 = ants.convolve_image( fi, convimg2 )
 
 
 class TestModule_label_clusters(unittest.TestCase):

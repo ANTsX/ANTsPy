@@ -1,5 +1,5 @@
 
- 
+
 
 __all__ = ['iMath',
            'image_math',
@@ -37,7 +37,6 @@ from .. import utils
 _iMathOps = {'FillHoles',
             'GetLargestComponent',
             'Normalize',
-            'TruncateImageIntensity',
             'Sharpen',
             'Pad',
             'D',
@@ -70,22 +69,22 @@ def multiply_images(image1, image2):
 
 def iMath(image, operation, *args):
     """
-    Perform various (often mathematical) operations on the input image/s. 
-    Additional parameters should be specific for each operation. 
-    See the the full iMath in ANTs, on which this function is based.    
-    
+    Perform various (often mathematical) operations on the input image/s.
+    Additional parameters should be specific for each operation.
+    See the the full iMath in ANTs, on which this function is based.
+
     ANTsR function: `iMath`
 
     Arguments
     ---------
     image : ANTsImage
         input object, usually antsImage
-    
-    operation   
-        a string e.g. "GetLargestComponent" ... the special case of "GetOperations" 
-        or "GetOperationsFull" will return a list of operations and brief 
+
+    operation
+        a string e.g. "GetLargestComponent" ... the special case of "GetOperations"
+        or "GetOperationsFull" will return a list of operations and brief
         description. Some operations may not be valid (WIP), but most are.
-    
+
     *args : non-keyword arguments
         additional parameters specific to the operation
 
@@ -102,7 +101,7 @@ def iMath(image, operation, *args):
     outimage = image.clone()
     args = [imagedim, outimage, operation, image] + [a for a in args]
     processed_args = _int_antsProcessArguments(args)
-        
+
     libfn = utils.get_lib_fn('iMath')
     libfn(processed_args)
     return outimage
@@ -184,12 +183,3 @@ def iMath_propagate_labels_through_mask(image, labels, stopping_value=100, propa
 
 def iMath_truncate_intensity(image, lower_q, upper_q, mask, n_bins=64):
     return iMath(image, 'TruncateIntensity', n_bins, lower_q, upper_q, mask)
-
-
-
-
-
-
-
-
-

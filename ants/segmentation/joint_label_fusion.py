@@ -105,7 +105,7 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
     >>>             transformlist=mytx['fwdtransforms'])
     >>>     ilist[i] = mywarpedimage
     >>>     seg = ants.threshold_image(ilist[i],'Otsu', 3)
-    >>>     seglist[i] = seg + 1
+    >>>     seglist[i] = ( seg ) + ants.threshold_image( seg, 1, 3 ).morphology( operation='dilate', radius=3 )
     >>> r = 2
     >>> pp = ants.joint_label_fusion(ref, refmask, ilist, r_search=2,
     >>>                     label_list=seglist, rad=[r]*ref.dimension )
@@ -120,16 +120,8 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
     if not doJif:
         if len(label_list) != len(atlas_list):
             raise ValueError('len(label_list) != len(atlas_list)')
-        inlabs = np.sort(np.unique(label_list[0][target_image_mask == 1]))
-        labsum = label_list[0]
-        for n in range(1, len(label_list)):
-            inlabs = np.sort(
-              np.unique(
-                np.hstack( [inlabs, label_list[n][target_image_mask==1]] ) ) )
-            labsum = labsum + label_list[n]
-
+        inlabs = np.sort(np.unique(label_list[0][target_image_mask != 0 ]))
         mymask = target_image_mask.clone()
-#        mymask[ labsum == 0 ] = 0
     else:
         mymask = target_image_mask
 
@@ -205,7 +197,6 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
 
     probsout = glob.glob(os.path.join(tdir,'*'+searchpattern ) )
     probsout.sort()
-    print( probsout )
     probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
@@ -216,7 +207,6 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
     # mapfinalsegvec to original labels
     for i in range(finalsegvec.max()+1):
         finalsegvec2[finalsegvec==i] = inlabs[i]
-
     outimg = iio2.make_image( target_image_mask, finalsegvec2 )
 
     return {
