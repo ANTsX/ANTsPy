@@ -575,6 +575,29 @@ class TestModule_morphology(unittest.TestCase):
         with self.assertRaises(Exception):
             ants.morphology( mask, operation='dilate', radius=3, mtype='binary', shape='invalid-shape')
 
+class TestModule_ndimage_to_list(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_ndimage_to_list(self):
+        image = ants.image_read(ants.get_ants_data('r16'))
+        image2 = ants.image_read(ants.get_ants_data('r64'))
+        ants.set_spacing( image, (2,2) )
+        ants.set_spacing( image2, (2,2) )
+        imageTar = ants.make_image( ( *image2.shape, 2 ) )
+        ants.set_spacing( imageTar, (2,2,2) )
+        image3 = ants.list_to_ndimage( imageTar, [image,image2] )
+        self.assertEqual( image3.dimension, 3 )
+        ants.set_direction( image3, np.eye( 3 ) * 2 )
+        images_unmerged = ants.ndimage_to_list( image3 )
+        self.assertEqual( len(images_unmerged), 2 )
+        self.assertEqual( images_unmerged[0].dimension,  2 )
+
+
 
 class TestModule_smooth_image(unittest.TestCase):
 
