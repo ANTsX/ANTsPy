@@ -33,6 +33,7 @@ py::capsule sliceImage( py::capsule antsImage, int plane, int slice)
 
     filter->SetExtractionRegion( desiredRegion );
     filter->SetInput( itkImage );
+    filter->SetDirectionCollapseToSubmatrix();
     filter->Update();
 
     return wrap<SliceImageType>( filter->GetOutput() );
