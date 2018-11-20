@@ -262,6 +262,40 @@ class TestModule_symmetrize_image(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data('r16'))
         simage = ants.symmetrize_image(image)
 
+class TestModule_build_template(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_example(self):
+        image = ants.image_read(ants.get_ants_data('r16'))
+        image2 = ants.image_read(ants.get_ants_data('r27'))
+        timage = ants.build_template( image_list = (image, image2 ) )
+
+class TestModule_multivar(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_example(self):
+        image = ants.image_read(ants.get_ants_data('r16'))
+        image2 = ants.image_read(ants.get_ants_data('r27'))
+        demonsMetric = ['demons', image, image2, 1, 1]
+        ccMetric = ['CC', image, image2, 2, 1 ]
+        metrics = list( )
+        metrics.append( demonsMetric )
+        reg3 = ants.registration( image, image2, 'SyNOnly',
+            multivariate_extras = metrics )
+        metrics.append( ccMetric )
+        reg2 = ants.registration( image, image2, 'SyNOnly',
+            multivariate_extras = metrics, verbose = True )
+
 
 if __name__ == '__main__':
     run_tests()
