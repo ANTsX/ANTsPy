@@ -1,5 +1,5 @@
 
- 
+
 from .affine_initializer import *
 from .apply_transforms import *
 from .create_jacobian_determinant_image import *
@@ -11,5 +11,6 @@ from .reflect_image import *
 from .reorient_image import *
 from .resample_image import *
 from .symmetrize_image import *
+from .build_template import *
 
 from .interface import *

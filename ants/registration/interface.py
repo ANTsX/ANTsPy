@@ -28,6 +28,7 @@ def registration(fixed,
                  syn_sampling=32,
                  reg_iterations=(40,20,0),
                  verbose=False,
+                 multivariate_extras=None,
                  **kwargs):
     """
     Register a pair of images either through the full or simplified
@@ -82,6 +83,18 @@ def registration(fixed,
 
     verbose : boolean
         request verbose output (useful for debugging)
+
+    multivariate_extras : additional metrics for multi-metric registration
+        list of additional images and metrics which will
+        trigger the use of multiple metrics in the registration
+        process in the deformable stage. Multivariate metrics needs 5
+        entries: name of metric, fixed, moving, weight,
+        samplingParam. the list should be of the form ( (
+        "nameOfMetric2", img, img, weight, metricParam ) ). Another
+        example would be  ( ( "MeanSquares", f2, m2, 0.5, 0
+          ), ( "CC", f2, m2, 0.5, 2 ) ) .  This is only compatible
+        with the SyNOnly transformation.
+
 
     kwargs : keyword args
         extra arguments
@@ -339,7 +352,7 @@ def registration(fixed,
                         '-f', '4x2x2x1',
                         '-x', '[NA,NA]',
                         '-m', '%s[%s,%s,1,%s]' % (syn_metric, f, m, syn_sampling),
-                        '-t', '%s[0.25,3,0]' % type_of_transform,
+                        '-t', mysyn,
                         '-c', '[%s,1e-7,8]' % synits,
                         '-s', smoothingsigmas,
                         '-f', shrinkfactors,
@@ -397,6 +410,11 @@ def registration(fixed,
                             '-z', '1',
                             '-l', myl,
                             '-o', '[%s,%s,%s]' % (outprefix, wmo, wfo)]
+                    if multivariate_extras is not None:
+                        args.append('-m')
+                        metricopt = ' asinine '
+                        args.append( metricopt )
+                        print( args )
                     if maskopt is not None:
                         args.append('-x')
                         args.append(maskopt)
