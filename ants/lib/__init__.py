@@ -30,6 +30,7 @@ from .weingartenImageCurvature import *
 ## WRAP ##
 from .antsAffineInitializer import *
 from .antsApplyTransforms import *
+from .antsApplyTransformsToPoints import *
 from .antsJointFusion import *
 from .antsRegistration import *
 from .Atropos import *

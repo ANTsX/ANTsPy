@@ -92,7 +92,6 @@ def ndimage_to_list(image):
     components = 1
     imageShape = image.shape
     nSections = imageShape[ dimension - 1 ]
-    temp = np.split(  image.numpy(), nSections , axis=2 )
     subdimension = dimension - 1
     suborigin = iio.get_origin( image )[0:subdimension]
     subspacing = iio.get_spacing( image )[0:subdimension]
@@ -101,8 +100,8 @@ def ndimage_to_list(image):
         subdirection[i,:] = iio.get_direction( image )[i,0:subdimension]
     subdim = image.shape[ 0:subdimension ]
     imagelist = []
-    for i in range( len( temp ) ):
-        img = iio2.from_numpy( temp[i].reshape( subdim ) )
+    for i in range( nSections ):
+        img = utils.slice_image( image, axis = subdimension, idx = i )
         iio.set_spacing( img, subspacing )
         iio.set_origin( img, suborigin )
         iio.set_direction( img, subdirection )

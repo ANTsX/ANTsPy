@@ -181,5 +181,10 @@ def iMath_propagate_labels_through_mask(image, labels, stopping_value=100, propa
     """
     return iMath(image, 'PropagateLabelsThroughMask', labels, stopping_value, propagation_method)
 
-def iMath_truncate_intensity(image, lower_q, upper_q, mask, n_bins=64):
-    return iMath(image, 'TruncateIntensity', n_bins, lower_q, upper_q, mask)
+def iMath_truncate_intensity(image, lower_q, upper_q, n_bins=64):
+    """
+    >>> import ants
+    >>> img = ants.image_read(ants.get_ants_data('r16'))
+    >>> ants.iMath_truncate_intensity( img, 0.2, 0.8 )
+    """
+    return iMath(image, 'TruncateIntensity', lower_q, upper_q, n_bins )

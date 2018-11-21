@@ -11,7 +11,7 @@ namespace py = pybind11;
 
 template < typename ImageType, typename PixelType, unsigned int NewDimension >
 py::capsule sliceImage( py::capsule antsImage, int plane, int slice)
-{  
+{
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType itkImage = as< ImageType >( antsImage );
 
@@ -43,5 +43,5 @@ py::capsule sliceImage( py::capsule antsImage, int plane, int slice)
 PYBIND11_MODULE(sliceImage, m)
 {
     m.def("sliceImageF3", &sliceImage<itk::Image<float,3>, float, 2>);
+    m.def("sliceImageF4", &sliceImage<itk::Image<float,4>, float, 3>);
 }
-
