@@ -278,8 +278,13 @@ def apply_transforms_to_points( dim, points, transformlist,
             mytx = mytx + ['-t', '[%s,1]' % (transformlist[i])]
         else:
             mytx = mytx + ['-t', transformlist[i]]
-
-    pointImage = core.make_image( points.shape, points.values.flatten())
+    if dim == 2:
+        pointsSub = points[['x','y']]
+    if dim == 3:
+        pointsSub = points[['x','y','z']]
+    if dim == 4:
+        pointsSub = points[['x','y','z','t']]
+    pointImage = core.make_image( pointsSub.shape, pointsSub.values.flatten())
     pointsOut = pointImage.clone()
     args = ['-d', dim,
             '-i', pointImage,
