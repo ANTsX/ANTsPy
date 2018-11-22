@@ -819,9 +819,12 @@ def motion_correction(
     fdpts = pd.DataFrame(data=myoffsets[useinds,:],columns=mycols)
     if verbose:
         print( "Progress:" )
+    counter = 0
     for k in range( nTimePoints ):
-        if verbose:
-            print( round( k / nTimePoints * 100 ), end = "%.", flush=True )
+        mycount = round( k / nTimePoints * 100 )
+        if verbose and mycount == counter:
+            counter = counter + 10
+            print( mycount, end = "%.", flush=True )
         temp = utils.slice_image( image, axis = idim - 1, idx = k )
         myreg = registration( fixed, temp,
           type_of_transform = type_of_transform,
@@ -840,9 +843,11 @@ def motion_correction(
             FD[ k ] = FD[ k ] + fdDelt['z'].mean()
         motion_parameters.append( myreg[ 'fwdtransforms' ] )
         motion_corrected.append( myreg[ 'warpedmovout' ] )
-    motion_corrected = utils.list_to_ndimage( image, motion_corrected )
+#        'motion_corrected': utils.list_to_ndimage( image, motion_corrected ),
+    if verbose:
+        print("Done")
     return {
-        'motion_corrected': motion_corrected,
+        'motion_corrected': utils.list_to_ndimage( image, motion_corrected ),
         'motion_parameters': motion_parameters,
         'FD': FD
         }
