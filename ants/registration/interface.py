@@ -813,7 +813,7 @@ def motion_correction(
         mycols = list('xyz')
     useinds = list()
     for k in range( myoffsets.shape[0] ):
-        if ( abs(myoffsets[k,:]).sum() == ( idim - 1 ) ):
+        if ( abs(myoffsets[k,:]).sum() == ( idim - 2 ) ):
             useinds.append( k )
         myoffsets[k,:] = myoffsets[k,:] * fdOffset / 2.0 + centerOfMass
     fdpts = pd.DataFrame(data=myoffsets[useinds,:],columns=mycols)
@@ -835,15 +835,10 @@ def motion_correction(
             fdptsTxIminus1 = apply_transforms_to_points( idim - 1, fdpts, motion_parameters[ k - 1 ] )
         else:
             fdptsTxIminus1 = fdptsTxI
-        fdDelt = (fdptsTxIminus1-fdptsTxI).abs()
-        FD[ k ] = fdDelt['x'].mean()
-        if idim >= 2 :
-            FD[ k ] = FD[ k ] + fdDelt['y'].mean()
-        if idim >= 3 :
-            FD[ k ] = FD[ k ] + fdDelt['z'].mean()
+        # take the absolute value, then the mean across columns, then the sum
+        FD[ k ] = (fdptsTxIminus1-fdptsTxI).abs().mean().sum()
         motion_parameters.append( myreg[ 'fwdtransforms' ] )
         motion_corrected.append( myreg[ 'warpedmovout' ] )
-#        'motion_corrected': utils.list_to_ndimage( image, motion_corrected ),
     if verbose:
         print("Done")
     return {
