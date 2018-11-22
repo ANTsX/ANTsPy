@@ -301,10 +301,11 @@ def apply_transforms_to_points( dim, points, transformlist,
     libfn(processed_args)
     mynp = pointsOut.numpy()
     pointsOutDF = points.copy()
-    if dim == 2:
-        pointsOutDF[['x','y']] = mynp[:,:]
-    if dim == 3:
-        pointsOutDF[['x','y','z']] = mynp[:,:,:]
-    if dim == 4:
-        pointsOutDF[['x','y','z','t']] = mynp[:,:,:,:]
+    pointsOutDF['x'] = mynp[:,0]
+    if dim >= 2:
+        pointsOutDF['y'] = mynp[:,1]
+    if dim >= 3:
+        pointsOutDF['z'] = mynp[:,2]
+    if dim >= 4:
+        pointsOutDF['t'] = mynp[:,3]
     return pointsOutDF
