@@ -13,6 +13,8 @@ __all__ = ['image_header_info',
            'image_list_to_matrix',
            'images_to_matrix',
            'matrix_from_images',
+           'timeseries_to_matrix',
+           'matrix_to_timeseries',
            'from_numpy',
            '_from_numpy']
 
@@ -299,6 +301,77 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5 ):
     return data_matrix
 image_list_to_matrix = images_to_matrix
 matrix_from_images = images_to_matrix
+
+
+
+def timeseries_to_matrix( image, mask=None ):
+    """
+    Convert a timeseries image into a matrix.
+
+    ANTsR function: `timeseries2matrix`
+
+    Arguments
+    ---------
+    image : image whose slices we convert to a matrix. E.g. a 3D image of size
+           x by y by z will convert to a z by x*y sized matrix
+
+    mask : ANTsImage (optional)
+        image containing binary mask. voxels in the mask are placed in the matrix
+
+    Returns
+    -------
+    ndarray
+        array with a row for each image
+        shape = (N_IMAGES, N_VOXELS)
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.make_image( (10,10,10,5 ) )
+    >>> mat = ants.timeseries_to_matrix( img )
+    """
+    temp = utils.ndimage_to_list( image )
+    if mask is None:
+        mask = temp[0]*0 + 1
+    return image_list_to_matrix( temp, mask )
+
+
+def matrix_to_timeseries( image, matrix, mask=None ):
+    """
+    converts a matrix to a ND image.
+
+    ANTsR function: `matrix2timeseries`
+
+    Arguments
+    ---------
+
+    image: reference ND image
+
+    matrix: matrix to convert to image
+
+    mask: mask image defining voxels of interest
+
+
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.make_image( (10,10,10,5 ) )
+    >>> mask = ants.ndimage_to_list( img )[0] * 0
+    >>> mask[ 4:8, 4:8, 4:8 ] = 1
+    >>> mat = ants.timeseries_to_matrix( img, mask = mask )
+    >>> img2 = ants.matrix_to_timeseries( img,  mat, mask)
+    """
+
+    if mask is None:
+        mask = temp[0]*0 + 1
+    temp = matrix_to_images( matrix, mask )
+    newImage = utils.list_to_ndimage( image, temp)
+    iio.copy_image_info( image, newImage)
+    return(newImage)
 
 
 def image_header_info(filename):
