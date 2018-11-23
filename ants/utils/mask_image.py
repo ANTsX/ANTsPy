@@ -2,14 +2,16 @@
 
 __all__ = ['mask_image']
 
+import numpy as np
+from .threshold_image import threshold_image
 
 def mask_image(image, mask, level=1, binarize=False):
     """
     Mask an input image by a mask image.  If the mask image has multiple labels,
     it is possible to specify which label(s) to mask at.
-    
+
     ANTsR function: `maskImage`
-    
+
     Arguments
     ---------
     image : ANTsImage
@@ -23,7 +25,7 @@ def mask_image(image, mask, level=1, binarize=False):
 
     binarize : boolean
         whether binarize the output image
-    
+
     Returns
     -------
     ANTsImage
@@ -37,16 +39,14 @@ def mask_image(image, mask, level=1, binarize=False):
     >>> seg = ants.kmeans_segmentation(myimage, 3)
     >>> myimage_mask = ants.mask_image(myimage, seg['segmentation'], (1,3))
     """
-    if not isinstance(level, (tuple,list)):
-        image_out = image.clone()
-        image_out[mask != level] = 0
-        return image_out
-    else:
-        image_out = image.clone() * 0
-        for mylevel in level:
-            if binarize:
-                image_out[mask == mylevel] = 1
-            else:
-                image_out[mask == mylevel] = image[mask == mylevel]
-        return image_out
-
+    leveluse = level
+    if type(leveluse) is np.ndarray:
+        leveluse = level.tolist()
+    image_out = image.clone() * 0
+    for mylevel in leveluse:
+        temp = threshold_image( mask, mylevel, mylevel )
+        if binarize:
+            image_out = image_out + temp
+        else:
+            image_out = image_out + temp * image
+    return image_out
