@@ -1,5 +1,6 @@
 
-__all__ = ['quantile',
+__all__ = ['ilr',
+           'quantile',
            'regress_poly',
            'regress_components',
            'get_average_of_timeseries',
@@ -8,8 +9,133 @@ __all__ = ['quantile',
 import numpy as np
 from numpy.polynomial import Legendre
 from scipy import linalg
+from scipy.stats import pearsonr
+import pandas as pd
+from pandas import DataFrame
+from sklearn import linear_model
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
 from .. import utils
 from .. import core
+
+def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
+    """
+    Image-based linear regression.
+
+    This function simplifies calculating p-values from linear models
+    in which there is a similar formula that is applied many times
+    with a change in image-based predictors.  Image-based variables
+    are stored in the input matrix list. They should be named
+    consistently in the input formula and in the image list.  If they
+    are not, an error will be thrown.  All input matrices should have
+    the same number of rows and columns.
+
+    This function takes advantage of statsmodels R-style formulas.
+
+    ANTsR function: `ilr`
+
+    Arguments
+    ---------
+
+    data_frame: This data frame contains all relevant predictors except for
+        the matrices associated with the image variables.  One should convert
+        any categorical predictors ahead of time using `pd.get_dummies`.
+
+    voxmats: The named list of matrices that contains the changing
+        predictors.
+
+    ilr_formula: This is a character string that defines a valid regression
+        formula in the R-style.
+
+    verbose:  will print a little bit of diagnostic information that allows
+        a degree of model checking
+
+    Returns
+    -------
+
+    A list of different matrices that contain names derived from the
+    formula and the coefficients of the regression model.  The size of
+    the output values ( p-values, t-values, parameter values ) will match
+    the input matrix and, as such, can be converted to an image via `make_image`
+
+    Example
+    -------
+
+    >>> nsub = 20
+    >>> mu, sigma = 0, 1
+    >>> outcome = np.random.normal( mu, sigma, nsub )
+    >>> covar = np.random.normal( mu, sigma, nsub )
+    >>> mat = np.random.normal( mu, sigma, (nsub, 500 ) )
+    >>> mat2 = np.random.normal( mu, sigma, (nsub, 500 ) )
+    >>> data = {'covar':covar,'outcome':outcome}
+    >>> df = pd.DataFrame( data )
+    >>> vlist = { "mat1": mat, "mat2": mat2 }
+    >>> myform = " outcome ~ covar * mat1 "
+    >>> result = ilr( df, vlist, myform)
+    >>> myform = " mat2 ~ covar + mat1 "
+    >>> result = ants.ilr( df, vlist, myform)
+
+    """
+
+    nvoxmats = len( voxmats )
+    if nvoxmats < 1 :
+        raise ValueError('Pass at least one matrix to voxmats list')
+    keylist = list(voxmats.keys())
+    firstmat = keylist[0]
+    voxshape = voxmats[firstmat].shape
+    nvox = voxshape[1]
+    nmats = len( keylist )
+    for k in keylist:
+        if voxmats[firstmat].shape != voxmats[k].shape:
+            raise ValueError('Matrices must have same number of rows (samples)')
+
+    # test voxel
+    vox = 0
+    nrows = data_frame.shape[0]
+    data_frame_vox = data_frame.copy()
+    for k in range( nmats ):
+        data = {keylist[k]: np.random.normal(0,1,nrows) }
+        temp = pd.DataFrame( data )
+        data_frame_vox = pd.concat([data_frame_vox.reset_index(drop=True),temp], axis=1 )
+    mod = smf.ols(formula=ilr_formula, data=data_frame_vox )
+    res = mod.fit()
+    modelNames = res.model.exog_names
+    if verbose:
+        print( data_frame_vox )
+        print(res.summary())
+    nOutcomes = len( modelNames )
+    tValsOut = list()
+    pValsOut = list()
+    bValsOut = list()
+    for k in range( len( modelNames ) ):
+        bValsOut.append( np.zeros( nvox ) )
+        pValsOut.append( np.zeros( nvox ) )
+        tValsOut.append( np.zeros( nvox ) )
+
+    for k in range( nvox ):
+        # first get the correct data frame
+        data_frame_vox = data_frame.copy()
+        for v in range( nmats ):
+            data = {keylist[v]: voxmats[keylist[v]][:,k] }
+            temp = pd.DataFrame( data )
+            data_frame_vox = pd.concat([data_frame_vox.reset_index(drop=True),temp], axis=1 )
+        # then get the local model results
+        mod = smf.ols(formula=ilr_formula, data=data_frame_vox )
+        res = mod.fit()
+        tvals = res.tvalues
+        pvals = res.pvalues
+        bvals = res.params
+        for v in range( len( modelNames ) ):
+            bValsOut[v][k] = bvals[v]
+            pValsOut[v][k] = pvals[v]
+            tValsOut[v][k] = tvals[v]
+
+    return {
+        'modelNames': modelNames,
+        'coefficientValues': bValsOut,
+        'pValues': pValsOut,
+        'tValues': tValsOut }
 
 def quantile(image, q, nonzero=True):
     """

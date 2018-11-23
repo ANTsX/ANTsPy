@@ -1,72 +1,20 @@
 
 
 __all__ = ['eig_seg',
-           'ilr',
            'initialize_eigenanatomy',
            'sparse_decom2']
 
 import numpy as np
 from scipy.stats import pearsonr
 import pandas as pd
+from pandas import DataFrame
+from sklearn import linear_model
+import statsmodels.api as sm
 
 from .. import core
 from .. import utils
 from ..core import ants_image as iio
 
-def ilr( ):
-    """
-    Image-based linear regression.
-
-    This function simplifies calculating p-values from linear models
-    in which there is a similar formula that is applied many times
-    with a change in image-based predictors.  Image-based variables
-    are stored in the input matrix list. They should be named
-    consistently in the input formula and in the image list.  If they
-    are not, an error will be thrown.  All input matrices should have
-    the same number of rows and columns.
-
-    ANTsR function: `ilr`
-
-    Arguments
-    ---------
-
-    dataFrame: This data frame contains all relevant predictors except for
-        the matrices associated with the image variables.
-
-    voxmats: The named list of matrices that contains the changing
-        predictors.
-
-    myFormula: This is a character string that defines a valid regression
-        formula.
-
-    Returns
-    -------
-
-    A list of different matrices that contain names derived from the
-    formula and the coefficients of the regression model.
-
-    Example
-    -------
-
-    nsub = 100
-    outcome = rnorm( nsub )
-    covar = rnorm( nsub )
-    mat = replicate( nsub, rnorm( nsub ) )
-    mat2 = replicate( nsub, rnorm( nsub ) )
-    myform = " outcome ~ covar + vox "
-    df = data.frame( outcome = outcome, covar = covar )
-    result = ilr( df, list( vox = mat ), myform)
-    myform = " vox2 ~ covar + vox "
-    df = data.frame( outcome = outcome, covar = covar )
-    result = ilr( df, list( vox = mat, vox2=mat2 ), myform)
-
-    """
-    if inmatrix[0].shape[0] != inmatrix[1].shape[0]:
-        raise ValueError('Matrices must have same number of rows (samples)')
-
-    idim = 3
-    return( idim )
-    
 
 def sparse_decom2(inmatrix,
                     inmask=(None, None),
