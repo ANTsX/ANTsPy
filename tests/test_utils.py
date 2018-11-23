@@ -515,7 +515,7 @@ class TestModule_mask_image(unittest.TestCase):
     def test_mask_image_example(self):
         myimage = ants.image_read(ants.get_ants_data('r16'))
         mask = ants.get_mask( myimage )
-        myimage_mask = ants.mask_image(myimage, mask, 3)
+        myimage_mask = ants.mask_image(myimage, mask, (3,3) )
         seg = ants.kmeans_segmentation(myimage, 3)
         myimage_mask = ants.mask_image(myimage, seg['segmentation'], (1,3))
 
