@@ -1,6 +1,7 @@
 
 __all__ = ['quantile',
            'regress_poly',
+           'get_average_of_timeseries',
            'compcor' ]
 
 import numpy as np
@@ -52,6 +53,19 @@ def regress_poly(degree, data, remove_mean=True, axis=-1):
     regressed_data = data - datahat
     return regressed_data, non_constant_regressors
 
+def get_average_of_timeseries( image, idx=None ):
+    """Average the timeseries into a dimension-1 image.
+    image: input time series image
+    idx:  indices over which to average
+    """
+    imagedim = image.dimension
+    if idx is None:
+        idx = range( image.shape[ imagedim - 1 ] )
+    i0 = utils.slice_image( image, axis=image.dimension-1, idx=idx[0] ) * 0
+    wt = 1.0 / len( idx )
+    for k in idx:
+        i0 = i0 + utils.slice_image( image, axis=image.dimension-1, idx=k ) * wt
+    return( i0 )
 
 def compcor( boldImage, ncompcor=4, quantile=0.975, mask=None, filter_type=False, degree=2 ):
     """Compute the noise components from the imagematrix
