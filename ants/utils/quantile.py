@@ -1,6 +1,7 @@
 
 __all__ = ['quantile',
            'regress_poly',
+           'regress_components',
            'get_average_of_timeseries',
            'compcor' ]
 
@@ -52,6 +53,23 @@ def regress_poly(degree, data, remove_mean=True, axis=-1):
         datahat = X[:, 1:].dot(betas[1:, ...])
     regressed_data = data - datahat
     return regressed_data, non_constant_regressors
+
+def regress_components( data, components, remove_mean=True ):
+    """
+    Returns data with components regressed out.
+    :param bool remove_mean: whether or not demean data (i.e. degree 0),
+    :param int axis: numpy array axes along which regression is performed
+    """
+    timepoints = data.shape[0]
+    betas = np.linalg.pinv(components).dot(data)
+    if remove_mean:
+        datahat = components.dot(betas)
+    else:  # disregard the first layer of X, which is degree 0
+        datahat = components[:, 1:].dot(betas[1:, ...])
+    regressed_data = data - datahat
+    return regressed_data
+
+
 
 def get_average_of_timeseries( image, idx=None ):
     """Average the timeseries into a dimension-1 image.
