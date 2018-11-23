@@ -826,19 +826,24 @@ def motion_correction(
             counter = counter + 10
             print( mycount, end = "%.", flush=True )
         temp = utils.slice_image( image, axis = idim - 1, idx = k )
-        myreg = registration( fixed, temp,
-          type_of_transform = type_of_transform,
-          mask = mask,
-          **kwargs )
-        fdptsTxI = apply_transforms_to_points( idim - 1, fdpts, myreg[ 'fwdtransforms' ] )
-        if k > 0:
-            fdptsTxIminus1 = apply_transforms_to_points( idim - 1, fdpts, motion_parameters[ k - 1 ] )
+        if ( temp.numpy().var() > 0 ):
+            myreg = registration( fixed, temp,
+              type_of_transform = type_of_transform,
+              mask = mask,
+              **kwargs )
+            fdptsTxI = apply_transforms_to_points( idim - 1, fdpts, myreg[ 'fwdtransforms' ] )
+            if k > 0 and motion_parameters[ k - 1 ] != "NA":
+                fdptsTxIminus1 = apply_transforms_to_points( idim - 1, fdpts, motion_parameters[ k - 1 ] )
+            else:
+                fdptsTxIminus1 = fdptsTxI
+            # take the absolute value, then the mean across columns, then the sum
+            FD[ k ] = (fdptsTxIminus1-fdptsTxI).abs().mean().sum()
+            motion_parameters.append( myreg[ 'fwdtransforms' ] )
+            motion_corrected.append( myreg[ 'warpedmovout' ] )
         else:
-            fdptsTxIminus1 = fdptsTxI
-        # take the absolute value, then the mean across columns, then the sum
-        FD[ k ] = (fdptsTxIminus1-fdptsTxI).abs().mean().sum()
-        motion_parameters.append( myreg[ 'fwdtransforms' ] )
-        motion_corrected.append( myreg[ 'warpedmovout' ] )
+            motion_parameters.append( "NA" )
+            motion_corrected.append( temp )
+
     if verbose:
         print("Done")
     return {
