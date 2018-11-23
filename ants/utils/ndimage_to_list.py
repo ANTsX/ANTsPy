@@ -2,7 +2,7 @@ __all__ = ['ndimage_to_list',
            'list_to_ndimage']
 
 import numpy as np
-
+# import itk as itk
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import utils
@@ -44,20 +44,23 @@ def list_to_ndimage( image, image_list ):
         if image.pixeltype != inpixeltype:
             raise ValueError('all images must have the same pixeltype')
 
-    a = image_list[ 0 ].numpy()
-    for x in range(1, len(image_list)):
-        a = np.dstack(  ( a, image_list[ x ].numpy() ) )
     dimensionout = ( *image_list[0].shape, len( image_list )  )
     newImage = iio2.make_image(
       dimensionout,
-      voxval = a,
       spacing = iio.get_spacing( image ),
       origin = iio.get_origin( image ),
       direction = iio.get_direction( image ),
       pixeltype = inpixeltype
       )
-
+    # FIXME - should implement paste image filter from ITK
+    for x in range( len( image_list ) ):
+        if dimension == 2:
+            newImage[:,:,x] = image_list[x][:,:]
+        if dimension == 3:
+            newImage[:,:,:,x] = image_list[x][:,:,:]
     return newImage
+
+
 
 
 
