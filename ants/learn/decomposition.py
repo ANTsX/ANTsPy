@@ -1,6 +1,7 @@
 
 
 __all__ = ['eig_seg',
+           'ilr',
            'initialize_eigenanatomy',
            'sparse_decom2']
 
@@ -12,114 +13,168 @@ from .. import core
 from .. import utils
 from ..core import ants_image as iio
 
+def ilr( ):
+    """
+    Image-based linear regression.
 
-def sparse_decom2(inmatrix, 
-                    inmask=(None, None), 
+    This function simplifies calculating p-values from linear models
+    in which there is a similar formula that is applied many times
+    with a change in image-based predictors.  Image-based variables
+    are stored in the input matrix list. They should be named
+    consistently in the input formula and in the image list.  If they
+    are not, an error will be thrown.  All input matrices should have
+    the same number of rows and columns.
+
+    ANTsR function: `ilr`
+
+    Arguments
+    ---------
+
+    dataFrame: This data frame contains all relevant predictors except for
+        the matrices associated with the image variables.
+
+    voxmats: The named list of matrices that contains the changing
+        predictors.
+
+    myFormula: This is a character string that defines a valid regression
+        formula.
+
+    Returns
+    -------
+
+    A list of different matrices that contain names derived from the
+    formula and the coefficients of the regression model.
+
+    Example
+    -------
+
+    nsub = 100
+    outcome = rnorm( nsub )
+    covar = rnorm( nsub )
+    mat = replicate( nsub, rnorm( nsub ) )
+    mat2 = replicate( nsub, rnorm( nsub ) )
+    myform = " outcome ~ covar + vox "
+    df = data.frame( outcome = outcome, covar = covar )
+    result = ilr( df, list( vox = mat ), myform)
+    myform = " vox2 ~ covar + vox "
+    df = data.frame( outcome = outcome, covar = covar )
+    result = ilr( df, list( vox = mat, vox2=mat2 ), myform)
+
+    """
+    if inmatrix[0].shape[0] != inmatrix[1].shape[0]:
+        raise ValueError('Matrices must have same number of rows (samples)')
+
+    idim = 3
+    return( idim )
+    
+
+def sparse_decom2(inmatrix,
+                    inmask=(None, None),
                     sparseness=(0.01, 0.01),
-                    nvecs=3, 
-                    its=20, 
-                    cthresh=(0,0), 
-                    statdir=None, 
+                    nvecs=3,
+                    its=20,
+                    cthresh=(0,0),
+                    statdir=None,
                     perms=0,
-                    uselong=0, 
-                    z=0, 
-                    smooth=0, 
-                    robust=0, 
+                    uselong=0,
+                    z=0,
+                    smooth=0,
+                    robust=0,
                     mycoption=0,
-                    initialization_list=[], 
-                    initialization_list2=[], 
+                    initialization_list=[],
+                    initialization_list2=[],
                     ell1=10,
-                    prior_weight=0, 
-                    verbose=False, 
-                    rejector=0, 
+                    prior_weight=0,
+                    verbose=False,
+                    rejector=0,
                     max_based=False,
                     version=1):
     """
-    Decomposes two matrices into paired sparse eigenevectors to 
+    Decomposes two matrices into paired sparse eigenevectors to
     maximize canonical correlation - aka Sparse CCA.
-    Note: we do not scale the matrices internally. We leave 
+    Note: we do not scale the matrices internally. We leave
     scaling choices to the user.
-    
+
     ANTsR function: `sparseDecom2`
 
     Arguments
     ---------
-    inmatrix : 2-tuple of ndarrays 
+    inmatrix : 2-tuple of ndarrays
         input as inmatrix=(mat1,mat2). n by p input matrix and n by q input matrix , spatial variable lies along columns.
-    
+
     inmask : 2-tuple of ANTsImage types (optional - one or both)
         optional pair of image masks
-    
+
     sparseness : tuple
         a pair of float values e.g c(0.01,0.1) enforces an unsigned 99 percent and 90 percent sparse solution for each respective view
-    
+
     nvecs : integer
         number of eigenvector pairs
-    
+
     its : integer
         number of iterations, 10 or 20 usually sufficient
-    
+
     cthresh : 2-tuple
         cluster threshold pair
-    
+
     statdir : string (optional)
         temporary directory if you want to look at full output
-    
+
     perms : integer
         number of permutations. settings permutations greater than 0 will estimate significance per vector empirically. For small datasets, these may be conservative. p-values depend on how one scales the input matrices.
-    
+
     uselong : boolean
         enforce solutions of both views to be the same - requires matrices to be the same size
-    
+
     z : float
         subject space (low-dimensional space) sparseness value
-    
+
     smooth : float
         smooth the data (only available when mask is used)
-    
-    robust : boolean 
+
+    robust : boolean
         rank transform input matrices
-    
+
     mycoption : integer
         enforce 1 - spatial orthogonality, 2 - low-dimensional orthogonality or 0 - both
-    
+
     initialization_list : list
         initialization for first view
-    
+
     initialization_list2 : list
         initialization for 2nd view
-    
+
     ell1 : float
         gradient descent parameter, if negative then l0 otherwise use l1
-    
+
     prior_weight : scalar
         Scalar value weight on prior between 0 (prior is weak) and 1 (prior is strong). Only engaged if initialization is used
-    
+
     verbose : boolean
         activates verbose output to screen
-    
+
     rejector : scalar
         rejects small correlation solutions
-    
-    max_based : boolean 
+
+    max_based : boolean
         whether to choose max-based thresholding
 
     Returns
     -------
     dict w/ following key/value pairs:
-        
+
         `projections` : ndarray
             X projections
-        
+
         `projections2` : ndarray
             Y projections
-        
+
         `eig1` : ndarray
             X components
-        
+
         `eig2` : ndarray
             Y components
-        
+
         `summary` : pd.DataFrame
             first column is canonical correlations,
             second column is p-values (these are `None` if perms > 0)
@@ -130,8 +185,8 @@ def sparse_decom2(inmatrix,
     >>> import ants
     >>> mat = np.random.randn(20, 100)
     >>> mat2 = np.random.randn(20, 90)
-    >>> mydecom = ants.sparse_decom2(inmatrix = (mat,mat2), 
-                                    sparseness=(0.1,0.3), nvecs=3, 
+    >>> mydecom = ants.sparse_decom2(inmatrix = (mat,mat2),
+                                    sparseness=(0.1,0.3), nvecs=3,
                                     its=3, perms=0)
 
     """
@@ -188,11 +243,11 @@ def sparse_decom2(inmatrix,
                         inmask[0].pointer, inmask[1].pointer,
                         hasmaskx, hasmasky,
                         sparseness[0], sparseness[1],
-                        nvecs, its, 
-                        cthresh[0], cthresh[1], 
+                        nvecs, its,
+                        cthresh[0], cthresh[1],
                         z, smooth,
-                        initialization_list, initialization_list2, 
-                        ell1, verbose, 
+                        initialization_list, initialization_list2,
+                        ell1, verbose,
                         prior_weight, mycoption, max_based)
 
 
@@ -220,11 +275,11 @@ def sparse_decom2(inmatrix,
                                 inmask[0].pointer, inmask[1].pointer,
                                 hasmaskx, hasmasky,
                                 sparseness[0], sparseness[1],
-                                nvecs, its, 
-                                cthresh[0], cthresh[1], 
+                                nvecs, its,
+                                cthresh[0], cthresh[1],
                                 z, smooth,
-                                initialization_list, initialization_list2, 
-                                ell1, verbose, 
+                                initialization_list, initialization_list2,
+                                ell1, verbose,
                                 prior_weight, mycoption, max_based)
             p1perm = np.dot(m1, outvalperm['eig1'].T)
             p2perm = np.dot(m2, outvalperm['eig2'].T)
@@ -247,38 +302,38 @@ def sparse_decom2(inmatrix,
 
 def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smoothing=0):
     """
-    InitializeEigenanatomy is a helper function to initialize sparseDecom 
-    and sparseDecom2. Can be used to estimate sparseness parameters per 
-    eigenvector. The user then only chooses nvecs and optional 
+    InitializeEigenanatomy is a helper function to initialize sparseDecom
+    and sparseDecom2. Can be used to estimate sparseness parameters per
+    eigenvector. The user then only chooses nvecs and optional
     regularization parameters.
 
     Arguments
     ---------
-    initmat : np.ndarray or ANTsImage 
-        input matrix where rows provide initial vector values. 
+    initmat : np.ndarray or ANTsImage
+        input matrix where rows provide initial vector values.
         alternatively, this can be an antsImage which contains labeled regions.
-    
+
     mask : ANTsImage
         mask if available
 
     initlabels : list/tuple of integers
         which labels in initmat to use as initial components
-    
+
     nreps : integer
         nrepetitions to use
-    
+
     smoothing : float
         if using an initial label image, optionally smooth each roi
-    
+
     Returns
     -------
     dict w/ the following key/value pairs:
         `initlist` : list of ANTsImage types
-            initialization list(s) for sparseDecom(2) 
-        
+            initialization list(s) for sparseDecom(2)
+
         `mask` : ANTsImage
             mask(s) for sparseDecom(2)
-        
+
         `enames` : list of strings
             string names of components for sparseDecom(2)
 
@@ -338,25 +393,25 @@ def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smooth
 
 def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smooth=1):
     """
-    Segment a mask into regions based on the max value in an image list. 
-    At a given voxel the segmentation label will contain the index to the image 
-    that has the largest value. If the 3rd image has the greatest value, 
+    Segment a mask into regions based on the max value in an image list.
+    At a given voxel the segmentation label will contain the index to the image
+    that has the largest value. If the 3rd image has the greatest value,
     the segmentation label will be 3 at that voxel.
-    
+
     Arguments
-    ---------    
+    ---------
     mask : ANTsImage
         D-dimensional mask > 0 defining segmentation region.
 
     img_list : collection of ANTsImage or np.ndarray
         images to use
 
-    apply_segmentation_to_images : boolean   
+    apply_segmentation_to_images : boolean
         determines if original image list is modified by the segmentation.
 
     cthresh : integer
         throw away isolated clusters smaller than this value
-    
+
     smooth : float
         smooth the input data first by this value
 
@@ -404,8 +459,3 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
             img_list[i] = img
 
     return maskseg
-
-
-
-
-

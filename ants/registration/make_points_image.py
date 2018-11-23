@@ -44,7 +44,7 @@ def make_points_image(pts, mask, radius=5):
     powers_lblimg = mask * 0
     npts = len(pts)
     rad = radius
-    n = math.ceiling(rad/np.array(mask.spacing))
+    n = math.ceil(rad/np.array(mask.spacing))
     dim = mask.dimension
     if pts.shape[1] < dim:
         raise ValueError('points dimensionality should match that of images')
