@@ -77,6 +77,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     >>> img = ants.resample_image(img, (64,64), 1, 0)
     >>> mask = ants.get_mask(img)
     >>> ants.atropos( a = img, m = '[0.2,1x1]', c = '[2,0]',  i = 'kmeans[3]', x = mask )
+    >>> seg2 = ants.atropos( a = img, m = '[0.2,1x1]', c = '[2,0]', i = seg['probabilityimages'], x = mask, priorweight=0.25 )
     """
     probs = mktemp(prefix='antsr', suffix='prob%02d.nii.gz')
     tdir = probs.replace(os.path.basename(probs),'')
