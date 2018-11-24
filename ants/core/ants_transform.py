@@ -59,7 +59,7 @@ class ANTsTransform(object):
         return np.asarray(libfn(self.pointer), order='F')#.reshape((self.dimension, self.dimension+1), order='F')
 
     def set_parameters(self, parameters):
-        """ Set parameters of transform """ 
+        """ Set parameters of transform """
         if not isinstance(parameters, np.ndarray):
             parameters = np.asarray(parameters)
 
@@ -107,7 +107,7 @@ class ANTsTransform(object):
             return self.apply_to_image(data, reference, **kwargs)
 
     def apply_to_point(self, point):
-        """ 
+        """
         Apply transform to a point
 
         Arguments
@@ -131,9 +131,9 @@ class ANTsTransform(object):
         return tuple(libfn(self.pointer, point))
 
     def apply_to_vector(self, vector):
-        """ 
+        """
         Apply transform to a vector
-        
+
         Arguments
         ---------
         vector : list/tuple
@@ -150,8 +150,8 @@ class ANTsTransform(object):
         return np.asarray(libfn(self.pointer, vector))
 
     def apply_to_image(self, image, reference=None, interpolation='linear'):
-        """ 
-        Apply transform to an image 
+        """
+        Apply transform to an image
 
         Arguments
         ---------
@@ -176,7 +176,7 @@ class ANTsTransform(object):
         reference = reference.clone(image.pixeltype)
 
         img_ptr = tform_fn(self.pointer, image.pointer, reference.pointer, interpolation)
-        return iio.ANTsImage(pixeltype=image.pixeltype, 
+        return iio.ANTsImage(pixeltype=image.pixeltype,
                             dimension=image.dimension,
                             components=image.components,
                             pointer=img_ptr)
@@ -200,7 +200,7 @@ def set_ants_transform_parameters(transform, parameters):
 def get_ants_transform_parameters(transform):
     """
     Get parameters of an ANTsTransform
-    
+
     ANTsR function: `getAntsrTransformParameters`
     """
     return transform.parameters
@@ -208,7 +208,7 @@ def get_ants_transform_parameters(transform):
 def set_ants_transform_fixed_parameters(transform, parameters):
     """
     Set fixed parameters of an ANTsTransform
-    
+
     ANTsR function: `setAntsrTransformFixedParameters`
     """
     transform.set_fixed_parameters(parameters)
@@ -216,7 +216,7 @@ def set_ants_transform_fixed_parameters(transform, parameters):
 def get_ants_transform_fixed_parameters(transform):
     """
     Get fixed parameters of an ANTsTransform
-    
+
     ANTsR function: `getAntsrTransformFixedParameters`
     """
     return transform.fixed_parameters
@@ -225,7 +225,7 @@ def get_ants_transform_fixed_parameters(transform):
 def apply_ants_transform(transform, data, data_type="point", reference=None, **kwargs):
     """
     Apply ANTsTransform to data
-    
+
     ANTsR function: `applyAntsrTransform`
 
     Arguments
@@ -259,9 +259,9 @@ def apply_ants_transform(transform, data, data_type="point", reference=None, **k
 
 
 def apply_ants_transform_to_point(transform, point):
-    """   
+    """
     Apply transform to a point
-    
+
     ANTsR function: `applyAntsrTransformToPoint`
 
     Arguments
@@ -272,7 +272,7 @@ def apply_ants_transform_to_point(transform, point):
     Returns
     -------
     tuple : transformed point
-        
+
     Example
     -------
     >>> import ants
@@ -287,7 +287,7 @@ def apply_ants_transform_to_point(transform, point):
 def apply_ants_transform_to_vector(transform, vector):
     """
     Apply transform to a vector
-    
+
     ANTsR function: `applyAntsrTransformToVector`
 
     Arguments
@@ -305,7 +305,7 @@ def apply_ants_transform_to_vector(transform, vector):
 def apply_ants_transform_to_image(transform, image, reference, interpolation='linear'):
     """
     Apply transform to an image
-    
+
     ANTsR function: `applyAntsrTransformToImage`
 
     Arguments
@@ -322,7 +322,7 @@ def apply_ants_transform_to_image(transform, image, reference, interpolation='li
     Returns
     -------
     list : transformed vector
-    
+
     Example
     -------
     >>> import ants
@@ -337,7 +337,7 @@ def apply_ants_transform_to_image(transform, image, reference, interpolation='li
 def invert_ants_transform(transform):
     """
     Invert ANTsTransform
-    
+
     ANTsR function: `invertAntsrTransform`
 
     Example
@@ -367,7 +367,7 @@ def compose_ants_transforms(transform_list):
     -------
     ANTsTransform
         one transform that contains all given transforms
-    
+
     Example
     -------
     >>> import ants
@@ -377,6 +377,12 @@ def compose_ants_transforms(transform_list):
     >>> inv_tx = tx.invert()
     >>> single_tx = ants.compose_ants_transforms([tx, inv_tx])
     >>> img_orig = single_tx.apply_to_image(img, img)
+    >>> rRotGenerator = ants.contrib.RandomRotate2D( ( 0, 40 ), reference=img )
+    >>> rShearGenerator=ants.contrib.RandomShear2D( (0,50), reference=img )
+    >>> tx1 = rRotGenerator.transform()
+    >>> tx2 = rShearGenerator.transform()
+    >>> rSrR = ants.compose_ants_transforms([tx1, tx2])
+    >>> rSrR.apply_to_image( img )
     """
     precision = transform_list[0].precision
     dimension = transform_list[0].dimension
@@ -390,7 +396,7 @@ def compose_ants_transforms(transform_list):
     tx_ptr_list = list(reversed([tf.pointer for tf in transform_list]))
     libfn = utils.get_lib_fn('composeTransforms%s' % (transform_list[0]._libsuffix))
     itk_composed_tx = libfn(tx_ptr_list, precision, dimension)
-    return ANTsTransform(precision=precision, dimension=dimension, 
+    return ANTsTransform(precision=precision, dimension=dimension,
                         transform_type='CompositeTransform', pointer=itk_composed_tx)
 
 
@@ -399,7 +405,7 @@ def transform_index_to_physical_point(image, index):
     Get spatial point from index of an image.
 
     ANTsR function: `antsTransformIndexToPhysicalPoint`
-    
+
     Arguments
     ---------
     img : ANTsImage
@@ -445,7 +451,7 @@ def transform_physical_point_to_index(image, point):
     Get index from spatial point of an image.
 
     ANTsR function: `antsTransformPhysicalPointToIndex`
-    
+
     Arguments
     ---------
     image : ANTsImage
@@ -486,12 +492,3 @@ def transform_physical_point_to_index(image, point):
     index = [i-1 for i in index[0]]
 
     return np.array(index)
-
-
-
-
-
-
-
-
-

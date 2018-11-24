@@ -59,10 +59,10 @@ class Translate2D(object):
         if self.reference is not None:
             self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with the given
-        translation parameters
+        translation parameters.  Return the transform if X=None.
 
         Arguments
         ---------
@@ -94,10 +94,10 @@ class Translate2D(object):
 
         translation_matrix = np.array([[1, 0, translation_x],
                                        [0, 1, translation_y]])
-        if self.lazy:
-            return translation_matrix
+        self.tx.set_parameters(translation_matrix)
+        if self.lazy or X is None:
+            return self.tx
         else:
-            self.tx.set_parameters(translation_matrix)
             return self.tx.apply_to_image(X, reference=self.reference)
 
 
@@ -138,11 +138,11 @@ class RandomTranslate2D(object):
         self.reference = reference
         self.lazy = lazy
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with
         translation parameters randomly generated from the user-specified
-        range.
+        range.   Return the transform if X=None.
 
         Arguments
         ---------
@@ -214,10 +214,10 @@ class Shear2D(object):
         if self.reference is not None:
             self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with the given
-        shear parameters
+        shear parameters.   Return the transform if X=None.
 
         Arguments
         ---------
@@ -248,14 +248,14 @@ class Shear2D(object):
         """
         # convert to radians and unpack
         shear = [math.pi / 180 * s for s in self.shear]
-        shear_x, shear_y, shear_z = shear
+        shear_x, shear_y = shear
 
         shear_matrix = np.array([[1, shear_x, 0],
                                  [shear_y, 1, 0]])
-        if self.lazy:
-            return shear_matrix
+        self.tx.set_parameters(shear_matrix)
+        if self.lazy or X is None:
+            return self.tx
         else:
-            self.tx.set_parameters(shear_matrix)
             return self.tx.apply_to_image(X, reference=self.reference)
 
 
@@ -296,11 +296,11 @@ class RandomShear2D(object):
         self.reference = reference
         self.lazy = lazy
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with
         shear parameters randomly generated from the user-specified
-        range.
+        range.   Return the transform if X=None.
 
         Arguments
         ---------
@@ -370,10 +370,10 @@ class Rotate2D(object):
         if self.reference is not None:
             self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with the given
-        rotation parameters
+        rotation parameters.   Return the transform if X=None.
 
         Arguments
         ---------
@@ -402,10 +402,10 @@ class Rotate2D(object):
         rotation_matrix = np.array([[np.cos(theta), -np.sin(theta), 0],
                                     [np.sin(theta),  np.cos(theta), 0]])
 
-        if self.lazy:
-            return rotation_matrix
+        self.tx.set_parameters(rotation_matrix)
+        if self.lazy or X is None:
+            return self.tx
         else:
-            self.tx.set_parameters(rotation_matrix)
             return self.tx.apply_to_image(X, reference=self.reference)
 
 
@@ -446,11 +446,11 @@ class RandomRotate2D(object):
         self.reference = reference
         self.lazy = lazy
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with
         rotation parameters randomly generated from the user-specified
-        range.
+        range.   Return the transform if X=None.
 
         Arguments
         ---------
@@ -523,10 +523,10 @@ class Zoom2D(object):
         if self.reference is not None:
             self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with the given
-        zoom parameters
+        zoom parameters.   Return the transform if X=None.
 
         Arguments
         ---------
@@ -553,10 +553,10 @@ class Zoom2D(object):
         self.params = (zoom_x, zoom_y)
         zoom_matrix = np.array([[zoom_x, 0, 0],
                                 [0, zoom_y, 0]])
-        if self.lazy:
-            return zoom_matrix
+        self.tx.set_parameters(zoom_matrix)
+        if self.lazy or X is None:
+            return self.tx
         else:
-            self.tx.set_parameters(zoom_matrix)
             return self.tx.apply_to_image(X, reference=self.reference)
 
 
@@ -597,11 +597,11 @@ class RandomZoom2D(object):
         self.reference = reference
         self.lazy = lazy
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         """
         Transform an image using an Affine transform with
         zoom parameters randomly generated from the user-specified
-        range.
+        range.  Return the transform if X=None.
 
         Arguments
         ---------
