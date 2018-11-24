@@ -4,7 +4,8 @@ __all__ = ['ilr',
            'regress_poly',
            'regress_components',
            'get_average_of_timeseries',
-           'compcor' ]
+           'compcor',
+           'bandpass_filter_matrix' ]
 
 import numpy as np
 from numpy.polynomial import Legendre
@@ -211,23 +212,115 @@ def get_average_of_timeseries( image, idx=None ):
         i0 = i0 + utils.slice_image( image, axis=image.dimension-1, idx=k ) * wt
     return( i0 )
 
+def bandpass_filter_matrix( matrix,
+    tr=1, lowf=0.01, highf=0.1, order = 3):
+    """
+    Bandpass filter the input time series image
+
+    ANTsR function: `frequencyFilterfMRI`
+
+    Arguments
+    ---------
+
+    image: input time series image
+
+    tr:    sampling time interval (inverse of sampling rate)
+
+    lowf:  low frequency cutoff
+
+    highf: high frequency cutoff
+
+    order: order of the butterworth filter run using `filtfilt`
+
+    Returns
+    -------
+    filtered matrix
+
+    Example
+    -------
+
+    >>> import numpy as np
+    >>> import ants
+    >>> import matplotlib.pyplot as plt
+    >>> brainSignal = np.random.randn( 400, 1000 )
+    >>> tr = 1
+    >>> filtered = ants.bandpass_filter_matrix( brainSignal, tr = tr )
+    >>> nsamples = brainSignal.shape[0]
+    >>> t = np.linspace(0, tr*nsamples, nsamples, endpoint=False)
+    >>> k = 20
+    >>> plt.plot(t, brainSignal[:,k], label='Noisy signal')
+    >>> plt.plot(t, filtered[:,k], label='Filtered signal')
+    >>> plt.xlabel('time (seconds)')
+    >>> plt.grid(True)
+    >>> plt.axis('tight')
+    >>> plt.legend(loc='upper left')
+    >>> plt.show()
+    """
+    from scipy.signal import butter, filtfilt
+
+    def butter_bandpass(lowcut, highcut, fs, order ):
+        nyq = 0.5 * fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        b, a = butter(order, [low, high], btype='band')
+        return b, a
+
+    def butter_bandpass_filter(data, lowcut, highcut, fs, order ):
+        b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+        y = filtfilt(b, a, data)
+        return y
+
+    fs = 1/tr   # sampling rate based on tr
+    nsamples = matrix.shape[0]
+    ncolumns = matrix.shape[1]
+    matrixOut = matrix.copy()
+    for k in range( ncolumns ):
+        matrixOut[:,k] = butter_bandpass_filter(
+            matrix[:,k], lowf, highf, fs, order=order )
+    return matrixOut
+
+
 def compcor( boldImage, ncompcor=4, quantile=0.975, mask=None, filter_type=False, degree=2 ):
-    """Compute the noise components from the imagematrix
-    boldImage: input time series image
-    ncompcor:  number of noise components to return
-    quantile:  quantile defining high-variance
-    mask:      mask defining brain or specific tissues
-    filter_type: type off filter to apply to time series before computing
-                 noise components.
-        'polynomial' - Legendre polynomial basis
-        False - None (mean-removal only)
-    degree: order of polynomial used to remove trends from the timeseries
-    returns:
-    components: a numpy array
-    basis: a numpy array containing the (non-constant) filter regressors
+    """
+    Compute noise components from the input image
+
+    ANTsR function: `compcor`
 
     this is adapted from nipy code https://github.com/nipy/nipype/blob/e29ac95fc0fc00fedbcaa0adaf29d5878408ca7c/nipype/algorithms/confounds.py
+
+    Arguments
+    ---------
+
+    boldImage: input time series image
+
+    ncompcor:  number of noise components to return
+
+    quantile:  quantile defining high-variance
+
+    mask:      mask defining brain or specific tissues
+
+    filter_type: type off filter to apply to time series before computing
+                 noise components.
+
+        'polynomial' - Legendre polynomial basis
+        False - None (mean-removal only)
+
+    degree: order of polynomial used to remove trends from the timeseries
+
+    Returns
+    -------
+    dictionary containing:
+
+        components: a numpy array
+
+        basis: a numpy array containing the (non-constant) filter regressors
+
+    Example
+    -------
+    >>> cc = ants.compcor( ants.image_read(ants.get_ants_data("ch2")) )
+
     """
+
     def compute_tSTD(M, quantile, x=0, axis=0):
         stdM = np.std(M, axis=axis)
         # set bad values to x
