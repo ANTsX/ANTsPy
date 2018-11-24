@@ -17,7 +17,7 @@ import setuptools.command.develop
 import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
-version = '0.1.6' # ANTsPy version
+version = '0.1.7' # ANTsPy version
 
 if ('--weekly' in sys.argv):
     sys.argv.remove('--weekly')
@@ -92,10 +92,9 @@ class CMakeBuild(build_ext):
             raise RuntimeError("CMake must be installed to build the following extensions: " +
                                ", ".join(e.name for e in self.extensions))
 
-        if platform.system() == "Windows":
-            cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-            if cmake_version < '3.1.0':
-                raise RuntimeError("CMake >= 3.1.0 is required on Windows")
+        cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
+        if cmake_version < '3.11.0':
+            raise RuntimeError("CMake >= 3.11.0 is required on Windows")
 
         for ext in self.extensions:
             self.build_extension(ext)

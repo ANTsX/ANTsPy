@@ -22,7 +22,7 @@ from ...core import ants_transform as tio
 
 class Translate2D(object):
     """
-    Create an ANTs Affine Transform with a specified translation. 
+    Create an ANTs Affine Transform with a specified translation.
     """
     def __init__(self,
                  translation,
@@ -34,12 +34,13 @@ class Translate2D(object):
         Arguments
         ---------
         translation : list or tuple
-            translation values for each axis, in degrees. 
-            Negative values can be used for translation in the 
+            translation values for each axis, in degrees.
+            Negative values can be used for translation in the
             other direction
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -53,12 +54,14 @@ class Translate2D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=2,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         translation parameters
 
         Arguments
@@ -82,7 +85,7 @@ class Translate2D(object):
         >>> tx = ants.contrib.Translate2D(translation=(-10,0)) # other direction
         >>> img2_x = tx.transform(img)
         >>> tx = ants.contrib.Translate2D(translation=(0,10))
-        >>> img2_z = tx.transform(img) 
+        >>> img2_z = tx.transform(img)
         >>> tx = ants.contrib.Translate2D(translation=(10,10))
         >>> img2 = tx.transform(img)
         """
@@ -100,10 +103,12 @@ class Translate2D(object):
 
 class RandomTranslate2D(object):
     """
-    Apply a Translate2D transform to an image, but with the shear 
+    Apply a Translate2D transform to an image, but with the
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  translation_range,
                  reference=None,
                  lazy=False):
@@ -117,8 +122,9 @@ class RandomTranslate2D(object):
             e.g. translation_range = (-10,10) will result in a random
             draw of the rotation parameters between -10 and 10 degrees
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -134,7 +140,7 @@ class RandomTranslate2D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         translation parameters randomly generated from the user-specified
         range.
 
@@ -158,12 +164,12 @@ class RandomTranslate2D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in translation range
-        translation_x = random.uniform(self.translation_range[0], self.translation_range[1])
-        translation_y = random.uniform(self.translation_range[0], self.translation_range[1])
+        translation_x = random.gauss(self.translation_range[0], self.translation_range[1])
+        translation_y = random.gauss(self.translation_range[0], self.translation_range[1])
         self.params = (translation_x, translation_y)
-        
+
         tx = Translate2D((translation_x, translation_y),
-                          reference=self.reference, 
+                          reference=self.reference,
                           lazy=self.lazy)
 
         return tx.transform(X,y)
@@ -171,7 +177,7 @@ class RandomTranslate2D(object):
 
 class Shear2D(object):
     """
-    Create an ANTs Affine Transform with a specified shear. 
+    Create an ANTs Affine Transform with a specified shear.
     """
     def __init__(self,
                  shear,
@@ -183,12 +189,13 @@ class Shear2D(object):
         Arguments
         ---------
         shear : list or tuple
-            shear values for each axis, in degrees. 
-            Negative values can be used for shear in the 
+            shear values for each axis, in degrees.
+            Negative values can be used for shear in the
             other direction
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -202,12 +209,14 @@ class Shear2D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=2,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         shear parameters
 
         Arguments
@@ -236,7 +245,7 @@ class Shear2D(object):
         >>> img2_z = tx.transform(img) # z axis stays same
         >>> tx = ants.contrib.Shear2D(shear=(10,10,10))
         >>> img2 = tx.transform(img)
-        """        
+        """
         # convert to radians and unpack
         shear = [math.pi / 180 * s for s in self.shear]
         shear_x, shear_y, shear_z = shear
@@ -252,10 +261,12 @@ class Shear2D(object):
 
 class RandomShear2D(object):
     """
-    Apply a Shear2D transform to an image, but with the shear 
+    Apply a Shear2D transform to an image, but with the shear
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  shear_range,
                  reference=None,
                  lazy=False):
@@ -269,8 +280,9 @@ class RandomShear2D(object):
             e.g. shear_range = (-10,10) will result in a random
             draw of the rotation parameters between -10 and 10 degrees
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -286,7 +298,7 @@ class RandomShear2D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         shear parameters randomly generated from the user-specified
         range.
 
@@ -310,12 +322,12 @@ class RandomShear2D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in shear range
-        shear_x = random.uniform(self.shear_range[0], self.shear_range[1])
-        shear_y = random.uniform(self.shear_range[0], self.shear_range[1])
+        shear_x = random.gauss(self.shear_range[0], self.shear_range[1])
+        shear_y = random.gauss(self.shear_range[0], self.shear_range[1])
         self.params = (shear_x, shear_y)
-        
-        tx = Shear2D((shear_x, shear_y), 
-                     reference=self.reference, 
+
+        tx = Shear2D((shear_x, shear_y),
+                     reference=self.reference,
                      lazy=self.lazy)
 
         return tx.transform(X,y)
@@ -324,7 +336,7 @@ class RandomShear2D(object):
 class Rotate2D(object):
     """
     Create an ANTs Affine Transform with a specified level
-    of rotation. 
+    of rotation.
     """
     def __init__(self,
                  rotation,
@@ -336,12 +348,13 @@ class Rotate2D(object):
         Arguments
         ---------
         rotation : scalar
-            rotation value in degrees. 
-            Negative values can be used for rotation in the 
+            rotation value in degrees.
+            Negative values can be used for rotation in the
             other direction
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -352,12 +365,14 @@ class Rotate2D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=2,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         rotation parameters
 
         Arguments
@@ -381,7 +396,7 @@ class Rotate2D(object):
         """
         # unpack zoom range
         rotation = self.rotation
-        
+
         # Rotation about X axis
         theta = math.pi / 180 * rotation
         rotation_matrix = np.array([[np.cos(theta), -np.sin(theta), 0],
@@ -396,10 +411,12 @@ class Rotate2D(object):
 
 class RandomRotate2D(object):
     """
-    Apply a Rotated2D transform to an image, but with the zoom 
+    Apply a Rotated2D transform to an image, but with the zoom
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  rotation_range,
                  reference=None,
                  lazy=False):
@@ -413,8 +430,9 @@ class RandomRotate2D(object):
             e.g. rotation_range = (-10,10) will result in a random
             draw of the rotation parameters between -10 and 10 degrees
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -430,7 +448,7 @@ class RandomRotate2D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         rotation parameters randomly generated from the user-specified
         range.
 
@@ -454,11 +472,11 @@ class RandomRotate2D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in rotation range
-        rotation = random.uniform(self.rotation_range[0], self.rotation_range[1])
+        rotation = random.gauss(self.rotation_range[0], self.rotation_range[1])
         self.params = rotation
-        
+
         tx = Rotate2D(rotation,
-                    reference=self.reference, 
+                    reference=self.reference,
                     lazy=self.lazy)
 
         return tx.transform(X,y)
@@ -484,8 +502,9 @@ class Zoom2D(object):
             e.g. zoom_range = (0.7,0.9) will result in a random
             draw of the zoom parameters between 0.7 and 0.9
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -499,12 +518,14 @@ class Zoom2D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=2,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         zoom parameters
 
         Arguments
@@ -541,10 +562,12 @@ class Zoom2D(object):
 
 class RandomZoom2D(object):
     """
-    Apply a Zoom2D transform to an image, but with the zoom 
+    Apply a Zoom2D transform to an image, but with the zoom
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  zoom_range,
                  reference=None,
                  lazy=False):
@@ -558,8 +581,9 @@ class RandomZoom2D(object):
             e.g. zoom_range = (0.7,0.9) will result in a random
             draw of the zoom parameters between 0.7 and 0.9
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -575,7 +599,7 @@ class RandomZoom2D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         zoom parameters randomly generated from the user-specified
         range.
 
@@ -599,13 +623,16 @@ class RandomZoom2D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in zoom range
-        zoom_x = random.uniform(self.zoom_range[0], self.zoom_range[1])
-        zoom_y = random.uniform(self.zoom_range[0], self.zoom_range[1])
+        zoom_x = np.exp( random.gauss(
+          np.log( self.zoom_range[0] ),
+          np.log( self.zoom_range[1] ) ) )
+        zoom_y = np.exp( random.gauss(
+          np.log( self.zoom_range[0] ),
+          np.log( self.zoom_range[1] ) ) )
         self.params = (zoom_x, zoom_y)
-        
-        tx = Zoom2D((zoom_x,zoom_y), 
-                    reference=self.reference, 
+
+        tx = Zoom2D((zoom_x,zoom_y),
+                    reference=self.reference,
                     lazy=self.lazy)
 
         return tx.transform(X,y)
-

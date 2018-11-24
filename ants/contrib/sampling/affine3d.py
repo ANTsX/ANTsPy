@@ -22,7 +22,7 @@ from ...core import ants_transform as tio
 
 class Translate3D(object):
     """
-    Create an ANTs Affine Transform with a specified translation. 
+    Create an ANTs Affine Transform with a specified translation.
     """
     def __init__(self,
                  translation,
@@ -34,12 +34,13 @@ class Translate3D(object):
         Arguments
         ---------
         translation : list or tuple
-            translation values for each axis, in degrees. 
-            Negative values can be used for translation in the 
+            translation values for each axis, in degrees.
+            Negative values can be used for translation in the
             other direction
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -53,12 +54,14 @@ class Translate3D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=3,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         translation parameters
 
         Arguments
@@ -103,10 +106,12 @@ class Translate3D(object):
 
 class RandomTranslate3D(object):
     """
-    Apply a Translate3D transform to an image, but with the shear 
+    Apply a Translate3D transform to an image, but with the shear
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  translation_range,
                  reference=None,
                  lazy=False):
@@ -120,8 +125,9 @@ class RandomTranslate3D(object):
             e.g. translation_range = (-10,10) will result in a random
             draw of the rotation parameters between -10 and 10 degrees
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -137,7 +143,7 @@ class RandomTranslate3D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         translation parameters randomly generated from the user-specified
         range.
 
@@ -161,13 +167,13 @@ class RandomTranslate3D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in translation range
-        translation_x = random.uniform(self.translation_range[0], self.translation_range[1])
-        translation_y = random.uniform(self.translation_range[0], self.translation_range[1])
-        translation_z = random.uniform(self.translation_range[0], self.translation_range[1])
+        translation_x = random.gauss(self.translation_range[0], self.translation_range[1])
+        translation_y = random.gauss(self.translation_range[0], self.translation_range[1])
+        translation_z = random.gauss(self.translation_range[0], self.translation_range[1])
         self.params = (translation_x, translation_y, translation_z)
-        
+
         tx = Translate3D((translation_x, translation_y, translation_z),
-                          reference=self.reference, 
+                          reference=self.reference,
                           lazy=self.lazy)
 
         return tx.transform(X,y)
@@ -175,7 +181,7 @@ class RandomTranslate3D(object):
 
 class Shear3D(object):
     """
-    Create an ANTs Affine Transform with a specified shear. 
+    Create an ANTs Affine Transform with a specified shear.
     """
     def __init__(self,
                  shear,
@@ -187,12 +193,13 @@ class Shear3D(object):
         Arguments
         ---------
         shear : list or tuple
-            shear values for each axis, in degrees. 
-            Negative values can be used for shear in the 
+            shear values for each axis, in degrees.
+            Negative values can be used for shear in the
             other direction
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -206,12 +213,14 @@ class Shear3D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=3,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         shear parameters
 
         Arguments
@@ -240,7 +249,7 @@ class Shear3D(object):
         >>> img2_z = tx.transform(img) # z axis stays same
         >>> tx = ants.contrib.Shear3D(shear=(10,10,10))
         >>> img2 = tx.transform(img)
-        """        
+        """
         # convert to radians and unpack
         shear = [math.pi / 180 * s for s in self.shear]
         shear_x, shear_y, shear_z = shear
@@ -257,10 +266,12 @@ class Shear3D(object):
 
 class RandomShear3D(object):
     """
-    Apply a Shear3D transform to an image, but with the shear 
+    Apply a Shear3D transform to an image, but with the shear
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  shear_range,
                  reference=None,
                  lazy=False):
@@ -274,8 +285,9 @@ class RandomShear3D(object):
             e.g. shear_range = (-10,10) will result in a random
             draw of the rotation parameters between -10 and 10 degrees
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -291,7 +303,7 @@ class RandomShear3D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         shear parameters randomly generated from the user-specified
         range.
 
@@ -315,13 +327,13 @@ class RandomShear3D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in shear range
-        shear_x = random.uniform(self.shear_range[0], self.shear_range[1])
-        shear_y = random.uniform(self.shear_range[0], self.shear_range[1])
-        shear_z = random.uniform(self.shear_range[0], self.shear_range[1])
+        shear_x = random.gauss(self.shear_range[0], self.shear_range[1])
+        shear_y = random.gauss(self.shear_range[0], self.shear_range[1])
+        shear_z = random.gauss(self.shear_range[0], self.shear_range[1])
         self.params = (shear_x, shear_y, shear_z)
-        
-        tx = Shear3D((shear_x, shear_y, shear_z), 
-                     reference=self.reference, 
+
+        tx = Shear3D((shear_x, shear_y, shear_z),
+                     reference=self.reference,
                      lazy=self.lazy)
 
         return tx.transform(X,y)
@@ -330,7 +342,7 @@ class RandomShear3D(object):
 class Rotate3D(object):
     """
     Create an ANTs Affine Transform with a specified level
-    of rotation. 
+    of rotation.
     """
     def __init__(self,
                  rotation,
@@ -342,12 +354,13 @@ class Rotate3D(object):
         Arguments
         ---------
         rotation : list or tuple
-            rotation values for each axis, in degrees. 
-            Negative values can be used for rotation in the 
+            rotation values for each axis, in degrees.
+            Negative values can be used for rotation in the
             other direction
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -361,12 +374,14 @@ class Rotate3D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=3,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         rotation parameters
 
         Arguments
@@ -390,7 +405,7 @@ class Rotate3D(object):
         """
         # unpack zoom range
         rotation_x, rotation_y, rotation_z = self.rotation
-        
+
         # Rotation about X axis
         theta_x = math.pi / 180 * rotation_x
         rotate_matrix_x = np.array([[1, 0,                  0,                 0],
@@ -422,10 +437,12 @@ class Rotate3D(object):
 
 class RandomRotate3D(object):
     """
-    Apply a Rotated3D transform to an image, but with the zoom 
+    Apply a Rotated3D transform to an image, but with the zoom
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  rotation_range,
                  reference=None,
                  lazy=False):
@@ -439,8 +456,9 @@ class RandomRotate3D(object):
             e.g. rotation_range = (-10,10) will result in a random
             draw of the rotation parameters between -10 and 10 degrees
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -456,7 +474,7 @@ class RandomRotate3D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         rotation parameters randomly generated from the user-specified
         range.
 
@@ -480,13 +498,13 @@ class RandomRotate3D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in rotation range
-        rotation_x = random.uniform(self.rotation_range[0], self.rotation_range[1])
-        rotation_y = random.uniform(self.rotation_range[0], self.rotation_range[1])
-        rotation_z = random.uniform(self.rotation_range[0], self.rotation_range[1])
+        rotation_x = random.gauss(self.rotation_range[0], self.rotation_range[1])
+        rotation_y = random.gauss(self.rotation_range[0], self.rotation_range[1])
+        rotation_z = random.gauss(self.rotation_range[0], self.rotation_range[1])
         self.params = (rotation_x, rotation_y, rotation_z)
-        
-        tx = Rotate3D((rotation_x, rotation_y, rotation_z), 
-                    reference=self.reference, 
+
+        tx = Rotate3D((rotation_x, rotation_y, rotation_z),
+                    reference=self.reference,
                     lazy=self.lazy)
 
         return tx.transform(X,y)
@@ -512,8 +530,9 @@ class Zoom3D(object):
             e.g. zoom_range = (0.7,0.9) will result in a random
             draw of the zoom parameters between 0.7 and 0.9
 
-        reference : ANTsImage (optional)
-            image providing the reference space for the transform
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -527,12 +546,14 @@ class Zoom3D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3, 
+        self.tx = tio.ANTsTransform(precision='float', dimension=3,
                                     transform_type='AffineTransform')
+        if self.reference is not None:
+            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with the given 
+        Transform an image using an Affine transform with the given
         zoom parameters
 
         Arguments
@@ -570,10 +591,12 @@ class Zoom3D(object):
 
 class RandomZoom3D(object):
     """
-    Apply a Zoom3D transform to an image, but with the zoom 
+    Apply a Zoom3D transform to an image, but with the zoom
     parameters randomly generated from a user-specified range.
+    The range is determined by a mean (first parameter) and standard deviation
+    (second parameter) via calls to random.gauss.
     """
-    def __init__(self, 
+    def __init__(self,
                  zoom_range,
                  reference=None,
                  lazy=False):
@@ -587,8 +610,9 @@ class RandomZoom3D(object):
             e.g. zoom_range = (0.7,0.9) will result in a random
             draw of the zoom parameters between 0.7 and 0.9
 
-        reference : ANTsImage (optional)
+        reference : ANTsImage (optional but recommended)
             image providing the reference space for the transform
+            this will also set the transform fixed parameters.
 
         lazy : boolean (default = False)
             if True, calling the `transform` method only returns
@@ -604,7 +628,7 @@ class RandomZoom3D(object):
 
     def transform(self, X, y=None):
         """
-        Transform an image using an Affine transform with 
+        Transform an image using an Affine transform with
         zoom parameters randomly generated from the user-specified
         range.
 
@@ -628,14 +652,19 @@ class RandomZoom3D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in zoom range
-        zoom_x = random.uniform(self.zoom_range[0], self.zoom_range[1])
-        zoom_y = random.uniform(self.zoom_range[0], self.zoom_range[1])
-        zoom_z = random.uniform(self.zoom_range[0], self.zoom_range[1])
+        zoom_x = np.exp( random.gauss(
+          np.log( self.zoom_range[0] ),
+          np.log( self.zoom_range[1] ) ) )
+        zoom_y = np.exp( random.gauss(
+          np.log( self.zoom_range[0] ),
+          np.log( self.zoom_range[1] ) ) )
+        zoom_z = np.exp( random.gauss(
+          np.log( self.zoom_range[0] ),
+          np.log( self.zoom_range[1] ) ) )
         self.params = (zoom_x, zoom_y, zoom_z)
-        
-        tx = Zoom3D((zoom_x,zoom_y,zoom_z), 
-                    reference=self.reference, 
+
+        tx = Zoom3D((zoom_x,zoom_y,zoom_z),
+                    reference=self.reference,
                     lazy=self.lazy)
 
         return tx.transform(X,y)
-
