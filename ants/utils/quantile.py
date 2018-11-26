@@ -132,11 +132,19 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
             pValsOut[v][k] = pvals[v]
             tValsOut[v][k] = tvals[v]
 
+    bValsOutDict = { }
+    tValsOutDict = { }
+    pValsOutDict = { }
+    for v in range( len( modelNames ) ):
+        bValsOutDict[ 'coef_' + modelNames[v] ] = bValsOut[v]
+        tValsOutDict[ 'tval_' + modelNames[v] ] = tValsOut[v]
+        pValsOutDict[ 'pval_' + modelNames[v] ] = pValsOut[v]
+
     return {
         'modelNames': modelNames,
-        'coefficientValues': bValsOut,
-        'pValues': pValsOut,
-        'tValues': tValsOut }
+        'coefficientValues': bValsOutDict,
+        'pValues': pValsOutDict,
+        'tValues': tValsOutDict }
 
 def quantile(image, q, nonzero=True):
     """
