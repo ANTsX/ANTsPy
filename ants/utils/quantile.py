@@ -114,13 +114,15 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
         pValsOut.append( np.zeros( nvox ) )
         tValsOut.append( np.zeros( nvox ) )
 
+    data_frame_vox = data_frame.copy()
+    for v in range( nmats ):
+        data = {keylist[v]: voxmats[keylist[v]][:,k] }
+        temp = pd.DataFrame( data )
+        data_frame_vox = pd.concat([data_frame_vox.reset_index(drop=True),temp], axis=1 )
     for k in range( nvox ):
         # first get the correct data frame
-        data_frame_vox = data_frame.copy()
         for v in range( nmats ):
-            data = {keylist[v]: voxmats[keylist[v]][:,k] }
-            temp = pd.DataFrame( data )
-            data_frame_vox = pd.concat([data_frame_vox.reset_index(drop=True),temp], axis=1 )
+            data_frame_vox[ keylist[v] ] = voxmats[keylist[v]][:,k]
         # then get the local model results
         mod = smf.ols(formula=ilr_formula, data=data_frame_vox )
         res = mod.fit()
@@ -145,6 +147,8 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
         'coefficientValues': bValsOutDict,
         'pValues': pValsOutDict,
         'tValues': tValsOutDict }
+
+
 
 def quantile(image, q, nonzero=True):
     """
