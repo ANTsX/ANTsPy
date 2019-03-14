@@ -24,9 +24,7 @@ jobs:
       - run:
           name: "Setup custom environment variables"
           command: |
-            echo 'export PATH="/home/ubuntu/cmake-3.14.0/bin:$PATH"' >> $BASH_ENV # Redirect MY_ENV_VAR into $BASH_ENV
-            pwd
-            echo $PATH
+            echo 'export PATH="/home/circleci/repo/cmake-3.14.0/bin:$PATH"' >> $BASH_ENV # Redirect MY_ENV_VAR into $BASH_ENV
 
       # Download and cache dependencies
       - restore_cache:
@@ -42,6 +40,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            echo $PATH
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
