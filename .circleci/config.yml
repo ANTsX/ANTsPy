@@ -48,7 +48,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-            - ~/cmake-3.14.0
+            - /home/circleci/repo/cmake-3.14.0
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
