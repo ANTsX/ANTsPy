@@ -5,6 +5,7 @@
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) 
 <br>
 
+[![CircleCI](https://circleci.com/gh/ANTsX/ANTsPy.svg?style=svg)](https://circleci.com/gh/ANTsX/ANTsPy)
 [![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy)
 <a href='https://coveralls.io/github/ANTsX/ANTsPy?branch=master'><img src='https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master' alt='Coverage Status' /></a>
 <a href='http://antspy.readthedocs.io/en/latest/?badge=latest'>
