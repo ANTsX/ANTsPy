@@ -24,7 +24,7 @@ jobs:
       - run:
           name: "Setup custom environment variables"
           command: |
-            echo 'export PATH="/home/circleci/repo/cmake-3.14.0/bin:$PATH"' >> $BASH_ENV # Redirect MY_ENV_VAR into $BASH_ENV
+            echo 'export PATH="/home/circleci/repo/venv/cmake-3.14.0/bin:$PATH"' >> $BASH_ENV # Redirect MY_ENV_VAR into $BASH_ENV
 
       # Download and cache dependencies
       - restore_cache:
@@ -34,27 +34,27 @@ jobs:
             - v1-dependencies-
 
       - run:
-          name: Install CMAKE
-          command: '        cd ~ && wget --quiet https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz && tar -xvf cmake-3.14.0.tar.gz &&  cd cmake-3.14.0 && ./bootstrap && make '
-
-      - run:
           name: install dependencies
           command: |
             echo $PATH
+            python3 -m venv venv
+            . venv/bin/activate
+            cd venc && wget --quiet https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz && tar -xvf cmake-3.14.0.tar.gz &&  cd cmake-3.14.0 && ./bootstrap && make
+            cd ..
             source $BASH_ENV
             pip install -r requirements.txt
 
       - save_cache:
           paths:
             - ./venv
-            - /home/circleci/repo/cmake-3.14.0
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
           name: run tests
           command: |
+            . venv/bin/activate
             source $BASH_ENV
-            find /home/circleci/repo/cmake-3.14.0 -name cmake
+            find ./ -name cmake
             python setup.py install
 
       - store_artifacts:
