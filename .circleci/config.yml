@@ -39,7 +39,7 @@ jobs:
             echo $PATH
             python3 -m venv venv
             . venv/bin/activate
-            cd venc && wget --quiet https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz && tar -xvf cmake-3.14.0.tar.gz &&  cd cmake-3.14.0 && ./bootstrap && make
+            cd venv && wget --quiet https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz && tar -xvf cmake-3.14.0.tar.gz &&  cd cmake-3.14.0 && ./bootstrap && make
             cd ..
             source $BASH_ENV
             pip install -r requirements.txt
