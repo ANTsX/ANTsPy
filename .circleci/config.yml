@@ -41,9 +41,7 @@ jobs:
           name: install dependencies
           command: |
             echo $PATH
-            which cmake
-            python3 -m venv venv
-            . venv/bin/activate
+            source $BASH_ENV
             pip install -r requirements.txt
 
       - save_cache:
@@ -55,9 +53,8 @@ jobs:
       - run:
           name: run tests
           command: |
-            . venv/bin/activate
             source $BASH_ENV
-            which cmake
+            find /home/circleci/repo/cmake-3.14.0 -name cmake
             python setup.py install
 
       - store_artifacts:
