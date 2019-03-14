@@ -246,7 +246,7 @@ class TestModule_resample_image(unittest.TestCase):
 
     def test_resample_image_to_target_example(self):
         fi = ants.image_read(ants.get_ants_data('r16'))
-        fi2mm = ants.resample_image(fi, (2,2), use_voxels=0, interp_type='linear')
+        fi2mm = ants.resample_image(fi, (2,2), use_voxels=0, interp_type=1)
         resampled = ants.resample_image_to_target(fi2mm, fi, verbose=True)
 
 

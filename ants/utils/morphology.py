@@ -1,5 +1,5 @@
 
- 
+
 
 __all__ = ['morphology']
 
@@ -15,27 +15,27 @@ def morphology(image, operation, radius, mtype='binary', value=1,
 
     Arguments
     ---------
-    input : ANTsImage  
+    input : ANTsImage
         input image
-    
-    operation : string  
+
+    operation : string
         operation to apply
             "close" Morpholgical closing
             "dilate" Morpholgical dilation
             "erode" Morpholgical erosion
             "open" Morpholgical opening
-    
-    radius : scalar 
+
+    radius : scalar
         radius of structuring element
-    
-    mtype : string   
+
+    mtype : string
         type of morphology
             "binary" Binary operation on a single value
             "grayscale" Grayscale operations
-    
+
     value : scalar
         value to operation on (type='binary' only)
-    
+
     shape : string
         shape of the structuring element ( type='binary' only )
             "ball" spherical structuring element
@@ -43,19 +43,19 @@ def morphology(image, operation, radius, mtype='binary', value=1,
             "cross" cross shaped structuring element
             "annulus" annulus shaped structuring element
             "polygon" polygon structuring element
-    
-    radius_is_parametric : boolean  
+
+    radius_is_parametric : boolean
         used parametric radius boolean (shape='ball' and shape='annulus' only)
-    
+
     thickness : scalar
         thickness (shape='annulus' only)
-    
-    lines : integer  
+
+    lines : integer
         number of lines in polygon (shape='polygon' only)
-    
-    include_center : boolean   
+
+    include_center : boolean
         include center of annulus boolean (shape='annulus' only)
-    
+
     Returns
     -------
     ANTsImage
@@ -78,6 +78,8 @@ def morphology(image, operation, radius, mtype='binary', value=1,
     if sFlag == 0:
         raise ValueError('invalid element shape')
 
+    radius_is_parametric = radius_is_parametric * 1
+    include_center = include_center * 1
     if (mtype == 'binary'):
         if (operation == 'dilate'):
             if (sFlag == 5):
@@ -116,4 +118,3 @@ def morphology(image, operation, radius, mtype='binary', value=1,
         raise ValueError('Invalid morphology type')
 
     return ret
-
