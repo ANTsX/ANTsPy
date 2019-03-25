@@ -30,6 +30,7 @@ def registration(fixed,
                  syn_metric='mattes',
                  syn_sampling=32,
                  reg_iterations=(40,20,0),
+                 write_composite_transform=False,
                  verbose=False,
                  multivariate_extras=None,
                  **kwargs):
@@ -83,6 +84,9 @@ def registration(fixed,
 
     reg_iterations : list/tuple of integers
         vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
+
+    write_composite_transform : boolean
+        Boolean specifying whether or not the composite transform (and its inverse, if it exists) should be written to an hdf5 composite file. This is false by default so that only the transform for each stage is written to file.
 
     verbose : boolean
         request verbose output (useful for debugging)
@@ -684,6 +688,8 @@ def registration(fixed,
                 # ------------------------------------------------------------
                 args.append('--float')
                 args.append('1')
+                args.append('--write-composite-transform')
+                args.append( write_composite_transform * 1 )
                 if verbose:
                     args.append('-v')
                     args.append('1')
@@ -712,6 +718,10 @@ def registration(fixed,
                     fwdtransforms = list(reversed(alltx))
                     invtransforms = alltx
 
+                if write_composite_transform:
+                    fwdtransforms = outprefix + 'Composite.h5'
+                    invtransforms = outprefix + 'InverseComposite.h5'
+
                 return {
                     'warpedmovout': warpedmovout.clone(inpixeltype),
                     'warpedfixout': warpedfixout.clone(inpixeltype),
@@ -721,6 +731,8 @@ def registration(fixed,
     else:
         args.append('--float')
         args.append('1')
+        args.append('--write-composite-transform')
+        args.append( write_composite_transform * 1 )
         if verbose:
             args.append('-v')
             args.append('1')
