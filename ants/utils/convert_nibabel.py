@@ -18,9 +18,14 @@ def to_nibabel(image):
     array_data = image.numpy()
     affine = np.hstack([image.direction*np.diag(image.spacing),np.array(image.origin).reshape(3,1)])
     affine = np.vstack([affine, np.array([0,0,0,1.])])
+    affine[0,0] = affine[0,0] * ( -1 )
+    affine[1,1] = affine[1,1] * ( -1 )
+    lastind = affine.shape[1] - 1
+    affine[0,lastind] = affine[0,lastind] * ( -1 )
+    affine[1,lastind] = affine[1,lastind] * ( -1 )
     new_img = nib.Nifti1Image(array_data, affine)
     return new_img
-    
+
 
 def from_nibabel(nib_image):
     """
