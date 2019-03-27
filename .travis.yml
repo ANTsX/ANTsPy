@@ -31,7 +31,7 @@ before_install:
         brew upgrade cmake && \
         export PATH="/usr/local/opt/ccache/libexec:$PATH"
     fi
-  - pip3 install scipy pandas numpy matplotlib sklearn statsmodels
+  - pip3 install scipy pandas numpy matplotlib sklearn statsmodels nibabel
   - pip3 install coveralls plotly webcolors scikit-image;
   - cd ..
   - if [ ! -f /home/travis/build/ANTsX/itkbuild/ITKConfig.cmake ]; then bash ${TRAVIS_BUILD_DIR}/scripts/configure_ITK.sh; fi
