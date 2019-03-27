@@ -14,6 +14,7 @@ from common import run_tests
 from tempfile import mktemp
 
 import numpy as np
+import nibabel as nib
 import numpy.testing as nptest
 
 import ants
@@ -265,6 +266,15 @@ class TestModule_ants_image_io(unittest.TestCase):
                 nptest.assert_allclose(img.numpy(), imgcloned.numpy())
                 self.assertEqual(imgcloned.pixeltype, ptype)
                 self.assertEqual(img.pixeltype, orig_ptype)
+
+    def test_nibabel(self):
+        fn = ants.get_ants_data( 'mni' )
+        ants_img = ants.image_read( fn )
+        nii_mni = nib.load( fn )
+        ants_mni = ants_img.to_nibabel()
+        self.assertTrue( ( ants_mni.get_qform() == nii_mni.get_qform() ).all() )
+        temp = ants.from_nibabel( nii_mni )
+        self.assertTrue(ants.image_physical_space_consistency(ants_img,temp))
 
     def test_image_read_write(self):
         # def image_read(filename, dimension=None, pixeltype='float'):
