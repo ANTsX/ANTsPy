@@ -127,7 +127,7 @@ def apply_transforms(fixed, moving, transformlist,
 
             for i in range(len(transformlist)):
                 ismat = False
-                if '.mat' in transformlist[0]:
+                if '.mat' in transformlist[i]:
                     ismat = True
                 if whichtoinvert[i] and (not ismat):
                     raise ValueError('Cannot invert transform %i (%s) because it is not a matrix' % (i, transformlist[i]))
@@ -270,7 +270,7 @@ def apply_transforms_to_points( dim, points, transformlist,
 
     for i in range(len(transformlist)):
         ismat = False
-        if '.mat' in transformlist[0]:
+        if '.mat' in transformlist[i]:
             ismat = True
         if whichtoinvert[i] and (not ismat):
             raise ValueError('Cannot invert transform %i (%s) because it is not a matrix' % (i, transformlist[i]))
