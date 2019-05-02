@@ -9,6 +9,7 @@ dependencies:
 - statsmodels
 - plotly
 - scikit-image
+- scikit-learn
 - webcolors
 - pip>=3
 - pip:
