@@ -1,0 +1,15 @@
+name: antspy
+dependencies:
+- python>=3.4
+- pandas
+- scipy
+- matplotlib>=1.4.3
+- nibabel
+- numpy
+- sklearn
+- statsmodels
+- plotly
+- scikit-image
+- webcolors
+- pip:
+  - cmake>=3.11
