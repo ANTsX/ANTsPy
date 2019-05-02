@@ -132,10 +132,10 @@ class CMakeBuild(build_ext):
 long_description = open('README.md').read()
 
 setup(
-    name='antspy',
+    name='antspyx',
     version=version,
-    author='Nicholas C. Cullen',
-    author_email='nickmarch31@yahoo.com',
+    author='Brian B. Avants and Nicholas Cullen',
+    author_email='stnava@gmail.com',
     description='Advanced Normalization Tools in Python',
     long_description=long_description,
     ext_modules=[CMakeExtension('ants', sourcedir=os.path.join(setup_py_dir,'ants/lib/'))],
