@@ -6,10 +6,10 @@ dependencies:
 - matplotlib>=1.4.3
 - nibabel
 - numpy
-- sklearn
 - statsmodels
 - plotly
 - scikit-image
 - webcolors
+- pip>=3
 - pip:
   - cmake>=3.11
