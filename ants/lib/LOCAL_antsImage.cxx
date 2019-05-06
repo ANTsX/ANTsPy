@@ -78,6 +78,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("getShapeVD4",  &getShape<itk::VectorImage<double,4>>);
     m.def("getShapeRGBUC2", &getShape<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("getShapeRGBUC3", &getShape<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getShapeRGBF2", &getShape<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getShapeRGBF3", &getShape<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getOriginUC2",  &getOrigin<itk::Image<unsigned char,2>>);
     m.def("getOriginUC3",  &getOrigin<itk::Image<unsigned char,3>>);
@@ -105,6 +107,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("getOriginVD4",  &getOrigin<itk::VectorImage<double,4>>);
     m.def("getOriginRGBUC2", &getOrigin<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("getOriginRGBUC3", &getOrigin<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getOriginRGBF2", &getOrigin<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getOriginRGBF3", &getOrigin<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("setOriginUC2",  &setOrigin<itk::Image<unsigned char,2>>);
     m.def("setOriginUC3",  &setOrigin<itk::Image<unsigned char,3>>);
@@ -132,6 +136,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("setOriginVD4",  &setOrigin<itk::VectorImage<double,4>>);
     m.def("setOriginRGBUC2", &setOrigin<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("setOriginRGBUC3", &setOrigin<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("setOriginRGBF2", &setOrigin<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("setOriginRGBF3", &setOrigin<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getSpacingUC2",  &getSpacing<itk::Image<unsigned char,2>>);
     m.def("getSpacingUC3",  &getSpacing<itk::Image<unsigned char,3>>);
@@ -159,6 +165,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("getSpacingVD4",  &getSpacing<itk::VectorImage<double,4>>);
     m.def("getSpacingRGBUC2", &getSpacing<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("getSpacingRGBUC3", &getSpacing<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getSpacingRGBF2", &getSpacing<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getSpacingRGBF3", &getSpacing<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("setSpacingUC2",  &setSpacing<itk::Image<unsigned char,2>>);
     m.def("setSpacingUC3",  &setSpacing<itk::Image<unsigned char,3>>);
@@ -186,6 +194,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("setSpacingVD4",  &setSpacing<itk::VectorImage<double,4>>);
     m.def("setSpacingRGBUC2", &setSpacing<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("setSpacingRGBUC3", &setSpacing<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("setSpacingRGBF2", &setSpacing<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("setSpacingRGBF3", &setSpacing<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getDirectionUC2",  &getDirection<itk::Image<unsigned char,2>>);
     m.def("getDirectionUC3",  &getDirection<itk::Image<unsigned char,3>>);
@@ -213,6 +223,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("getDirectionVD4",  &getDirection<itk::VectorImage<double,4>>);
     m.def("getDirectionRGBUC2", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("getDirectionRGBUC3", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getDirectionRGBF2", &getDirection<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getDirectionRGBF3", &getDirection<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("setDirectionUC2",  &setDirection<itk::Image<unsigned char,2>>);
     m.def("setDirectionUC3",  &setDirection<itk::Image<unsigned char,3>>);
@@ -240,6 +252,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("setDirectionVD4",  &setDirection<itk::VectorImage<double,4>>);
     m.def("setDirectionRGBUC2", &setDirection<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("setDirectionRGBUC3", &setDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("setDirectionRGBF2", &setDirection<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("setDirectionRGBF3", &setDirection<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("toFileUC2",  &toFile<itk::Image<unsigned char,2>>);
     m.def("toFileUC3",  &toFile<itk::Image<unsigned char,3>>);
@@ -267,6 +281,8 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("toFileVD4",  &toFile<itk::VectorImage<double,4>>);
     m.def("toFileRGBUC2", &toFile<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("toFileRGBUC3", &toFile<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("toFileRBGF2", &toFile<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("toFileRBGF3", &toFile<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("toNumpyUC2",  &toNumpy<itk::Image<unsigned char,2>>);
     m.def("toNumpyUC3",  &toNumpy<itk::Image<unsigned char,3>>);
@@ -294,7 +310,7 @@ PYBIND11_MODULE(antsImage, m) {
     m.def("toNumpyVD4",  &toNumpy<itk::VectorImage<double,4>>);
     m.def("toNumpyRGBUC2", &toNumpy<itk::Image<itk::RGBPixel<unsigned char>,2>>);
     m.def("toNumpyRGBUC3", &toNumpy<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("toNumpyRGBF2", &toNumpy<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("toNumpyRGBF3", &toNumpy<itk::Image<itk::RGBPixel<float>,3>>);
 
 }
-
-
