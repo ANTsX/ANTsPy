@@ -72,6 +72,6 @@ def build_template(
         wavg = wavg * wscl
         wavgfn = mktemp(suffix='.nii.gz')
         iio.image_write(wavg, wavgfn)
-        xavg = apply_transforms( xavg, xavg, wavgfn )
+        xavg = apply_transforms( xavgNew, xavgNew, wavgfn )
 
     return xavg
