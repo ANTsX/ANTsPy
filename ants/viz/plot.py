@@ -359,7 +359,7 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
     text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
     # save & size arguments
     filename=None, dpi=500, figsize=1., colpad=0, rowpad=0,
-    transpose=False, transparent=True):
+    transpose=False, transparent=True, orient_labels=True):
     """
     Example
     -------
@@ -558,6 +558,27 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
                               [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if orient_labels:
+            ax.text(0.5,0.98, 'S',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'I',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'A',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'P',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
         ####################
         ####################
@@ -581,6 +602,27 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
                               [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if orient_labels:
+            ax.text(0.5,0.98, 'A',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'P',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'L',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'R',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
         ####################
@@ -604,6 +646,27 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
                               [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if orient_labels:
+            ax.text(0.5,0.98, 'A',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'P',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'L',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'R',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
     ####################
@@ -1365,12 +1428,12 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                     verticalalignment='bottom',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.98,0.5, 'R',
+            ax.text(0.98,0.5, 'L',
                     horizontalalignment='right',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.02,0.5, 'L',
+            ax.text(0.02,0.5, 'R',
                     horizontalalignment='left',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
@@ -1407,12 +1470,12 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                     verticalalignment='bottom',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.98,0.5, 'R',
+            ax.text(0.98,0.5, 'L',
                     horizontalalignment='right',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.02,0.5, 'L',
+            ax.text(0.02,0.5, 'R',
                     horizontalalignment='left',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,

@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.0)
 
 project(ants)
 
-#set(PYBIND11_CPP_STANDARD -std=c++14)
+set(PYBIND11_CPP_STANDARD -std=c++14)
+#add_definitions(-std=c++11)
+add_definitions(-std=c++1y)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 

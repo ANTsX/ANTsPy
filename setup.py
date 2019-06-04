@@ -120,8 +120,8 @@ class CMakeBuild(build_ext):
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} {} -DVERSION_INFO=\\"{}\\"'.format("-Wno-inconsistent-missing-override",
-                                                                    env.get('CXXFLAGS', ''),
-                                                                    self.distribution.get_version())
+                                                                 env.get('CXXFLAGS', ''),
+                                                                 self.distribution.get_version())
         env['LINKFLAGS'] = '{}'.format("-Wno-inconsistent-missing-override")
 
         if not os.path.exists(self.build_temp):
