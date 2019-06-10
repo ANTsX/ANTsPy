@@ -41,7 +41,7 @@ def movie(image, filename=None, writer=None, fps=30):
     """
     Create and save a movie - mp4, gif, etc - of the various
     2D slices of a 3D ants image
-    
+
     Try this:
         conda install -c conda-forge ffmpeg
 
@@ -61,7 +61,7 @@ def movie(image, filename=None, writer=None, fps=30):
     # Creare your figure and axes
     fig, ax = plt.subplots(1)
 
-    im = ax.imshow(img_arr[minidx,:,:], animated=True, 
+    im = ax.imshow(img_arr[minidx,:,:], animated=True,
         cmap='Greys_r', vmin=image.quantile(0.05), vmax=image.quantile(0.95))
 
     ax.axis('off')
@@ -75,7 +75,7 @@ def movie(image, filename=None, writer=None, fps=30):
         return im,
 
     ani = animation.FuncAnimation(fig, updatefig, frames=np.arange(minidx,maxidx),
-                                  #init_func=init, 
+                                  #init_func=init,
                                   interval=50, blit=True)
 
     if writer is None:
@@ -124,14 +124,14 @@ def plot_hist(image, threshold=0., fit_line=False, normfreq=True,
     plt.show()
 
 
-def plot_grid(images, slices=None, axes=2, 
+def plot_grid(images, slices=None, axes=2,
     # general figure arguments
     figsize=1., rpad=0, cpad=0,
     # title arguments
     title=None, tfontsize=20, title_dx=0, title_dy=0,
     # row arguments
-    rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black', 
-    # column arguments 
+    rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black',
+    # column arguments
     clabels=None, cfontsize=14, cfontcolor='white', cfacecolor='black',
     # save arguments
     filename=None, dpi=400, transparent=True,
@@ -139,7 +139,7 @@ def plot_grid(images, slices=None, axes=2,
     **kwargs):
     """
     Plot a collection of images in an arbitrarily-defined grid
-    
+
     Matplotlib named colors: https://matplotlib.org/examples/color/named_colors.html
 
     Arguments
@@ -185,13 +185,13 @@ def plot_grid(images, slices=None, axes=2,
     >>> ants.plot_grid(images, slices, rpad=0.02, title='Row Padding')
     >>> ants.plot_grid(images, slices, rpad=0.02, cpad=0.02, title='Row and Col Padding')
 
-    >>> # Adding plain row and/or column labels 
+    >>> # Adding plain row and/or column labels
     >>> ants.plot_grid(images, slices, title='Adding Row Labels', rlabels=['Row #1', 'Row #2'])
     >>> ants.plot_grid(images, slices, title='Adding Col Labels', clabels=['Col #1', 'Col #2'])
     >>> ants.plot_grid(images, slices, title='Row and Col Labels',
                        rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2'])
 
-    >>> # Making a publication-quality image 
+    >>> # Making a publication-quality image
     >>> images = np.asarray([[mni1, mni2, mni2],
     ...                      [mni3, mni4, mni4]])
     >>> slices = np.asarray([[100, 100, 100],
@@ -253,7 +253,7 @@ def plot_grid(images, slices=None, axes=2,
             slices = [slices]
         nslicerow = len(slices)
         nslicecol = len(slices[0])
-    
+
     nrow = len(images)
     ncol = len(images[0])
 
@@ -281,7 +281,7 @@ def plot_grid(images, slices=None, axes=2,
         bothgridpad = 0.0
 
     gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + cpad, 
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + cpad,
                  left=0.5/(ncol+1) + rpad, right=1-0.5/(ncol+1))
 
     for rowidx in range(nrow):
@@ -301,7 +301,7 @@ def plot_grid(images, slices=None, axes=2,
                     # add label background
                     extra = 0.3 if rowidx == 0 else 0.0
 
-                    rect = patches.Rectangle((-0.3, 0), 0.3, 1.0+extra, 
+                    rect = patches.Rectangle((-0.3, 0), 0.3, 1.0+extra,
                         facecolor=rfacecolor,
                         alpha=1., transform=ax.transAxes, clip_on=False)
                     ax.add_patch(rect)
@@ -318,8 +318,8 @@ def plot_grid(images, slices=None, axes=2,
                             color=cfontcolor, fontsize=cfontsize)
 
                     # add label background
-                    rect = patches.Rectangle((0, 1.), 1.0, 0.3, 
-                        facecolor=cfacecolor, 
+                    rect = patches.Rectangle((0, 1.), 1.0, 0.3,
+                        facecolor=cfacecolor,
                         alpha=1., transform=ax.transAxes, clip_on=False)
                     ax.add_patch(rect)
 
@@ -348,18 +348,18 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
     # base image arguments
     cmap='Greys_r', alpha=1,
     # overlay arguments
-    overlay_cmap='jet', overlay_alpha=0.9, 
+    overlay_cmap='jet', overlay_alpha=0.9,
     # background arguments
-    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99,
     # scale/crop/domain arguments
-    crop=False, scale=False, domain_image_map=None, 
+    crop=False, scale=False, domain_image_map=None,
     # title arguments
-    title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+    title=None, titlefontsize=24, title_dx=0, title_dy=0,
     # 4th panel text arguemnts
     text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
     # save & size arguments
     filename=None, dpi=500, figsize=1., colpad=0, rowpad=0,
-    transpose=False, transparent=True):
+    transpose=False, transparent=True, orient_labels=True):
     """
     Example
     -------
@@ -412,10 +412,10 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
     if reorient != False:
         if reorient == True:
             reorient = 'RPI'
-        
+
         for i in range(n_images):
             images[i] = images[i].reorient_image2(reorient)
-        
+
         if overlays[i] is not None:
             overlays[i] = overlays[i].reorient_image2(reorient)
 
@@ -445,7 +445,7 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
             images[i] = images[i].crop_image(plotmask)
             if overlays[i] is not None:
                 overlays[i] = overlays[i].crop_image(plotmask)
-                
+
     # pad images
     for i in range(n_images):
         if i == 0:
@@ -463,16 +463,16 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
                                          dimension=3)
             for i in range(n_images):
                 images[i] = tio.apply_ants_transform_to_image(tx, images[i], domain_image_map)
-            
+
                 if overlays[i] is not None:
-                    overlays[i] = tio.apply_ants_transform_to_image(tx, overlays[i], 
-                                                            domain_image_map, 
-                                                            interpolation='linear')       
+                    overlays[i] = tio.apply_ants_transform_to_image(tx, overlays[i],
+                                                            domain_image_map,
+                                                            interpolation='linear')
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
                 raise ValueError('domain_image_map list or tuple must have length == 2')
-            
+
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
                 raise ValueError('domain_image_map first entry should be ANTsImage')
@@ -526,7 +526,7 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
         bothgridpad = 0.0
 
     gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + colpad, 
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + colpad,
                  left=0.5/(ncol+1) + rowpad, right=1-0.5/(ncol+1))
 
     # pad image to have isotropic array dimensions
@@ -550,14 +550,35 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]], 
+            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]],
                               [xyz_pad,yz_slice.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad],
                               [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if orient_labels:
+            ax.text(0.5,0.98, 'S',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'I',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'A',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'P',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
         ####################
         ####################
@@ -573,14 +594,35 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]],
                               [xyz_pad,xz_slice.shape[0]-xyz_pad],
                                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad],
                               [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if orient_labels:
+            ax.text(0.5,0.98, 'A',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'P',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'L',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'R',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
         ####################
@@ -596,14 +638,35 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]],
                               [xyz_pad,xy_slice.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad],
                               [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
+        if orient_labels:
+            ax.text(0.5,0.98, 'A',
+                    horizontalalignment='center',
+                    verticalalignment='top',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.5,0.02, 'P',
+                    horizontalalignment='center',
+                    verticalalignment='bottom',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.98,0.5, 'L',
+                    horizontalalignment='right',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
+            ax.text(0.02,0.5, 'R',
+                    horizontalalignment='left',
+                    verticalalignment='center',
+                    fontsize=20*figsize, color=textfontcolor,
+                    transform=ax.transAxes)
         ax.axis('off')
 
     ####################
@@ -625,13 +688,13 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
     # base image arguments
     cmap='Greys_r', alpha=1, cmap2='Greys_r', alpha2=1,
     # overlay arguments
-    overlay_cmap='jet', overlay_alpha=0.9, overlay_cmap2='jet', overlay_alpha2=0.9,  
+    overlay_cmap='jet', overlay_alpha=0.9, overlay_cmap2='jet', overlay_alpha2=0.9,
     # background arguments
-    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99,
     # scale/crop/domain arguments
-    crop=False, scale=False, crop2=False, scale2=True, domain_image_map=None, 
+    crop=False, scale=False, crop2=False, scale2=True, domain_image_map=None,
     # title arguments
-    title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+    title=None, titlefontsize=24, title_dx=0, title_dy=0,
     # 4th panel text arguemnts
     text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
     # save & size arguments
@@ -661,7 +724,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
         raise ValueError('image argument must be an ANTsImage')
     if image.dimension != 3:
         raise ValueError('Input image must have 3 dimensions!')
-    
+
     if isinstance(image2, str):
         image2 = iio2.image_read(image2)
     if not isinstance(image2, iio.ANTsImage):
@@ -669,7 +732,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
     if image2.dimension != 3:
         raise ValueError('Input image2 must have 3 dimensions!')
 
-    # handle `overlay` argument 
+    # handle `overlay` argument
     if overlay is not None:
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
@@ -680,7 +743,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
 
         if not iio.image_physical_space_consistency(image, overlay):
             overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
-    
+
     if overlay2 is not None:
         if isinstance(overlay2, str):
             overlay2 = iio2.image_read(overlay2)
@@ -748,18 +811,18 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             image2 = tio.apply_ants_transform_to_image(tx, image2, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(tx, overlay, 
-                                                            domain_image_map, 
+                overlay = tio.apply_ants_transform_to_image(tx, overlay,
+                                                            domain_image_map,
                                                             interpolation='linear')
             if overlay2 is not None:
-                overlay2 = tio.apply_ants_transform_to_image(tx, overlay2, 
-                                                            domain_image_map, 
-                                                            interpolation='linear')          
+                overlay2 = tio.apply_ants_transform_to_image(tx, overlay2,
+                                                            domain_image_map,
+                                                            interpolation='linear')
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
                 raise ValueError('domain_image_map list or tuple must have length == 2')
-            
+
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
                 raise ValueError('domain_image_map first entry should be ANTsImage')
@@ -777,7 +840,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
 
     ## single-channel images ##
     if image.components == 1:
-        
+
         # potentially crop image
         if crop:
             plotmask = image.get_mask(cleanup=0)
@@ -786,7 +849,7 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             image = image.crop_image(plotmask)
             if overlay is not None:
                 overlay = overlay.crop_image(plotmask)
-        
+
         if crop2:
             plotmask2 = image2.get_mask(cleanup=0)
             if plotmask2.max() == 0:
@@ -835,8 +898,8 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             fig.suptitle(title, fontsize=titlefontsize, x=basex+title_dx, y=basey+title_dy)
 
         gs = gridspec.GridSpec(nrow, ncol,
-                 wspace=0.0, hspace=0.0, 
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+                 wspace=0.0, hspace=0.0,
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
                  left=0.5/(ncol+1), right=1-0.5/(ncol+1))
 
         # pad image to have isotropic array dimensions
@@ -860,11 +923,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]], 
+            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]],
                               [xyz_pad,yz_slice.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad],
                               [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -885,11 +948,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             ax.imshow(yz_overlay2, alpha=overlay_alpha2, cmap=overlay_cmap2)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice2.shape[0]-xyz[1],yz_slice2.shape[0]-xyz[1]], 
+            l = mlines.Line2D([yz_slice2.shape[0]-xyz[1],yz_slice2.shape[0]-xyz[1]],
                               [xyz_pad,yz_slice2.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice2.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,yz_slice2.shape[1]-xyz_pad],
                               [yz_slice2.shape[1]-xyz[2],yz_slice2.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -911,11 +974,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]],
                               [xyz_pad,xz_slice.shape[0]-xyz_pad],
                                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad],
                               [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -933,11 +996,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             ax.imshow(xz_overlay2, alpha=overlay_alpha2, cmap=overlay_cmap2)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice2.shape[0]-xyz[0],xz_slice2.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xz_slice2.shape[0]-xyz[0],xz_slice2.shape[0]-xyz[0]],
                               [xyz_pad,xz_slice2.shape[0]-xyz_pad],
                                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice2.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xz_slice2.shape[1]-xyz_pad],
                               [xz_slice2.shape[1]-xyz[2],xz_slice2.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -959,11 +1022,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]],
                               [xyz_pad,xy_slice.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad],
                               [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -984,11 +1047,11 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             ax.imshow(xy_overlay2, alpha=overlay_alpha2, cmap=overlay_cmap2)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice2.shape[0]-xyz[0],xy_slice2.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xy_slice2.shape[0]-xyz[0],xy_slice2.shape[0]-xyz[0]],
                               [xyz_pad,xy_slice2.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice2.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xy_slice2.shape[1]-xyz_pad],
                               [xy_slice2.shape[1]-xyz[1],xy_slice2.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -1037,15 +1100,15 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
     xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
     orient_labels=True,
     # base image arguments
-    alpha=1, cmap='Greys_r', 
+    alpha=1, cmap='Greys_r',
     # overlay arguments
-    overlay_cmap='jet', overlay_alpha=0.9,   
+    overlay_cmap='jet', overlay_alpha=0.9,
     # background arguments
-    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99, 
+    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99,
     # scale/crop/domain arguments
-    crop=False, scale=False, domain_image_map=None, 
+    crop=False, scale=False, domain_image_map=None,
     # title arguments
-    title=None, titlefontsize=24, title_dx=0, title_dy=0, 
+    title=None, titlefontsize=24, title_dx=0, title_dy=0,
     # 4th panel text arguemnts
     text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
     # save & size arguments
@@ -1055,7 +1118,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
     TODO:
         - add colorbar option
-    
+
     ANTsR function: N/A
 
     Arguments
@@ -1071,7 +1134,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
         This can be absolute array indices (e.g. (80,100,120)), or
         this can be relative array indices (e.g. (0.4,0.5,0.6)).
         The default is to take the middle slice along each axis.
-    
+
     xyz : list or tuple of 3 integers
         if given, solid lines will be drawn to converge at this coordinate.
         This is useful for pinpointing a specific location in the image.
@@ -1088,7 +1151,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
         colormap to use for overlay images, if applicable. See matplotlib.
 
     overlay_alpha : float
-        level of transparency for any overlays. Smaller value means 
+        level of transparency for any overlays. Smaller value means
         the overlay is more transparent. See matplotlib.
 
     axis : integer
@@ -1099,10 +1162,10 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
         if False, the background of the image(s) will be determined by the
             values `bg_thresh_quant` and `bg_val_quant`.
 
-    bg_thresh_quant : float 
+    bg_thresh_quant : float
         if white_bg=True, the background will be determined by thresholding
         the image at the `bg_thresh` quantile value and setting the background
-        intensity to the `bg_val` quantile value. 
+        intensity to the `bg_val` quantile value.
         This value should be in [0, 1] - somewhere around 0.01 is recommended.
             - equal to 1 will threshold the entire image
             - equal to 0 will threshold none of the image
@@ -1111,7 +1174,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
         if white_bg=True, the background will be determined by thresholding
         the image at the `bg_thresh` quantile value and setting the background
         intensity to the `bg_val` quantile value.
-        This value should be in [0, 1] 
+        This value should be in [0, 1]
             - equal to 1 is pure white
             - equal to 0 is pure black
             - somewhere in between is gray
@@ -1132,7 +1195,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
         if false, dynamic range will be maximized when visualizing overlays
         if 2-tuple, the image will be dynamically scaled between these quantiles
 
-    title : string 
+    title : string
         add a title to the plot
 
     filename : string
@@ -1140,7 +1203,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
     dpi : integer
         determines resolution of image if saved to file. Higher values
-        result in higher resolution images, but at a cost of having a 
+        result in higher resolution images, but at a cost of having a
         larger file size
 
     Example
@@ -1154,7 +1217,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
     >>> ants.plot_ortho(mni, overlay=mni2, xyz=(110,110,110), xyz_lines=False,
                         text='Lines Turned Off', textfontsize=22)
     >>> ants.plot_ortho(mni, mni2, xyz=(120,100,100),
-                        text=' Example \nOrtho Text', textfontsize=26, 
+                        text=' Example \nOrtho Text', textfontsize=26,
                         title='Example Ortho Title', titlefontsize=26)
     """
     def mirror_matrix(x):
@@ -1175,7 +1238,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
     if image.dimension != 3:
         raise ValueError('Input image must have 3 dimensions!')
 
-    # handle `overlay` argument 
+    # handle `overlay` argument
     if overlay is not None:
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
@@ -1243,14 +1306,14 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                                          dimension=image.dimension)
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(tx, overlay, 
-                                                            domain_image_map, 
+                overlay = tio.apply_ants_transform_to_image(tx, overlay,
+                                                            domain_image_map,
                                                             interpolation='linear')
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
                 raise ValueError('domain_image_map list or tuple must have length == 2')
-            
+
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
                 raise ValueError('domain_image_map first entry should be ANTsImage')
@@ -1289,8 +1352,8 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             fig.suptitle(title, fontsize=titlefontsize, x=basex+title_dx, y=basey+title_dy)
 
         gs = gridspec.GridSpec(nrow, ncol,
-                 wspace=0.0, hspace=0.0, 
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+                 wspace=0.0, hspace=0.0,
+                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
                  left=0.5/(ncol+1), right=1-0.5/(ncol+1))
 
         # pad image to have isotropic array dimensions
@@ -1307,11 +1370,11 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]], 
+            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]],
                               [xyz_pad,yz_slice.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad],
                               [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
                 color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -1346,11 +1409,11 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]],
                               [xyz_pad,xz_slice.shape[0]-xyz_pad],
                                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad],
                               [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -1365,12 +1428,12 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                     verticalalignment='bottom',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.98,0.5, 'R',
+            ax.text(0.98,0.5, 'L',
                     horizontalalignment='right',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.02,0.5, 'L',
+            ax.text(0.02,0.5, 'R',
                     horizontalalignment='left',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
@@ -1388,11 +1451,11 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]], 
+            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]],
                               [xyz_pad,xy_slice.shape[0]-xyz_pad],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad], 
+            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad],
                               [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
             ax.add_line(l)
@@ -1407,12 +1470,12 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                     verticalalignment='bottom',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.98,0.5, 'R',
+            ax.text(0.98,0.5, 'L',
                     horizontalalignment='right',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
                     transform=ax.transAxes)
-            ax.text(0.02,0.5, 'L',
+            ax.text(0.02,0.5, 'R',
                     horizontalalignment='left',
                     verticalalignment='center',
                     fontsize=20*figsize, color=textfontcolor,
@@ -1436,7 +1499,7 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             #ax.text(0.5, 0.5)
             ax.imshow(np.zeros(image.shape[:-1]), cmap='Greys_r')
             ax.axis('off')
-            
+
     ## multi-channel images ##
     elif image.components > 1:
         raise ValueError('Multi-channel images not currently supported!')
@@ -1452,23 +1515,23 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
 
 def plot(image, overlay=None,  blend=False,
-    alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9, 
+    alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
     cbar=False, cbar_length=0.8, cbar_dx=0., cbar_vertical=True,
     axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
     bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=False,
     reverse=False, title=None, title_fontsize=20, title_dx=0., title_dy=0.,
     filename=None, dpi=500, figsize=1.5, reorient=True):
     """
-    Plot an ANTsImage. 
+    Plot an ANTsImage.
 
-    By default, images will be reoriented to 'LAI' orientation before plotting. 
+    By default, images will be reoriented to 'LAI' orientation before plotting.
     So, if axis == 0, the images will be ordered from the
     left side of the brain to the right side of the brain. If axis == 1,
     the images will be ordered from the anterior (front) of the brain to
     the posterior (back) of the brain. And if axis == 2, the images will
     be ordered from the inferior (bottom) of the brain to the superior (top)
     of the brain.
-    
+
     ANTsR function: `plot.antsImage`
 
     Arguments
@@ -1486,7 +1549,7 @@ def plot(image, overlay=None,  blend=False,
         colormap to use for overlay images, if applicable. See matplotlib.
 
     overlay_alpha : float
-        level of transparency for any overlays. Smaller value means 
+        level of transparency for any overlays. Smaller value means
         the overlay is more transparent. See matplotlib.
 
     axis : integer
@@ -1496,7 +1559,7 @@ def plot(image, overlay=None,  blend=False,
         number of slices to plot if image is 3D
 
     slices : list or tuple of integers
-        specific slice indices to plot if image is 3D. 
+        specific slice indices to plot if image is 3D.
         If given, this will override `nslices`.
         This can be absolute array indices (e.g. (80,100,120)), or
         this can be relative array indices (e.g. (0.4,0.5,0.6))
@@ -1515,10 +1578,10 @@ def plot(image, overlay=None,  blend=False,
         if False, the background of the image(s) will be determined by the
             values `bg_thresh_quant` and `bg_val_quant`.
 
-    bg_thresh_quant : float 
+    bg_thresh_quant : float
         if white_bg=True, the background will be determined by thresholding
         the image at the `bg_thresh` quantile value and setting the background
-        intensity to the `bg_val` quantile value. 
+        intensity to the `bg_val` quantile value.
         This value should be in [0, 1] - somewhere around 0.01 is recommended.
             - equal to 1 will threshold the entire image
             - equal to 0 will threshold none of the image
@@ -1527,7 +1590,7 @@ def plot(image, overlay=None,  blend=False,
         if white_bg=True, the background will be determined by thresholding
         the image at the `bg_thresh` quantile value and setting the background
         intensity to the `bg_val` quantile value.
-        This value should be in [0, 1] 
+        This value should be in [0, 1]
             - equal to 1 is pure white
             - equal to 0 is pure black
             - somewhere in between is gray
@@ -1547,13 +1610,13 @@ def plot(image, overlay=None,  blend=False,
         if true, nothing will happen to intensities of image(s) and overlay(s)
         if false, dynamic range will be maximized when visualizing overlays
         if 2-tuple, the image will be dynamically scaled between these quantiles
-    
+
     reverse : boolean
         if true, the order in which the slices are plotted will be reversed.
-        This is useful if you want to plot from the front of the brain first 
+        This is useful if you want to plot from the front of the brain first
         to the back of the brain, or vice-versa
 
-    title : string 
+    title : string
         add a title to the plot
 
     filename : string
@@ -1561,7 +1624,7 @@ def plot(image, overlay=None,  blend=False,
 
     dpi : integer
         determines resolution of image if saved to file. Higher values
-        result in higher resolution images, but at a cost of having a 
+        result in higher resolution images, but at a cost of having a
         larger file size
 
     Example
@@ -1608,7 +1671,7 @@ def plot(image, overlay=None,  blend=False,
         image = iio2.image_read(image)
     if not isinstance(image, iio.ANTsImage):
         raise ValueError('image argument must be an ANTsImage')
-    
+
     if (image.pixeltype not in {'float', 'double'}) or (image.is_rgb):
         scale = False # turn off scaling if image is discrete
 
@@ -1636,14 +1699,14 @@ def plot(image, overlay=None,  blend=False,
                                          dimension=image.dimension)
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(tx, overlay, 
-                                                            domain_image_map, 
+                overlay = tio.apply_ants_transform_to_image(tx, overlay,
+                                                            domain_image_map,
                                                             interpolation='linear')
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
                 raise ValueError('domain_image_map list or tuple must have length == 2')
-            
+
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
                 raise ValueError('domain_image_map first entry should be ANTsImage')
@@ -1656,7 +1719,7 @@ def plot(image, overlay=None,  blend=False,
 
     ## single-channel images ##
     if image.components == 1:
-        
+
         # potentially crop image
         if crop:
             plotmask = image.get_mask(cleanup=0)
@@ -1699,12 +1762,12 @@ def plot(image, overlay=None,  blend=False,
 
             # plot main image
             im = ax.imshow(img_arr, cmap=cmap,
-                      alpha=alpha, 
+                      alpha=alpha,
                       vmin=vmin, vmax=vmax)
 
             if overlay is not None:
-                im = ax.imshow(ov_arr, 
-                               alpha=overlay_alpha, 
+                im = ax.imshow(ov_arr,
+                               alpha=overlay_alpha,
                                cmap=overlay_cmap)
 
             if cbar:
@@ -1781,8 +1844,8 @@ def plot(image, overlay=None,  blend=False,
                 fig.suptitle(title, fontsize=title_fontsize, x=0.5+title_dx, y=0.95+title_dy)
 
             gs = gridspec.GridSpec(nrow, ncol,
-                     wspace=0.0, hspace=0.0, 
-                     top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+                     wspace=0.0, hspace=0.0,
+                     top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
                      left=0.5/(ncol+1), right=1-0.5/(ncol+1))
 
             slice_idx_idx = 0
@@ -1818,12 +1881,12 @@ def plot(image, overlay=None,  blend=False,
                     cax = fig.add_axes([cbar_start, 0.08+cbar_dx, cbar_length, 0.03])
                     cbar_orient = 'horizontal'
                 fig.colorbar(im, cax=cax, orientation=cbar_orient)
-    
+
     ## multi-channel images ##
     elif image.components > 1:
         if not image.is_rgb:
             raise ValueError('Multi-component images only supported if they are RGB')
-        
+
         img_arr = image.numpy()
         img_arr = np.stack([rotate90_matrix(img_arr[:,:,i]) for i in range(3)], axis=-1)
 
@@ -1846,13 +1909,13 @@ def plot(image, overlay=None,  blend=False,
     warnings.simplefilter('default')
 
 
-def plot_directory(directory, recursive=False, regex='*', 
+def plot_directory(directory, recursive=False, regex='*',
     save_prefix='', save_suffix='', axis=None, **kwargs):
     """
     Create and save an ANTsPy plot for every image matching a given regular
     expression in a directory, optionally recursively. This is a good function
-    for quick visualize exploration of all of images in a directory 
-    
+    for quick visualize exploration of all of images in a directory
+
     ANTsR function: N/A
 
     Arguments
@@ -1861,7 +1924,7 @@ def plot_directory(directory, recursive=False, regex='*',
         directory in which to search for images and plot them
 
     recursive : boolean
-        If true, this function will search through all directories under 
+        If true, this function will search through all directories under
         the given directory recursively to make plots.
         If false, this function will only create plots for images in the
         given directory
@@ -1870,11 +1933,11 @@ def plot_directory(directory, recursive=False, regex='*',
         regular expression used to filter out certain filenames or suffixes
 
     save_prefix : string
-        sub-string that will be appended to the beginning of all saved plot filenames. 
+        sub-string that will be appended to the beginning of all saved plot filenames.
         Default is to add nothing.
 
     save_suffix : string
-        sub-string that will be appended to the end of all saved plot filenames. 
+        sub-string that will be appended to the end of all saved plot filenames.
         Default is add nothing.
 
     kwargs : keyword arguments
@@ -1920,11 +1983,4 @@ def plot_directory(directory, recursive=False, regex='*',
                              filename=filename, **kwargs)
                 else:
                     filename = save_fname
-                    plot(img, filename=filename, **kwargs)                    
-
-
-
-
-
-
-
+                    plot(img, filename=filename, **kwargs)
