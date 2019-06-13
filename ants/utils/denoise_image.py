@@ -1,13 +1,13 @@
-
-
-
-__all__ = ['denoise_image']
+__all__ = ["denoise_image"]
 
 from .. import utils
 from . import process_args as pargs
 from .get_mask import get_mask
 
-def denoise_image(image, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rician', v=0 ):
+
+def denoise_image(
+    image, mask=None, shrink_factor=1, p=1, r=3, noise_model="Rician", v=0
+):
     """
     Denoise an image using a spatially adaptive filter originally described in
     J. V. Manjon, P. Coupe, Luis Marti-Bonmati, D. L. Collins, and M. Robles.
@@ -27,10 +27,10 @@ def denoise_image(image, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rici
     shrink_factor : scalar
         downsampling level performed within the algorithm.
 
-    p : integer
+    p : integer or character of format '2x2' where the x separates vector entries
         patch radius for local sample.
 
-    r : integer
+    r : integer or character of format '2x2' where the x separates vector entries
         search radius from which to choose extra local samples.
 
     noise_model : string
@@ -50,35 +50,35 @@ def denoise_image(image, mask=None, shrink_factor=1, p=1, r=3, noise_model='Rici
     >>> imagedenoise = ants.denoise_image(imagenoise, ants.get_mask(image))
     """
     inpixeltype = image.pixeltype
-    outimage = image.clone('float')
+    outimage = image.clone("float")
 
     mydim = image.dimension
 
     if mask is None:
         myargs = {
-            'd': mydim,
-            'i': image,
-            'n': noise_model,
-            's': int(shrink_factor),
-            'p': p,
-            'r': r,
-            'o': outimage,
-            'v': v
+            "d": mydim,
+            "i": image,
+            "n": noise_model,
+            "s": int(shrink_factor),
+            "p": p,
+            "r": r,
+            "o": outimage,
+            "v": v,
         }
-    else :
+    else:
         myargs = {
-            'd': mydim,
-            'i': image,
-            'n': noise_model,
-            'x': mask.clone('unsigned char'),
-            's': int(shrink_factor),
-            'p': p,
-            'r': r,
-            'o': outimage,
-            'v': v
+            "d": mydim,
+            "i": image,
+            "n": noise_model,
+            "x": mask.clone("unsigned char"),
+            "s": int(shrink_factor),
+            "p": p,
+            "r": r,
+            "o": outimage,
+            "v": v,
         }
 
     processed_args = pargs._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn('DenoiseImage')
+    libfn = utils.get_lib_fn("DenoiseImage")
     libfn(processed_args)
     return outimage.clone(inpixeltype)
