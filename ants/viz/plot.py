@@ -9,11 +9,16 @@ TODO:
 """
 
 
-__all__ = ['plot', 'movie',
-           'plot_hist',
-           'plot_grid',
-           'plot_ortho', 'plot_ortho_double', 'plot_ortho_stack',
-           'plot_directory']
+__all__ = [
+    "plot",
+    "movie",
+    "plot_hist",
+    "plot_grid",
+    "plot_ortho",
+    "plot_ortho_double",
+    "plot_ortho_stack",
+    "plot_directory",
+]
 
 import fnmatch
 import math
@@ -61,22 +66,32 @@ def movie(image, filename=None, writer=None, fps=30):
     # Creare your figure and axes
     fig, ax = plt.subplots(1)
 
-    im = ax.imshow(img_arr[minidx,:,:], animated=True,
-        cmap='Greys_r', vmin=image.quantile(0.05), vmax=image.quantile(0.95))
+    im = ax.imshow(
+        img_arr[minidx, :, :],
+        animated=True,
+        cmap="Greys_r",
+        vmin=image.quantile(0.05),
+        vmax=image.quantile(0.95),
+    )
 
-    ax.axis('off')
+    ax.axis("off")
 
     def init():
-        fig.axes('off')
-        return im,
+        fig.axes("off")
+        return (im,)
 
     def updatefig(frame):
-        im.set_array(img_arr[frame,:,:])
-        return im,
+        im.set_array(img_arr[frame, :, :])
+        return (im,)
 
-    ani = animation.FuncAnimation(fig, updatefig, frames=np.arange(minidx,maxidx),
-                                  #init_func=init,
-                                  interval=50, blit=True)
+    ani = animation.FuncAnimation(
+        fig,
+        updatefig,
+        frames=np.arange(minidx, maxidx),
+        # init_func=init,
+        interval=50,
+        blit=True,
+    )
 
     if writer is None:
         writer = animation.FFMpegWriter(fps=fps)
@@ -88,11 +103,20 @@ def movie(image, filename=None, writer=None, fps=30):
         plt.show()
 
 
-def plot_hist(image, threshold=0., fit_line=False, normfreq=True,
+def plot_hist(
+    image,
+    threshold=0.0,
+    fit_line=False,
+    normfreq=True,
     ## plot label arguments
-    title=None, grid=True, xlabel=None, ylabel=None,
+    title=None,
+    grid=True,
+    xlabel=None,
+    ylabel=None,
     ## other plot arguments
-    facecolor='green', alpha=0.75):
+    facecolor="green",
+    alpha=0.75,
+):
     """
     Plot a histogram from an ANTsImage
 
@@ -105,13 +129,15 @@ def plot_hist(image, threshold=0., fit_line=False, normfreq=True,
     img_arr = img_arr[np.abs(img_arr) > threshold]
 
     if normfreq != False:
-        normfreq = 1. if normfreq == True else normfreq
-    n, bins, patches = plt.hist(img_arr, 50, normed=normfreq, facecolor=facecolor, alpha=alpha)
+        normfreq = 1.0 if normfreq == True else normfreq
+    n, bins, patches = plt.hist(
+        img_arr, 50, normed=normfreq, facecolor=facecolor, alpha=alpha
+    )
 
     if fit_line:
         # add a 'best fit' line
-        y = mlab.normpdf( bins, img_arr.mean(), img_arr.std())
-        l = plt.plot(bins, y, 'r--', linewidth=1)
+        y = mlab.normpdf(bins, img_arr.mean(), img_arr.std())
+        l = plt.plot(bins, y, "r--", linewidth=1)
 
     if xlabel is not None:
         plt.xlabel(xlabel)
@@ -124,19 +150,36 @@ def plot_hist(image, threshold=0., fit_line=False, normfreq=True,
     plt.show()
 
 
-def plot_grid(images, slices=None, axes=2,
+def plot_grid(
+    images,
+    slices=None,
+    axes=2,
     # general figure arguments
-    figsize=1., rpad=0, cpad=0,
+    figsize=1.0,
+    rpad=0,
+    cpad=0,
     # title arguments
-    title=None, tfontsize=20, title_dx=0, title_dy=0,
+    title=None,
+    tfontsize=20,
+    title_dx=0,
+    title_dy=0,
     # row arguments
-    rlabels=None, rfontsize=14, rfontcolor='white', rfacecolor='black',
+    rlabels=None,
+    rfontsize=14,
+    rfontcolor="white",
+    rfacecolor="black",
     # column arguments
-    clabels=None, cfontsize=14, cfontcolor='white', cfacecolor='black',
+    clabels=None,
+    cfontsize=14,
+    cfontcolor="white",
+    cfacecolor="black",
     # save arguments
-    filename=None, dpi=400, transparent=True,
+    filename=None,
+    dpi=400,
+    transparent=True,
     # other args
-    **kwargs):
+    **kwargs
+):
     """
     Plot a collection of images in an arbitrarily-defined grid
 
@@ -203,43 +246,50 @@ def plot_grid(images, slices=None, axes=2,
                        rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2', 'Col 3'],
                        rfontsize=16, cfontsize=16)
     """
+
     def mirror_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate270_matrix(x):
         return mirror_matrix(x.T)
+
     def rotate180_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate90_matrix(x):
         return mirror_matrix(x).T
+
     def flip_matrix(x):
         return mirror_matrix(rotate180_matrix(x))
+
     def reorient_slice(x, axis):
-        if (axis != 1):
+        if axis != 1:
             x = rotate90_matrix(x)
-        if (axis == 1):
+        if axis == 1:
             x = rotate90_matrix(x)
         x = mirror_matrix(x)
         return x
+
     def slice_image(img, axis, idx):
         if axis == 0:
-            return img[idx,:,:]
+            return img[idx, :, :]
         elif axis == 1:
-            return img[:,idx,:]
+            return img[:, idx, :]
         elif axis == 2:
-            return img[:,:,idx]
+            return img[:, :, idx]
         elif axis == -1:
-            return img[:,:,idx]
+            return img[:, :, idx]
         elif axis == -2:
-            return img[:,idx,:]
+            return img[:, idx, :]
         elif axis == -3:
-            return img[idx,:,:]
+            return img[idx, :, :]
         else:
-            raise ValueError('axis %i not valid' % axis)
+            raise ValueError("axis %i not valid" % axis)
 
     if isinstance(images, np.ndarray):
         images = images.tolist()
     if not isinstance(images, list):
-        raise ValueError('images argument must be of type list')
+        raise ValueError("images argument must be of type list")
     if not isinstance(images[0], list):
         images = [images]
 
@@ -258,20 +308,23 @@ def plot_grid(images, slices=None, axes=2,
     ncol = len(images[0])
 
     if rlabels is None:
-        rlabels = [None]*nrow
+        rlabels = [None] * nrow
     if clabels is None:
-        clabels = [None]*ncol
+        clabels = [None] * ncol
 
-    if (not one_slice):
+    if not one_slice:
         if (nrow != nslicerow) or (ncol != nslicecol):
-            raise ValueError('`images` arg shape (%i,%i) must equal `slices` arg shape (%i,%i)!' % (nrow,ncol,nslicerow,nslicecol))
+            raise ValueError(
+                "`images` arg shape (%i,%i) must equal `slices` arg shape (%i,%i)!"
+                % (nrow, ncol, nslicerow, nslicecol)
+            )
 
-    fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
+    fig = plt.figure(figsize=((ncol + 1) * 2.5 * figsize, (nrow + 1) * 2.5 * figsize))
 
     if title is not None:
         basex = 0.5
         basey = 0.9 if clabels[0] is None else 0.95
-        fig.suptitle(title, fontsize=tfontsize, x=basex+title_dx, y=basey+title_dy)
+        fig.suptitle(title, fontsize=tfontsize, x=basex + title_dx, y=basey + title_dy)
 
     if (cpad > 0) and (rpad > 0):
         bothgridpad = max(cpad, rpad)
@@ -280,9 +333,16 @@ def plot_grid(images, slices=None, axes=2,
     else:
         bothgridpad = 0.0
 
-    gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + cpad,
-                 left=0.5/(ncol+1) + rpad, right=1-0.5/(ncol+1))
+    gs = gridspec.GridSpec(
+        nrow,
+        ncol,
+        wspace=bothgridpad,
+        hspace=0.0,
+        top=1.0 - 0.5 / (nrow + 1),
+        bottom=0.5 / (nrow + 1) + cpad,
+        left=0.5 / (ncol + 1) + rpad,
+        right=1 - 0.5 / (ncol + 1),
+    )
 
     for rowidx in range(nrow):
         for colidx in range(ncol):
@@ -290,37 +350,63 @@ def plot_grid(images, slices=None, axes=2,
 
             if colidx == 0:
                 if rlabels[rowidx] is not None:
-                    bottom, height = .25, .5
+                    bottom, height = 0.25, 0.5
                     top = bottom + height
                     # add label text
-                    ax.text(-0.07, 0.5*(bottom+top), rlabels[rowidx],
-                            horizontalalignment='right', verticalalignment='center',
-                            rotation='vertical', transform=ax.transAxes,
-                            color=rfontcolor, fontsize=rfontsize)
+                    ax.text(
+                        -0.07,
+                        0.5 * (bottom + top),
+                        rlabels[rowidx],
+                        horizontalalignment="right",
+                        verticalalignment="center",
+                        rotation="vertical",
+                        transform=ax.transAxes,
+                        color=rfontcolor,
+                        fontsize=rfontsize,
+                    )
 
                     # add label background
                     extra = 0.3 if rowidx == 0 else 0.0
 
-                    rect = patches.Rectangle((-0.3, 0), 0.3, 1.0+extra,
+                    rect = patches.Rectangle(
+                        (-0.3, 0),
+                        0.3,
+                        1.0 + extra,
                         facecolor=rfacecolor,
-                        alpha=1., transform=ax.transAxes, clip_on=False)
+                        alpha=1.0,
+                        transform=ax.transAxes,
+                        clip_on=False,
+                    )
                     ax.add_patch(rect)
 
             if rowidx == 0:
                 if clabels[colidx] is not None:
-                    bottom, height = .25, .5
-                    left, width = .25, .5
+                    bottom, height = 0.25, 0.5
+                    left, width = 0.25, 0.5
                     right = left + width
                     top = bottom + height
-                    ax.text(0.5*(left+right), 0.09+top+bottom, clabels[colidx],
-                            horizontalalignment='center', verticalalignment='center',
-                            rotation='horizontal', transform=ax.transAxes,
-                            color=cfontcolor, fontsize=cfontsize)
+                    ax.text(
+                        0.5 * (left + right),
+                        0.09 + top + bottom,
+                        clabels[colidx],
+                        horizontalalignment="center",
+                        verticalalignment="center",
+                        rotation="horizontal",
+                        transform=ax.transAxes,
+                        color=cfontcolor,
+                        fontsize=cfontsize,
+                    )
 
                     # add label background
-                    rect = patches.Rectangle((0, 1.), 1.0, 0.3,
+                    rect = patches.Rectangle(
+                        (0, 1.0),
+                        1.0,
+                        0.3,
                         facecolor=cfacecolor,
-                        alpha=1., transform=ax.transAxes, clip_on=False)
+                        alpha=1.0,
+                        transform=ax.transAxes,
+                        clip_on=False,
+                    )
                     ax.add_patch(rect)
 
             tmpimg = images[rowidx][colidx]
@@ -331,35 +417,63 @@ def plot_grid(images, slices=None, axes=2,
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
             tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
             tmpslice = reorient_slice(tmpslice, tmpaxis)
-            ax.imshow(tmpslice, cmap='Greys_r', aspect='auto')
-            ax.axis('off')
+            ax.imshow(tmpslice, cmap="Greys_r", aspect="auto")
+            ax.axis("off")
 
     if filename is not None:
         filename = os.path.expanduser(filename)
-        plt.savefig(filename, dpi=dpi, transparent=transparent, bbox_inches='tight')
+        plt.savefig(filename, dpi=dpi, transparent=transparent, bbox_inches="tight")
         plt.close(fig)
     else:
         plt.show()
 
 
-def plot_ortho_stack(images, overlays=None, reorient=True,
+def plot_ortho_stack(
+    images,
+    overlays=None,
+    reorient=True,
     # xyz arguments
-    xyz=None, xyz_lines=False, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+    xyz=None,
+    xyz_lines=False,
+    xyz_color="red",
+    xyz_alpha=0.6,
+    xyz_linewidth=2,
+    xyz_pad=5,
     # base image arguments
-    cmap='Greys_r', alpha=1,
+    cmap="Greys_r",
+    alpha=1,
     # overlay arguments
-    overlay_cmap='jet', overlay_alpha=0.9,
+    overlay_cmap="jet",
+    overlay_alpha=0.9,
     # background arguments
-    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99,
+    black_bg=True,
+    bg_thresh_quant=0.01,
+    bg_val_quant=0.99,
     # scale/crop/domain arguments
-    crop=False, scale=False, domain_image_map=None,
+    crop=False,
+    scale=False,
+    domain_image_map=None,
     # title arguments
-    title=None, titlefontsize=24, title_dx=0, title_dy=0,
+    title=None,
+    titlefontsize=24,
+    title_dx=0,
+    title_dy=0,
     # 4th panel text arguemnts
-    text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+    text=None,
+    textfontsize=24,
+    textfontcolor="white",
+    text_dx=0,
+    text_dy=0,
     # save & size arguments
-    filename=None, dpi=500, figsize=1., colpad=0, rowpad=0,
-    transpose=False, transparent=True, orient_labels=True):
+    filename=None,
+    dpi=500,
+    figsize=1.0,
+    colpad=0,
+    rowpad=0,
+    transpose=False,
+    transparent=True,
+    orient_labels=True,
+):
     """
     Example
     -------
@@ -368,15 +482,18 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
     >>> ch2 = ants.image_read(ants.get_data('ch2'))
     >>> ants.plot_ortho_stack([mni,mni,mni])
     """
+
     def mirror_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate270_matrix(x):
         return mirror_matrix(x.T)
+
     def reorient_slice(x, axis):
         return rotate270_matrix(x)
 
     # need this hack because of a weird NaN warning from matplotlib with overlays
-    warnings.simplefilter('ignore')
+    warnings.simplefilter("ignore")
 
     n_images = len(images)
 
@@ -385,33 +502,37 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
         if isinstance(images[i], str):
             images[i] = iio2.image_read(images[i])
         if not isinstance(images[i], iio.ANTsImage):
-            raise ValueError('image argument must be an ANTsImage')
+            raise ValueError("image argument must be an ANTsImage")
         if images[i].dimension != 3:
-            raise ValueError('Input image must have 3 dimensions!')
+            raise ValueError("Input image must have 3 dimensions!")
 
     if overlays is None:
-        overlays = [None]*n_images
+        overlays = [None] * n_images
     # handle `overlay` argument
     for i in range(n_images):
         if overlays[i] is not None:
             if isinstance(overlays[i], str):
                 overlays[i] = iio2.image_read(overlays[i])
             if not isinstance(overlays[i], iio.ANTsImage):
-                raise ValueError('overlay argument must be an ANTsImage')
+                raise ValueError("overlay argument must be an ANTsImage")
             if overlays[i].dimension != 3:
-                raise ValueError('Overlay image must have 3 dimensions!')
+                raise ValueError("Overlay image must have 3 dimensions!")
 
             if not iio.image_physical_space_consistency(images[i], overlays[i]):
-                overlays[i] = reg.resample_image_to_target(overlays[i], images[i], interp_type='linear')
+                overlays[i] = reg.resample_image_to_target(
+                    overlays[i], images[i], interp_type="linear"
+                )
 
-    for i in range(1,n_images):
+    for i in range(1, n_images):
         if not iio.image_physical_space_consistency(images[0], images[i]):
-            images[i] = reg.resample_image_to_target(images[0], images[i], interp_type='linear')
+            images[i] = reg.resample_image_to_target(
+                images[0], images[i], interp_type="linear"
+            )
 
     # reorient images
     if reorient != False:
         if reorient == True:
-            reorient = 'RPI'
+            reorient = "RPI"
 
         for i in range(n_images):
             images[i] = images[i].reorient_image2(reorient)
@@ -421,20 +542,22 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
 
     # handle `slices` argument
     if xyz is None:
-        xyz = [int(s/2) for s in images[0].shape]
+        xyz = [int(s / 2) for s in images[0].shape]
     for i in range(3):
         if xyz[i] is None:
-            xyz[i] = int(images[0].shape[i]/2)
+            xyz[i] = int(images[0].shape[i] / 2)
 
     # resample image if spacing is very unbalanced
-    spacing = [s for i,s in enumerate(images[0].spacing)]
-    if (max(spacing) / min(spacing)) > 3.:
-        new_spacing = (1,1,1)
+    spacing = [s for i, s in enumerate(images[0].spacing)]
+    if (max(spacing) / min(spacing)) > 3.0:
+        new_spacing = (1, 1, 1)
         for i in range(n_images):
             images[i] = images[i].resample_image(tuple(new_spacing))
         if overlays[i] is not None:
             overlays[i] = overlays[i].resample_image(tuple(new_spacing))
-        xyz = [int(sl*(sold/snew)) for sl,sold,snew in zip(xyz,spacing,new_spacing)]
+        xyz = [
+            int(sl * (sold / snew)) for sl, sold, snew in zip(xyz, spacing, new_spacing)
+        ]
 
     # potentially crop image
     if crop:
@@ -454,47 +577,53 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
             images[i] = images[i].pad_image()
         if overlays[i] is not None:
             overlays[i] = overlays[i].pad_image()
-    xyz = [v+l for v,l in zip(xyz,lowpad)]
+    xyz = [v + l for v, l in zip(xyz, lowpad)]
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
         if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(precision='float', transform_type='AffineTransform',
-                                         dimension=3)
+            tx = tio2.new_ants_transform(
+                precision="float", transform_type="AffineTransform", dimension=3
+            )
             for i in range(n_images):
-                images[i] = tio.apply_ants_transform_to_image(tx, images[i], domain_image_map)
+                images[i] = tio.apply_ants_transform_to_image(
+                    tx, images[i], domain_image_map
+                )
 
                 if overlays[i] is not None:
-                    overlays[i] = tio.apply_ants_transform_to_image(tx, overlays[i],
-                                                            domain_image_map,
-                                                            interpolation='linear')
+                    overlays[i] = tio.apply_ants_transform_to_image(
+                        tx, overlays[i], domain_image_map, interpolation="linear"
+                    )
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
-                raise ValueError('domain_image_map list or tuple must have length == 2')
+                raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
-                raise ValueError('domain_image_map first entry should be ANTsImage')
+                raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
             for i in range(n_images):
                 images[i] = reg.apply_transforms(dimg, images[i], transform_list=tx)
                 if overlays[i] is not None:
-                    overlays[i] = reg.apply_transforms(dimg, overlays[i], transform_list=tx,
-                                                   interpolator='linear')
+                    overlays[i] = reg.apply_transforms(
+                        dimg, overlays[i], transform_list=tx, interpolator="linear"
+                    )
 
     # potentially find dynamic range
     if scale == True:
         vmins = []
         vmaxs = []
         for i in range(n_images):
-            vmin, vmax = images[i].quantile((0.05,0.95))
+            vmin, vmax = images[i].quantile((0.05, 0.95))
             vmins.append(vmin)
             vmaxs.append(vmax)
-    elif isinstance(scale, (list,tuple)):
+    elif isinstance(scale, (list, tuple)):
         if len(scale) != 2:
-            raise ValueError('scale argument must be boolean or list/tuple with two values')
+            raise ValueError(
+                "scale argument must be boolean or list/tuple with two values"
+            )
         vmins = []
         vmaxs = []
         for i in range(n_images):
@@ -512,11 +641,13 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
         nrow = 3
         ncol = n_images
 
-    fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
+    fig = plt.figure(figsize=((ncol + 1) * 2.5 * figsize, (nrow + 1) * 2.5 * figsize))
     if title is not None:
         basey = 0.93
         basex = 0.5
-        fig.suptitle(title, fontsize=titlefontsize, x=basex+title_dx, y=basey+title_dy)
+        fig.suptitle(
+            title, fontsize=titlefontsize, x=basex + title_dx, y=basey + title_dy
+        )
 
     if (colpad > 0) and (rowpad > 0):
         bothgridpad = max(colpad, rowpad)
@@ -525,149 +656,241 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
     else:
         bothgridpad = 0.0
 
-    gs = gridspec.GridSpec(nrow, ncol, wspace=bothgridpad, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1) + colpad,
-                 left=0.5/(ncol+1) + rowpad, right=1-0.5/(ncol+1))
+    gs = gridspec.GridSpec(
+        nrow,
+        ncol,
+        wspace=bothgridpad,
+        hspace=0.0,
+        top=1.0 - 0.5 / (nrow + 1),
+        bottom=0.5 / (nrow + 1) + colpad,
+        left=0.5 / (ncol + 1) + rowpad,
+        right=1 - 0.5 / (ncol + 1),
+    )
 
     # pad image to have isotropic array dimensions
     for i in range(n_images):
         images[i] = images[i].numpy()
         if overlays[i] is not None:
             overlays[i] = overlays[i].numpy()
-            overlays[i][np.abs(overlays[i]) == 0] = np.nan
+            if overlays[i].dtype not in ["uint8", "uint32"]:
+                overlays[i][np.abs(overlays[i]) == 0] = np.nan
 
     ####################
     ####################
     for i in range(n_images):
-        yz_slice = reorient_slice(images[i][xyz[0],:,:],0)
+        yz_slice = reorient_slice(images[i][xyz[0], :, :], 0)
         if not transpose:
-            ax = plt.subplot(gs[i,0])
+            ax = plt.subplot(gs[i, 0])
         else:
-            ax = plt.subplot(gs[0,i])
+            ax = plt.subplot(gs[0, i])
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlays[i] is not None:
-            yz_overlay = reorient_slice(overlays[i][xyz[0],:,:],0)
+            yz_overlay = reorient_slice(overlays[i][xyz[0], :, :], 0)
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]],
-                              [xyz_pad,yz_slice.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [yz_slice.shape[0] - xyz[1], yz_slice.shape[0] - xyz[1]],
+                [xyz_pad, yz_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad],
-                              [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
-                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, yz_slice.shape[1] - xyz_pad],
+                [yz_slice.shape[1] - xyz[2], yz_slice.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
         if orient_labels:
-            ax.text(0.5,0.98, 'S',
-                    horizontalalignment='center',
-                    verticalalignment='top',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.5,0.02, 'I',
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.98,0.5, 'A',
-                    horizontalalignment='right',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.02,0.5, 'P',
-                    horizontalalignment='left',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-        ax.axis('off')
+            ax.text(
+                0.5,
+                0.98,
+                "S",
+                horizontalalignment="center",
+                verticalalignment="top",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.02,
+                "I",
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.98,
+                0.5,
+                "A",
+                horizontalalignment="right",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.02,
+                0.5,
+                "P",
+                horizontalalignment="left",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+        ax.axis("off")
         ####################
         ####################
 
-        xz_slice = reorient_slice(images[i][:,xyz[1],:],1)
+        xz_slice = reorient_slice(images[i][:, xyz[1], :], 1)
         if not transpose:
-            ax = plt.subplot(gs[i,1])
+            ax = plt.subplot(gs[i, 1])
         else:
-            ax = plt.subplot(gs[1,i])
+            ax = plt.subplot(gs[1, i])
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlays[i] is not None:
-            xz_overlay = reorient_slice(overlays[i][:,xyz[1],:],1)
+            xz_overlay = reorient_slice(overlays[i][:, xyz[1], :], 1)
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]],
-                              [xyz_pad,xz_slice.shape[0]-xyz_pad],
-                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xz_slice.shape[0] - xyz[0], xz_slice.shape[0] - xyz[0]],
+                [xyz_pad, xz_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad],
-                              [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xz_slice.shape[1] - xyz_pad],
+                [xz_slice.shape[1] - xyz[2], xz_slice.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
         if orient_labels:
-            ax.text(0.5,0.98, 'A',
-                    horizontalalignment='center',
-                    verticalalignment='top',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.5,0.02, 'P',
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.98,0.5, 'L',
-                    horizontalalignment='right',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.02,0.5, 'R',
-                    horizontalalignment='left',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-        ax.axis('off')
+            ax.text(
+                0.5,
+                0.98,
+                "A",
+                horizontalalignment="center",
+                verticalalignment="top",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.02,
+                "P",
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.98,
+                0.5,
+                "L",
+                horizontalalignment="right",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.02,
+                0.5,
+                "R",
+                horizontalalignment="left",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+        ax.axis("off")
 
         ####################
         ####################
-        xy_slice = reorient_slice(images[i][:,:,xyz[2]],2)
+        xy_slice = reorient_slice(images[i][:, :, xyz[2]], 2)
         if not transpose:
-            ax = plt.subplot(gs[i,2])
+            ax = plt.subplot(gs[i, 2])
         else:
-            ax = plt.subplot(gs[2,i])
+            ax = plt.subplot(gs[2, i])
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlays[i] is not None:
-            xy_overlay = reorient_slice(overlays[i][:,:,xyz[2]],2)
+            xy_overlay = reorient_slice(overlays[i][:, :, xyz[2]], 2)
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]],
-                              [xyz_pad,xy_slice.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xy_slice.shape[0] - xyz[0], xy_slice.shape[0] - xyz[0]],
+                [xyz_pad, xy_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad],
-                              [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xy_slice.shape[1] - xyz_pad],
+                [xy_slice.shape[1] - xyz[1], xy_slice.shape[1] - xyz[1]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
         if orient_labels:
-            ax.text(0.5,0.98, 'A',
-                    horizontalalignment='center',
-                    verticalalignment='top',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.5,0.02, 'P',
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.98,0.5, 'L',
-                    horizontalalignment='right',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.02,0.5, 'R',
-                    horizontalalignment='left',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-        ax.axis('off')
+            ax.text(
+                0.5,
+                0.98,
+                "A",
+                horizontalalignment="center",
+                verticalalignment="top",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.02,
+                "P",
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.98,
+                0.5,
+                "L",
+                horizontalalignment="right",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.02,
+                0.5,
+                "R",
+                horizontalalignment="left",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+        ax.axis("off")
 
     ####################
     ####################
@@ -679,26 +902,61 @@ def plot_ortho_stack(images, overlays=None, reorient=True,
         plt.show()
 
     # turn warnings back to default
-    warnings.simplefilter('default')
+    warnings.simplefilter("default")
 
 
-def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
+def plot_ortho_double(
+    image,
+    image2,
+    overlay=None,
+    overlay2=None,
+    reorient=True,
     # xyz arguments
-    xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+    xyz=None,
+    xyz_lines=True,
+    xyz_color="red",
+    xyz_alpha=0.6,
+    xyz_linewidth=2,
+    xyz_pad=5,
     # base image arguments
-    cmap='Greys_r', alpha=1, cmap2='Greys_r', alpha2=1,
+    cmap="Greys_r",
+    alpha=1,
+    cmap2="Greys_r",
+    alpha2=1,
     # overlay arguments
-    overlay_cmap='jet', overlay_alpha=0.9, overlay_cmap2='jet', overlay_alpha2=0.9,
+    overlay_cmap="jet",
+    overlay_alpha=0.9,
+    overlay_cmap2="jet",
+    overlay_alpha2=0.9,
     # background arguments
-    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99,
+    black_bg=True,
+    bg_thresh_quant=0.01,
+    bg_val_quant=0.99,
     # scale/crop/domain arguments
-    crop=False, scale=False, crop2=False, scale2=True, domain_image_map=None,
+    crop=False,
+    scale=False,
+    crop2=False,
+    scale2=True,
+    domain_image_map=None,
     # title arguments
-    title=None, titlefontsize=24, title_dx=0, title_dy=0,
+    title=None,
+    titlefontsize=24,
+    title_dx=0,
+    title_dy=0,
     # 4th panel text arguemnts
-    text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+    text=None,
+    textfontsize=24,
+    textfontcolor="white",
+    text_dx=0,
+    text_dy=0,
     # save & size arguments
-    filename=None, dpi=500, figsize=1., flat=True, transpose=False, transparent=True):
+    filename=None,
+    dpi=500,
+    figsize=1.0,
+    flat=True,
+    transpose=False,
+    transparent=True,
+):
     """
     Example
     -------
@@ -707,67 +965,72 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
     >>> ch2 = ants.image_read(ants.get_data('ch2'))
     >>> ants.plot_ortho_double(mni, ch2)
     """
+
     def mirror_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate270_matrix(x):
         return mirror_matrix(x.T)
+
     def reorient_slice(x, axis):
         return rotate270_matrix(x)
 
     # need this hack because of a weird NaN warning from matplotlib with overlays
-    warnings.simplefilter('ignore')
+    warnings.simplefilter("ignore")
 
     # handle `image` argument
     if isinstance(image, str):
         image = iio2.image_read(image)
     if not isinstance(image, iio.ANTsImage):
-        raise ValueError('image argument must be an ANTsImage')
+        raise ValueError("image argument must be an ANTsImage")
     if image.dimension != 3:
-        raise ValueError('Input image must have 3 dimensions!')
+        raise ValueError("Input image must have 3 dimensions!")
 
     if isinstance(image2, str):
         image2 = iio2.image_read(image2)
     if not isinstance(image2, iio.ANTsImage):
-        raise ValueError('image2 argument must be an ANTsImage')
+        raise ValueError("image2 argument must be an ANTsImage")
     if image2.dimension != 3:
-        raise ValueError('Input image2 must have 3 dimensions!')
+        raise ValueError("Input image2 must have 3 dimensions!")
 
     # handle `overlay` argument
     if overlay is not None:
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
-            raise ValueError('overlay argument must be an ANTsImage')
+            raise ValueError("overlay argument must be an ANTsImage")
         if overlay.dimension != 3:
-            raise ValueError('Overlay image must have 3 dimensions!')
+            raise ValueError("Overlay image must have 3 dimensions!")
 
         if not iio.image_physical_space_consistency(image, overlay):
-            overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
+            overlay = reg.resample_image_to_target(overlay, image, interp_type="linear")
 
     if overlay2 is not None:
         if isinstance(overlay2, str):
             overlay2 = iio2.image_read(overlay2)
         if not isinstance(overlay2, iio.ANTsImage):
-            raise ValueError('overlay2 argument must be an ANTsImage')
+            raise ValueError("overlay2 argument must be an ANTsImage")
         if overlay2.dimension != 3:
-            raise ValueError('Overlay2 image must have 3 dimensions!')
+            raise ValueError("Overlay2 image must have 3 dimensions!")
 
         if not iio.image_physical_space_consistency(image2, overlay2):
-            overlay2 = reg.resample_image_to_target(overlay2, image2, interp_type='linear')
+            overlay2 = reg.resample_image_to_target(
+                overlay2, image2, interp_type="linear"
+            )
 
     if not iio.image_physical_space_consistency(image, image2):
-        image2 = reg.resample_image_to_target(image2, image, interp_type='linear')
+        image2 = reg.resample_image_to_target(image2, image, interp_type="linear")
 
-    if image.pixeltype not in {'float', 'double'}:
-        scale = False # turn off scaling if image is discrete
+    if image.pixeltype not in {"float", "double"}:
+        scale = False  # turn off scaling if image is discrete
 
-    if image2.pixeltype not in {'float', 'double'}:
-        scale2 = False # turn off scaling if image is discrete
+    if image2.pixeltype not in {"float", "double"}:
+        scale2 = False  # turn off scaling if image is discrete
 
     # reorient images
     if reorient != False:
         if reorient == True:
-            reorient = 'RPI'
+            reorient = "RPI"
         image = image.reorient_image2(reorient)
         image2 = image2.reorient_image2(reorient)
         if overlay is not None:
@@ -777,27 +1040,29 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
 
     # handle `slices` argument
     if xyz is None:
-        xyz = [int(s/2) for s in image.shape]
+        xyz = [int(s / 2) for s in image.shape]
     for i in range(3):
         if xyz[i] is None:
-            xyz[i] = int(image.shape[i]/2)
+            xyz[i] = int(image.shape[i] / 2)
 
     # resample image if spacing is very unbalanced
-    spacing = [s for i,s in enumerate(image.spacing)]
-    if (max(spacing) / min(spacing)) > 3.:
-        new_spacing = (1,1,1)
+    spacing = [s for i, s in enumerate(image.spacing)]
+    if (max(spacing) / min(spacing)) > 3.0:
+        new_spacing = (1, 1, 1)
         image = image.resample_image(tuple(new_spacing))
         image2 = image2.resample_image_to_target(tuple(new_spacing))
         if overlay is not None:
             overlay = overlay.resample_image(tuple(new_spacing))
         if overlay2 is not None:
             overlay2 = overlay2.resample_image(tuple(new_spacing))
-        xyz = [int(sl*(sold/snew)) for sl,sold,snew in zip(xyz,spacing,new_spacing)]
+        xyz = [
+            int(sl * (sold / snew)) for sl, sold, snew in zip(xyz, spacing, new_spacing)
+        ]
 
     # pad images
     image, lowpad, uppad = image.pad_image(return_padvals=True)
     image2, lowpad2, uppad2 = image2.pad_image(return_padvals=True)
-    xyz = [v+l for v,l in zip(xyz,lowpad)]
+    xyz = [v + l for v, l in zip(xyz, lowpad)]
     if overlay is not None:
         overlay = overlay.pad_image()
     if overlay2 is not None:
@@ -806,37 +1071,42 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
     # handle `domain_image_map` argument
     if domain_image_map is not None:
         if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(precision='float', transform_type='AffineTransform',
-                                         dimension=image.dimension)
+            tx = tio2.new_ants_transform(
+                precision="float",
+                transform_type="AffineTransform",
+                dimension=image.dimension,
+            )
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             image2 = tio.apply_ants_transform_to_image(tx, image2, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(tx, overlay,
-                                                            domain_image_map,
-                                                            interpolation='linear')
+                overlay = tio.apply_ants_transform_to_image(
+                    tx, overlay, domain_image_map, interpolation="linear"
+                )
             if overlay2 is not None:
-                overlay2 = tio.apply_ants_transform_to_image(tx, overlay2,
-                                                            domain_image_map,
-                                                            interpolation='linear')
+                overlay2 = tio.apply_ants_transform_to_image(
+                    tx, overlay2, domain_image_map, interpolation="linear"
+                )
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
-                raise ValueError('domain_image_map list or tuple must have length == 2')
+                raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
-                raise ValueError('domain_image_map first entry should be ANTsImage')
+                raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
             image = reg.apply_transforms(dimg, image, transform_list=tx)
             if overlay is not None:
-                overlay = reg.apply_transforms(dimg, overlay, transform_list=tx,
-                                               interpolator='linear')
+                overlay = reg.apply_transforms(
+                    dimg, overlay, transform_list=tx, interpolator="linear"
+                )
 
             image2 = reg.apply_transforms(dimg, image2, transform_list=tx)
             if overlay2 is not None:
-                overlay2 = reg.apply_transforms(dimg, overlay2, transform_list=tx,
-                                               interpolator='linear')
+                overlay2 = reg.apply_transforms(
+                    dimg, overlay2, transform_list=tx, interpolator="linear"
+                )
 
     ## single-channel images ##
     if image.components == 1:
@@ -858,23 +1128,26 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
             if overlay2 is not None:
                 overlay2 = overlay2.crop_image(plotmask2)
 
-
         # potentially find dynamic range
         if scale == True:
-            vmin, vmax = image.quantile((0.05,0.95))
-        elif isinstance(scale, (list,tuple)):
+            vmin, vmax = image.quantile((0.05, 0.95))
+        elif isinstance(scale, (list, tuple)):
             if len(scale) != 2:
-                raise ValueError('scale argument must be boolean or list/tuple with two values')
+                raise ValueError(
+                    "scale argument must be boolean or list/tuple with two values"
+                )
             vmin, vmax = image.quantile(scale)
         else:
             vmin = None
             vmax = None
 
         if scale2 == True:
-            vmin2, vmax2 = image2.quantile((0.05,0.95))
-        elif isinstance(scale2, (list,tuple)):
+            vmin2, vmax2 = image2.quantile((0.05, 0.95))
+        elif isinstance(scale2, (list, tuple)):
             if len(scale2) != 2:
-                raise ValueError('scale2 argument must be boolean or list/tuple with two values')
+                raise ValueError(
+                    "scale2 argument must be boolean or list/tuple with two values"
+                )
             vmin2, vmax2 = image2.quantile(scale2)
         else:
             vmin2 = None
@@ -891,199 +1164,263 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
                 nrow = 3
                 ncol = 2
 
-        fig = plt.figure(figsize=((ncol+1)*2.5*figsize, (nrow+1)*2.5*figsize))
+        fig = plt.figure(
+            figsize=((ncol + 1) * 2.5 * figsize, (nrow + 1) * 2.5 * figsize)
+        )
         if title is not None:
             basey = 0.88 if not flat else 0.66
             basex = 0.5
-            fig.suptitle(title, fontsize=titlefontsize, x=basex+title_dx, y=basey+title_dy)
+            fig.suptitle(
+                title, fontsize=titlefontsize, x=basex + title_dx, y=basey + title_dy
+            )
 
-        gs = gridspec.GridSpec(nrow, ncol,
-                 wspace=0.0, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
-                 left=0.5/(ncol+1), right=1-0.5/(ncol+1))
+        gs = gridspec.GridSpec(
+            nrow,
+            ncol,
+            wspace=0.0,
+            hspace=0.0,
+            top=1.0 - 0.5 / (nrow + 1),
+            bottom=0.5 / (nrow + 1),
+            left=0.5 / (ncol + 1),
+            right=1 - 0.5 / (ncol + 1),
+        )
 
         # pad image to have isotropic array dimensions
         image = image.numpy()
         if overlay is not None:
             overlay = overlay.numpy()
-            overlay[np.abs(overlay) == 0] = np.nan
+            if overlay.dtype not in ["uint8", "uint32"]:
+                overlay[np.abs(overlay) == 0] = np.nan
 
         image2 = image2.numpy()
         if overlay2 is not None:
             overlay2 = overlay2.numpy()
-            overlay2[np.abs(overlay2) == 0] = np.nan
+            if overlay2.dtype not in ["uint8", "uint32"]:
+                overlay2[np.abs(overlay2) == 0] = np.nan
 
         ####################
         ####################
-        yz_slice = reorient_slice(image[xyz[0],:,:],0)
-        ax = plt.subplot(gs[0,0])
+        yz_slice = reorient_slice(image[xyz[0], :, :], 0)
+        ax = plt.subplot(gs[0, 0])
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            yz_overlay = reorient_slice(overlay[xyz[0],:,:],0)
+            yz_overlay = reorient_slice(overlay[xyz[0], :, :], 0)
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]],
-                              [xyz_pad,yz_slice.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [yz_slice.shape[0] - xyz[1], yz_slice.shape[0] - xyz[1]],
+                [xyz_pad, yz_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad],
-                              [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
-                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, yz_slice.shape[1] - xyz_pad],
+                [yz_slice.shape[1] - xyz[2], yz_slice.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-        ax.axis('off')
+        ax.axis("off")
 
         #######
-        yz_slice2 = reorient_slice(image2[xyz[0],:,:],0)
+        yz_slice2 = reorient_slice(image2[xyz[0], :, :], 0)
         if not flat:
-            ax = plt.subplot(gs[0,1])
+            ax = plt.subplot(gs[0, 1])
         else:
             if not transpose:
-                ax = plt.subplot(gs[1,0])
+                ax = plt.subplot(gs[1, 0])
             else:
-                ax = plt.subplot(gs[0,1])
+                ax = plt.subplot(gs[0, 1])
         ax.imshow(yz_slice2, cmap=cmap2, vmin=vmin2, vmax=vmax2)
         if overlay2 is not None:
-            yz_overlay2 = reorient_slice(overlay2[xyz[0],:,:],0)
+            yz_overlay2 = reorient_slice(overlay2[xyz[0], :, :], 0)
             ax.imshow(yz_overlay2, alpha=overlay_alpha2, cmap=overlay_cmap2)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice2.shape[0]-xyz[1],yz_slice2.shape[0]-xyz[1]],
-                              [xyz_pad,yz_slice2.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [yz_slice2.shape[0] - xyz[1], yz_slice2.shape[0] - xyz[1]],
+                [xyz_pad, yz_slice2.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice2.shape[1]-xyz_pad],
-                              [yz_slice2.shape[1]-xyz[2],yz_slice2.shape[1]-xyz[2]],
-                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, yz_slice2.shape[1] - xyz_pad],
+                [yz_slice2.shape[1] - xyz[2], yz_slice2.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-        ax.axis('off')
+        ax.axis("off")
         ####################
         ####################
 
-        xz_slice = reorient_slice(image[:,xyz[1],:],1)
+        xz_slice = reorient_slice(image[:, xyz[1], :], 1)
         if not flat:
-            ax = plt.subplot(gs[0,2])
+            ax = plt.subplot(gs[0, 2])
         else:
             if not transpose:
-                ax = plt.subplot(gs[0,1])
+                ax = plt.subplot(gs[0, 1])
             else:
-                ax = plt.subplot(gs[1,0])
+                ax = plt.subplot(gs[1, 0])
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xz_overlay = reorient_slice(overlay[:,xyz[1],:],1)
+            xz_overlay = reorient_slice(overlay[:, xyz[1], :], 1)
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]],
-                              [xyz_pad,xz_slice.shape[0]-xyz_pad],
-                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xz_slice.shape[0] - xyz[0], xz_slice.shape[0] - xyz[0]],
+                [xyz_pad, xz_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad],
-                              [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xz_slice.shape[1] - xyz_pad],
+                [xz_slice.shape[1] - xyz[2], xz_slice.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-        ax.axis('off')
+        ax.axis("off")
 
         #######
-        xz_slice2 = reorient_slice(image2[:,xyz[1],:],1)
+        xz_slice2 = reorient_slice(image2[:, xyz[1], :], 1)
         if not flat:
-            ax = plt.subplot(gs[0,3])
+            ax = plt.subplot(gs[0, 3])
         else:
-            ax = plt.subplot(gs[1,1])
+            ax = plt.subplot(gs[1, 1])
         ax.imshow(xz_slice2, cmap=cmap2, vmin=vmin2, vmax=vmax2)
         if overlay is not None:
-            xz_overlay2 = reorient_slice(overlay2[:,xyz[1],:],1)
+            xz_overlay2 = reorient_slice(overlay2[:, xyz[1], :], 1)
             ax.imshow(xz_overlay2, alpha=overlay_alpha2, cmap=overlay_cmap2)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice2.shape[0]-xyz[0],xz_slice2.shape[0]-xyz[0]],
-                              [xyz_pad,xz_slice2.shape[0]-xyz_pad],
-                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xz_slice2.shape[0] - xyz[0], xz_slice2.shape[0] - xyz[0]],
+                [xyz_pad, xz_slice2.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice2.shape[1]-xyz_pad],
-                              [xz_slice2.shape[1]-xyz[2],xz_slice2.shape[1]-xyz[2]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xz_slice2.shape[1] - xyz_pad],
+                [xz_slice2.shape[1] - xyz[2], xz_slice2.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-        ax.axis('off')
+        ax.axis("off")
 
         ####################
         ####################
-        xy_slice = reorient_slice(image[:,:,xyz[2]],2)
+        xy_slice = reorient_slice(image[:, :, xyz[2]], 2)
         if not flat:
-            ax = plt.subplot(gs[1,2])
+            ax = plt.subplot(gs[1, 2])
         else:
             if not transpose:
-                ax = plt.subplot(gs[0,2])
+                ax = plt.subplot(gs[0, 2])
             else:
-                ax = plt.subplot(gs[2,0])
+                ax = plt.subplot(gs[2, 0])
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xy_overlay = reorient_slice(overlay[:,:,xyz[2]],2)
+            xy_overlay = reorient_slice(overlay[:, :, xyz[2]], 2)
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]],
-                              [xyz_pad,xy_slice.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xy_slice.shape[0] - xyz[0], xy_slice.shape[0] - xyz[0]],
+                [xyz_pad, xy_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad],
-                              [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xy_slice.shape[1] - xyz_pad],
+                [xy_slice.shape[1] - xyz[1], xy_slice.shape[1] - xyz[1]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-        ax.axis('off')
+        ax.axis("off")
 
         #######
-        xy_slice2 = reorient_slice(image2[:,:,xyz[2]],2)
+        xy_slice2 = reorient_slice(image2[:, :, xyz[2]], 2)
         if not flat:
-            ax = plt.subplot(gs[1,3])
+            ax = plt.subplot(gs[1, 3])
         else:
             if not transpose:
-                ax = plt.subplot(gs[1,2])
+                ax = plt.subplot(gs[1, 2])
             else:
-                ax = plt.subplot(gs[2,1])
+                ax = plt.subplot(gs[2, 1])
         ax.imshow(xy_slice2, cmap=cmap2, vmin=vmin2, vmax=vmax2)
         if overlay is not None:
-            xy_overlay2 = reorient_slice(overlay2[:,:,xyz[2]],2)
+            xy_overlay2 = reorient_slice(overlay2[:, :, xyz[2]], 2)
             ax.imshow(xy_overlay2, alpha=overlay_alpha2, cmap=overlay_cmap2)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice2.shape[0]-xyz[0],xy_slice2.shape[0]-xyz[0]],
-                              [xyz_pad,xy_slice2.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xy_slice2.shape[0] - xyz[0], xy_slice2.shape[0] - xyz[0]],
+                [xyz_pad, xy_slice2.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice2.shape[1]-xyz_pad],
-                              [xy_slice2.shape[1]-xyz[1],xy_slice2.shape[1]-xyz[1]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xy_slice2.shape[1] - xyz_pad],
+                [xy_slice2.shape[1] - xyz[1], xy_slice2.shape[1] - xyz[1]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-        ax.axis('off')
+        ax.axis("off")
 
         ####################
         ####################
 
         if not flat:
             # empty corner
-            ax = plt.subplot(gs[1,:2])
+            ax = plt.subplot(gs[1, :2])
             if text is not None:
                 # add text
-                left, width = .25, .5
-                bottom, height = .25, .5
+                left, width = 0.25, 0.5
+                bottom, height = 0.25, 0.5
                 right = left + width
                 top = bottom + height
-                ax.text(0.5*(left+right)+text_dx, 0.5*(bottom+top)+text_dy, text,
-                        horizontalalignment='center',
-                        verticalalignment='center',
-                        fontsize=textfontsize, color=textfontcolor,
-                        transform=ax.transAxes)
-            #ax.text(0.5, 0.5)
+                ax.text(
+                    0.5 * (left + right) + text_dx,
+                    0.5 * (bottom + top) + text_dy,
+                    text,
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                    fontsize=textfontsize,
+                    color=textfontcolor,
+                    transform=ax.transAxes,
+                )
+            # ax.text(0.5, 0.5)
             img_shape = list(image.shape[:-1])
             img_shape[1] *= 2
-            ax.imshow(np.zeros(img_shape), cmap='Greys_r')
-            ax.axis('off')
-
+            ax.imshow(np.zeros(img_shape), cmap="Greys_r")
+            ax.axis("off")
 
     ## multi-channel images ##
     elif image.components > 1:
-        raise ValueError('Multi-channel images not currently supported!')
+        raise ValueError("Multi-channel images not currently supported!")
 
     if filename is not None:
         plt.savefig(filename, dpi=dpi, transparent=transparent)
@@ -1092,27 +1429,54 @@ def plot_ortho_double(image, image2, overlay=None, overlay2=None, reorient=True,
         plt.show()
 
     # turn warnings back to default
-    warnings.simplefilter('default')
+    warnings.simplefilter("default")
 
 
-def plot_ortho(image, overlay=None, reorient=True, blend=False,
+def plot_ortho(
+    image,
+    overlay=None,
+    reorient=True,
+    blend=False,
     # xyz arguments
-    xyz=None, xyz_lines=True, xyz_color='red', xyz_alpha=0.6, xyz_linewidth=2, xyz_pad=5,
+    xyz=None,
+    xyz_lines=True,
+    xyz_color="red",
+    xyz_alpha=0.6,
+    xyz_linewidth=2,
+    xyz_pad=5,
     orient_labels=True,
     # base image arguments
-    alpha=1, cmap='Greys_r',
+    alpha=1,
+    cmap="Greys_r",
     # overlay arguments
-    overlay_cmap='jet', overlay_alpha=0.9,
+    overlay_cmap="jet",
+    overlay_alpha=0.9,
     # background arguments
-    black_bg=True, bg_thresh_quant=0.01, bg_val_quant=0.99,
+    black_bg=True,
+    bg_thresh_quant=0.01,
+    bg_val_quant=0.99,
     # scale/crop/domain arguments
-    crop=False, scale=False, domain_image_map=None,
+    crop=False,
+    scale=False,
+    domain_image_map=None,
     # title arguments
-    title=None, titlefontsize=24, title_dx=0, title_dy=0,
+    title=None,
+    titlefontsize=24,
+    title_dx=0,
+    title_dy=0,
     # 4th panel text arguemnts
-    text=None, textfontsize=24, textfontcolor='white', text_dx=0, text_dy=0,
+    text=None,
+    textfontsize=24,
+    textfontcolor="white",
+    text_dx=0,
+    text_dy=0,
     # save & size arguments
-    filename=None, dpi=500, figsize=1., flat=False, transparent=True):
+    filename=None,
+    dpi=500,
+    figsize=1.0,
+    flat=False,
+    transparent=True,
+):
     """
     Plot an orthographic view of a 3D image
 
@@ -1220,69 +1584,74 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
                         text=' Example \nOrtho Text', textfontsize=26,
                         title='Example Ortho Title', titlefontsize=26)
     """
+
     def mirror_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate270_matrix(x):
         return mirror_matrix(x.T)
+
     def reorient_slice(x, axis):
         return rotate270_matrix(x)
 
     # need this hack because of a weird NaN warning from matplotlib with overlays
-    warnings.simplefilter('ignore')
+    warnings.simplefilter("ignore")
 
     # handle `image` argument
     if isinstance(image, str):
         image = iio2.image_read(image)
     if not isinstance(image, iio.ANTsImage):
-        raise ValueError('image argument must be an ANTsImage')
+        raise ValueError("image argument must be an ANTsImage")
     if image.dimension != 3:
-        raise ValueError('Input image must have 3 dimensions!')
+        raise ValueError("Input image must have 3 dimensions!")
 
     # handle `overlay` argument
     if overlay is not None:
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
-            raise ValueError('overlay argument must be an ANTsImage')
+            raise ValueError("overlay argument must be an ANTsImage")
         if overlay.dimension != 3:
-            raise ValueError('Overlay image must have 3 dimensions!')
+            raise ValueError("Overlay image must have 3 dimensions!")
 
         if not iio.image_physical_space_consistency(image, overlay):
-            overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
+            overlay = reg.resample_image_to_target(overlay, image, interp_type="linear")
 
     if blend:
         if alpha == 1:
             alpha = 0.5
-        image = image*alpha + overlay*(1-alpha)
+        image = image * alpha + overlay * (1 - alpha)
         overlay = None
-        alpha = 1.
+        alpha = 1.0
 
-    if image.pixeltype not in {'float', 'double'}:
-        scale = False # turn off scaling if image is discrete
+    if image.pixeltype not in {"float", "double"}:
+        scale = False  # turn off scaling if image is discrete
 
     # reorient images
     if reorient != False:
         if reorient == True:
-            reorient = 'RPI'
-        image = image.reorient_image2('RPI')
+            reorient = "RPI"
+        image = image.reorient_image2("RPI")
         if overlay is not None:
-            overlay = overlay.reorient_image2('RPI')
+            overlay = overlay.reorient_image2("RPI")
 
     # handle `slices` argument
     if xyz is None:
-        xyz = [int(s/2) for s in image.shape]
+        xyz = [int(s / 2) for s in image.shape]
     for i in range(3):
         if xyz[i] is None:
-            xyz[i] = int(image.shape[i]/2)
+            xyz[i] = int(image.shape[i] / 2)
 
     # resample image if spacing is very unbalanced
-    spacing = [s for i,s in enumerate(image.spacing)]
-    if (max(spacing) / min(spacing)) > 3.:
-        new_spacing = (1,1,1)
+    spacing = [s for i, s in enumerate(image.spacing)]
+    if (max(spacing) / min(spacing)) > 3.0:
+        new_spacing = (1, 1, 1)
         image = image.resample_image(tuple(new_spacing))
         if overlay is not None:
             overlay = overlay.resample_image(tuple(new_spacing))
-        xyz = [int(sl*(sold/snew)) for sl,sold,snew in zip(xyz,spacing,new_spacing)]
+        xyz = [
+            int(sl * (sold / snew)) for sl, sold, snew in zip(xyz, spacing, new_spacing)
+        ]
 
     # potentially crop image
     if crop:
@@ -1295,44 +1664,50 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
 
     # pad images
     image, lowpad, uppad = image.pad_image(return_padvals=True)
-    xyz = [v+l for v,l in zip(xyz,lowpad)]
+    xyz = [v + l for v, l in zip(xyz, lowpad)]
     if overlay is not None:
         overlay = overlay.pad_image()
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
         if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(precision='float', transform_type='AffineTransform',
-                                         dimension=image.dimension)
+            tx = tio2.new_ants_transform(
+                precision="float",
+                transform_type="AffineTransform",
+                dimension=image.dimension,
+            )
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(tx, overlay,
-                                                            domain_image_map,
-                                                            interpolation='linear')
+                overlay = tio.apply_ants_transform_to_image(
+                    tx, overlay, domain_image_map, interpolation="linear"
+                )
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
-                raise ValueError('domain_image_map list or tuple must have length == 2')
+                raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
-                raise ValueError('domain_image_map first entry should be ANTsImage')
+                raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
             image = reg.apply_transforms(dimg, image, transform_list=tx)
             if overlay is not None:
-                overlay = reg.apply_transforms(dimg, overlay, transform_list=tx,
-                                               interpolator='linear')
+                overlay = reg.apply_transforms(
+                    dimg, overlay, transform_list=tx, interpolator="linear"
+                )
 
     ## single-channel images ##
     if image.components == 1:
 
         # potentially find dynamic range
         if scale == True:
-            vmin, vmax = image.quantile((0.05,0.95))
-        elif isinstance(scale, (list,tuple)):
+            vmin, vmax = image.quantile((0.05, 0.95))
+        elif isinstance(scale, (list, tuple)):
             if len(scale) != 2:
-                raise ValueError('scale argument must be boolean or list/tuple with two values')
+                raise ValueError(
+                    "scale argument must be boolean or list/tuple with two values"
+                )
             vmin, vmax = image.quantile(scale)
         else:
             vmin = None
@@ -1345,164 +1720,262 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
             nrow = 1
             ncol = 3
 
-        fig = plt.figure(figsize=(9*figsize,9*figsize))
+        fig = plt.figure(figsize=(9 * figsize, 9 * figsize))
         if title is not None:
             basey = 0.88 if not flat else 0.66
             basex = 0.5
-            fig.suptitle(title, fontsize=titlefontsize, x=basex+title_dx, y=basey+title_dy)
+            fig.suptitle(
+                title, fontsize=titlefontsize, x=basex + title_dx, y=basey + title_dy
+            )
 
-        gs = gridspec.GridSpec(nrow, ncol,
-                 wspace=0.0, hspace=0.0,
-                 top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
-                 left=0.5/(ncol+1), right=1-0.5/(ncol+1))
+        gs = gridspec.GridSpec(
+            nrow,
+            ncol,
+            wspace=0.0,
+            hspace=0.0,
+            top=1.0 - 0.5 / (nrow + 1),
+            bottom=0.5 / (nrow + 1),
+            left=0.5 / (ncol + 1),
+            right=1 - 0.5 / (ncol + 1),
+        )
 
         # pad image to have isotropic array dimensions
         image = image.numpy()
         if overlay is not None:
             overlay = overlay.numpy()
-            overlay[np.abs(overlay) == 0] = np.nan
+            if overlay.dtype not in ["uint8", "uint32"]:
+                overlay[np.abs(overlay) == 0] = np.nan
 
-        yz_slice = reorient_slice(image[xyz[0],:,:],0)
-        ax = plt.subplot(gs[0,0])
+        yz_slice = reorient_slice(image[xyz[0], :, :], 0)
+        ax = plt.subplot(gs[0, 0])
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            yz_overlay = reorient_slice(overlay[xyz[0],:,:],0)
+            yz_overlay = reorient_slice(overlay[xyz[0], :, :], 0)
             ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([yz_slice.shape[0]-xyz[1],yz_slice.shape[0]-xyz[1]],
-                              [xyz_pad,yz_slice.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [yz_slice.shape[0] - xyz[1], yz_slice.shape[0] - xyz[1]],
+                [xyz_pad, yz_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,yz_slice.shape[1]-xyz_pad],
-                              [yz_slice.shape[1]-xyz[2],yz_slice.shape[1]-xyz[2]],
-                color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, yz_slice.shape[1] - xyz_pad],
+                [yz_slice.shape[1] - xyz[2], yz_slice.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
         if orient_labels:
-            ax.text(0.5,0.98, 'S',
-                    horizontalalignment='center',
-                    verticalalignment='top',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.5,0.02, 'I',
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.98,0.5, 'A',
-                    horizontalalignment='right',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.02,0.5, 'P',
-                    horizontalalignment='left',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-        ax.axis('off')
+            ax.text(
+                0.5,
+                0.98,
+                "S",
+                horizontalalignment="center",
+                verticalalignment="top",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.02,
+                "I",
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.98,
+                0.5,
+                "A",
+                horizontalalignment="right",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.02,
+                0.5,
+                "P",
+                horizontalalignment="left",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+        ax.axis("off")
 
-        xz_slice = reorient_slice(image[:,xyz[1],:],1)
-        ax = plt.subplot(gs[0,1])
+        xz_slice = reorient_slice(image[:, xyz[1], :], 1)
+        ax = plt.subplot(gs[0, 1])
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xz_overlay = reorient_slice(overlay[:,xyz[1],:],1)
+            xz_overlay = reorient_slice(overlay[:, xyz[1], :], 1)
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xz_slice.shape[0]-xyz[0],xz_slice.shape[0]-xyz[0]],
-                              [xyz_pad,xz_slice.shape[0]-xyz_pad],
-                               color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xz_slice.shape[0] - xyz[0], xz_slice.shape[0] - xyz[0]],
+                [xyz_pad, xz_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xz_slice.shape[1]-xyz_pad],
-                              [xz_slice.shape[1]-xyz[2],xz_slice.shape[1]-xyz[2]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xz_slice.shape[1] - xyz_pad],
+                [xz_slice.shape[1] - xyz[2], xz_slice.shape[1] - xyz[2]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
         if orient_labels:
-            ax.text(0.5,0.98, 'S',
-                    horizontalalignment='center',
-                    verticalalignment='top',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.5,0.02, 'I',
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.98,0.5, 'L',
-                    horizontalalignment='right',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.02,0.5, 'R',
-                    horizontalalignment='left',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-        ax.axis('off')
+            ax.text(
+                0.5,
+                0.98,
+                "S",
+                horizontalalignment="center",
+                verticalalignment="top",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.02,
+                "I",
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.98,
+                0.5,
+                "L",
+                horizontalalignment="right",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.02,
+                0.5,
+                "R",
+                horizontalalignment="left",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+        ax.axis("off")
 
-        xy_slice = reorient_slice(image[:,:,xyz[2]],2)
+        xy_slice = reorient_slice(image[:, :, xyz[2]], 2)
         if not flat:
-            ax = plt.subplot(gs[1,1])
+            ax = plt.subplot(gs[1, 1])
         else:
-            ax = plt.subplot(gs[0,2])
+            ax = plt.subplot(gs[0, 2])
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
-            xy_overlay = reorient_slice(overlay[:,:,xyz[2]],2)
+            xy_overlay = reorient_slice(overlay[:, :, xyz[2]], 2)
             ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
         if xyz_lines:
             # add lines
-            l = mlines.Line2D([xy_slice.shape[0]-xyz[0],xy_slice.shape[0]-xyz[0]],
-                              [xyz_pad,xy_slice.shape[0]-xyz_pad],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xy_slice.shape[0] - xyz[0], xy_slice.shape[0] - xyz[0]],
+                [xyz_pad, xy_slice.shape[0] - xyz_pad],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
-            l = mlines.Line2D([xyz_pad,xy_slice.shape[1]-xyz_pad],
-                              [xy_slice.shape[1]-xyz[1],xy_slice.shape[1]-xyz[1]],
-                              color=xyz_color, alpha=xyz_alpha, linewidth=xyz_linewidth)
+            l = mlines.Line2D(
+                [xyz_pad, xy_slice.shape[1] - xyz_pad],
+                [xy_slice.shape[1] - xyz[1], xy_slice.shape[1] - xyz[1]],
+                color=xyz_color,
+                alpha=xyz_alpha,
+                linewidth=xyz_linewidth,
+            )
             ax.add_line(l)
         if orient_labels:
-            ax.text(0.5,0.98, 'A',
-                    horizontalalignment='center',
-                    verticalalignment='top',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.5,0.02, 'P',
-                    horizontalalignment='center',
-                    verticalalignment='bottom',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.98,0.5, 'L',
-                    horizontalalignment='right',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-            ax.text(0.02,0.5, 'R',
-                    horizontalalignment='left',
-                    verticalalignment='center',
-                    fontsize=20*figsize, color=textfontcolor,
-                    transform=ax.transAxes)
-        ax.axis('off')
+            ax.text(
+                0.5,
+                0.98,
+                "A",
+                horizontalalignment="center",
+                verticalalignment="top",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.02,
+                "P",
+                horizontalalignment="center",
+                verticalalignment="bottom",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.98,
+                0.5,
+                "L",
+                horizontalalignment="right",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.02,
+                0.5,
+                "R",
+                horizontalalignment="left",
+                verticalalignment="center",
+                fontsize=20 * figsize,
+                color=textfontcolor,
+                transform=ax.transAxes,
+            )
+        ax.axis("off")
 
         if not flat:
             # empty corner
-            ax = plt.subplot(gs[1,0])
+            ax = plt.subplot(gs[1, 0])
             if text is not None:
                 # add text
-                left, width = .25, .5
-                bottom, height = .25, .5
+                left, width = 0.25, 0.5
+                bottom, height = 0.25, 0.5
                 right = left + width
                 top = bottom + height
-                ax.text(0.5*(left+right)+text_dx, 0.5*(bottom+top)+text_dy, text,
-                        horizontalalignment='center',
-                        verticalalignment='center',
-                        fontsize=textfontsize, color=textfontcolor,
-                        transform=ax.transAxes)
-            #ax.text(0.5, 0.5)
-            ax.imshow(np.zeros(image.shape[:-1]), cmap='Greys_r')
-            ax.axis('off')
+                ax.text(
+                    0.5 * (left + right) + text_dx,
+                    0.5 * (bottom + top) + text_dy,
+                    text,
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                    fontsize=textfontsize,
+                    color=textfontcolor,
+                    transform=ax.transAxes,
+                )
+            # ax.text(0.5, 0.5)
+            ax.imshow(np.zeros(image.shape[:-1]), cmap="Greys_r")
+            ax.axis("off")
 
     ## multi-channel images ##
     elif image.components > 1:
-        raise ValueError('Multi-channel images not currently supported!')
+        raise ValueError("Multi-channel images not currently supported!")
 
     if filename is not None:
         plt.savefig(filename, dpi=dpi, transparent=transparent)
@@ -1511,16 +1984,42 @@ def plot_ortho(image, overlay=None, reorient=True, blend=False,
         plt.show()
 
     # turn warnings back to default
-    warnings.simplefilter('default')
+    warnings.simplefilter("default")
 
 
-def plot(image, overlay=None,  blend=False,
-    alpha=1, cmap='Greys_r', overlay_cmap='jet', overlay_alpha=0.9,
-    cbar=False, cbar_length=0.8, cbar_dx=0., cbar_vertical=True,
-    axis=0, nslices=12, slices=None, ncol=None, slice_buffer=None, black_bg=True,
-    bg_thresh_quant=0.01, bg_val_quant=0.99, domain_image_map=None, crop=False, scale=False,
-    reverse=False, title=None, title_fontsize=20, title_dx=0., title_dy=0.,
-    filename=None, dpi=500, figsize=1.5, reorient=True):
+def plot(
+    image,
+    overlay=None,
+    blend=False,
+    alpha=1,
+    cmap="Greys_r",
+    overlay_cmap="jet",
+    overlay_alpha=0.9,
+    cbar=False,
+    cbar_length=0.8,
+    cbar_dx=0.0,
+    cbar_vertical=True,
+    axis=0,
+    nslices=12,
+    slices=None,
+    ncol=None,
+    slice_buffer=None,
+    black_bg=True,
+    bg_thresh_quant=0.01,
+    bg_val_quant=0.99,
+    domain_image_map=None,
+    crop=False,
+    scale=False,
+    reverse=False,
+    title=None,
+    title_fontsize=20,
+    title_dx=0.0,
+    title_dy=0.0,
+    filename=None,
+    dpi=500,
+    figsize=1.5,
+    reorient=True,
+):
     """
     Plot an ANTsImage.
 
@@ -1639,83 +2138,93 @@ def plot(image, overlay=None,  blend=False,
     >>> segs = mni.kmeans_segmentation(k=3)['segmentation']
     >>> ants.plot(mni, segs*(segs==1), crop=False)
     """
-    if (axis == 'x') or (axis == 'saggittal'):
+    if (axis == "x") or (axis == "saggittal"):
         axis = 0
-    if (axis == 'y') or (axis == 'coronal'):
+    if (axis == "y") or (axis == "coronal"):
         axis = 1
-    if (axis == 'z') or (axis == 'axial'):
+    if (axis == "z") or (axis == "axial"):
         axis = 2
 
     def mirror_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate270_matrix(x):
         return mirror_matrix(x.T)
+
     def rotate180_matrix(x):
-        return x[::-1,:]
+        return x[::-1, :]
+
     def rotate90_matrix(x):
         return x.T
+
     def flip_matrix(x):
         return mirror_matrix(rotate180_matrix(x))
+
     def reorient_slice(x, axis):
-        if (axis != 2):
+        if axis != 2:
             x = rotate90_matrix(x)
-        if (axis == 2):
+        if axis == 2:
             x = rotate270_matrix(x)
         x = mirror_matrix(x)
         return x
+
     # need this hack because of a weird NaN warning from matplotlib with overlays
-    warnings.simplefilter('ignore')
+    warnings.simplefilter("ignore")
 
     # handle `image` argument
     if isinstance(image, str):
         image = iio2.image_read(image)
     if not isinstance(image, iio.ANTsImage):
-        raise ValueError('image argument must be an ANTsImage')
+        raise ValueError("image argument must be an ANTsImage")
 
-    if (image.pixeltype not in {'float', 'double'}) or (image.is_rgb):
-        scale = False # turn off scaling if image is discrete
+    if (image.pixeltype not in {"float", "double"}) or (image.is_rgb):
+        scale = False  # turn off scaling if image is discrete
 
     # handle `overlay` argument
     if overlay is not None:
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
-            raise ValueError('overlay argument must be an ANTsImage')
+            raise ValueError("overlay argument must be an ANTsImage")
 
         if not iio.image_physical_space_consistency(image, overlay):
-            overlay = reg.resample_image_to_target(overlay, image, interp_type='linear')
+            overlay = reg.resample_image_to_target(overlay, image, interp_type="linear")
 
         if blend:
             if alpha == 1:
                 alpha = 0.5
-            image = image*alpha + overlay*(1-alpha)
+            image = image * alpha + overlay * (1 - alpha)
             overlay = None
-            alpha = 1.
+            alpha = 1.0
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
         if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(precision='float', transform_type='AffineTransform',
-                                         dimension=image.dimension)
+            tx = tio2.new_ants_transform(
+                precision="float",
+                transform_type="AffineTransform",
+                dimension=image.dimension,
+            )
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(tx, overlay,
-                                                            domain_image_map,
-                                                            interpolation='linear')
+                overlay = tio.apply_ants_transform_to_image(
+                    tx, overlay, domain_image_map, interpolation="linear"
+                )
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
             if len(domain_image_map) != 2:
-                raise ValueError('domain_image_map list or tuple must have length == 2')
+                raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
             if not isinstance(dimg, iio.ANTsImage):
-                raise ValueError('domain_image_map first entry should be ANTsImage')
+                raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
             image = reg.apply_transforms(dimg, image, transform_list=tx)
             if overlay is not None:
-                overlay = reg.apply_transforms(dimg, overlay, transform_list=tx,
-                                               interpolator='linear')
+                overlay = reg.apply_transforms(
+                    dimg, overlay, transform_list=tx, interpolator="linear"
+                )
 
     ## single-channel images ##
     if image.components == 1:
@@ -1731,10 +2240,12 @@ def plot(image, overlay=None,  blend=False,
 
         # potentially find dynamic range
         if scale == True:
-            vmin, vmax = image.quantile((0.05,0.95))
-        elif isinstance(scale, (list,tuple)):
+            vmin, vmax = image.quantile((0.05, 0.95))
+        elif isinstance(scale, (list, tuple)):
             if len(scale) != 2:
-                raise ValueError('scale argument must be boolean or list/tuple with two values')
+                raise ValueError(
+                    "scale argument must be boolean or list/tuple with two values"
+                )
             vmin, vmax = image.quantile(scale)
         else:
             vmin = None
@@ -1747,88 +2258,100 @@ def plot(image, overlay=None,  blend=False,
             img_arr = rotate90_matrix(img_arr)
 
             if not black_bg:
-                img_arr[img_arr<image.quantile(bg_thresh_quant)] = image.quantile(bg_val_quant)
+                img_arr[img_arr < image.quantile(bg_thresh_quant)] = image.quantile(
+                    bg_val_quant
+                )
 
             if overlay is not None:
                 ov_arr = overlay.numpy()
                 ov_arr = rotate90_matrix(ov_arr)
-                ov_arr[np.abs(ov_arr) == 0] = np.nan
+                if ov_arr.dtype not in ["uint8", "uint32"]:
+                    ov_arr[np.abs(ov_arr) == 0] = np.nan
 
             fig = plt.figure()
             if title is not None:
-                fig.suptitle(title, fontsize=title_fontsize, x=0.5+title_dx, y=0.95+title_dy)
+                fig.suptitle(
+                    title, fontsize=title_fontsize, x=0.5 + title_dx, y=0.95 + title_dy
+                )
 
             ax = plt.subplot(111)
 
             # plot main image
-            im = ax.imshow(img_arr, cmap=cmap,
-                      alpha=alpha,
-                      vmin=vmin, vmax=vmax)
+            im = ax.imshow(img_arr, cmap=cmap, alpha=alpha, vmin=vmin, vmax=vmax)
 
             if overlay is not None:
-                im = ax.imshow(ov_arr,
-                               alpha=overlay_alpha,
-                               cmap=overlay_cmap)
+                im = ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
 
             if cbar:
-                cbar_orient = 'vertical' if cbar_vertical else 'horizontal'
+                cbar_orient = "vertical" if cbar_vertical else "horizontal"
                 fig.colorbar(im, orientation=cbar_orient)
 
-            plt.axis('off')
+            plt.axis("off")
 
         # Plot 3D image
         elif image.dimension == 3:
             # resample image if spacing is very unbalanced
-            spacing = [s for i,s in enumerate(image.spacing) if i != axis]
+            spacing = [s for i, s in enumerate(image.spacing) if i != axis]
             was_resampled = False
-            if (max(spacing) / min(spacing)) > 3.:
+            if (max(spacing) / min(spacing)) > 3.0:
                 was_resampled = True
-                new_spacing = (1,1,1)
+                new_spacing = (1, 1, 1)
                 image = image.resample_image(tuple(new_spacing))
                 if overlay is not None:
                     overlay = overlay.resample_image(tuple(new_spacing))
 
             if reorient:
-                image = image.reorient_image2('LAI')
+                image = image.reorient_image2("LAI")
             img_arr = image.numpy()
             # reorder dims so that chosen axis is first
             img_arr = np.rollaxis(img_arr, axis)
 
             if overlay is not None:
                 if reorient:
-                    overlay = overlay.reorient_image2('LAI')
+                    overlay = overlay.reorient_image2("LAI")
                 ov_arr = overlay.numpy()
-                ov_arr[np.abs(ov_arr) == 0] = np.nan
+                if ov_arr.dtype not in ["uint8", "uint32"]:
+                    ov_arr[np.abs(ov_arr) == 0] = np.nan
                 ov_arr = np.rollaxis(ov_arr, axis)
 
             if slices is None:
                 if not isinstance(slice_buffer, (list, tuple)):
                     if slice_buffer is None:
-                        slice_buffer = (int(img_arr.shape[1]*0.1), int(img_arr.shape[2]*0.1))
+                        slice_buffer = (
+                            int(img_arr.shape[1] * 0.1),
+                            int(img_arr.shape[2] * 0.1),
+                        )
                     else:
                         slice_buffer = (slice_buffer, slice_buffer)
-                nonzero = np.where(img_arr.sum(axis=(1,2)) > 0.01)[0]
+                nonzero = np.where(img_arr.sum(axis=(1, 2)) > 0.01)[0]
                 min_idx = nonzero[0] + slice_buffer[0]
                 max_idx = nonzero[-1] - slice_buffer[1]
-                slice_idxs = np.linspace(min_idx, max_idx, nslices).astype('int')
+                slice_idxs = np.linspace(min_idx, max_idx, nslices).astype("int")
                 if reverse:
                     slice_idxs = np.array(list(reversed(slice_idxs)))
             else:
-                if isinstance(slices, (int,float)):
+                if isinstance(slices, (int, float)):
                     slices = [slices]
                 # if all slices are less than 1, infer that they are relative slices
                 if sum([s > 1 for s in slices]) == 0:
-                    slices = [int(s*img_arr.shape[0]) for s in slices]
+                    slices = [int(s * img_arr.shape[0]) for s in slices]
                 slice_idxs = slices
                 nslices = len(slices)
 
             if was_resampled:
                 # re-calculate slices to account for new image shape
-                slice_idxs = np.unique(np.array([int(s*(image.shape[axis]/img_arr.shape[0])) for s in slice_idxs]))
+                slice_idxs = np.unique(
+                    np.array(
+                        [
+                            int(s * (image.shape[axis] / img_arr.shape[0]))
+                            for s in slice_idxs
+                        ]
+                    )
+                )
 
             # only have one row if nslices <= 6 and user didnt specify ncol
             if ncol is None:
-                if (nslices <= 6):
+                if nslices <= 6:
                     ncol = nslices
                 else:
                     ncol = int(round(math.sqrt(nslices)))
@@ -1838,15 +2361,25 @@ def plot(image, overlay=None,  blend=False,
             xdim = img_arr.shape[2]
             ydim = img_arr.shape[1]
 
-            dim_ratio = ydim/xdim
-            fig = plt.figure(figsize=((ncol+1)*figsize*dim_ratio, (nrow+1)*figsize))
+            dim_ratio = ydim / xdim
+            fig = plt.figure(
+                figsize=((ncol + 1) * figsize * dim_ratio, (nrow + 1) * figsize)
+            )
             if title is not None:
-                fig.suptitle(title, fontsize=title_fontsize, x=0.5+title_dx, y=0.95+title_dy)
+                fig.suptitle(
+                    title, fontsize=title_fontsize, x=0.5 + title_dx, y=0.95 + title_dy
+                )
 
-            gs = gridspec.GridSpec(nrow, ncol,
-                     wspace=0.0, hspace=0.0,
-                     top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1),
-                     left=0.5/(ncol+1), right=1-0.5/(ncol+1))
+            gs = gridspec.GridSpec(
+                nrow,
+                ncol,
+                wspace=0.0,
+                hspace=0.0,
+                top=1.0 - 0.5 / (nrow + 1),
+                bottom=0.5 / (nrow + 1),
+                left=0.5 / (ncol + 1),
+                right=1 - 0.5 / (ncol + 1),
+            )
 
             slice_idx_idx = 0
             for i in range(nrow):
@@ -1855,40 +2388,45 @@ def plot(image, overlay=None,  blend=False,
                         imslice = img_arr[slice_idxs[slice_idx_idx]]
                         imslice = reorient_slice(imslice, axis)
                         if not black_bg:
-                            imslice[imslice<image.quantile(bg_thresh_quant)] = image.quantile(bg_val_quant)
+                            imslice[
+                                imslice < image.quantile(bg_thresh_quant)
+                            ] = image.quantile(bg_val_quant)
                     else:
                         imslice = np.zeros_like(img_arr[0])
                         imslice = reorient_slice(imslice, axis)
 
-                    ax = plt.subplot(gs[i,j])
-                    im = ax.imshow(imslice, cmap=cmap,
-                              vmin=vmin, vmax=vmax)
+                    ax = plt.subplot(gs[i, j])
+                    im = ax.imshow(imslice, cmap=cmap, vmin=vmin, vmax=vmax)
 
                     if overlay is not None:
                         if slice_idx_idx < len(slice_idxs):
                             ovslice = ov_arr[slice_idxs[slice_idx_idx]]
                             ovslice = reorient_slice(ovslice, axis)
-                            im = ax.imshow(ovslice, alpha=overlay_alpha, cmap=overlay_cmap)
-                    ax.axis('off')
+                            im = ax.imshow(
+                                ovslice, alpha=overlay_alpha, cmap=overlay_cmap
+                            )
+                    ax.axis("off")
                     slice_idx_idx += 1
 
             if cbar:
-                cbar_start = (1-cbar_length) / 2
+                cbar_start = (1 - cbar_length) / 2
                 if cbar_vertical:
-                    cax = fig.add_axes([0.9+cbar_dx, cbar_start, 0.03, cbar_length])
-                    cbar_orient = 'vertical'
+                    cax = fig.add_axes([0.9 + cbar_dx, cbar_start, 0.03, cbar_length])
+                    cbar_orient = "vertical"
                 else:
-                    cax = fig.add_axes([cbar_start, 0.08+cbar_dx, cbar_length, 0.03])
-                    cbar_orient = 'horizontal'
+                    cax = fig.add_axes([cbar_start, 0.08 + cbar_dx, cbar_length, 0.03])
+                    cbar_orient = "horizontal"
                 fig.colorbar(im, cax=cax, orientation=cbar_orient)
 
     ## multi-channel images ##
     elif image.components > 1:
         if not image.is_rgb:
-            raise ValueError('Multi-component images only supported if they are RGB')
+            raise ValueError("Multi-component images only supported if they are RGB")
 
         img_arr = image.numpy()
-        img_arr = np.stack([rotate90_matrix(img_arr[:,:,i]) for i in range(3)], axis=-1)
+        img_arr = np.stack(
+            [rotate90_matrix(img_arr[:, :, i]) for i in range(3)], axis=-1
+        )
 
         fig = plt.figure()
         ax = plt.subplot(111)
@@ -1896,21 +2434,28 @@ def plot(image, overlay=None,  blend=False,
         # plot main image
         ax.imshow(img_arr, alpha=alpha)
 
-        plt.axis('off')
+        plt.axis("off")
 
     if filename is not None:
         filename = os.path.expanduser(filename)
-        plt.savefig(filename, dpi=dpi, transparent=True, bbox_inches='tight')
+        plt.savefig(filename, dpi=dpi, transparent=True, bbox_inches="tight")
         plt.close(fig)
     else:
         plt.show()
 
     # turn warnings back to default
-    warnings.simplefilter('default')
+    warnings.simplefilter("default")
 
 
-def plot_directory(directory, recursive=False, regex='*',
-    save_prefix='', save_suffix='', axis=None, **kwargs):
+def plot_directory(
+    directory,
+    recursive=False,
+    regex="*",
+    save_prefix="",
+    save_suffix="",
+    axis=None,
+    **kwargs
+):
     """
     Create and save an ANTsPy plot for every image matching a given regular
     expression in a directory, optionally recursively. This is a good function
@@ -1950,37 +2495,44 @@ def plot_directory(directory, recursive=False, regex='*',
     >>> ants.plot_directory(directory='~/desktop/testdir',
                             recursive=False, regex='*')
     """
+
     def has_acceptable_suffix(fname):
-        suffixes = {'.nii.gz'}
+        suffixes = {".nii.gz"}
         return sum([fname.endswith(sx) for sx in suffixes]) > 0
 
-    if directory.startswith('~'):
+    if directory.startswith("~"):
         directory = os.path.expanduser(directory)
 
     if not os.path.isdir(directory):
-        raise ValueError('directory %s does not exist!' % directory)
+        raise ValueError("directory %s does not exist!" % directory)
 
     for root, dirnames, fnames in os.walk(directory):
         for fname in fnames:
             if fnmatch.fnmatch(fname, regex) and has_acceptable_suffix(fname):
                 load_fname = os.path.join(root, fname)
-                fname = fname.replace('.'.join(fname.split('.')[1:]), 'png')
-                fname = fname.replace('.png', '%s.png' % save_suffix)
-                fname = '%s%s' % (save_prefix, fname)
+                fname = fname.replace(".".join(fname.split(".")[1:]), "png")
+                fname = fname.replace(".png", "%s.png" % save_suffix)
+                fname = "%s%s" % (save_prefix, fname)
                 save_fname = os.path.join(root, fname)
                 img = iio2.image_read(load_fname)
 
                 if axis is None:
                     axis_range = [i for i in range(img.dimension)]
                 else:
-                    axis_range = axis if isinstance(axis,(list,tuple)) else [axis]
+                    axis_range = axis if isinstance(axis, (list, tuple)) else [axis]
 
                 if img.dimension > 2:
                     for axis_idx in axis_range:
-                        filename = save_fname.replace('.png', '_axis%i.png' % axis_idx)
+                        filename = save_fname.replace(".png", "_axis%i.png" % axis_idx)
                         ncol = int(math.sqrt(img.shape[axis_idx]))
-                        plot(img, axis=axis_idx, nslices=img.shape[axis_idx], ncol=ncol,
-                             filename=filename, **kwargs)
+                        plot(
+                            img,
+                            axis=axis_idx,
+                            nslices=img.shape[axis_idx],
+                            ncol=ncol,
+                            filename=filename,
+                            **kwargs
+                        )
                 else:
                     filename = save_fname
                     plot(img, filename=filename, **kwargs)
