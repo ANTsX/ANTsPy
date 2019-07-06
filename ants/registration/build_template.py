@@ -53,7 +53,7 @@ def build_template(
     if 'type_of_transform' not in kwargs:
         type_of_transform = 'SyN'
     else:
-        type_of_tranform = kwargs.pop('type_of_transform')
+        type_of_transform = kwargs.pop('type_of_transform')
 
     wt = 1.0 / len( image_list )
     if initial_template is None:
@@ -65,7 +65,7 @@ def build_template(
     for i in range( iterations ):
         for k in range( len( image_list ) ):
             w1 = registration( xavg, image_list[k],
-              type_of_transform=type_of_tranform, **kwargs )
+              type_of_transform=type_of_transform, **kwargs )
             if k == 0:
               wavg = iio.image_read( w1['fwdtransforms'][0] ) * wt
               xavgNew = w1['warpedmovout'] * wt
