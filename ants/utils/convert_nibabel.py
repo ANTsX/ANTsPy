@@ -10,21 +10,11 @@ def to_nibabel(image):
     """
     Convert an ANTsImage to a Nibabel image
     """
-    if image.dimension != 3:
-        raise ValueError("Only 3D images currently supported")
-
     import nibabel as nib
-
-    array_data = image.numpy()
-    affine = np.hstack(
-        [
-            np.matmul(image.direction, np.diag(image.spacing)),
-            np.array(image.origin).reshape(3, 1),
-        ]
-    )
-    affine = np.vstack([affine, np.array([0, 0, 0, 1.0])])
-    affine[:2, :] *= -1
-    new_img = nib.Nifti1Image(array_data, affine)
+    tmpfile = mktemp(suffix=".nii.gz")
+    image.to_filename(tmpfile)
+    new_img = nib.load(tmpfile)
+    # os.remove(tmpfile) ## Don't remove tmpfile as nibabel lazy loads the data.
     return new_img
 
 
