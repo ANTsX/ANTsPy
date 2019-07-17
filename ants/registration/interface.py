@@ -749,7 +749,7 @@ def registration(fixed,
 def motion_correction(
                  image,
                  fixed=None,
-                 type_of_transform="Rigid",
+                 type_of_transform="BOLDRigid",
                  mask=None,
                  fdOffset = 50,
                  verbose = False,
