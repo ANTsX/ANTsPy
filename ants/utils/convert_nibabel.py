@@ -3,6 +3,7 @@ __all__ = ["to_nibabel", "from_nibabel", "to_ants"]
 import os
 from tempfile import mkstemp
 import numpy as np
+import nibabel as nib
 from ..core import ants_image_io as iio2
 
 
