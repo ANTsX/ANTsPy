@@ -51,7 +51,7 @@ and how to add code.
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
 cd ANTsPy
-python setup.py develop
+python setup.py install
 ```
 
 ANTsPy is known to install on MacOS, Ubuntu, and CentOS - all with Python3.6. It does not
