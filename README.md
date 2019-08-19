@@ -49,7 +49,14 @@ For Linux:
 pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
 ```
 
-If the above doesn't work, or you want more detailed instructions on installing <i>ANTsPy</i>, you can 
+If the above doesn't work on your platform, then use:
+
+```
+git clone https://github.com/ANTsX/ANTsPy
+cd ANTsPy
+python3 setup.py install
+```
+if you want more detailed instructions on installing <i>ANTsPy</i>, you can 
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
 ------------------------------------------------------------------------------
