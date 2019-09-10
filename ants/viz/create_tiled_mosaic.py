@@ -2,7 +2,7 @@
 __all__ = ['create_tiled_mosaic']
 
 import os
-from tempfile import mktemp 
+from tempfile import mktemp
 
 from PIL import Image
 
@@ -11,12 +11,12 @@ from ..core import ants_image_io as iio2
 
 
 def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
-                        output=None, alpha=1., direction=0, 
+                        output=None, alpha=1., direction=0,
                         pad_or_crop=None, slices=None,
                         flip_slice=None, permute_axes=False):
     """
     Create a tiled mosaic of 2D slice images from a 3D ANTsImage.
-    
+
     ANTsR function : N/A
     ANTs function  : `createTiledMosaic`
 
@@ -52,10 +52,10 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
             number of slices to incremenet
         if 3-tuple:
             (# slices to increment, min slice, max slice)
-    
+
     flip_slice : 2-tuple of boolean
         (whether to flip X direction, whether to flip Y direction)
-    
+
     permute_axes : boolean
         whether to permute axes
 
@@ -63,7 +63,7 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
         output filename where mosaic image will be saved.
         If not given, this function will save to a temp file,
         then return the image as a PIL.Image object
-    
+
     ANTs
     ----
      -i, --input-image inputImageFilename
@@ -82,7 +82,7 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
                   [numberOfSlicesToIncrement,<minSlice=0>,<maxSlice=lastSlice>]
      -f, --flip-slice flipXxflipY
      -g, --permute-axes doPermute
-     -h 
+     -h
 
     CreateTiledMosaic -i OAS1_0457_MR1_mpr_n3_anon_sbj_111BrainSegmentation0N4 . nii . gz \
     -r OAS1_0457_MR1_mpr_n3_anon_sbj_111CorticalThickness_hot . nii . gz \
@@ -102,7 +102,7 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
         image = (image - image.max()) / (image.max() - image.min())
         image = image * 255.
         image = image.clone('unsigned char')
-    
+
     output_is_temp = False
     if output is None:
         output_is_temp = True
@@ -119,12 +119,17 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
     args = {
         'i': imagepath,
         'r': rgbpath,
-        'o': output
+        'o': output,
+        'x': mask,
+        'e': overlay,
+        'a': alpha,
+        'd': direction
     }
 
     processed_args = utils._int_antsProcessArguments(args)
+
     libfn = utils.get_lib_fn('CreateTiledMosaic')
-    
+
     libfn(processed_args)
 
     outimage = Image.open(output)
