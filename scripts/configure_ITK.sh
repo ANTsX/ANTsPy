@@ -65,7 +65,7 @@ cmake \
     -DITKGroup_Numerics=ON \
     -DITKGroup_Registration=ON \
     -DITKGroup_Segmentation=ON \
-    -DModule_GenericLabelInterpolator:BOOL=ON
+    -DModule_GenericLabelInterpolator:BOOL=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
