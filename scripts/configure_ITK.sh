@@ -11,7 +11,7 @@ fi
 
 #cd ./src
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itktag=407989d73f5a50ac9f2251663b2f497cf900cbd7
+itktag=81c14ce858a530699ee2fbf7fa48b884ad26b984
 # if there is a directory but no git, remove it
 if [[ -d itksource ]]; then
     if [[ ! -d itksource/.git ]]; then
@@ -51,7 +51,6 @@ cmake \
     -DCMAKE_INSTALL_PREFIX:PATH=${R_PACKAGE_DIR}/libs/  \
     -DITK_LEGACY_REMOVE:BOOL=OFF  \
     -DITK_FUTURE_LEGACY_REMOVE:=BOOL=ON \
-    -DITKV3_COMPATIBILITY:BOOL=ON \
     -DITK_BUILD_DEFAULT_MODULES:BOOL=OFF \
     -DKWSYS_USE_MD5:BOOL=ON \
     -DITK_WRAPPING:BOOL=OFF \
@@ -66,6 +65,7 @@ cmake \
     -DITKGroup_Numerics=ON \
     -DITKGroup_Registration=ON \
     -DITKGroup_Segmentation=ON \
+    -DModule_GenericLabelInterpolator:BOOL=ON
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
