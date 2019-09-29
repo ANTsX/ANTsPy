@@ -28,6 +28,7 @@ def registration(
     total_sigma=0,
     aff_metric="mattes",
     aff_sampling=32,
+    aff_random_sampling_rate=0.2,
     syn_metric="mattes",
     syn_sampling=32,
     reg_iterations=(40, 20, 0),
@@ -78,6 +79,10 @@ def registration(
 
     aff_sampling : scalar
         the nbins or radius parameter for the syn metric
+
+    aff_random_sampling_rate : scalar
+        the fraction of points used to estimate the metric. this can impact
+        speed but also reproducibility and/or accuracy.
 
     syn_metric : string
         the metric for the syn part (CC, mattes, meansquares, demons)
@@ -197,7 +202,6 @@ def registration(
     myl = 0
     myf_aff = "6x4x2x1"
     mys_aff = "3x2x1x0"
-    metsam = 0.2
 
     myiterations = "2100x1200x1200x10"
     if type_of_transform == "AffineFast":
@@ -214,7 +218,7 @@ def registration(
         myiterations = "20x20x0x0"
     if type_of_transform == "DenseRigid":
         type_of_transform = "Rigid"
-        metsam = 0.8
+        aff_random_sampling_rate = 1.0
     if type_of_transform == "BOLDRigid":
         type_of_transform = "Rigid"
         myf_aff = "2x1"
@@ -303,7 +307,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Rigid[0.25]",
                         "-c",
@@ -347,7 +352,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Rigid[0.25]",
                         "-c",
@@ -359,7 +365,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[0.25]",
                         "-c",
@@ -403,7 +410,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[0.25]",
                         "-c",
@@ -447,7 +455,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[0.25]",
                         "-c",
@@ -491,7 +500,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Rigid[0.25]",
                         "-c",
@@ -503,7 +513,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[0.25]",
                         "-c",
@@ -630,7 +641,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[0.25]",
                         "-c",
@@ -681,7 +693,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Rigid[1]",
                         "-c",
@@ -693,7 +706,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[1]",
                         "-c",
@@ -744,7 +758,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.3]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Translation[1]",
                         "-c",
@@ -756,7 +771,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.3]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Rigid[1]",
                         "-c",
@@ -768,7 +784,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.3]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Similarity[1]",
                         "-c",
@@ -780,7 +797,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.3]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[1]",
                         "-c",
@@ -792,7 +810,8 @@ def registration(
                         "-x",
                         "[NA,NA]",
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.3]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[1]",
                         "-c",
@@ -880,7 +899,8 @@ def registration(
                         "-r",
                         initx,
                         "-m",
-                        "%s[%s,%s,1,%s,regular,0.2]" % (aff_metric, f, m, aff_sampling),
+                        "%s[%s,%s,1,%s,regular,%s]"
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "Affine[0.25]",
                         "-c",
@@ -1006,7 +1026,7 @@ def registration(
                         initx,
                         "-m",
                         "%s[%s,%s,1,%s,regular,%s]"
-                        % (aff_metric, f, m, aff_sampling, metsam),
+                        % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
                         "-t",
                         "%s[0.25]" % type_of_transform,
                         "-c",
