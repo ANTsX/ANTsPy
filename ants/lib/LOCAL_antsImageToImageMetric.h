@@ -36,7 +36,7 @@ public:
 
     template <typename MyImageType>
     void setFixedImage( py::capsule &, bool);
-    
+
     template <typename MyImageType>
     void setMovingImage( py::capsule &, bool);
 
@@ -78,7 +78,7 @@ typename MetricType::Pointer as_metric( ANTsImageToImageMetric<MetricType> & met
 
 template <typename MetricType>
 template <typename MyImageType>
-void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImage, 
+void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImage,
                                                           bool isMask )
 {
   typedef typename MetricType::FixedImageType   ImageType;
@@ -107,7 +107,7 @@ void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImag
 
 template <typename MetricType>
 template <typename MyImageType>
-void ANTsImageToImageMetric< MetricType >::setMovingImage( py::capsule & antsImage, 
+void ANTsImageToImageMetric< MetricType >::setMovingImage( py::capsule & antsImage,
                                                           bool isMask )
 {
   typedef typename MetricType::MovingImageType  ImageType;
@@ -191,7 +191,7 @@ void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, fl
       ++count;
       }
       metric->SetFixedSampledPointSet( samplePointSet );
-      metric->SetUseFixedSampledPointSet( true );
+      metric->SetUseSampledPointSet( true );
     }
     else if (strategy == "random")
       {
@@ -216,7 +216,7 @@ void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, fl
           }
         }
         metric->SetFixedSampledPointSet( samplePointSet );
-        metric->SetUseFixedSampledPointSet( true );
+        metric->SetUseSampledPointSet( true );
       }
 }
 
@@ -243,7 +243,7 @@ ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsig
       MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
       return wrap_metric< MetricType >( basePointer );
     }
-    else if ( metrictype == "Correlation" ) 
+    else if ( metrictype == "Correlation" )
     {
       typedef itk::Image<float, Dimension> ImageType;
       typedef itk::CorrelationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
@@ -253,33 +253,33 @@ ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsig
       typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 
       MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
-      return wrap_metric< MetricType >( basePointer ); 
+      return wrap_metric< MetricType >( basePointer );
     }
-    else if ( metrictype == "ANTSNeighborhoodCorrelation" ) 
+    else if ( metrictype == "ANTSNeighborhoodCorrelation" )
     {
       typedef itk::Image<float, Dimension> ImageType;
       typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
       typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
-      
+
       typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
       typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 
       MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
-      return wrap_metric< MetricType >( basePointer ); 
+      return wrap_metric< MetricType >( basePointer );
     }
-    else if ( metrictype == "Demons" ) 
+    else if ( metrictype == "Demons" )
     {
       typedef itk::Image<float, Dimension> ImageType;
       typedef itk::DemonsImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
       typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
-      
+
       typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
       typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 
       MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
-      return wrap_metric< MetricType >( basePointer ); 
+      return wrap_metric< MetricType >( basePointer );
     }
-    else if ( metrictype == "JointHistogramMutualInformation" ) 
+    else if ( metrictype == "JointHistogramMutualInformation" )
     {
       typedef itk::Image<float, Dimension> ImageType;
       typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
@@ -288,7 +288,7 @@ ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsig
       typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 
       MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
-      return wrap_metric< MetricType >( basePointer ); 
+      return wrap_metric< MetricType >( basePointer );
     }
     // should never reach this
     typedef itk::Image<float, Dimension> ImageType;
@@ -303,11 +303,11 @@ ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsig
 }
 
 template< typename MetricBaseType, unsigned int Dimension >
-ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltype, 
-                                                            unsigned int dimension, 
-                                                            std::string metrictype, 
-                                                            unsigned int isVector, 
-                                                            py::capsule fixed_img, 
+ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltype,
+                                                            unsigned int dimension,
+                                                            std::string metrictype,
+                                                            unsigned int isVector,
+                                                            py::capsule fixed_img,
                                                             py::capsule moving_img )
 {
   typedef itk::Image<float, Dimension> ImageType;
@@ -393,7 +393,3 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
   MetricBasePointerType baseMetric = dynamic_cast<MetricBaseType *>( metric.GetPointer() );
   return( wrap_metric< MetricBaseType >( baseMetric ) );
 }
-
-
-
-
