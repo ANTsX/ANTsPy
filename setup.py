@@ -149,7 +149,7 @@ class CMakeBuild(build_ext):
 long_description = open("README.md").read()
 
 setup(
-    name="antspyx",
+    name="antspy",
     version=version,
     author="Brian B. Avants and Nicholas Cullen",
     author_email="stnava@gmail.com",
