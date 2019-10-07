@@ -107,3 +107,11 @@ We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tr
 [Nibabel Speed Comparison](https://github.com/ANTsX/ANTsPy/blob/master/tests/timings_io.py)
 
 [Composite registrations](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)
+
+## Build documentation
+
+```
+cd docs
+sphinx-apidoc -o source/ ../
+make html
+```
