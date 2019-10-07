@@ -16,6 +16,8 @@
 
 ## About ANTsPy
 
+Search [ANTsPy documentation at read the docs.](https://antspyx.readthedocs.io/en/latest/?badge=latest)
+
 <i>ANTsPy</i> is a Python library which wraps the C++ biomedical image processing library <i>[ANTs](https://github.com/ANTsX/ANTs)</i>,
 matches much of the statistical capabilities of <i>[ANTsR](https://github.com/ANTsX/ANTsR)</i>, and allows seamless integration
 with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community.
