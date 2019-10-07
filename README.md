@@ -2,14 +2,14 @@
 
 # Advanced Normalization Tools in Python
 
-![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif) 
+![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif)
 <br>
 
 [![CircleCI](https://circleci.com/gh/ANTsX/ANTsPy.svg?style=svg)](https://circleci.com/gh/ANTsX/ANTsPy)
 [![Build Status](https://travis-ci.org/ANTsX/ANTsPy.svg?branch=master)](https://travis-ci.org/ANTsX/ANTsPy)
 <a href='https://coveralls.io/github/ANTsX/ANTsPy?branch=master'><img src='https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master' alt='Coverage Status' /></a>
-<a href='http://antspy.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/antspy/badge/?version=latest' alt='Documentation Status' />
+<a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/antspyx/badge/?version=latest' alt='Documentation Status' />
 </a>
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/stnava/ANTsPyDocker/master)
@@ -18,14 +18,14 @@
 
 <i>ANTsPy</i> is a Python library which wraps the C++ biomedical image processing library <i>[ANTs](https://github.com/ANTsX/ANTs)</i>,
 matches much of the statistical capabilities of <i>[ANTsR](https://github.com/ANTsX/ANTsR)</i>, and allows seamless integration
-with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community. 
+with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community.
 
-<i>ANTsPy</i> includes blazing-fast IO (~40% faster than <i>nibabel</i> for loading Nifti images and 
-converting them to <i>numpy</i> arrays), registration, segmentation, statistical learning, 
+<i>ANTsPy</i> includes blazing-fast IO (~40% faster than <i>nibabel</i> for loading Nifti images and
+converting them to <i>numpy</i> arrays), registration, segmentation, statistical learning,
 visualization, and other useful utility functions.
 
-<i>ANTsPy</i> also provides a low-barrier opportunity for users to quickly wrap their <i>ITK</i> (or general C++) 
-code in Python without having to build an entire IO/plotting/wrapping code base from 
+<i>ANTsPy</i> also provides a low-barrier opportunity for users to quickly wrap their <i>ITK</i> (or general C++)
+code in Python without having to build an entire IO/plotting/wrapping code base from
 scratch - see [C++ Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
 
 If you want to contribute to <i>ANTsPy</i> or simply want to learn about the package architecture
@@ -56,7 +56,7 @@ git clone https://github.com/ANTsX/ANTsPy
 cd ANTsPy
 python3 setup.py install
 ```
-if you want more detailed instructions on installing <i>ANTsPy</i>, you can 
+if you want more detailed instructions on installing <i>ANTsPy</i>, you can
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
 ------------------------------------------------------------------------------
@@ -107,4 +107,3 @@ We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tr
 [Nibabel Speed Comparison](https://github.com/ANTsX/ANTsPy/blob/master/tests/timings_io.py)
 
 [Composite registrations](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)
-
