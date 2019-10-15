@@ -254,7 +254,7 @@ def plot_grid(
         return mirror_matrix(x.T)
 
     def rotate180_matrix(x):
-        return x[::-1, :]
+        return x[::-1, ::-1]
 
     def rotate90_matrix(x):
         return mirror_matrix(x).T
@@ -2152,7 +2152,7 @@ def plot(
         return mirror_matrix(x.T)
 
     def rotate180_matrix(x):
-        return x[::-1, :]
+        return x[::-1, ::-1]
 
     def rotate90_matrix(x):
         return x.T
