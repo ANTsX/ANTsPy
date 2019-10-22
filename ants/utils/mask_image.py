@@ -1,9 +1,8 @@
-
-
 __all__ = ['mask_image']
 
 import numpy as np
 from .threshold_image import threshold_image
+
 
 def mask_image(image, mask, level=1, binarize=False):
     """
@@ -42,9 +41,11 @@ def mask_image(image, mask, level=1, binarize=False):
     leveluse = level
     if type(leveluse) is np.ndarray:
         leveluse = level.tolist()
+    if type(leveluse) is int or type(leveluse) is float:
+        leveluse = [level]
     image_out = image.clone() * 0
     for mylevel in leveluse:
-        temp = threshold_image( mask, mylevel, mylevel )
+        temp = threshold_image(mask, mylevel, mylevel)
         if binarize:
             image_out = image_out + temp
         else:
