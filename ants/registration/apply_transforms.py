@@ -10,8 +10,8 @@ from .. import utils
 
 def apply_transforms(fixed, moving, transformlist,
                      interpolator='linear', imagetype=0,
-                     whichtoinvert=None, compose=None, verbose=False,
-                     **kwargs):
+                     whichtoinvert=None, compose=None,
+                     defaultvalue=0, verbose=False, **kwargs):
     """
     Apply a transform list to map an image from one domain to another.
     In image registration, one computes mappings between (usually) pairs
@@ -63,6 +63,9 @@ def apply_transforms(fixed, moving, transformlist,
     compose : string (optional)
         if it is a string pointing to a valid file location,
         this will force the function to return a composite transformation filename.
+
+    defaultvalue : scalar
+        Default voxel value for mappings outside the image domain.
 
     verbose : boolean
         print command and run verbose application of transform.
@@ -168,7 +171,7 @@ def apply_transforms(fixed, moving, transformlist,
             if verbose:
                 print(myargs)
 
-            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
+            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype), '-f', str(defaultvalue)]
             libfn = utils.get_lib_fn('antsApplyTransforms')
             libfn(processed_args)
 
@@ -183,7 +186,7 @@ def apply_transforms(fixed, moving, transformlist,
         else:
             return 1
     else:
-        args = args + ['-z', 1, '--float', 1, '-e', imagetype]
+        args = args + ['-z', 1, '--float', 1, '-e', imagetype, '-f', defaultvalue]
         processed_args = utils._int_antsProcessArguments(args)
         libfn = utils.get_lib_fn('antsApplyTransforms')
         libfn(processed_args)
