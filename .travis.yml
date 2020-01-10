@@ -4,6 +4,7 @@ python:
 
 os:
   - linux
+  - osx
 
 cache:
     - directories:
