@@ -26,7 +26,7 @@ add_library(registrationUtilities STATIC  antscore/antsRegistrationTemplateHeade
                                           antscore/antsRegistration3DDouble.cxx antscore/antsRegistration3DFloat.cxx
                                           antscore/antsRegistration4DDouble.cxx antscore/antsRegistration4DFloat.cxx)
 
-add_library(imageMathUtilities STATIC   antscore/ImageMathHelper.cxx antscore/ImageMathHelper2D.cxx
+add_library(imageMathUtilities STATIC   antscore/ImageMathHelper2D.cxx
                                         antscore/ImageMathHelper3D.cxx  antscore/ImageMathHelper4D.cxx)
 target_link_libraries(antsUtilities ${ITK_LIBRARIES})
 target_link_libraries(registrationUtilities ${ITK_LIBRARIES})
