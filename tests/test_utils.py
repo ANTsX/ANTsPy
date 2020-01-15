@@ -137,7 +137,7 @@ class TestModule_bias_correction(unittest.TestCase):
 
     def test_abp_n4_example(self):
         img = ants.image_read(ants.get_ants_data("r16"))
-        img = iMath(img, "Normalize") * 255.0
+        img = ants.iMath(img, "Normalize") * 255.0
         img2 = ants.abp_n4(img)
 
     def test_abp_n4(self):
