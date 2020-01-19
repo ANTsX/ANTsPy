@@ -42,6 +42,16 @@ before_install:
 
 install:
   - python3 setup.py install
+  - travis_wait 30 python3 setup.py sdist bdist_wheel
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_ACCESS_TOKEN
+  file_glob: true
+  file: /home/travis/build/ANTsX/ANTsPy/dist/antspyx*.whl
+  skip_cleanup: true
+  on:
+    tags: true
 
 script: ./tests/run_tests_travis.sh
 
