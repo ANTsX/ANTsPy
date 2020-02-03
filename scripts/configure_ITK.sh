@@ -6,7 +6,7 @@ if [[ "`uname`" -eq "Darwin" ]] ; then
 fi
 ADD_G=
 if [[ "$APPVEYOR" -eq True ]] ; then
-  ADD_G='-G "Visual Studio 14 2015"'
+  ADD_G="-G 'Visual Studio 14 2015'"
 fi
 if [[ "$TRAVIS" -eq true ]] ; then
   CMAKE_BUILD_TYPE=Release
