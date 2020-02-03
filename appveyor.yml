@@ -50,7 +50,6 @@ install:
   - git --version
   - if exist "./itkbuild/ITKConfig.cmake" bash ./scripts/configure_ITK.sh
   - temp=`find ./ -name "ITKConfig.cmake"`
-  - echo $temp
   - export ITK_DIR=${PWD}/itkbuild/  
 
 build_script:
