@@ -4,9 +4,9 @@ JTHREADS=2
 if [[ "`uname`" -eq "Darwin" ]] ; then
   CMAKE_BUILD_TYPE=Release
 fi
-ADD_G=
+ADD_G="Unix Makefiles"
 if [[ "$APPVEYOR" -eq True ]] ; then
-  ADD_G="-G 'Visual Studio 14 2015'"
+  ADD_G="Visual Studio 14 2015"
 fi
 if [[ "$TRAVIS" -eq true ]] ; then
   CMAKE_BUILD_TYPE=Release
@@ -45,7 +45,7 @@ mkdir -p itkbuild
 cd itkbuild
 compflags=" -fPIC -O2  "
 cmake \
-	${ADD_G} \
+	-G"${ADD_G}" \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
