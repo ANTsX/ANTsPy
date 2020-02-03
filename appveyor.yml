@@ -50,14 +50,15 @@ install:
   - git --version
   - if exist "./itkbuild/ITKConfig.cmake" bash ./scripts/configure_ITK.sh
   # - temp=`find ./ -name "ITKConfig.cmake"`
-  - set ITK_DIR=${PWD}/itkbuild/  
+  - sh: export ITK_DIR=$APPVEYOR_BUILD_FOLDER/itkbuild/  
   # - "SET ITK_DIR=%PWD%/itkbuild/"
 
 
 build_script:
   - cmake --version  
   # Build the compiled extension
-  - "%CMD_IN_ENV% python setup.py install"
+  - sh: python setup.py install
+  # - "%CMD_IN_ENV% python setup.py install"
 
 # test_script:
 #   # Run the project tests and store results in .xml log
@@ -68,7 +69,8 @@ build_script:
       
 after_test:
   # If tests are successful, create binary packages for the project.
-  - "%CMD_IN_ENV% python setup.py sdist bdist_wheel"
+  # - "%CMD_IN_ENV% python setup.py sdist bdist_wheel"
+  - sh: python setup.py sdist bdist_wheel
   # - "%CMD_IN_ENV% python setup.py bdist_wininst"
   # - "%CMD_IN_ENV% python setup.py bdist_msi"
   - ps: "ls dist"
