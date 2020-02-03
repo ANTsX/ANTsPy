@@ -48,7 +48,7 @@ install:
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install -r requirements.txt"
   - git --version
-  - if not exist "./itkbuild/ITKConfig.cmake" bash ./scripts/configure_ITK.sh
+  - bash ./scripts/configure_ITK.sh
   # - temp=`find ./ -name "ITKConfig.cmake"`
   - sh: export ITK_DIR=$APPVEYOR_BUILD_FOLDER/itkbuild/  
   - "SET ITK_DIR=%APPVEYOR_BUILD_FOLDER%/itkbuild/"
