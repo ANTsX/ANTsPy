@@ -49,8 +49,10 @@ install:
   - "%CMD_IN_ENV% pip install -r requirements.txt"
   - git --version
   - if exist "./itkbuild/ITKConfig.cmake" bash ./scripts/configure_ITK.sh
-  - temp=`find ./ -name "ITKConfig.cmake"`
-  - export ITK_DIR=${PWD}/itkbuild/  
+  # - temp=`find ./ -name "ITKConfig.cmake"`
+  - set ITK_DIR=${PWD}/itkbuild/  
+  # - "SET ITK_DIR=%PWD%/itkbuild/"
+
 
 build_script:
   - cmake --version  
