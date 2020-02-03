@@ -56,6 +56,7 @@ install:
 
 build_script:
   - cmake --version  
+  - python setup.py install
   - sh: python setup.py install
   # Build the compiled extension
   # - "%CMD_IN_ENV% python setup.py install"
@@ -67,9 +68,9 @@ build_script:
 #       &$env:PYTHON\python setup.py nosetests --with-xunit
 #       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
       
-after_test:
-  - sh: python setup.py sdist bdist_wheel
-  - sh: "ls dist"  
+test_script:
+  - python setup.py sdist bdist_wheel
+  - ls dist
   # If tests are successful, create binary packages for the project.
   # - "%CMD_IN_ENV% python setup.py sdist bdist_wheel"
   # - "%CMD_IN_ENV% python setup.py bdist_wininst"
