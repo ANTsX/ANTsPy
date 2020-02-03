@@ -56,8 +56,8 @@ install:
 
 build_script:
   - cmake --version  
-  # Build the compiled extension
   - sh: python setup.py install
+  # Build the compiled extension
   # - "%CMD_IN_ENV% python setup.py install"
 
 # test_script:
@@ -68,12 +68,12 @@ build_script:
 #       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
       
 after_test:
+  - sh: python setup.py sdist bdist_wheel
+  - sh: "ls dist"  
   # If tests are successful, create binary packages for the project.
   # - "%CMD_IN_ENV% python setup.py sdist bdist_wheel"
-  - sh: python setup.py sdist bdist_wheel
   # - "%CMD_IN_ENV% python setup.py bdist_wininst"
   # - "%CMD_IN_ENV% python setup.py bdist_msi"
-  - sh: "ls dist"
 
 artifacts:
   - path: $APPVEYOR_BUILD_FOLDER/itkbuild/  
