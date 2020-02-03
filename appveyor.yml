@@ -51,7 +51,7 @@ install:
   - if exist "./itkbuild/ITKConfig.cmake" bash ./scripts/configure_ITK.sh
   # - temp=`find ./ -name "ITKConfig.cmake"`
   - sh: export ITK_DIR=$APPVEYOR_BUILD_FOLDER/itkbuild/  
-  # - "SET ITK_DIR=%PWD%/itkbuild/"
+  - "SET ITK_DIR=%APPVEYOR_BUILD_FOLDER%/itkbuild/"
 
 
 build_script:
