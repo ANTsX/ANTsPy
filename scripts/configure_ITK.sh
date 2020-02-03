@@ -6,7 +6,7 @@ if [[ "`uname`" -eq "Darwin" ]] ; then
 fi
 ADD_G="Unix Makefiles"
 if [[ "$APPVEYOR" -eq True ]] ; then
-  ADD_G="Visual Studio 14 2015"
+  ADD_G="MinGW Makefiles"
 fi
 if [[ "$TRAVIS" -eq true ]] ; then
   CMAKE_BUILD_TYPE=Release
