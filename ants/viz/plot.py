@@ -160,6 +160,7 @@ def plot_grid(
     cpad=0,
     vmin=None,
     vmax=None,
+    cmap="Greys_r",
     # title arguments
     title=None,
     tfontsize=20,
@@ -419,7 +420,7 @@ def plot_grid(
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
             tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
             tmpslice = reorient_slice(tmpslice, tmpaxis)
-            ax.imshow(tmpslice, cmap="Greys_r", aspect="auto", vmin=vmin, vmax=vmax)
+            ax.imshow(tmpslice, cmap=cmap, aspect="auto", vmin=vmin, vmax=vmax)
             ax.axis("off")
 
     if filename is not None:
