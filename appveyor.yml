@@ -47,6 +47,11 @@ install:
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install -r requirements.txt"
+  - git --version
+  - if [ ! -f ./itkbuild/ITKConfig.cmake ]; then bash ./scripts/configure_ITK.sh; fi
+  - temp=`find ./ -name "ITKConfig.cmake"`
+  - echo $temp
+  - export ITK_DIR=${PWD}/itkbuild/  
 
 build_script:
   - cmake --version  
