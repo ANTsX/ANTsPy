@@ -46,6 +46,7 @@ cd itkbuild
 compflags=" -fPIC -O2  "
 cmake \
 	-G"${ADD_G}" \
+    -DCMAKE_SH:BOOL=OFF \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
