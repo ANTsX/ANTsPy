@@ -82,17 +82,17 @@ test_script:
   # - "%CMD_IN_ENV% python setup.py bdist_msi"
 
 artifacts:
-  - path: $APPVEYOR_BUILD_FOLDER/itkbuild/  
+  - path: '\*_*.zip'
+    name: Bits  
+  # - path: $APPVEYOR_BUILD_FOLDER/itkbuild/  
   # Archive the generated packages in the ci.appveyor.com build report.
   - path: dist\*
-  - path: '\*_*.zip'
-    name: Bits
 
 on_failure:
-  - 7z a itkbuild.zip itkbuild/
-  - appveyor PushArtifact itkbuild.zip
   - 7z a whole.zip *
-  - appveyor PushArtifact whole.zip
+  - appveyor PushArtifact whole.zip  
+  # - 7z a itkbuild.zip itkbuild/
+  # - appveyor PushArtifact itkbuild.zip
 
 
 
