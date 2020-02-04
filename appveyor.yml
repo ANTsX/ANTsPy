@@ -62,7 +62,8 @@ install:
 build_script:
   - cmake --version  
   # - sh: python setup.py install
-  - "python setup.py install"
+  - sh: sh ./scripts/configure_ANTsPy.sh
+  # - "python setup.py install"
   # Build the compiled extension
   # - "%CMD_IN_ENV% python setup.py install"
 
