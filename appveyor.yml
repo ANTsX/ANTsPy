@@ -61,7 +61,7 @@ install:
 
 build_script:
   - cmake --version  
-  - sh ./scripts/configure_ANTsPy.sh
+  - sh ./scripts/configure_ANTsPy_windows.sh
   - python setup.py install
   # - "python setup.py install"
   # Build the compiled extension
