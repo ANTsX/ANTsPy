@@ -10,8 +10,8 @@ environment:
       PYTHON_ARCH: "64"
 
 install:
-  - $env:PATH = "C:\Program Files (x86)\Git\bin;" + $env:PATH  
-  - $env:PATH = 'C:\MinGW\msys\1.0\bin;' + $env:PATH
+  - ps: $env:PATH = "C:\Program Files (x86)\Git\bin;" + $env:PATH  
+  - ps: $env:PATH = 'C:\MinGW\msys\1.0\bin;' + $env:PATH
   # If there is a newer build queued for the same PR, cancel this one.
   # The AppVeyor 'rollout builds' option is supposed to serve the same
   # purpose but it is problematic because it tends to cancel builds pushed
