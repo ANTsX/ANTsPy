@@ -26,7 +26,6 @@ cd ants/lib # go to lib dir
 git clone $antsbranch $antsgit antsrepo
 
 mkdir -p antscore
-fi
 
 cd antsrepo # go to antscore
 # check out right branch
