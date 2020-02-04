@@ -50,7 +50,7 @@ install:
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install -r requirements.txt"
   - git --version
-  - Invoke-WebRequest https://github.com/muschellij2/ITKR/releases/download/v0.5.2.0.2/ITKR_0.5.2_R3.6.zip -OutFile "ITKR.zip"
+  - ps: Invoke-WebRequest https://github.com/muschellij2/ITKR/releases/download/v0.5.2.0.2/ITKR_0.5.2_R3.6.zip -OutFile "ITKR.zip"
   - unzip ITKR.zip
   - ls 
   - ls ITKR
