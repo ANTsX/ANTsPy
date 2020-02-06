@@ -43,15 +43,15 @@ Copy the following command and paste it into your bash terminal:
 
 For MacOS:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4-cp36-cp36m-macosx_10_7_x86_64.whl
+pip install <link-to-release.whl>
 ```
 
 For Linux:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
+pip install <link-to-linux_x86_64-release.whl>
 ```
 
-If the above doesn't work on your platform, then use:
+If we do not have releases for your platform, then use:
 
 ```
 git clone https://github.com/ANTsX/ANTsPy
@@ -60,6 +60,8 @@ python3 setup.py install
 ```
 if you want more detailed instructions on installing <i>ANTsPy</i>, you can
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
+
+NOTE: we are hoping to relatively soon release via `pip`.  Check back soon.
 
 ------------------------------------------------------------------------------
 ## ITK & VTK
