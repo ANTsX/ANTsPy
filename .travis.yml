@@ -54,7 +54,3 @@ deploy:
     tags: true
 
 script: ./tests/run_tests_travis.sh
-
-branches:
-  only:
-    - master
