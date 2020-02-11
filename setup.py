@@ -151,19 +151,6 @@ long_description = open("README.md").read()
 setup(
     name="antspyx",
     version=version,
-    author="Brian B. Avants and Nicholas Cullen",
-    author_email="stnava@gmail.com",
-    description="Advanced Normalization Tools in Python",
-    long_description=long_description,
-    long_description_content_type="text/markdown; charset=UTF-8; variant=GFM",
-    ext_modules=[
-        CMakeExtension("ants", sourcedir=os.path.join(setup_py_dir, "ants/lib/"))
-    ],
-    cmdclass={"build_py": build_py, "build_ext": CMakeBuild, "install": BuildExtFirst},
-    zip_safe=False,
-    packages=find_packages(),
-    package_data={"ants": ["ants/lib/*.so*", "lib/*.so*", "ants/lib/*.so", "lib/*.so"]},
-    url="https://github.com/ANTsX/ANTsPy",
     install_requires=[
         "pandas",
         "numpy",
@@ -178,5 +165,18 @@ setup(
         "Pillow",
         "nibabel",
     ],
+    author="Brian B. Avants and Nicholas Cullen",
+    author_email="stnava@gmail.com",
+    description="Advanced Normalization Tools in Python",
+    long_description=long_description,
+    long_description_content_type="text/markdown; charset=UTF-8; variant=GFM",
+    ext_modules=[
+        CMakeExtension("ants", sourcedir=os.path.join(setup_py_dir, "ants/lib/"))
+    ],
+    cmdclass={"build_py": build_py, "build_ext": CMakeBuild, "install": BuildExtFirst},
+    zip_safe=False,
+    packages=find_packages(),
+    package_data={"ants": ["ants/lib/*.so*", "lib/*.so*", "ants/lib/*.so", "lib/*.so"]},
+    url="https://github.com/ANTsX/ANTsPy",
     classifiers=["Programming Language :: Python :: 3.6"],
 )
