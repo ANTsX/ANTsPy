@@ -364,7 +364,15 @@ def plot_grid(
     else:
         vmaxs = vmax
 
-    for rowidx, vmin, vmax in zip(range(nrow), vmins, vmaxs):
+    if isinstance(cmap, str):
+        cmaps = [cmap] * nrow
+    elif cmap is None:
+        cmaps = [None] * nrow
+    else:
+        cmaps = cmap
+
+    print(cmaps)
+    for rowidx, vmin, vmax, cmap in zip(range(nrow), vmins, vmaxs, cmaps):
         for colidx in range(ncol):
             ax = plt.subplot(gs[rowidx, colidx])
 
