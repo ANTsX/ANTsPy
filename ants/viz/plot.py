@@ -32,6 +32,8 @@ import matplotlib.lines as mlines
 import matplotlib.patches as patches
 import matplotlib.mlab as mlab
 import matplotlib.animation as animation
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
 
 import numpy as np
 
@@ -160,6 +162,7 @@ def plot_grid(
     cpad=0,
     vmin=None,
     vmax=None,
+    colorbar=True,
     cmap="Greys_r",
     # title arguments
     title=None,
@@ -347,7 +350,21 @@ def plot_grid(
         right=1 - 0.5 / (ncol + 1),
     )
 
-    for rowidx in range(nrow):
+    if not isinstance(vmin, (int, float)):
+        vmins = [vmin] * nrow
+    elif vmin is None:
+        vmins = [None] * nrow
+    else:
+        vmins = vmin
+
+    if isinstance(vmax, (int, float)):
+        vmaxs = [vmax] * nrow
+    elif vmax is None:
+        vmaxs = [None] * nrow
+    else:
+        vmaxs = vmax
+
+    for rowidx, vmin, vmax in zip(range(nrow), vmins, vmaxs):
         for colidx in range(ncol):
             ax = plt.subplot(gs[rowidx, colidx])
 
@@ -420,8 +437,23 @@ def plot_grid(
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
             tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
             tmpslice = reorient_slice(tmpslice, tmpaxis)
-            ax.imshow(tmpslice, cmap=cmap, aspect="auto", vmin=vmin, vmax=vmax)
+            im = ax.imshow(tmpslice, cmap=cmap, aspect="auto", vmin=vmin, vmax=vmax)
             ax.axis("off")
+
+        # A colorbar solution with make_axes_locatable will not allow y-scaling of the colorbar.
+        # from mpl_toolkits.axes_grid1 import make_axes_locatable
+        # divider = make_axes_locatable(ax)
+        # cax = divider.append_axes('right', size='5%', pad=0.05)
+        if colorbar:
+            axins = inset_axes(ax,
+                               width="5%",  # width = 5% of parent_bbox width
+                               height="90%",  # height : 50%
+                               loc='center left',
+                               bbox_to_anchor=(1.03, 0., 1, 1),
+                               bbox_transform=ax.transAxes,
+                               borderpad=0,
+            )
+            fig.colorbar(im, cax=axins, orientation='vertical')
 
     if filename is not None:
         filename = os.path.expanduser(filename)
