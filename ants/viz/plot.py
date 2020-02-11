@@ -350,7 +350,7 @@ def plot_grid(
         right=1 - 0.5 / (ncol + 1),
     )
 
-    if not isinstance(vmin, (int, float)):
+    if isinstance(vmin, (int, float)):
         vmins = [vmin] * nrow
     elif vmin is None:
         vmins = [None] * nrow
@@ -371,8 +371,7 @@ def plot_grid(
     else:
         cmaps = cmap
 
-    print(cmaps)
-    for rowidx, vmin, vmax, cmap in zip(range(nrow), vmins, vmaxs, cmaps):
+    for rowidx, rvmin, rvmax, rcmap in zip(range(nrow), vmins, vmaxs, cmaps):
         for colidx in range(ncol):
             ax = plt.subplot(gs[rowidx, colidx])
 
@@ -445,7 +444,7 @@ def plot_grid(
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
             tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
             tmpslice = reorient_slice(tmpslice, tmpaxis)
-            im = ax.imshow(tmpslice, cmap=cmap, aspect="auto", vmin=vmin, vmax=vmax)
+            im = ax.imshow(tmpslice, cmap=rcmap, aspect="auto", vmin=rvmin, vmax=rvmax)
             ax.axis("off")
 
         # A colorbar solution with make_axes_locatable will not allow y-scaling of the colorbar.
