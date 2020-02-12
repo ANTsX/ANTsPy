@@ -2,17 +2,17 @@
 ## Installing ANTsPy
 
 ### Method 1: Pre-Compiled Binaries (preferred)
-The fastest method is to install the pre-compiled binaries for the latest 
+The fastest method is to install the pre-compiled binaries for the latest
 stable, weekly release (takes ~1 min):
 
 If you have MacOS:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4a0-cp36-cp36m-macosx_10_7_x86_64.whl
+pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.8/antspyx-0.1.8-cp37-cp37m-macosx_10_14_x86_64.whl
 ```
 
 If you have Linux:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
+pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.2.0/antspyx-0.2.0-cp37-cp37m-linux_x86_64.whl
 ```
 
 ------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ currently work on Python 2.7, but we're planning on adding support.
 
 ## CentOS Installation
 
-To install ANTsPy on CentOS (tested on "7") with virtual environment, 
+To install ANTsPy on CentOS (tested on "7") with virtual environment,
 follow these commands:
 
 background:
