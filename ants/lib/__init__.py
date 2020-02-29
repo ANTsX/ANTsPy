@@ -1,5 +1,3 @@
-
-
 ## LOCAL ##
 from .antiAlias import *
 from .antsImage import *
@@ -54,27 +52,26 @@ from .antsImageAugment import *
 
 
 ## NOT WRAPPED ##
-#from .antsLandmarkBasedTransformInitializer import *
-#from .antsMotionCorr import *
-#from .antsMotionCorrStats import *
-#from .antsSliceRegularizedRegistration import *
-#from .LesionFilling import *
-#from .NonLocalSuperResolution import *
-#from .SuperResolution import *
-#from .TimeSCCAN import *
+# from .antsLandmarkBasedTransformInitializer import *
+# from .antsMotionCorr import *
+# from .antsMotionCorrStats import *
+# from .antsSliceRegularizedRegistration import *
+# from .LesionFilling import *
+# from .NonLocalSuperResolution import *
+# from .SuperResolution import *
+# from .TimeSCCAN import *
 
 
 ## VIZ ##
-#try:
+# try:
 #    from .antsSurf import *
-#except:
+# except:
 #    pass
-#try:
+# try:
 #    from .antsVol import *
-#except:
+# except:
 #    pass
-#try:
-#    from .ConvertScalarImageToRGB import *
-#except:
-#    pass
-
+try:
+    from .ConvertScalarImageToRGB import *
+except:
+    pass

@@ -166,8 +166,8 @@ target_link_libraries(antsImageAugment PRIVATE ${ITK_LIBRARIES})
 ## VIZ ##
 #pybind11_add_module(antsSurf antscore/antsSurf.cxx WRAP_antsSurf.cxx)
 #pybind11_add_module(antsVol antscore/antsVol.cxx WRAP_antsVol.cxx)
-#pybind11_add_module(ConvertScalarImageToRGB antscore/ConvertScalarImageToRGB.cxx WRAP_ConvertScalarImageToRGB.cxx)
+pybind11_add_module(ConvertScalarImageToRGB antscore/ConvertScalarImageToRGB.cxx WRAP_ConvertScalarImageToRGB.cxx)
 #
 #target_link_libraries(antsSurf PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
 #target_link_libraries(antsVol PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
-#target_link_libraries(ConvertScalarImageToRGB PRIVATE ${ITK_LIBRARIES} ${VTK_LIBRARIES} antsUtilities)
+target_link_libraries(ConvertScalarImageToRGB PRIVATE ${ITK_LIBRARIES} antsUtilities)
