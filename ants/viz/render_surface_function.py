@@ -13,7 +13,7 @@ try:
     from plotly import figure_factory as FF
 except:
     warnings.warn(
-        "Cant import Plotly. Install it `pip install plotly` if you want to use ants.render_surface_function"
+        "Cant import Plotly. Install it `pip install chart_studio` if you want to use ants.render_surface_function"
     )
 
 
