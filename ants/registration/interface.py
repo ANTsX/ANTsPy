@@ -32,6 +32,9 @@ def registration(
     syn_metric="mattes",
     syn_sampling=32,
     reg_iterations=(40, 20, 0),
+    aff_iterations=(2100, 1200, 1200, 10),
+    aff_shrink_factors=(6, 4, 2, 1),
+    aff_smoothing_sigmas=(3, 2, 1, 0),
     write_composite_transform=False,
     random_seed=None,
     verbose=False,
@@ -92,6 +95,15 @@ def registration(
 
     reg_iterations : list/tuple of integers
         vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
+
+    aff_iterations : list/tuple of integers
+        vector of iterations for low-dimensional (translation, rigid, affine) registration.
+
+    aff_shrink_factors : list/tuple of integers
+        vector of multi-resolution shrink factors for low-dimensional (translation, rigid, affine) registration.
+
+    aff_smoothing_sigmas : list/tuple of integers
+        vector of multi-resolution smoothing factors for low-dimensional (translation, rigid, affine) registration.
 
     random_seed : integer
         random seed to improve reproducibility. note that the number of ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS should be 1 if you want perfect reproducibility.
@@ -200,10 +212,40 @@ def registration(
 
     args = [fixed, moving, type_of_transform, outprefix]
     myl = 0
-    myf_aff = "6x4x2x1"
-    mys_aff = "3x2x1x0"
+    myf_aff = "6x4x2x1"  # old fixed params
+    mys_aff = "3x2x1x0"  # old fixed params
+    if (
+        type(aff_shrink_factors) is int
+        or type(aff_smoothing_sigmas) is int
+        or type(aff_iterations) is int
+    ):
+        if type(aff_smoothing_sigmas) is not int:
+            raise ValueError("aff_smoothing_sigmas should be a single integer.")
+        if type(aff_iterations) is not int:
+            raise ValueError("aff_iterations should be a single integer.")
+        if type(aff_shrink_factors) is not int:
+            raise ValueError("aff_shrink_factors should be a single integer.")
+        myf_aff = aff_shrink_factors
+        mys_aff = aff_smoothing_sigmas
+        myiterations = aff_iterations
 
-    myiterations = "2100x1200x1200x10"
+    if type(aff_shrink_factors) is tuple:
+        myf_aff = "x".join([str(ri) for ri in aff_shrink_factors])
+        mys_aff = "x".join([str(ri) for ri in aff_smoothing_sigmas])
+        myiterations = "x".join([str(ri) for ri in aff_iterations])
+        if len(aff_iterations) != len(aff_smoothing_sigmas):
+            raise ValueError(
+                "aff_iterations length should equal aff_smoothing_sigmas length."
+            )
+        if len(aff_iterations) != len(aff_shrink_factors):
+            raise ValueError(
+                "aff_iterations length should equal aff_shrink_factors length."
+            )
+        if len(aff_shrink_factors) != len(aff_smoothing_sigmas):
+            raise ValueError(
+                "aff_shrink_factors length should equal aff_smoothing_sigmas length."
+            )
+
     if type_of_transform == "AffineFast":
         type_of_transform = "Affine"
         myiterations = "2100x1200x0x0"
