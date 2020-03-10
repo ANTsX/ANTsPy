@@ -119,3 +119,9 @@ cd docs
 sphinx-apidoc -o source/ ../
 make html
 ```
+
+## References
+
+[a google scholar search reveals plenty of explanation of methods and evaluation results by ourselves](https://scholar.google.com/scholar?start=0&q=advanced+normalization+tools+ants+image+registration&hl=en&as_sdt=0,40)
+
+[and by others](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C40&q=advanced+normalization+tools+ants+image+registration+-avants+-tustison&btnG=)
