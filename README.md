@@ -122,6 +122,8 @@ make html
 
 ## References
 
-[a google scholar search reveals plenty of explanation of methods and evaluation results by ourselves](https://scholar.google.com/scholar?start=0&q=advanced+normalization+tools+ants+image+registration&hl=en&as_sdt=0,40)
+1. See references at the main [ANTs page](https://github.com/ANTsX/ANTs#boilerplate-ants).
 
-[and by others](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C40&q=advanced+normalization+tools+ants+image+registration+-avants+-tustison&btnG=)
+2. [Google scholar search reveals plenty of explanation of methods and evaluation results by ourselves](https://scholar.google.com/scholar?start=0&q=advanced+normalization+tools+ants+image+registration&hl=en&as_sdt=0,40)
+
+3. [ANTs evaluation and comparison by other authors](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C40&q=advanced+normalization+tools+ants+image+registration+-avants+-tustison&btnG=)
