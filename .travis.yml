@@ -1,9 +1,14 @@
 language: python
-python:
-  - "3.6"
 
-os:
-  - linux
+jobs:
+  include:
+    # perform a linux build
+    - services: docker
+
+env:
+  global:
+    - TWINE_USERNAME=__token__
+    # Note: TWINE_PASSWORD is set to a PyPI API token in Travis settings
 
 cache:
     - directories:
@@ -41,16 +46,13 @@ before_install:
   - export ITK_DIR=/home/travis/build/ANTsX/itkbuild/
 
 install:
+  - python3 -m pip install cibuildwheel==1.3.0
   - python3 setup.py install
   - travis_wait 30 python3 setup.py sdist bdist_wheel
 
-deploy:
-  provider: releases
-  api_key: $GITHUB_ACCESS_TOKEN
-  file_glob: true
-  file: /home/travis/build/ANTsX/ANTsPy/dist/antspyx*.whl
-  skip_cleanup: true
-  on:
-    tags: true
+script:
+  # build the wheels, put them into './wheelhouse'
+  - ./tests/run_tests_travis.sh
+  - python3 -m cibuildwheel --output-dir wheelhouse
 
-script: ./tests/run_tests_travis.sh
+# FIXME see https://github.com/joerick/cibuildwheel
