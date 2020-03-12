@@ -54,5 +54,14 @@ script:
   # build the wheels, put them into './wheelhouse'
   - ./tests/run_tests_travis.sh
   - python3 -m cibuildwheel --output-dir wheelhouse
+  - python3 -m pip install twine
+  - ls wheelhouse/*whl
 
 # FIXME see https://github.com/joerick/cibuildwheel
+
+after_success:
+  # if the release was tagged, upload them to PyPI
+  - |
+    if [[ $TRAVIS_TAG ]]; then
+      python3 -m twine upload wheelhouse/*.whl
+    fi
