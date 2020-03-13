@@ -8,7 +8,7 @@ jobs:
 env:
   global:
     - TWINE_USERNAME=__token__
-    # Note: TWINE_PASSWORD is set to a PyPI API token in Travis settings
+    - CIBW_SKIP: cp2* pp2*
 
 cache:
     - directories:
