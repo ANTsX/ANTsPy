@@ -41,14 +41,9 @@ We recommend that users install the latest pre-compiled binaries, which takes ~1
 that <i>ANTsPy</i> is not currently tested for Python 2.7 support.
 Copy the following command and paste it into your bash terminal:
 
-For MacOS:
+For MacOS and Linux:
 ```bash
-pip install <link-to-release.whl>
-```
-
-For Linux:
-```bash
-pip install <link-to-linux_x86_64-release.whl>
+pip install antspyx
 ```
 
 If we do not have releases for your platform, then use:
@@ -58,27 +53,14 @@ git clone https://github.com/ANTsX/ANTsPy
 cd ANTsPy
 python3 setup.py install
 ```
-if you want more detailed instructions on installing <i>ANTsPy</i>, you can
+if you want more detailed instructions on compiling <i>ANTsPy</i> from source, you can
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
-NOTE: we are hoping to relatively soon release via `pip`.  Check back soon.
+NOTE: we are hoping to relatively soon release windows wheels via `pip`.
+If they are not yet available, please check the discussion in the issues
+for how to build from source on windows machines.
 
 ------------------------------------------------------------------------------
-## ITK & VTK
-
-#### Insight Toolkit (ITK)
-
-By default, <i>ANTsPy</i> will search for an existing ITK build by checking if the `ITK_DIR`
-environment variable is set. If that is not
-found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
-ITK.
-
-#### Visualization Toolkit (VTK)
-
-By default, <i>ANTsPy</i> will search for an existing VTK build by checking if the `VTK_DIR`
-environment variable is set. If that is not
-found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
-VTK. If you do not want VTK, then add the `--novtk` flag to setup (e.g. `python setup.py install --novtk`).
 
 ## ANTsR Comparison
 
