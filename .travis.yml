@@ -8,7 +8,7 @@ jobs:
 env:
   global:
     - TWINE_USERNAME=__token__
-    - CIBW_SKIP: cp2* pp2*
+    - CIBW_SKIP="cp2* pp2*"
 
 cache:
     - directories:
