@@ -6,9 +6,12 @@ import numpy as np
 from tempfile import mktemp
 from .apply_transforms import apply_transforms
 from ..core import ants_image_io as iio
+from ..core import ants_transform_io as txio
 
 
-def fit_transform_to_paired_points(moving_points=None, fixed_points=None, transform_type=None, lambda=None):
+def fit_transform_to_paired_points(
+    moving_points, fixed_points, transform_type="Affine", regularization=1e-4
+):
     """
     Estimate an optimal matrix transformation from paired points, potentially landmarks
 
@@ -27,7 +30,7 @@ def fit_transform_to_paired_points(moving_points=None, fixed_points=None, transf
     transform_type : character
         affine, rigid or similarity
 
-    lambda : scalar
+    regularization : scalar
         regularization parameter
 
     Returns
@@ -49,16 +52,15 @@ def fit_transform_to_paired_points(moving_points=None, fixed_points=None, transf
     y = moving_points - centerY
     myones = np.ones(n)
     x11 = np.c_[x, myones]  # or np.concatenate( (x, myones.reshape(4,1) ),axis=1 )
-    temp = np.linalg.lstsq(x11, y)
+    temp = np.linalg.lstsq(x11, y, rcond=None)
     A = temp[0].transpose()[:idim, :idim]
     trans = temp[0][idim, :] + centerY - centerX
     if transform_type == "Rigid" or transform_type == "Similarity":
         covmat = np.dot(y.transpose(), x)
         scaleDiag = np.zeros((idim, idim))
-        np.fill_diagonal(scaleDiag, lambda)
-        x_svd = np.linalg.svd( covmat + scaleDiag )
+        np.fill_diagonal(scaleDiag, regularization)
+        x_svd = np.linalg.svd(covmat + scaleDiag)
         myd = np.linalg.det(np.dot(x_svd[0].T, x_svd[2].T))
-        signadj = diag(idim)
         if myd < 0:
             x_svd[2][idim - 1, :] *= -1
         A = np.dot(x_svd[0], x_svd[2].T)
@@ -70,6 +72,8 @@ def fit_transform_to_paired_points(moving_points=None, fixed_points=None, transf
             np.fill_diagonal(scaleDiag, scaling)
             A = np.dot(A, scaleDiag)
 
-    aff = ants.create_ants_transform( matrix=A, translation=trans, dimension=idim, center=centerX)
+    aff = txio.create_ants_transform(
+        matrix=A, translation=trans, dimension=idim, center=centerX
+    )
 
     return aff
