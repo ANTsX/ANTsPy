@@ -27,7 +27,7 @@ py::dict antsImageHeaderInfo( std::string fname )
   const size_t numDimensions =  imageIO->GetNumberOfDimensions();
   const size_t numComponents = imageIO->GetNumberOfComponents();
   const std::string pixelClass( imageIO->GetPixelTypeAsString(imageIO->GetPixelType()) );
-  const unsigned int pixelCode = imageIO->GetComponentType();
+  itk::ImageIOBase::IOComponentEnum pixelCode = imageIO->GetComponentType();
 
   std::vector<float> dimensions( numDimensions );
   std::vector<float> spacing( numDimensions );
