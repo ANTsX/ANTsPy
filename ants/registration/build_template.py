@@ -16,7 +16,7 @@ def build_template(
     image_list=None,
     iterations=3,
     gradient_step=0.2,
-    blending_weight=0.9,
+    blending_weight=0.75,
     weights=None,
     **kwargs
 ):
