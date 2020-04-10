@@ -32,9 +32,9 @@ template< class ImageType, class TransformMatrixType >
 TransformMatrixType GetVoxelSpaceToRASPhysicalSpaceMatrix(typename ImageType::Pointer image)
   {
   // Generate intermediate terms
-  vnl_matrix<double> m_dir, m_ras_matrix;
-  vnl_diag_matrix<double> m_scale, m_lps_to_ras;
-  vnl_vector<double> v_origin, v_ras_offset;
+  vnl_matrix_fixed<double, 3U, 3U> m_dir, m_ras_matrix;
+  vnl_diag_matrix_fixed<double, 3U> m_scale, m_lps_to_ras;
+  vnl_vector_fixed<double, 3U> v_origin, v_ras_offset;
 
   // Compute the matrix
   m_dir = image->GetDirection().GetVnlMatrix();
@@ -61,9 +61,9 @@ TransformMatrixType GetVoxelSpaceToRASPhysicalSpaceMatrix(typename ImageType::Po
 
 
 template< class PixelType, unsigned int Dimension >
-py::capsule fsl2antstransform( std::vector<std::vector<float> > matrix, 
-                py::capsule ants_reference, 
-                py::capsule ants_moving, 
+py::capsule fsl2antstransform( std::vector<std::vector<float> > matrix,
+                py::capsule ants_reference,
+                py::capsule ants_moving,
                 int flag )
 {
   typedef vnl_matrix_fixed<double, 4, 4>              MatrixType;
@@ -163,4 +163,3 @@ PYBIND11_MODULE(fsl2antstransform, m)
 {
   m.def("fsl2antstransformF3", &fsl2antstransform<float,3>);
 }
-
