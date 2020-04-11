@@ -7,8 +7,9 @@ from tempfile import mktemp
 from .reflect_image import reflect_image
 from .interface import registration
 from .apply_transforms import apply_transforms
+from .resample_image import resample_image_to_target
 from ..core import ants_image_io as iio
-from ..utils import iMath as utils
+from .. import utils
 
 
 def build_template(
@@ -58,7 +59,7 @@ def build_template(
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> image2 = ants.image_read( ants.get_ants_data('r27') )
     >>> image3 = ants.image_read( ants.get_ants_data('r85') )
-    >>> timage = ants.build_template( image_list = ( image, image2, image3 ) )
+    >>> timage = ants.build_template( image_list = ( image, image2, image3 ) ).resample_image( (45,45))
     >>> timagew = ants.build_template( image_list = ( image, image2, image3 ), weights = (5,1,1) )
     """
     if "type_of_transform" not in kwargs:
@@ -72,7 +73,9 @@ def build_template(
     if initial_template is None:
         initial_template = image_list[0] * 0
         for i in range(len(image_list)):
-            initial_template = initial_template + image_list[i] * weights[i]
+            temp = image_list[i] * weights[i]
+            temp = resample_image_to_target(temp, initial_template)
+            initial_template = initial_template + temp
 
     xavg = initial_template.clone()
     for i in range(iterations):
