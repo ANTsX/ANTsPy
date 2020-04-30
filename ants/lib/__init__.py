@@ -10,6 +10,7 @@ from .antsTransform import *
 from .cropImage import *
 from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
+from .histogramMatchImage import *
 from .invariantImageSimilarity import *
 from .labelStats import *
 from .mergeChannels import *
