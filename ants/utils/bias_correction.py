@@ -47,6 +47,7 @@ def n4_bias_field_correction(
     shrink_factor=4,
     convergence={"iters": [50, 50, 50, 50], "tol": 1e-07},
     spline_param=200,
+    return_bias_field=False,
     verbose=False,
     weight_mask=None,
 ):
@@ -72,6 +73,9 @@ def n4_bias_field_correction(
 
     spline_param : integer
         Parameter controlling number of control points in spline. Either single value, indicating how many control points, or vector with one entry per dimension of image, indicating the spacing in each direction.
+
+    return_bias_field : boolean
+        Return bias field instead of bias corrected image.
 
     verbose : boolean
         enables verbose output.
@@ -112,7 +116,12 @@ def n4_bias_field_correction(
         if not isinstance(weight_mask, iio.ANTsImage):
             raise ValueError("Weight Image must be an antsImage")
 
-    outimage = image.clone()
+    outimage = image.clone("float")
+    outbiasfield = image.clone("float")    
+    i = utils.get_pointer_string(outimage)
+    b = utils.get_pointer_string(outbiasfield)
+    output = "[%s,%s]" % (i, b)
+
     kwargs = {
         "d": outimage.dimension,
         "i": image,
@@ -121,14 +130,17 @@ def n4_bias_field_correction(
         "c": N4_CONVERGENCE_1,
         "b": N4_BSPLINE_PARAMS,
         "x": mask,
-        "o": outimage,
+        "o": output,
         "v": int(verbose),
     }
 
     processed_args = pargs._int_antsProcessArguments(kwargs)
     libfn = utils.get_lib_fn("N4BiasFieldCorrection")
     libfn(processed_args)
-    return outimage
+    if return_bias_field == True:
+        return outbiasfield
+    else:        
+        return outimage
 
 
 def abp_n4(image, intensity_truncation=(0.025, 0.975, 256), mask=None, usen3=False):
