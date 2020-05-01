@@ -13,6 +13,7 @@ from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
 from .histogramMatchImage import *
 from .invariantImageSimilarity import *
+from .labelOverlapMeasures import *
 from .labelStats import *
 from .mergeChannels import *
 from .padImage import *
