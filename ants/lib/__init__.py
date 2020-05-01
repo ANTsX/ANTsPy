@@ -23,6 +23,7 @@ from .reorientImage import *
 from .reorientImage2 import *
 from .rgbToVector import *
 from .sccaner import *
+from .simulateDisplacementField import *
 from .sliceImage import *
 from .SmoothImage import *
 from .weingartenImageCurvature import *
