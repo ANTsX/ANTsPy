@@ -29,6 +29,7 @@ from .pad_image import *
 from .process_args import *
 from .quantile import *
 from .scalar_rgb_vector import *
+from .simulate_displacement_field import *
 from .slice_image import *
 from .smooth_image import *
 from .threshold_image import *
