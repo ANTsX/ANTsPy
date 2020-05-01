@@ -16,6 +16,7 @@ from .impute import *
 from .invariant_image_similarity import *
 from .label_clusters import *
 from .label_image_centroids import *
+from .label_overlap_measures import *
 from .label_stats import *
 from .labels_to_matrix import *
 from .mask_image import *
