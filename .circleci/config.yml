@@ -35,7 +35,7 @@ jobs:
 
       - run:
           name: install dependencies
-          no_output_timeout: 60m
+          no_output_timeout: 600m
           command: |
             echo $PATH
             python3 -m venv venv
@@ -52,7 +52,7 @@ jobs:
 
       - run:
           name: run tests
-          no_output_timeout: 60m
+          no_output_timeout: 600m
           command: |
             . venv/bin/activate
             source $BASH_ENV
