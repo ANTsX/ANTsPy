@@ -133,10 +133,12 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     >>>     parametric_data[i,0] = row_indices[i]
     >>>     parametric_data[i,1] = col_indices[i]
     >>> 
-    >>> bspline_img = ants.fit_bspline_object_to_scattered_data(scattered_data, parametric_data,
-    >>>   parametric_domain_origin=[0.0, 0.0], parametric_domain_spacing=[1.0, 1.0],
-    >>>   parametric_domain_size = img.shape, 
-    >>>   number_of_fitting_levels=7, mesh_size=1)
+    >>> bspline_img = ants.fit_bspline_object_to_scattered_data(
+    >>>     scattered_data, parametric_data,
+    >>>     parametric_domain_origin=[0.0, 0.0], 
+    >>      parametric_domain_spacing=[1.0, 1.0],
+    >>>     parametric_domain_size = img.shape, 
+    >>>     number_of_fitting_levels=7, mesh_size=1)
     >>> 
     >>> ants.plot(img, title="Original")  
     >>> ants.plot(bspline_img, title="B-spline approximation")  
