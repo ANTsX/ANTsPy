@@ -136,7 +136,7 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     >>> bspline_img = ants.fit_bspline_object_to_scattered_data(
     >>>     scattered_data, parametric_data,
     >>>     parametric_domain_origin=[0.0, 0.0], 
-    >>      parametric_domain_spacing=[1.0, 1.0],
+    >>>     parametric_domain_spacing=[1.0, 1.0],
     >>>     parametric_domain_size = img.shape, 
     >>>     number_of_fitting_levels=7, mesh_size=1)
     >>> 
