@@ -144,7 +144,7 @@ class TestClass_ANTsImageToImageMetric(unittest.TestCase):
             imgmask = img > img.mean()
             imgmask2 = img2 > img2.mean()
             val = metric(img,img2)
-            val = metric(img,img2, fixed_mask=imgmask, moving_mask=imgmask2)
+            # val = metric(img,img2, fixed_mask=imgmask, moving_mask=imgmask2)
             val = metric(img,img2, sampling_percentage=0.8)
 
 
