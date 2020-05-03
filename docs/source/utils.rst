@@ -11,6 +11,7 @@ Utilities
 .. autofunction:: crop_indices
 .. autofunction:: decrop_image
 .. autofunction:: denoise_image
+.. autofunction:: fit_bspline_object_to_scattered_data
 .. autofunction:: get_ants_data
 .. autofunction:: get_centroids
 .. autofunction:: get_mask
@@ -22,10 +23,12 @@ Utilities
 .. autofunction:: convolve_image
 .. autofunction:: label_clusters
 .. autofunction:: label_image_centroids
+.. autofunction:: label_overlap_measures
 .. autofunction:: mask_image
 .. autofunction:: mni2tal
 .. autofunction:: morphology
 .. autofunction:: get_pointer_string
+.. autofunction:: simulate_displacement_field
 .. autofunction:: smooth_image
 .. autofunction:: threshold_image
 .. autofunction:: weingarten_image_curvature
