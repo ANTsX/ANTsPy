@@ -23,7 +23,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=8c61a430099e9d5ba580b7255132cfa58a7ee880 # sim. displacement field
+antstag=8c61a430099e9d5ba580b7255132cfa58a7ee880 # simulate displacement fields
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir

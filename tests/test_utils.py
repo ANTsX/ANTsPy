@@ -254,6 +254,121 @@ class TestModule_denoise_image(unittest.TestCase):
         imagedenoise = ants.denoise_image(imagenoise, image > image.mean())
 
 
+class TestModule_fit_bspline_object_to_scattered_data(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_fit_bspline_object_to_scattered_data_1d_curve_example(self):
+        x = np.linspace(-4, 4, num=100) + np.random.uniform(-0.1, 0.1, 100)
+        u = np.linspace(0, 1.0, num=len(x))
+        scattered_data = np.expand_dims(u, axis=-1)
+        parametric_data = np.expand_dims(u, axis=-1)
+        spacing = 1/(len(x)-1) * 1.0
+        bspline_curve = ants.fit_bspline_object_to_scattered_data(
+            scattered_data, parametric_data,
+            parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
+            parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
+            number_of_fitting_levels=5, mesh_size=1)
+
+    def test_fit_bspline_object_to_scattered_data_2d_curve_example(self):
+        x = np.linspace(-4, 4, num=100)
+        y = np.exp(-np.multiply(x, x)) + np.random.uniform(-0.1, 0.1, len(x))
+        u = np.linspace(0, 1.0, num=len(x))
+        scattered_data = np.column_stack((x, y))
+        parametric_data = np.expand_dims(u, axis=-1)
+        spacing = 1/(len(x)-1) * 1.0
+        bspline_curve = ants.fit_bspline_object_to_scattered_data(
+            scattered_data, parametric_data,
+            parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
+            parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
+            number_of_fitting_levels=5, mesh_size=1)
+    
+    def test_fit_bspline_object_to_scattered_data_3d_curve_example(self):
+        x = np.linspace(-4, 4, num=100)
+        y = np.exp(-np.multiply(x, x)) + np.random.uniform(-0.1, 0.1, len(x))
+        z = np.exp(-np.multiply(x, y)) + np.random.uniform(-0.1, 0.1, len(x))
+        u = np.linspace(0, 1.0, num=len(x))
+        scattered_data = np.column_stack((x, y))
+        parametric_data = np.expand_dims(u, axis=-1)
+        spacing = 1/(len(x)-1) * 1.0
+        bspline_curve = ants.fit_bspline_object_to_scattered_data(
+            scattered_data, parametric_data,
+            parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
+            parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
+            number_of_fitting_levels=5, mesh_size=1)
+
+    def test_fit_bspline_object_to_scattered_data_2d_scalar_field_example(self):
+        number_of_random_points = 10000
+        img = ants.image_read( ants.get_ants_data("r16"))
+        img_array = img.numpy()
+        row_indices = np.random.choice(range(2, img_array.shape[0]), number_of_random_points)
+        col_indices = np.random.choice(range(2, img_array.shape[1]), number_of_random_points)
+        scattered_data = np.zeros((number_of_random_points, 1))
+        parametric_data = np.zeros((number_of_random_points, 2))
+        for i in range(number_of_random_points):
+            scattered_data[i,0] = img_array[row_indices[i], col_indices[i]]
+            parametric_data[i,0] = row_indices[i]
+            parametric_data[i,1] = col_indices[i]
+        bspline_img = ants.fit_bspline_object_to_scattered_data(
+            scattered_data, parametric_data,
+            parametric_domain_origin=[0.0, 0.0], 
+            parametric_domain_spacing=[1.0, 1.0],
+            parametric_domain_size = img.shape, 
+            number_of_fitting_levels=7, mesh_size=1)
+
+    def test_fit_bspline_object_to_scattered_data_3d_scalar_field_example(self):
+        number_of_random_points = 10000
+        img = ants.image_read( ants.get_ants_data("mni"))
+        img_array = img.numpy()
+        row_indices = np.random.choice(range(2, img_array.shape[0]), number_of_random_points)
+        col_indices = np.random.choice(range(2, img_array.shape[1]), number_of_random_points)
+        dep_indices = np.random.choice(range(2, img_array.shape[2]), number_of_random_points)
+        scattered_data = np.zeros((number_of_random_points, 1))
+        parametric_data = np.zeros((number_of_random_points, 3))
+        for i in range(number_of_random_points):
+            scattered_data[i,0] = img_array[row_indices[i], col_indices[i], dep_indices[i]]
+            parametric_data[i,0] = row_indices[i]
+            parametric_data[i,1] = col_indices[i]
+            parametric_data[i,2] = dep_indices[i]
+        bspline_img = ants.fit_bspline_object_to_scattered_data(
+            scattered_data, parametric_data,
+            parametric_domain_origin=[0.0, 0.0, 0.0], 
+            parametric_domain_spacing=[1.0, 1.0, 1.0],
+            parametric_domain_size = img.shape, 
+            number_of_fitting_levels=5, mesh_size=1)
+
+    def test_fit_bspline_object_to_scattered_data_2d_displacement_field_example(self):
+            img = ants.image_read( ants.get_ants_data("r16"))        
+            # smooth a single vector in the middle of the image
+            scattered_data = np.reshape(np.asarray((10.0, 10.0)), (1, 2))
+            parametric_data = np.reshape(np.asarray(
+                (scattered_data[0, 0]/img.shape[0], scattered_data[0, 1]/img.shape[1])), (1, 2))
+            bspline_field = ants.fit_bspline_object_to_scattered_data(
+                scattered_data, parametric_data,
+                parametric_domain_origin=[0.0, 0.0], 
+                parametric_domain_spacing=[1.0, 1.0],
+                parametric_domain_size = img.shape, 
+                number_of_fitting_levels=7, mesh_size=1)
+
+    def test_fit_bspline_object_to_scattered_data_3d_displacement_field_example(self):
+            img = ants.image_read( ants.get_ants_data("mni"))        
+            # smooth a single vector in the middle of the image
+            scattered_data = np.reshape(np.asarray((10.0, 10.0, 10.0)), (1, 3))
+            parametric_data = np.reshape(np.asarray(
+                (scattered_data[0, 0]/img.shape[0], 
+                 scattered_data[0, 1]/img.shape[1],
+                 scattered_data[0, 2]/img.shape[2])), (1, 3))
+            bspline_field = ants.fit_bspline_object_to_scattered_data(
+                scattered_data, parametric_data,
+                parametric_domain_origin=[0.0, 0.0, 0.0], 
+                parametric_domain_spacing=[1.0, 1.0, 1.0],
+                parametric_domain_size = img.shape, 
+                number_of_fitting_levels=5, mesh_size=1)
+
+
 class TestModule_get_ants_data(unittest.TestCase):
     def test_get_ants_data(self):
         for dataname in ants.get_ants_data(None):
@@ -477,6 +592,21 @@ class TestModule_label_image_centroids(unittest.TestCase):
         labels = ants.label_image_centroids(image)
 
 
+class TestModule_label_overlap_measures(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_label_overlap_measures(self):
+        r16 = ants.image_read( ants.get_ants_data('r16') )
+        r64 = ants.image_read( ants.get_ants_data('r64') )
+        s16 = ants.kmeans_segmentation( r16, 3 )['segmentation']
+        s64 = ants.kmeans_segmentation( r64, 3 )['segmentation']
+        stats = ants.label_overlap_measures(s16, s64)
+
+
 class TestModule_label_stats(unittest.TestCase):
     def setUp(self):
         pass
@@ -619,6 +749,22 @@ class TestModule_ndimage_to_list(unittest.TestCase):
         images_unmerged = ants.ndimage_to_list(image3)
         self.assertEqual(len(images_unmerged), 2)
         self.assertEqual(images_unmerged[0].dimension, 2)
+
+
+class TestModule_simulate_displacement_field(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_simulate_exponential_displacement_field_2d(self):
+        image = ants.image_read(ants.get_ants_data("r16"))
+        exp_field = ants.simulate_displacement_field(image, field_type="exponential")
+
+    def test_simulate_bspline_displacement_field_2d(self):
+        image = ants.image_read(ants.get_ants_data("r16"))
+        bsp_field = ants.simulate_displacement_field(image, field_type="bspline")
 
 
 class TestModule_smooth_image(unittest.TestCase):
