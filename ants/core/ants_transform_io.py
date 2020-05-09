@@ -141,7 +141,7 @@ def create_ants_transform(transform_type='AffineTransform',
         raise ValueError('Unsupported Precision %s' % str(precision))
 
     # Check for supported transform type
-    if (transform_type not in matrix_offset_types): # and (transform_type != 'DisplacementFieldTransform'):
+    if (transform_type not in matrix_offset_types) and (transform_type != 'DisplacementFieldTransform'):
         raise ValueError('Unsupported type %s' % str(transform_type)) 
 
     # Check parameters with type
