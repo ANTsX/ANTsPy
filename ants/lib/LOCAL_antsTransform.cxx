@@ -65,7 +65,6 @@ namespace py = pybind11;
 template <typename TransformType, typename VectorImageType, typename PrecisionType, unsigned int Dimension>
 py::capsule antsTransformFromDisplacementField( py::capsule field )
 {
-
   //typedef itk::Transform<PrecisionType,Dimension,Dimension>                  TransformType;
   typedef typename TransformType::Pointer                                    TransformPointerType;
   typedef typename itk::DisplacementFieldTransform<PrecisionType, Dimension> DisplacementFieldTransformType;
@@ -229,10 +228,8 @@ PYBIND11_MODULE(antsTransform, m) {
     m.def("matrixOffsetD3", &matrixOffset<itk::Transform<double,3, 3>, double,3>);
     m.def("matrixOffsetD4", &matrixOffset<itk::Transform<double,4, 4>, double,4>);
 
-    //
-    m.def("antsTransformFromDisplacementFieldF2",&antsTransformFromDisplacementField<itk::Transform<float,2,2>, itk::VectorImage<float,2>,float,2>);
-    m.def("antsTransformFromDisplacementFieldF3", &antsTransformFromDisplacementField<itk::Transform<float,3,3>, itk::VectorImage<float,3>,float,3>);
-
+    m.def("antsTransformFromDisplacementFieldF2", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
+    m.def("antsTransformFromDisplacementFieldF3", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
 }
 
 
