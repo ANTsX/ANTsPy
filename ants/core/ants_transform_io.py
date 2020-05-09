@@ -141,7 +141,7 @@ def create_ants_transform(transform_type='AffineTransform',
         raise ValueError('Unsupported Precision %s' % str(precision))
 
     # Check for supported transform type
-    if (transform_type not in matrix_offset_types) and (transform_type != 'DisplacementFieldTransform'):
+    if (transform_type not in matrix_offset_types): # and (transform_type != 'DisplacementFieldTransform'):
         raise ValueError('Unsupported type %s' % str(transform_type)) 
 
     # Check parameters with type
@@ -168,9 +168,9 @@ def create_ants_transform(transform_type='AffineTransform',
 
     # If displacement field
     if displacement_field is not None:
-        raise ValueError('Displacement field transform not currently supported')
-    #    itk_tx = transform_from_displacement_field(displacement_field)
-    #    return tio.ants_transform(itk_tx)
+        # raise ValueError('Displacement field transform not currently supported')
+        itk_tx = transform_from_displacement_field(displacement_field)
+        return tio.ants_transform(itk_tx)
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     libfn = utils.get_lib_fn('matrixOffset%s%i' % (utils.short_ptype(precision), dimension))
@@ -218,7 +218,8 @@ def transform_from_displacement_field(field):
     libfn = utils.get_lib_fn('antsTransformFromDisplacementFieldF%i'%field.dimension)
     field = field.clone('float')
     txptr = libfn(field.pointer)
-    #return tio.ANTsTransform(pointer=txptr)
+    return tio.ANTsTransform(precision='float', dimension=field.dimension,
+                            transform_type="DisplacementFieldTransform", pointer=txptr)
 
 def read_transform(filename, dimension=2, precision='float'):
     """

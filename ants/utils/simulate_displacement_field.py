@@ -55,6 +55,8 @@ def simulate_displacement_field(domain_image,
     >>> domain = ants.image_read( ants.get_ants_data('r16'))
     >>> exp_field = ants.simulate_displacement_field(domain, field_type="exponential")
     >>> bsp_field = ants.simulate_displacement_field(domain, field_type="bspline")
+    >>> bsp_xfrm = ants.transform_from_displacement_field(bsp_field * 3)
+    >>> domain_warped = ants.apply_ants_transform_to_image(bsp_xfrm, domain, domain)
     """
 
     image_dimension = domain_image.dimension
