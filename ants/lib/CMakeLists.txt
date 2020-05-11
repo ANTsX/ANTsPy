@@ -38,6 +38,7 @@ target_link_libraries(imageMathUtilities ${ITK_LIBRARIES})
 # MODULES
 
 ## LOCAL ##
+pybind11_add_module(addNoiseToImage LOCAL_addNoiseToImage.cxx)
 pybind11_add_module(antiAlias LOCAL_antiAlias.cxx)
 pybind11_add_module(antsImage LOCAL_antsImage.cxx)
 pybind11_add_module(antsImageClone LOCAL_antsImageClone.cxx)
@@ -105,6 +106,7 @@ pybind11_add_module(antsImageAugment CONTRIB_antsImageAugment.cxx)
 # -----------------------------------------------------------------
 
 ## LOCAL ##
+target_link_libraries(addNoiseToImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antiAlias PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(antsImageClone PRIVATE ${ITK_LIBRARIES})
