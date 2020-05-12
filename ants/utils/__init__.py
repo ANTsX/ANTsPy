@@ -1,4 +1,5 @@
 
+from .add_noise_to_image import *
 from .bias_correction import *
 from .channels import *
 from .convert_nibabel import *

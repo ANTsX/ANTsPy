@@ -1,4 +1,5 @@
 ## LOCAL ##
+from .addNoiseToImage import *
 from .antiAlias import *
 from .antsImage import *
 from .antsImageClone import *
