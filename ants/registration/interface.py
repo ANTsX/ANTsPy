@@ -9,6 +9,7 @@ from tempfile import mktemp
 import glob
 import re
 import pandas as pd
+import itertools
 
 from . import apply_transforms_to_points
 from .. import utils
@@ -139,7 +140,7 @@ def registration(
 
     Notes
     -----
-    typeofTransform can be one of:
+    type_of_transform can be one of:
         - "Translation": Translation transformation.
         - "Rigid": Rigid transformation: Only rotation and translation.
         - "Similarity": Similarity transformation: scaling, rotation and translation.
@@ -179,6 +180,10 @@ def registration(
                         Takes more time than SyN.
         - "TVMSQ": time-varying diffeomorphism with mean square metric
         - "TVMSQC": time-varying diffeomorphism with mean square metric for very large deformation
+        - "antsRegistrationSyN[x]": recreation of the antsRegistrationSyN.sh script in ANTs
+                                    where 'x' is one of the transforms available (e.g., 't', 'b', 's')
+        - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
+                                    where 'x' is one of the transforms available (e.g., 't', 'b', 's')
 
     Example
     -------
@@ -311,6 +316,24 @@ def registration(
                 "QuickRigid",
                 "DenseRigid",
                 "BOLDRigid",
+                "antsRegistrationSyN[r]",
+                "antsRegistrationSyN[t]",
+                "antsRegistrationSyN[a]",
+                "antsRegistrationSyN[b]",
+                "antsRegistrationSyN[s]",
+                "antsRegistrationSyN[br]",
+                "antsRegistrationSyN[sr]",
+                "antsRegistrationSyN[bo]",
+                "antsRegistrationSyN[so]",
+                "antsRegistrationSyNQuick[r]",
+                "antsRegistrationSyNQuick[t]",
+                "antsRegistrationSyNQuick[a]",
+                "antsRegistrationSyNQuick[b]",
+                "antsRegistrationSyNQuick[s]",
+                "antsRegistrationSyNQuick[br]",
+                "antsRegistrationSyNQuick[sr]",
+                "antsRegistrationSyNQuick[bo]",
+                "antsRegistrationSyNQuick[so]"
             }
             ttexists = type_of_transform in allowable_tx
             if not ttexists:
@@ -1093,6 +1116,115 @@ def registration(
                         args.append("-x")
                         args.append("[NA,NA]")
                 # ------------------------------------------------------------
+                elif (
+                    ("antsRegistrationSyN" in type_of_transform)
+                ):
+                    subtype_of_transform = 's'
+                    if '[' in type_of_transform and ']' in type_of_transform:
+                        subtype_of_transform = type_of_transform.split("[")[1].split("]")[0]
+
+                    do_quick = False
+                    if "Quick" in type_of_transform:
+                        do_quick = True
+
+                    if do_quick == True:
+                        rigid_convergence = "[1000x500x250x0,1e-6,10]"
+                    else:
+                        rigid_convergence = "[1000x500x250x100,1e-6,10]"
+                    rigid_shrink_factors = "8x4x2x1"
+                    rigid_smoothing_sigmas = "3x2x1x0vox"
+
+                    if do_quick == True:
+                        affine_convergence = "[1000x500x250x0,1e-6,10]"
+                    else:
+                        affine_convergence = "[1000x500x250x100,1e-6,10]"
+                    affine_shrink_factors = "8x4x2x1"
+                    affine_smoothing_sigmas = "3x2x1x0vox"
+
+                    if do_quick == True:
+                        syn_convergence = "[100x70x50x0,1e-6,10]"
+                        syn_metric = "MI[%s,%s,1,32]" % (f, m)
+                    else:
+                        syn_convergence = "[100x70x50x20,1e-6,10]"
+                        syn_metric = "CC[%s,%s,1,4]" % (f, m)
+                    syn_shrink_factors = "8x4x2x1"
+                    syn_smoothing_sigmas = "3x2x1x0vox"
+
+                    tx = "Rigid"
+                    if subtype_of_transform == "t":
+                        tx = "Translation"
+
+                    rigid_stage = ["--transform", tx+"[0.1]",
+                                   "--metric", "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                                   "--convergence", rigid_convergence,
+                                   "--shrink-factors", rigid_shrink_factors,
+                                   "--smoothing-sigmas", rigid_smoothing_sigmas
+                                  ]
+
+                    affine_stage = ["--transform", "Affine[0.1]",
+                                    "--metric", "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                                    "--convergence", affine_convergence,
+                                    "--shrink-factors", affine_shrink_factors,
+                                    "--smoothing-sigmas", affine_smoothing_sigmas
+                                   ]
+
+                    if subtype_of_transform == "sr" or subtype_of_transform == "br":
+                        if do_quick == True:
+                            syn_convergence = "[50x0,1e-6,10]"
+                        else:
+                            syn_convergence = "[50x20,1e-6,10]"
+                        syn_shrink_factors = "2x1"
+                        syn_smoothing_sigmas = "1x0vox"
+
+                    syn_stage = ["--metric", syn_metric,
+                                 "--convergence", syn_convergence,
+                                 "--shrink-factors", syn_shrink_factors,
+                                 "--smoothing-sigmas", syn_smoothing_sigmas
+                                ]
+
+                    if subtype_of_transform == "b" or subtype_of_transform == "br" or subtype_of_transform == "bo":
+                        syn_stage.insert(0, "BSplineSyN[0.1,26,0,3]")
+                        syn_stage.insert(0, "--transform")
+
+                    if subtype_of_transform == "s" or subtype_of_transform == "sr" or subtype_of_transform == "so":
+                        syn_stage.insert(0, "SyN[0.1,3,0]")
+                        syn_stage.insert(0, "--transform")
+
+                    args = [
+                            "-d",
+                            str(fixed.dimension),
+                            "-r",
+                            initx,
+                            "-o",
+                            "[%s,%s,%s]" % (outprefix, wmo, wfo)
+                           ]
+
+                    if subtype_of_transform == "r" or subtype_of_transform == "t":
+                        args.append(rigid_stage)
+                    if subtype_of_transform == "a":
+                        args.append(rigid_stage)
+                        args.append(affine_stage)
+                    if subtype_of_transform == "b" or subtype_of_transform == "s":
+                        args.append(rigid_stage)
+                        args.append(affine_stage)
+                        args.append(syn_stage)
+                    if subtype_of_transform == "br" or subtype_of_transform == "sr":
+                        args.append(rigid_stage)
+                        args.append(syn_stage)
+                    if subtype_of_transform == "bo" or subtype_of_transform == "so":
+                        args.append(syn_stage)
+
+                    if maskopt is not None:
+                        args.append("-x")
+                        args.append(maskopt)
+                    else:
+                        args.append("-x")
+                        args.append("[NA,NA]")
+
+                    args = list(itertools.chain.from_iterable(itertools.repeat(x,1) if isinstance(x,str) else x for x in args))
+
+                # ------------------------------------------------------------
+
                 if random_seed is not None:
                     args.append("--random-seed")
                     args.append(random_seed)
