@@ -1126,17 +1126,17 @@ def registration(
                     do_quick = False
                     if "Quick" in type_of_transform:
                         do_quick = True
-                    
+
                     if do_quick == True:
                         rigid_convergence = "[1000x500x250x0,1e-6,10]"
-                    else:     
+                    else:
                         rigid_convergence = "[1000x500x250x100,1e-6,10]"
                     rigid_shrink_factors = "8x4x2x1"
                     rigid_smoothing_sigmas = "3x2x1x0vox"
 
                     if do_quick == True:
                         affine_convergence = "[1000x500x250x0,1e-6,10]"
-                    else:     
+                    else:
                         affine_convergence = "[1000x500x250x100,1e-6,10]"
                     affine_shrink_factors = "8x4x2x1"
                     affine_smoothing_sigmas = "3x2x1x0vox"
@@ -1171,7 +1171,7 @@ def registration(
                     if subtype_of_transform == "sr" or subtype_of_transform == "br":
                         if do_quick == True:
                             syn_convergence = "[50x0,1e-6,10]"
-                        else:    
+                        else:
                             syn_convergence = "[50x20,1e-6,10]"
                         syn_shrink_factors = "2x1"
                         syn_smoothing_sigmas = "1x0vox"
@@ -1221,7 +1221,7 @@ def registration(
                         args.append("-x")
                         args.append("[NA,NA]")
 
-                    args = list(itertools.chain.from_iterable(itertools.repeat(x,1) if isinstance(x,str) else x for x in args))  
+                    args = list(itertools.chain.from_iterable(itertools.repeat(x,1) if isinstance(x,str) else x for x in args))
 
                 # ------------------------------------------------------------
 
