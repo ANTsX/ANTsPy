@@ -1123,25 +1123,25 @@ def registration(
                     if '[' in type_of_transform and ']' in type_of_transform:
                         subtype_of_transform = type_of_transform.split("[")[1].split("]")[0]
 
-                    doQuick = False
+                    do_quick = False
                     if "Quick" in type_of_transform:
-                        doQuick = True
+                        do_quick = True
                     
-                    if doQuick == True:
+                    if do_quick == True:
                         rigid_convergence = "[1000x500x250x0,1e-6,10]"
                     else:     
                         rigid_convergence = "[1000x500x250x100,1e-6,10]"
                     rigid_shrink_factors = "8x4x2x1"
                     rigid_smoothing_sigmas = "3x2x1x0vox"
 
-                    if doQuick == True:
+                    if do_quick == True:
                         affine_convergence = "[1000x500x250x0,1e-6,10]"
                     else:     
                         affine_convergence = "[1000x500x250x100,1e-6,10]"
                     affine_shrink_factors = "8x4x2x1"
                     affine_smoothing_sigmas = "3x2x1x0vox"
 
-                    if doQuick == True:
+                    if do_quick == True:
                         syn_convergence = "[100x70x50x0,1e-6,10]"
                         syn_metric = "MI[%s,%s,1,32]" % (f, m)
                     else:
@@ -1169,7 +1169,7 @@ def registration(
                                    ]
 
                     if subtype_of_transform == "sr" or subtype_of_transform == "br":
-                        if doQuick == True:
+                        if do_quick == True:
                             syn_convergence = "[50x0,1e-6,10]"
                         else:    
                             syn_convergence = "[50x20,1e-6,10]"
