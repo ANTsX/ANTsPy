@@ -1214,6 +1214,13 @@ def registration(
                     if subtype_of_transform == "bo" or subtype_of_transform == "so":
                         args.append(syn_stage)
 
+                    if maskopt is not None:
+                        args.append("-x")
+                        args.append(maskopt)
+                    else:
+                        args.append("-x")
+                        args.append("[NA,NA]")
+
                     args = list(itertools.chain.from_iterable(itertools.repeat(x,1) if isinstance(x,str) else x for x in args))  
 
                 # ------------------------------------------------------------
