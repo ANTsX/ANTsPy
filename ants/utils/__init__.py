@@ -6,6 +6,7 @@ from .convert_nibabel import *
 from .crop_image import *
 from .denoise_image import *
 from .fit_bspline_object_to_scattered_data import *
+from .functional_lung_segmentation import *
 from .get_ants_data import *
 from .get_centroids import *
 from .get_mask import *
