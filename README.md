@@ -12,6 +12,7 @@
     <img src='https://readthedocs.org/projects/antspyx/badge/?version=latest' alt='Documentation Status' />
 </a>
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/stnava/ANTsPyDocker/master)
 
 ## About ANTsPy
@@ -76,7 +77,7 @@ segs1 <- atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 ```
 
 <i>ANTsPy</i> code:
-```python     
+```python
 import ants
 img   = ants.image_read(ants.get_ants_data("r16"))
 img   = ants.resample_image(img, (64,64), 1, 0 )
