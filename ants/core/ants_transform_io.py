@@ -1,9 +1,10 @@
-
-__all__ = ['create_ants_transform',
-           'new_ants_transform',
-           'read_transform',
-           'write_transform',
-           'transform_from_displacement_field']
+__all__ = [
+    "create_ants_transform",
+    "new_ants_transform",
+    "read_transform",
+    "write_transform",
+    "transform_from_displacement_field",
+]
 
 import os
 import numpy as np
@@ -13,7 +14,9 @@ from . import ants_transform as tio
 from .. import utils
 
 
-def new_ants_transform(precision='float', dimension=3, transform_type='AffineTransform', parameters=None):
+def new_ants_transform(
+    precision="float", dimension=3, transform_type="AffineTransform", parameters=None
+):
     """
     Create a new ANTsTransform
 
@@ -24,10 +27,16 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
     >>> import ants
     >>> tx = ants.new_ants_transform()
     """
-    libfn = utils.get_lib_fn('newAntsTransform%s%i' % (utils.short_ptype(precision), dimension))
+    libfn = utils.get_lib_fn(
+        "newAntsTransform%s%i" % (utils.short_ptype(precision), dimension)
+    )
     itk_tx = libfn(precision, dimension, transform_type)
-    ants_tx = tio.ANTsTransform(precision=precision, dimension=dimension, 
-                                transform_type=transform_type, pointer=itk_tx)
+    ants_tx = tio.ANTsTransform(
+        precision=precision,
+        dimension=dimension,
+        transform_type=transform_type,
+        pointer=itk_tx,
+    )
 
     if parameters is not None:
         ants_tx.set_parameters(parameters)
@@ -35,17 +44,19 @@ def new_ants_transform(precision='float', dimension=3, transform_type='AffineTra
     return ants_tx
 
 
-def create_ants_transform(transform_type='AffineTransform',
-                          precision='float', 
-                          dimension=3,
-                          matrix=None,
-                          offset=None, 
-                          center=None, 
-                          translation=None, 
-                          parameters=None, 
-                          fixed_parameters=None, 
-                          displacement_field=None,
-                          supported_types=False):
+def create_ants_transform(
+    transform_type="AffineTransform",
+    precision="float",
+    dimension=3,
+    matrix=None,
+    offset=None,
+    center=None,
+    translation=None,
+    parameters=None,
+    fixed_parameters=None,
+    displacement_field=None,
+    supported_types=False,
+):
     """
     Create and initialize an ANTsTransform
 
@@ -53,36 +64,36 @@ def create_ants_transform(transform_type='AffineTransform',
 
     Arguments
     ---------
-    transform_type : string   
+    transform_type : string
         type of transform(s)
-    
+
     precision : string
         numerical precision
-    
+
     dimension : integer
         spatial dimension of transform
-    
+
     matrix : ndarray
         matrix for linear transforms
-    
+
     offset : tuple/list
         offset for linear transforms
-    
+
     center : tuple/list
         center for linear transforms
-    
+
     translation : tuple/list
         translation for linear transforms
-    
+
     parameters : ndarray/list
         array of parameters
-    
-    fixed_parameters : ndarray/list   
+
+    fixed_parameters : ndarray/list
         array of fixed parameters
-    
+
     displacement_field : ANTsImage
         multichannel ANTsImage for non-linear transform
-    
+
     supported_types : boolean
         flag that returns array of possible transforms types
 
@@ -96,6 +107,7 @@ def create_ants_transform(transform_type='AffineTransform',
     >>> translation = (3,4,5)
     >>> tx = ants.create_ants_transform( type='Euler3DTransform', translation=translation )
     """
+
     def _check_arg(arg, dim=1):
         if arg is None:
             if dim == 1:
@@ -107,7 +119,7 @@ def create_ants_transform(transform_type='AffineTransform',
         elif isinstance(arg, (tuple, list)):
             return list(arg)
         else:
-            raise ValueError('Incompatible input argument')
+            raise ValueError("Incompatible input argument")
 
     matrix = _check_arg(matrix, dim=2)
     offset = _check_arg(offset)
@@ -116,54 +128,64 @@ def create_ants_transform(transform_type='AffineTransform',
     parameters = _check_arg(parameters)
     fixed_parameters = _check_arg(fixed_parameters)
 
-    matrix_offset_types = {'AffineTransform', 'CenteredAffineTransform', 
-                         'Euler2DTransform', 'Euler3DTransform', 'Rigid3DTransform',
-                         'Rigid2DTransform', 'QuaternionRigidTransform', 
-                         'Similarity2DTransform', 'CenteredSimilarity2DTransform',
-                         'Similarity3DTransform', 'CenteredRigid2DTransform', 
-                         'CenteredEuler3DTransform'}
+    matrix_offset_types = {
+        "AffineTransform",
+        "CenteredAffineTransform",
+        "Euler2DTransform",
+        "Euler3DTransform",
+        "Rigid3DTransform",
+        "Rigid2DTransform",
+        "QuaternionRigidTransform",
+        "Similarity2DTransform",
+        "CenteredSimilarity2DTransform",
+        "Similarity3DTransform",
+        "CenteredRigid2DTransform",
+        "CenteredEuler3DTransform",
+    }
 
-    #user_matrix_types = {'Affine','CenteredAffine', 
+    # user_matrix_types = {'Affine','CenteredAffine',
     #                     'Euler', 'CenteredEuler',
     #                     'Rigid', 'CenteredRigid', 'QuaternionRigid',
     #                     'Similarity', 'CenteredSimilarity'}
 
     if supported_types:
-      return set(list(matrix_offset_types) + ['DisplacementFieldTransform'])
+        return set(list(matrix_offset_types) + ["DisplacementFieldTransform"])
 
     # Check for valid dimension
     if (dimension < 2) or (dimension > 4):
-        raise ValueError('Unsupported dimension: %i' % dimension)
+        raise ValueError("Unsupported dimension: %i" % dimension)
 
     # Check for valid precision
-    precision_types = ('float', 'double')
+    precision_types = ("float", "double")
     if precision not in precision_types:
-        raise ValueError('Unsupported Precision %s' % str(precision))
+        raise ValueError("Unsupported Precision %s" % str(precision))
 
     # Check for supported transform type
-    if (transform_type not in matrix_offset_types) and (transform_type != 'DisplacementFieldTransform'):
-        raise ValueError('Unsupported type %s' % str(transform_type)) 
+    if (transform_type not in matrix_offset_types) and (
+        transform_type != "DisplacementFieldTransform"
+    ):
+        raise ValueError("Unsupported type %s" % str(transform_type))
 
     # Check parameters with type
-    if (transform_type=='Euler3DTransform'):
+    if transform_type == "Euler3DTransform":
         dimension = 3
-    elif (transform_type=='Euler2DTransform'):
+    elif transform_type == "Euler2DTransform":
         dimension = 2
-    elif (transform_type=='Rigid3DTransform'):
+    elif transform_type == "Rigid3DTransform":
         dimension = 3
-    elif (transform_type=='QuaternionRigidTransform'):
+    elif transform_type == "QuaternionRigidTransform":
         dimension = 3
-    elif (transform_type=='Rigid2DTransform'):
+    elif transform_type == "Rigid2DTransform":
         dimension = 2
-    elif (transform_type=='CenteredRigid2DTransform'):
+    elif transform_type == "CenteredRigid2DTransform":
         dimension = 2
-    elif (transform_type=='CenteredEuler3DTransform'):
+    elif transform_type == "CenteredEuler3DTransform":
         dimension = 3
-    elif (transform_type=='Similarity3DTransform'):
+    elif transform_type == "Similarity3DTransform":
         dimension = 3
-    elif (transform_type=='Similarity2DTransform'):
+    elif transform_type == "Similarity2DTransform":
         dimension = 2
-    elif (transform_type=='CenteredSimilarity2DTransform'):
+    elif transform_type == "CenteredSimilarity2DTransform":
         dimension = 2
 
     # If displacement field
@@ -173,18 +195,26 @@ def create_ants_transform(transform_type='AffineTransform',
         return tio.ants_transform(itk_tx)
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
-    libfn = utils.get_lib_fn('matrixOffset%s%i' % (utils.short_ptype(precision), dimension))
-    itk_tx = libfn(transform_type,
-                    precision,
-                    dimension,
-                    matrix,
-                    offset,
-                    center,
-                    translation,
-                    parameters,
-                    fixed_parameters)
-    return tio.ANTsTransform(precision=precision, dimension=dimension,
-                            transform_type=transform_type, pointer=itk_tx)
+    libfn = utils.get_lib_fn(
+        "matrixOffset%s%i" % (utils.short_ptype(precision), dimension)
+    )
+    itk_tx = libfn(
+        transform_type,
+        precision,
+        dimension,
+        matrix,
+        offset,
+        center,
+        translation,
+        parameters,
+        fixed_parameters,
+    )
+    return tio.ANTsTransform(
+        precision=precision,
+        dimension=dimension,
+        transform_type=transform_type,
+        pointer=itk_tx,
+    )
 
 
 def transform_from_displacement_field(field):
@@ -210,18 +240,23 @@ def transform_from_displacement_field(field):
     >>> fi = ants.resample_image(fi,(60,60),1,0)
     >>> mi = ants.resample_image(mi,(60,60),1,0) # speed up
     >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
-    >>> compfield = ants.compose_transforms_to_field( fi, mytx['fwd'] )
-    >>> atx = ants.transform_from_displacement_field( compfield )
+    >>> vec = ants.image_read( mytx['fwdtransforms'][0] )
+    >>> atx = ants.transform_from_displacement_field( vec )
     """
     if not isinstance(field, iio.ANTsImage):
-        raise ValueError('field must be ANTsImage type')
-    libfn = utils.get_lib_fn('antsTransformFromDisplacementFieldF%i'%field.dimension)
-    field = field.clone('float')
+        raise ValueError("field must be ANTsImage type")
+    libfn = utils.get_lib_fn("antsTransformFromDisplacementFieldF%i" % field.dimension)
+    field = field.clone("float")
     txptr = libfn(field.pointer)
-    return tio.ANTsTransform(precision='float', dimension=field.dimension,
-                            transform_type="DisplacementFieldTransform", pointer=txptr)
+    return tio.ANTsTransform(
+        precision="float",
+        dimension=field.dimension,
+        transform_type="DisplacementFieldTransform",
+        pointer=txptr,
+    )
 
-def read_transform(filename, dimension=2, precision='float'):
+
+def read_transform(filename, dimension=2, precision="float"):
     """
     Read a transform from file
 
@@ -237,7 +272,7 @@ def read_transform(filename, dimension=2, precision='float'):
 
     precision : string
         numerical precision of transform
-    
+
     Returns
     -------
     ANTsTransform
@@ -252,19 +287,25 @@ def read_transform(filename, dimension=2, precision='float'):
     """
     filename = os.path.expanduser(filename)
     if not os.path.exists(filename):
-        raise ValueError('filename does not exist!')
+        raise ValueError("filename does not exist!")
 
-    libfn1 = utils.get_lib_fn('getTransformDimensionFromFile')
+    libfn1 = utils.get_lib_fn("getTransformDimensionFromFile")
     dimension = libfn1(filename)
 
-    libfn2 = utils.get_lib_fn('getTransformNameFromFile')
+    libfn2 = utils.get_lib_fn("getTransformNameFromFile")
     transform_type = libfn2(filename)
 
-    libfn3 = utils.get_lib_fn('readTransform%s%i' % (utils.short_ptype(precision), dimension))
+    libfn3 = utils.get_lib_fn(
+        "readTransform%s%i" % (utils.short_ptype(precision), dimension)
+    )
     itk_tx = libfn3(filename, dimension, precision)
 
-    return tio.ANTsTransform(precision=precision, dimension=dimension, 
-                            transform_type=transform_type, pointer=itk_tx)
+    return tio.ANTsTransform(
+        precision=precision,
+        dimension=dimension,
+        transform_type=transform_type,
+        pointer=itk_tx,
+    )
 
 
 def write_transform(transform, filename):
@@ -280,7 +321,7 @@ def write_transform(transform, filename):
 
     filename : string
         filename of transform (file extension is ".mat" for affine transforms)
-    
+
     Returns
     -------
     N/A
@@ -294,7 +335,5 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    libfn = utils.get_lib_fn('writeTransform%s' % (transform._libsuffix))
+    libfn = utils.get_lib_fn("writeTransform%s" % (transform._libsuffix))
     libfn(transform.pointer, filename)
-
-
