@@ -7,8 +7,9 @@ from .. import utils
 from .. import segmentation
 
 def functional_lung_segmentation(image,
-                                 mask,
+                                 mask=None,
                                  number_of_iterations=1,
+                                 number_of_atropos_iterations=0,
                                  mrf_parameters="[0.3,2x2x2]",
                                  verbose=True):
 
@@ -29,7 +30,11 @@ def functional_lung_segmentation(image,
         Mask image designating the region to segment.  0/1 = background/foreground.
 
     number_of_iterations : integer
-        Number of Atropos <--> N4 iterations.
+        Number of Atropos <--> N4 iterations (outer loop).
+
+    number_of_atropos_iterations : integer
+        Number of Atropos iterations (inner loop).  If number_of_atropos_iterations = 0,
+        this is equivalent to K-means with no MRF priors.
 
     mrf_parameters : string
         Parameters for MRF in Atropos.
@@ -52,6 +57,12 @@ def functional_lung_segmentation(image,
 
     if image.dimension != 3:
         raise ValueError("Function only works for 3-D images.")
+
+    if mask is None:
+        raise ValueError("Mask is missing.")
+
+    if number_of_iterations < 1:
+        raise ValueError("number_of_iterations must be >= 1.")
 
     def generate_pure_tissue_n4_weight_mask(probability_images):
         number_of_probability_images = len(probability_images)
@@ -95,11 +106,12 @@ def functional_lung_segmentation(image,
             atropos_initialization = atropos_output['probabilityimages']
             posterior_formulation = "Socrates[1]"
 
+        iterations = "[" + str(number_of_atropos_iterations) + ",0]"
         atropos_verbose = 0
         if verbose == True:
             atropos_verbose = 1
         atropos_output = segmentation.atropos(preprocessed_image, x=dilated_mask, i=atropos_initialization,
-            m=mrf_parameters, c="[5,0]", priorweight=0.0, v=atropos_verbose, p=posterior_formulation)
+            m=mrf_parameters, c=iterations, priorweight=0.0, v=atropos_verbose, p=posterior_formulation)
 
         weight_mask = generate_pure_tissue_n4_weight_mask(atropos_output['probabilityimages'][1:4])
 
