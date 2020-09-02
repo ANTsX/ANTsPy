@@ -1026,7 +1026,7 @@ def registration(
                         "-u",
                         "1",
                         "-z",
-                        "1",
+                        "0",
                         "-l",
                         myl,
                         "-o",
@@ -1065,7 +1065,7 @@ def registration(
                         "-u",
                         "1",
                         "-z",
-                        "1",
+                        "0",
                         "-l",
                         myl,
                         "-o",
@@ -1243,6 +1243,7 @@ def registration(
                 afffns = glob.glob(outprefix + "*" + "[0-9]GenericAffine.mat")
                 fwarpfns = glob.glob(outprefix + "*" + "[0-9]Warp.nii.gz")
                 iwarpfns = glob.glob(outprefix + "*" + "[0-9]InverseWarp.nii.gz")
+                vfieldfns = glob.glob(outprefix + "*" + "[0-9]VelocityField.nii.gz")
                 # print(afffns, fwarpfns, iwarpfns)
                 if len(afffns) == 0:
                     afffns = ""
@@ -1250,14 +1251,13 @@ def registration(
                     fwarpfns = ""
                 if len(iwarpfns) == 0:
                     iwarpfns = ""
+                if len(vfieldfns) == 0:
+                    vfieldfns = ""
 
-                alltx = sorted(glob.glob(outprefix + "*" + "[0-9]*"))
-                findinv = np.where(
-                    [re.search("[0-9]InverseWarp.nii.gz", ff) for ff in alltx]
-                )[0]
-                findfwd = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in alltx])[
-                    0
-                ]
+                alltx = sorted(set(glob.glob(outprefix + "*" + "[0-9]*")) -
+                               set(glob.glob(outprefix + "*VelocityField*")))
+                findinv = np.where([re.search("[0-9]InverseWarp.nii.gz", ff) for ff in alltx])[0]
+                findfwd = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in alltx])[0]
                 if len(findinv) > 0:
                     fwdtransforms = list(
                         reversed(
@@ -1275,12 +1275,22 @@ def registration(
                     fwdtransforms = outprefix + "Composite.h5"
                     invtransforms = outprefix + "InverseComposite.h5"
 
-                return {
-                    "warpedmovout": warpedmovout.clone(inpixeltype),
-                    "warpedfixout": warpedfixout.clone(inpixeltype),
-                    "fwdtransforms": fwdtransforms,
-                    "invtransforms": invtransforms,
-                }
+                if not vfieldfns:
+                    return {
+                        "warpedmovout": warpedmovout.clone(inpixeltype),
+                        "warpedfixout": warpedfixout.clone(inpixeltype),
+                        "fwdtransforms": fwdtransforms,
+                        "invtransforms": invtransforms
+                    }
+                else:
+                    return {
+                        "warpedmovout": warpedmovout.clone(inpixeltype),
+                        "warpedfixout": warpedfixout.clone(inpixeltype),
+                        "fwdtransforms": fwdtransforms,
+                        "invtransforms": invtransforms,
+                        "velocityfield": vfieldfns
+                    }
+
     else:
         args.append("--float")
         args.append("1")
