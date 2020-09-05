@@ -11,6 +11,8 @@ def functional_lung_segmentation(image,
                                  number_of_iterations=1,
                                  number_of_atropos_iterations=0,
                                  mrf_parameters="[0.3,2x2x2]",
+                                 number_of_clusters = 4,
+                                 cluster_centers = None,
                                  verbose=True):
 
     """
@@ -38,6 +40,12 @@ def functional_lung_segmentation(image,
 
     mrf_parameters : string
         Parameters for MRF in Atropos.
+
+    number_of_clusters : integer
+        Number of tissue classes.
+
+    cluster_centers: array or tuple
+        Initialization centers for k-means.
 
     verbose : boolean
         Print progress to the screen.
@@ -100,7 +108,15 @@ def functional_lung_segmentation(image,
 
         if verbose == True:
             print("Atropos/N4: Atropos segmentation.")
-        atropos_initialization = "kmeans[4]"
+
+        atropos_initialization = "Kmeans[" + str(number_of_clusters) + "]"
+        if cluster_centers is not None:
+            if len(cluster_centers) != number_of_clusters:
+                raise ValueError("number_of_clusters should match the vector size of the cluster_centers.")
+            else:
+                cluster_centers_string = 'x'.join(str(s) for s in set(cluster_centers))
+                atropos_initialization = "Kmeans[" + str(number_of_clusters) + ",", cluster_centers_string, "]"
+
         posterior_formulation = "Socrates[0]"
         if i > 0:
             atropos_initialization = atropos_output['probabilityimages']
