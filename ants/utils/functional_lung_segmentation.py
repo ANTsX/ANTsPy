@@ -115,7 +115,7 @@ def functional_lung_segmentation(image,
                 raise ValueError("number_of_clusters should match the vector size of the cluster_centers.")
             else:
                 cluster_centers_string = 'x'.join(str(s) for s in set(cluster_centers))
-                atropos_initialization = "Kmeans[" + str(number_of_clusters) + ",", cluster_centers_string, "]"
+                atropos_initialization = "Kmeans[" + str(number_of_clusters) + "," + cluster_centers_string + "]"
 
         posterior_formulation = "Socrates[0]"
         if i > 0:
