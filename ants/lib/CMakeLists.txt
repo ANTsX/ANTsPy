@@ -87,6 +87,7 @@ pybind11_add_module(N3BiasFieldCorrection antscore/N3BiasFieldCorrection.cxx WRA
 pybind11_add_module(N4BiasFieldCorrection antscore/N4BiasFieldCorrection.cxx WRAP_N4BiasFieldCorrection.cxx)
 pybind11_add_module(ResampleImage antscore/ResampleImage.cxx WRAP_ResampleImage.cxx)
 pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdImage.cxx)
+pybind11_add_module(ANTSIntegrateVelocityField antscore/ANTSIntegrateVelocityField.cxx WRAP_ANTSIntegrateVelocityField.cxx)
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
 
 ## CONTRIB ##
@@ -156,6 +157,7 @@ target_link_libraries(N3BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtiliti
 target_link_libraries(N4BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
+target_link_libraries(ANTSIntegrateVelocityField PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 
 ## CONTRIB ##

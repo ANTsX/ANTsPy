@@ -48,12 +48,6 @@ def integrate_velocity_field(
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> timage = ants.integrate_velocity_field(image, 0.5, 1e15)
     """
-    if high_thresh is None:
-        high_thresh = image.max() + 0.01
-    if low_thresh is None:
-        low_thresh = image.min() - 0.01
-    dim = image.dimension
-    outimage = image.clone()
     args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
     processed_args = _int_antsProcessArguments(args)
     libfn = utils.get_lib_fn("ANTSIntegrateVelocityField")
