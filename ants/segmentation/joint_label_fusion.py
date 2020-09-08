@@ -2,11 +2,12 @@
 Joint Label Fusion algorithm
 """
 
-__all__ = ['joint_label_fusion']
+__all__ = ["joint_label_fusion"]
 
 import os
 import numpy as np
 
+from pathlib import Path
 from tempfile import mktemp
 import glob
 import re
@@ -16,9 +17,20 @@ from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
 
-def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=2,
-                        label_list=None, rho=0.01, usecor=False, r_search=3,
-                        nonnegative=False, verbose=False):
+def joint_label_fusion(
+    target_image,
+    target_image_mask,
+    atlas_list,
+    beta=4,
+    rad=2,
+    label_list=None,
+    rho=0.01,
+    usecor=False,
+    r_search=3,
+    nonnegative=False,
+    output_prefix=None,
+    verbose=False,
+):
     """
     A multiple atlas voting scheme to customize labels for a new subject.
     This function will also perform intensity fusion. It almost directly
@@ -67,6 +79,9 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
     nonnegative : boolean
         constrain weights to be non-negative
 
+    output_prefix: string
+        file prefix for storing output probabilityimages to disk
+
     verbose : boolean
         whether to show status updates
 
@@ -111,7 +126,7 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
     >>>                     label_list=seglist, rad=[r]*ref.dimension )
     >>> pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=[r]*ref.dimension)
     """
-    segpixtype = 'unsigned int'
+    segpixtype = "unsigned int"
     if (label_list is None) or (np.any([l is None for l in label_list])):
         doJif = True
     else:
@@ -119,22 +134,31 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
 
     if not doJif:
         if len(label_list) != len(atlas_list):
-            raise ValueError('len(label_list) != len(atlas_list)')
-        inlabs = np.sort(np.unique(label_list[0][target_image_mask != 0 ]))
+            raise ValueError("len(label_list) != len(atlas_list)")
+        inlabs = np.sort(np.unique(label_list[0][target_image_mask != 0]))
         mymask = target_image_mask.clone()
     else:
         mymask = target_image_mask
 
-    osegfn = mktemp(prefix='antsr', suffix='myseg.nii.gz')
-    #segdir = osegfn.replace(os.path.basename(osegfn),'')
+    osegfn = mktemp(prefix="antsr", suffix="myseg.nii.gz")
+    # segdir = osegfn.replace(os.path.basename(osegfn),'')
 
     if os.path.exists(osegfn):
         os.remove(osegfn)
 
-    probs = mktemp(prefix='antsr', suffix='prob%02d.nii.gz')
-    probsbase = os.path.basename(probs)
-    tdir = probs.replace(probsbase,'')
-    searchpattern = probsbase.replace('%02d', '*')
+    if output_prefix is None:
+        probs = mktemp(prefix="antsr", suffix="prob%02d.nii.gz")
+        probsbase = os.path.basename(probs)
+        tdir = probs.replace(probsbase, "")
+        searchpattern = probsbase.replace("%02d", "*")
+
+    if output_prefix is not None:
+        probs = output_prefix + "prob%02d.nii.gz"
+        probpath = Path(probs).parent
+        Path(probpath).mkdir(parents=True, exist_ok=True)
+        probsbase = os.path.basename(probs)
+        tdir = probs.replace(probsbase, "")
+        searchpattern = probsbase.replace("%02d", "*")
 
     mydim = target_image_mask.dimension
     if not doJif:
@@ -144,73 +168,69 @@ def joint_label_fusion(target_image, target_image_mask, atlas_list, beta=4, rad=
 
         outimg_ptr = utils.get_pointer_string(outimg)
         outimgi_ptr = utils.get_pointer_string(outimgi)
-        outs = '[%s,%s,%s]' % (outimg_ptr, outimgi_ptr, probs)
+        outs = "[%s,%s,%s]" % (outimg_ptr, outimgi_ptr, probs)
     else:
         outimgi = target_image * 0
         outs = utils.get_pointer_string(outimgi)
 
     mymask = mymask.clone(segpixtype)
-    if (not isinstance(rad, (tuple,list))) or (len(rad)==1):
+    if (not isinstance(rad, (tuple, list))) or (len(rad) == 1):
         myrad = [rad] * mydim
     else:
         myrad = rad
 
     if len(myrad) != mydim:
-        raise ValueError('path radius dimensionality must equal image dimensionality')
+        raise ValueError("path radius dimensionality must equal image dimensionality")
 
-    myrad = 'x'.join([str(mr) for mr in myrad])
+    myrad = "x".join([str(mr) for mr in myrad])
     vnum = 1 if verbose else 0
     nnum = 1 if nonnegative else 0
 
     myargs = {
-        'd': mydim,
-        't': target_image,
-        'a': rho,
-        'b': beta,
-        'c': nnum,
-        'p': myrad,
-        'm': 'PC',
-        's': r_search,
-        'x': mymask,
-        'o': outs,
-        'v': vnum
+        "d": mydim,
+        "t": target_image,
+        "a": rho,
+        "b": beta,
+        "c": nnum,
+        "p": myrad,
+        "m": "PC",
+        "s": r_search,
+        "x": mymask,
+        "o": outs,
+        "v": vnum,
     }
 
     kct = len(myargs.keys())
     for k in range(len(atlas_list)):
         kct += 1
-        myargs['g-MULTINAME-%i' % kct] = atlas_list[k]
+        myargs["g-MULTINAME-%i" % kct] = atlas_list[k]
         if not doJif:
             kct += 1
             castseg = label_list[k].clone(segpixtype)
-            myargs['l-MULTINAME-%i' % kct] = castseg
+            myargs["l-MULTINAME-%i" % kct] = castseg
 
     myprocessedargs = utils._int_antsProcessArguments(myargs)
 
-    libfn = utils.get_lib_fn('antsJointFusion')
+    libfn = utils.get_lib_fn("antsJointFusion")
     rval = libfn(myprocessedargs)
     if rval != 0:
-        print('Warning: Non-zero return from antsJointFusion')
+        print("Warning: Non-zero return from antsJointFusion")
 
     if doJif:
         return outimgi
 
-    probsout = glob.glob(os.path.join(tdir,'*'+searchpattern ) )
+    probsout = glob.glob(os.path.join(tdir, "*" + searchpattern))
     probsout.sort()
     probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
 
-    segmat = iio2.images_to_matrix( probimgs, target_image_mask )
-    finalsegvec = segmat.argmax( axis = 0 )
+    segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+    finalsegvec = segmat.argmax(axis=0)
     finalsegvec2 = finalsegvec.copy()
     # mapfinalsegvec to original labels
-    for i in range(finalsegvec.max()+1):
-        finalsegvec2[finalsegvec==i] = inlabs[i]
-    outimg = iio2.make_image( target_image_mask, finalsegvec2 )
+    for i in range(finalsegvec.max() + 1):
+        finalsegvec2[finalsegvec == i] = inlabs[i]
+    outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
-    return {
-        'segmentation': outimg,
-        'intensity': outimgi,
-        'probabilityimages': probimgs
-    }
+    return {"segmentation": outimg, "intensity": outimgi, "probabilityimages": probimgs}
