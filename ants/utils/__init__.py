@@ -1,4 +1,3 @@
-
 from .add_noise_to_image import *
 from .bias_correction import *
 from .channels import *
@@ -35,4 +34,5 @@ from .simulate_displacement_field import *
 from .slice_image import *
 from .smooth_image import *
 from .threshold_image import *
+from .ants_integrate_velocity_field import *
 from .weingarten_image_curvature import *

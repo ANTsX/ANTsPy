@@ -46,7 +46,7 @@ def integrate_velocity_field(
     >>> import ants
     >>> fi = ants.image_read( ants.get_data( "r16" ) )
     >>> mi = ants.image_read( ants.get_data( "r27" ) )
-    >>> mytx2 = ants.registration( fi, mi, typeofTransform = "TV[2]" )
+    >>> mytx2 = ants.registration( fi, mi, "TV[2]" )
     >>> ants.integrate_velocity_field( fi, mytx2$velocityfield,  "/tmp/def.nii.gz" )
     """
     args = [
