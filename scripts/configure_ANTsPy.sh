@@ -23,7 +23,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=8c61a430099e9d5ba580b7255132cfa58a7ee880 # simulate displacement fields
+antstag=0716509a3dfce9ef85169c9377759efaf8fbc83e # integrate velocity fields
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
