@@ -7,52 +7,56 @@ from .. import utils
 def integrate_velocity_field(
     reference_image,
     velocity_field_filename,
-    deformation_field=None,
+    deformation_field_filename,
     time_0=0,
     time_1=1,
     delta_time=0.01,
 ):
     """
-    Converts a scalar image into a binary image by thresholding operations
+    Integrate a velocityfield
 
     ANTsR function: `integrateVelocityField`
 
     Arguments
     ---------
-    image : ANTsImage
-        Input image to operate on
+    reference_image : ANTsImage
+        Reference image domain, same as velocity field space
 
-    low_thresh : scalar (optional)
+    velocity_field_filename : scalar (optional)
         Lower edge of threshold window
 
-    hight_thresh : scalar (optional)
+    deformation_field_filename : scalar (optional)
         Higher edge of threshold window
 
-    inval : scalar
-        Output value for image voxels in between lothresh and hithresh
+    time_0 : scalar
+        Typically one or zero but can take intermediate values
 
-    outval : scalar
-        Output value for image voxels lower than lothresh or higher than hithresh
+    time_1 : scalar
+        Typically one or zero but can take intermediate values
 
-    binary : boolean
-        if true, returns binary thresholded image
-        if false, return binary thresholded image multiplied by original image
+    delta_time : scalar
+        Time step value in zero to one; typically 0.01
 
     Returns
     -------
-    ANTsImage
+    None
 
     Example
     -------
     >>> import ants
-    >>> image = ants.image_read( ants.get_ants_data('r16') )
-    >>> timage = ants.integrate_velocity_field(image, 0.5, 1e15)
+    >>> fi = ants.image_read( ants.get_data( "r16" ) )
+    >>> mi = ants.image_read( ants.get_data( "r27" ) )
+    >>> mytx2 = ants.registration( fi, mi, typeofTransform = "TV[2]" )
+    >>> ants.integrate_velocity_field( fi, mytx2$velocityfield,  "/tmp/def.nii.gz" )
     """
-    args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
+    args = [
+        reference_image,
+        velocity_field_filename,
+        deformation_field_filename,
+        time_0,
+        time_1,
+        delta_time,
+    ]
     processed_args = _int_antsProcessArguments(args)
     libfn = utils.get_lib_fn("ANTSIntegrateVelocityField")
     libfn(processed_args)
-    if binary:
-        return outimage
-    else:
-        return outimage * image
