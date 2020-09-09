@@ -58,6 +58,13 @@ if [[ ! -d antscore ]] ; then
 
     # lil hack bc of stupid angled import bug in actual files
     cp ReadWriteData.h antscore/ReadWriteData.h
+    cp antsAllocImage.h antscore/antsAllocImage.h
+    cp antscore/antsAllocImage.h antsAllocImage.h
+    cp antscore/antsUtilities.h .
+    cp antscore/*ensor* .
+    cp antscore/*otation* .
+    cp antscore/itkImageIntensityAndGradientToPointSetFilter.h* .
+    cp antscore/itkLabeledPointSetFile*  .
     # lil hack bc ANTsVersionConfig.h is only created if you build ANTs...
     cp ANTsVersionConfig.h antscore/ANTsVersionConfig.h
 fi
