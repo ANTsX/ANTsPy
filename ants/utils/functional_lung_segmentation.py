@@ -129,7 +129,7 @@ def functional_lung_segmentation(image,
         atropos_output = segmentation.atropos(preprocessed_image, x=dilated_mask, i=atropos_initialization,
             m=mrf_parameters, c=iterations, priorweight=0.0, v=atropos_verbose, p=posterior_formulation)
 
-        weight_mask = generate_pure_tissue_n4_weight_mask(atropos_output['probabilityimages'][1:4])
+        weight_mask = generate_pure_tissue_n4_weight_mask(atropos_output['probabilityimages'][1:number_of_clusters])
 
     masked_segmentation_image = atropos_output['segmentation'] * mask
     masked_probability_images = list()
