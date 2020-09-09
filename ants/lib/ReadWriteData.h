@@ -1,6 +1,6 @@
 #ifndef __ReadWriteData_h_
 #define __ReadWriteData_h_
-#include "antscore/antsAllocImage.h"
+#include "antsAllocImage.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -9,9 +9,9 @@
 #include "itkImageFileWriter.h"
 #include "itkImageFileReader.h"
 #include "itkImageRegionIteratorWithIndex.h"
-#include "antscore/itkLabeledPointSetFileReader.h"
-#include "antscore/itkLabeledPointSetFileWriter.h"
-#include "antscore/itkImageIntensityAndGradientToPointSetFilter.h"
+#include "itkLabeledPointSetFileReader.h"
+#include "itkLabeledPointSetFileWriter.h"
+#include "itkImageIntensityAndGradientToPointSetFilter.h"
 #include "itkWarpImageFilter.h"
 // #include "itkInverseWarpImageFilter.h"
 #include "itkAffineTransform.h"
@@ -22,8 +22,8 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkVectorIndexSelectionCastImageFilter.h"
-#include "antscore/itkLogTensorImageFilter.h"
-#include "antscore/itkExpTensorImageFilter.h"
+#include "itkLogTensorImageFilter.h"
+#include "itkExpTensorImageFilter.h"
 #include "itkCastImageFilter.h"
 #include <sys/stat.h>
 
