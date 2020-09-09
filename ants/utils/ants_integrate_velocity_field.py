@@ -22,11 +22,11 @@ def integrate_velocity_field(
     reference_image : ANTsImage
         Reference image domain, same as velocity field space
 
-    velocity_field_filename : scalar (optional)
-        Lower edge of threshold window
+    velocity_field_filename : string
+        Filename to velocity field, output from ants.registration
 
-    deformation_field_filename : scalar (optional)
-        Higher edge of threshold window
+    deformation_field_filename : string
+        Filename to output deformation field
 
     time_0 : scalar
         Typically one or zero but can take intermediate values
@@ -48,15 +48,28 @@ def integrate_velocity_field(
     >>> mi = ants.image_read( ants.get_data( "r27" ) )
     >>> mytx2 = ants.registration( fi, mi, "TV[2]" )
     >>> ants.integrate_velocity_field( fi, mytx2$velocityfield,  "/tmp/def.nii.gz" )
+    >>> mydef = ants.apply_transforms( fi, mi, "/tmp/def.nii.gz" )
+    >>> ants.image_mutual_information(fi,mi)
+    >>> ants.image_mutual_information(fi,mytx2['warpedmovout'])
+    >>> ants.image_mutual_information(fi,mydef)
     """
-    args = [
-        reference_image,
-        velocity_field_filename,
-        deformation_field_filename,
-        time_0,
-        time_1,
-        delta_time,
-    ]
-    processed_args = _int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn("ANTSIntegrateVelocityField")
-    libfn(processed_args)
+
+    libfn = utils.get_lib_fn("integrateVelocityField")
+    if reference_image.dimension == 2:
+        libfn.integrateVelocityField2D(
+            reference_image.pointer,
+            velocity_field_filename,
+            deformation_field_filename,
+            time_0,
+            time_1,
+            delta_time,
+        )
+    if reference_image.dimension == 3:
+        libfn.integrateVelocityField3D(
+            reference_image.pointer,
+            velocity_field_filename,
+            deformation_field_filename,
+            time_0,
+            time_1,
+            delta_time,
+        )

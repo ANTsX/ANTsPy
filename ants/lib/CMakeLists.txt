@@ -68,6 +68,7 @@ pybind11_add_module(simulateDisplacementField LOCAL_simulateDisplacementField.cx
 pybind11_add_module(sliceImage LOCAL_sliceImage.cxx)
 pybind11_add_module(SmoothImage LOCAL_SmoothImage.cxx)
 pybind11_add_module(weingartenImageCurvature LOCAL_weingartenImageCurvature.cxx)
+pybind11_add_module(integrateVelocityField LOCAL_ANTSIntegrateVelocityField.cxx)
 
 ## WRAP ##
 pybind11_add_module(antsAffineInitializer antscore/antsAffineInitializer.cxx WRAP_antsAffineInitializer.cxx)
@@ -87,7 +88,6 @@ pybind11_add_module(N3BiasFieldCorrection antscore/N3BiasFieldCorrection.cxx WRA
 pybind11_add_module(N4BiasFieldCorrection antscore/N4BiasFieldCorrection.cxx WRAP_N4BiasFieldCorrection.cxx)
 pybind11_add_module(ResampleImage antscore/ResampleImage.cxx WRAP_ResampleImage.cxx)
 pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdImage.cxx)
-pybind11_add_module(ANTSIntegrateVelocityField antscore/ANTSIntegrateVelocityField.cxx WRAP_ANTSIntegrateVelocityField.cxx)
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
 
 ## CONTRIB ##
@@ -135,6 +135,7 @@ target_link_libraries(reorientImage2 PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(rgbToVector PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(sccaner PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(simulateDisplacementField PRIVATE ${ITK_LIBRARIES})
+target_link_libraries(integrateVelocityField PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(sliceImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(SmoothImage PRIVATE ${ITK_LIBRARIES})
 target_link_libraries(weingartenImageCurvature PRIVATE ${ITK_LIBRARIES})
@@ -157,7 +158,6 @@ target_link_libraries(N3BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtiliti
 target_link_libraries(N4BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
-target_link_libraries(ANTSIntegrateVelocityField PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
 
 ## CONTRIB ##

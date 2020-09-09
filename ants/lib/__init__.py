@@ -48,7 +48,7 @@ from .N3BiasFieldCorrection import *
 from .N4BiasFieldCorrection import *
 from .ResampleImage import *
 from .ThresholdImage import *
-from .ANTSIntegrateVelocityField import *
+from .integrateVelocityField import *
 from .TileImages import *
 
 
