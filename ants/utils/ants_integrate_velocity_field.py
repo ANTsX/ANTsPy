@@ -52,6 +52,10 @@ def integrate_velocity_field(
     >>> ants.image_mutual_information(fi,mi)
     >>> ants.image_mutual_information(fi,mytx2['warpedmovout'])
     >>> ants.image_mutual_information(fi,mydef)
+    >>> ants.integrate_velocity_field( fi, mytx2['velocityfield'][0],  "/tmp/defi.nii.gz", 1, 0, 0.5 )
+    >>> mydefi = ants.apply_transforms( mi, fi, [ mytx2['fwdtransforms'][1], "/tmp/defi.nii.gz" ] )
+    >>> ants.image_mutual_information(mi,mydefi)
+    >>> ants.image_mutual_information(mi,mytx2['warpedfixout'])
     """
 
     libfn = utils.get_lib_fn("integrateVelocityField")
