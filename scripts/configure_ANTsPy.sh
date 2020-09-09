@@ -58,7 +58,6 @@ if [[ ! -d antscore ]] ; then
 
     # lil hack bc of stupid angled import bug in actual files
     cp ReadWriteData.h antscore/ReadWriteData.h
-    cp antsAllocImage.h antscore/antsAllocImage.h
     cp antscore/antsAllocImage.h antsAllocImage.h
     cp antscore/antsUtilities.h .
     cp antscore/*ensor* .
