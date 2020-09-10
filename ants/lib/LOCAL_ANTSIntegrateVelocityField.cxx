@@ -4,17 +4,12 @@
 #include <exception>
 #include <algorithm>
 #include <vector>
-#include "antscore/antsUtilities.h"
-#include "antscore/antsAllocImage.h"
 #include <algorithm>
 
-#include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkTimeVaryingVelocityFieldIntegrationImageFilter.h"
 #include "itkTimeVaryingVelocityFieldTransform.h"
 #include "itkImageFileWriter.h"
-#include "ReadWriteData.h"
 #include "itkImage.h"
-#include "itkRescaleIntensityImageFilter.h"
 
 // NEED THIS INCLUDE FOR WRAPPING/UNWRAPPING
 #include "LOCAL_antsImage.h"
@@ -47,12 +42,21 @@ void integrateVelocityField(
   using tvt = TimeVaryingVelocityFieldType;
   typename tvt::Pointer timeVaryingVelocity;
 
-  ReadImage<tvt>(timeVaryingVelocity, r_velocity.c_str() );
+  using ReaderType = itk::ImageFileReader<tvt>;
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( r_velocity.c_str() );
+  reader->Update();
+  timeVaryingVelocity = reader->GetOutput();
 
   VectorType zero;
   zero.Fill(0);
-  typename DisplacementFieldType::Pointer deformation =
-    AllocImage<DisplacementFieldType>(input, zero);
+  typename DisplacementFieldType::Pointer deformation = DisplacementFieldType::New();
+  deformation->SetRegions( input->GetLargestPossibleRegion() );
+  deformation->SetSpacing( input->GetSpacing() );
+  deformation->SetOrigin( input->GetOrigin() );
+  deformation->SetDirection( input->GetDirection() );
+  deformation->Allocate();
+  deformation->FillBuffer( zero );
 
   if( starttime < 0 )
     {
@@ -78,7 +82,13 @@ void integrateVelocityField(
   integrator->SetUpperTimeBound( finishtime );
   integrator->SetNumberOfIntegrationSteps( static_cast<unsigned int>( std::round( 1.0 / dT ) ) );
   integrator->Update();
-  WriteImage<DisplacementFieldType>( integrator->GetOutput(), r_deformation.c_str() );
+
+  using WriterType = itk::ImageFileWriter<DisplacementFieldType>;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( r_deformation.c_str()  );
+  writer->SetInput( integrator->GetOutput() );
+  writer->Update();
+//  WriteImage<DisplacementFieldType>( integrator->GetOutput(), r_deformation.c_str() );
   return;
 }
 
