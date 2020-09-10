@@ -6,7 +6,7 @@ __all__ = ["joint_label_fusion"]
 
 import os
 import numpy as np
-
+import warnings
 from pathlib import Path
 from tempfile import mktemp
 import glob
@@ -28,6 +28,7 @@ def joint_label_fusion(
     usecor=False,
     r_search=3,
     nonnegative=False,
+    no_zeroes=False,
     output_prefix=None,
     verbose=False,
 ):
@@ -78,6 +79,9 @@ def joint_label_fusion(
 
     nonnegative : boolean
         constrain weights to be non-negative
+
+    no_zeroes : boolean
+        this will constrain the solution only to voxels that are always non-zero in the label list
 
     output_prefix: string
         file prefix for storing output probabilityimages to disk
@@ -135,7 +139,14 @@ def joint_label_fusion(
     if not doJif:
         if len(label_list) != len(atlas_list):
             raise ValueError("len(label_list) != len(atlas_list)")
-        inlabs = np.sort(np.unique(label_list[0][target_image_mask != 0]))
+        if no_zeroes:
+            for label in label_list:
+                target_image_mask[label == 0] = 0
+        inlabs = set()
+        for label in label_list:
+            values = np.unique(label[target_image_mask != 0 and label != 0])
+            inlabs = inlabs.union(values)
+        inlabs = sorted(inlabs)
         mymask = target_image_mask.clone()
     else:
         mymask = target_image_mask
@@ -224,6 +235,8 @@ def joint_label_fusion(
     probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
+    if len(probsout) != (len(inlabs)):
+        warnings.warn("Length of output probabilities != length of unique input labels")
 
     segmat = iio2.images_to_matrix(probimgs, target_image_mask)
     finalsegvec = segmat.argmax(axis=0)
