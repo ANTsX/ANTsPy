@@ -29,6 +29,7 @@ def joint_label_fusion(
     r_search=3,
     nonnegative=False,
     no_zeroes=False,
+    max_lab_plus_one=False,
     output_prefix=None,
     verbose=False,
 ):
@@ -82,6 +83,9 @@ def joint_label_fusion(
 
     no_zeroes : boolean
         this will constrain the solution only to voxels that are always non-zero in the label list
+
+    max_lab_plus_one : boolean
+        this will add max label plus one to the non-zero parts of each label where the target mask is greater than one
 
     output_prefix: string
         file prefix for storing output probabilityimages to disk
@@ -147,6 +151,10 @@ def joint_label_fusion(
             values = np.unique(label[target_image_mask != 0 and label != 0])
             inlabs = inlabs.union(values)
         inlabs = sorted(inlabs)
+        maxLab = max(inlabs)
+        if max_lab_plus_one:
+            for label in label_list:
+                label[label == 0 and target_image_mask == 1] = maxLab + 1
         mymask = target_image_mask.clone()
     else:
         mymask = target_image_mask
