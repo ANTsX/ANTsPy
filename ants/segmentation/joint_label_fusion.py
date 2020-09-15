@@ -158,7 +158,7 @@ def joint_label_fusion(
         maxLab = max(inlabs)
         if max_lab_plus_one:
             for label in label_list:
-                label[label == 0 and target_image_mask == 1] = maxLab + 1
+                label[label == 0] = maxLab + 1
         mymask = target_image_mask.clone()
     else:
         mymask = target_image_mask
