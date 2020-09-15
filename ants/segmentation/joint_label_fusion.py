@@ -232,8 +232,8 @@ def joint_label_fusion(
 
     probsout = glob.glob(os.path.join(tdir, "*" + searchpattern))
     probsout.sort()
-    probimgs = [iio2.image_read(probsout[0])]
-    for idx in range(1, len(probsout)):
+    probimgs = []
+    for idx in range(len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
     if len(probsout) != (len(inlabs)):
         warnings.warn("Length of output probabilities != length of unique input labels")
@@ -242,8 +242,9 @@ def joint_label_fusion(
     finalsegvec = segmat.argmax(axis=0)
     finalsegvec2 = finalsegvec.copy()
     # mapfinalsegvec to original labels
-    for i in range(finalsegvec.max() + 1):
-        finalsegvec2[finalsegvec == i] = inlabs[i]
+    for i in range(len(probsout)):
+        segnum = str.split(probsout[i], "prob")[1].split(".nii.gz")[0]
+        finalsegvec2[finalsegvec == i] = segnum
     outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
     return {"segmentation": outimg, "intensity": outimgi, "probabilityimages": probimgs}
