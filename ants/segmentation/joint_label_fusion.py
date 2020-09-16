@@ -255,7 +255,8 @@ def joint_label_fusion(
     finalsegvec2 = finalsegvec.copy()
     # mapfinalsegvec to original labels
     for i in range(len(probsout)):
-        segnum = str.split(probsout[i], "prob")[1].split(".nii.gz")[0]
+        temp = str.split(probsout[i], "prob")
+        segnum = temp[len(temp) - 1].split(".nii.gz")[0]
         finalsegvec2[finalsegvec == i] = segnum
     outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
