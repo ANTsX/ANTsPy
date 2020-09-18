@@ -2,7 +2,7 @@
 Joint Label Fusion algorithm
 """
 
-__all__ = ["joint_label_fusion"]
+__all__ = ["joint_label_fusion", "local_joint_label_fusion"]
 
 import os
 import numpy as np
@@ -11,10 +11,12 @@ from pathlib import Path
 from tempfile import mktemp
 import glob
 import re
+import math
 
 from .. import utils
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
+from .. import registration
 
 
 def joint_label_fusion(
@@ -261,3 +263,224 @@ def joint_label_fusion(
     outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
     return {"segmentation": outimg, "intensity": outimgi, "probabilityimages": probimgs}
+
+
+def local_joint_label_fusion(
+    target_image,
+    which_labels,
+    target_mask,
+    template,
+    template_labels,
+    atlas_list,
+    label_list,
+    submask_dilation=10,
+    type_of_transform="SyN",
+    syn_metric="mattes",
+    syn_sampling=32,
+    reg_iterations=(40, 20, 0),
+    beta=4,
+    rad=2,
+    rho=0.1,
+    usecor=False,
+    r_search=3,
+    nonnegative=False,
+    no_zeroes=False,
+    max_lab_plus_one=False,
+    output_prefix=None,
+    verbose=False,
+):
+    """
+    A local version of joint label fusion that focuses on a specific label.
+    This is primarily different from standard JLF because it performs
+    registration on a per label basis and focuses JLF on that label alone.
+
+    ANTsR function: `localJointLabelFusion`
+
+    Arguments
+    ---------
+    target_image : ANTsImage
+        image to be labeled
+
+    which_labels : numeric vector
+        label number(s) that exist(s) in both the template and library
+
+    target_image_mask : ANTsImage
+        a mask for the target image (optional), passed to joint fusion
+
+    template : ANTsImage
+        an image, typically the population average, used to approximately locate the sub-region.
+
+    template_labels : ANTsImage
+        label set, same labels as library.  typically labels for the population average.
+
+    atlas_list : list of ANTsImage types
+        list containing intensity images
+
+    label_list : list of ANTsImage types (optional)
+        list containing images with segmentation labels
+
+    submask_dilation : integer
+        amount to dilate initial mask to define region on which
+        we perform focused registration
+
+    type_of_transform : string
+        A linear or non-linear registration type. Mutual information metric by default.
+        See Notes below for more.
+
+    syn_metric : string
+        the metric for the syn part (CC, mattes, meansquares, demons)
+
+    syn_sampling : scalar
+        the nbins or radius parameter for the syn metric
+
+    reg_iterations : list/tuple of integers
+        vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
+
+    beta : scalar
+        weight sharpness, default to 2
+
+    rad : scalar
+        neighborhood radius, default to 2
+
+    rho : scalar
+        ridge penalty increases robustness to outliers but also makes image converge to average
+
+    usecor : boolean
+        employ correlation as local similarity
+
+    r_search : scalar
+        radius of search, default is 3
+
+    nonnegative : boolean
+        constrain weights to be non-negative
+
+    no_zeroes : boolean
+        this will constrain the solution only to voxels that are always non-zero in the label list
+
+    max_lab_plus_one : boolean
+        this will add max label plus one to the non-zero parts of each label where the target mask
+        is greater than one.  NOTE: this will have a side effect of adding to the original label
+        images that are passed to the program.  It also guarantees that every position in the
+        labels have some label, rather than none.  Ie it guarantees to explicitly parcellate the
+        input data.
+
+    output_prefix: string
+        file prefix for storing output probabilityimages to disk
+
+    verbose : boolean
+        whether to show status updates
+
+    Returns
+    -------
+    dictionary w/ following key/value pairs:
+        `segmentation` : ANTsImage
+            segmentation image
+
+        `intensity` : ANTsImage
+            intensity image
+
+        `probabilityimages` : list of ANTsImage types
+            probability map image for each label
+
+    """
+    reg = registration.registration(
+        target_image, template, type_of_transform=type_of_transform
+    )
+    myregion = utils.threshold_image(template_labels, which_labels[0], which_labels[0])
+    if len(which_labels) > 1:
+        for k in range(1, len(which_labels)):
+            myregion = myregion + utils.threshold_image(
+                template_labels, which_labels[k], which_labels[k]
+            )
+    myregionAroundRegion = utils.threshold_image(template_labels, 1, math.inf)
+    myregion = registration.apply_transforms(
+        target_image,
+        myregion,
+        transformlist=reg["fwdtransforms"],
+        interpolator="nearestNeighbor",
+    )
+    myregionAroundRegion = registration.apply_transforms(
+        target_image,
+        myregionAroundRegion,
+        transformlist=reg["fwdtransforms"],
+        interpolator="nearestNeighbor",
+    )
+    myregionAroundRegion = utils.iMath(myregionAroundRegion, "MD", submask_dilation)
+    if target_mask is not None:
+        myregionAroundRegion = myregionAroundRegion * target_mask
+    croppedImage = utils.crop_image(
+        target_image, utils.iMath(myregion, "MD", submask_dilation)
+    )
+    croppedMask = utils.crop_image(
+        myregionAroundRegion, utils.iMath(myregion, "MD", submask_dilation)
+    )
+    croppedmappedImages = []
+    croppedmappedSegs = []
+    for k in range(len(atlas_list)):
+
+        if verbose:
+            print(str(k) + "...", end="")
+
+        libregion = utils.threshold_image(
+            label_list[k], which_labels[0], which_labels[0]
+        )
+        if len(which_labels) > 1:
+            for kk in range(1, len(which_labels)):
+                libregion = libregion + utils.threshold_image(
+                    label_list[k], which_labels[kk], which_labels[kk]
+                )
+        initMap = registration.registration(
+            myregion, libregion, typeofTransform="Similarity"
+        )["fwdtransforms"]
+        localReg = registration.registration(
+            croppedImage,
+            atlas_list[k],
+            reg_iterations=reg_iterations,
+            type_of_transform=type_of_transform,
+            initial_transform=initMap[0],
+        )
+        transformedImage = registration.apply_transforms(
+            croppedImage, atlas_list[k], localReg["fwdtransforms"]
+        )
+        transformedLabels = registration.apply_transforms(
+            croppedImage,
+            label_list[k],
+            localReg["fwdtransforms"],
+            interpolator="nearestNeighbor",
+        )
+        remappedseg = utils.threshold_image(transformedLabels, 1, math.inf) + 1
+        temp = utils.threshold_image(
+            transformedLabels, which_labels[0], which_labels[0]
+        )
+        if len(which_labels) > 1:
+            for kk in range(1, len(which_labels)):
+                temp = temp + utils.threshold_image(
+                    transformedLabels, which_labels[kk], which_labels[kk]
+                )
+        remappedseg[temp > 0] = 3
+        croppedmappedImages.append(transformedImage)
+        croppedmappedSegs.append(remappedseg)
+
+    ljlf = joint_label_fusion(
+        croppedImage,
+        croppedMask,
+        atlas_list=croppedmappedImages,
+        label_list=croppedmappedSegs,
+        beta=beta,
+        rad=rad,
+        rho=rho,
+        usecor=usecor,
+        r_search=r_search,
+        nonnegative=nonnegative,
+        no_zeroes=no_zeroes,
+        max_lab_plus_one=max_lab_plus_one,
+        output_prefix=output_prefix,
+        verbose=verbose,
+    )
+
+    return {
+        "ljlf": ljlf,
+        "croppedImage": croppedImage,
+        "croppedmappedImages": croppedmappedImages,
+        "croppedmappedSegs": croppedmappedSegs,
+    }
