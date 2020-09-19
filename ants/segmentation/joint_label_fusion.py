@@ -278,6 +278,9 @@ def local_joint_label_fusion(
     syn_metric="mattes",
     syn_sampling=32,
     reg_iterations=(40, 20, 0),
+    grad_step=0.2,
+    flow_sigma=3,
+    total_sigma=0,
     beta=4,
     rad=2,
     rho=0.1,
@@ -335,6 +338,15 @@ def local_joint_label_fusion(
 
     reg_iterations : list/tuple of integers
         vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
+
+    grad_step : scalar
+        gradient step size (not for all tx)
+
+    flow_sigma : scalar
+        smoothing for update field
+
+    total_sigma : scalar
+        smoothing for total field
 
     beta : scalar
         weight sharpness, default to 2
