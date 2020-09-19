@@ -395,9 +395,7 @@ def local_joint_label_fusion(
             probability map image for each label
 
     """
-    reg = registration.registration(
-        target_image, template, type_of_transform=type_of_transform
-    )
+    reg = registration.registration(target_image, template, type_of_transform="SyN")
     myregion = utils.threshold_image(template_labels, which_labels[0], which_labels[0])
     if len(which_labels) > 1:
         for k in range(1, len(which_labels)):
