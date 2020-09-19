@@ -448,7 +448,12 @@ def local_joint_label_fusion(
             croppedImage,
             atlas_list[k],
             reg_iterations=reg_iterations,
+            flow_sigma=flow_sigma,
+            total_sigma=total_sigma,
+            grad_step=grad_step,
             type_of_transform=type_of_transform,
+            syn_metric=syn_metric,
+            syn_sampling=syn_sampling,
             initial_transform=initMap[0],
         )
         transformedImage = registration.apply_transforms(
