@@ -455,6 +455,7 @@ def local_joint_label_fusion(
             syn_metric=syn_metric,
             syn_sampling=syn_sampling,
             initial_transform=initMap[0],
+            verbose=verbose,
         )
         transformedImage = registration.apply_transforms(
             croppedImage, atlas_list[k], localReg["fwdtransforms"]
