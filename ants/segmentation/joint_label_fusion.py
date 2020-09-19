@@ -428,10 +428,12 @@ def local_joint_label_fusion(
     )
     croppedmappedImages = []
     croppedmappedSegs = []
+    if verbose is True:
+        print("Begin registrations:")
     for k in range(len(atlas_list)):
 
-        if verbose:
-            print(str(k) + "...", end="")
+        if verbose is True:
+            print(str(k) + "...")
 
         libregion = utils.threshold_image(
             label_list[k], which_labels[0], which_labels[0]
