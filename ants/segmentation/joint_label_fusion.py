@@ -269,8 +269,7 @@ def local_joint_label_fusion(
     target_image,
     which_labels,
     target_mask,
-    template,
-    template_labels,
+    initial_label,
     atlas_list,
     label_list,
     submask_dilation=10,
@@ -310,11 +309,10 @@ def local_joint_label_fusion(
     target_image_mask : ANTsImage
         a mask for the target image (optional), passed to joint fusion
 
-    template : ANTsImage
-        an image, typically the population average, used to approximately locate the sub-region.
-
-    template_labels : ANTsImage
-        label set, same labels as library.  typically labels for the population average.
+    initial_label : ANTsImage
+        initial label set, may be same labels as library or binary.
+        typically labels would be produced by a single deformable registration
+        or by manual labeling.
 
     atlas_list : list of ANTsImage types
         list containing intensity images
@@ -395,35 +393,20 @@ def local_joint_label_fusion(
             probability map image for each label
 
     """
-    reg = registration.registration(target_image, template, type_of_transform="SyN")
-    myregion = utils.threshold_image(template_labels, which_labels[0], which_labels[0])
+    myregion = utils.threshold_image(initial_label, which_labels[0], which_labels[0])
     if len(which_labels) > 1:
         for k in range(1, len(which_labels)):
             myregion = myregion + utils.threshold_image(
-                template_labels, which_labels[k], which_labels[k]
+                initial_label, which_labels[k], which_labels[k]
             )
-    myregionAroundRegion = utils.threshold_image(template_labels, 1, math.inf)
-    myregion = registration.apply_transforms(
-        target_image,
-        myregion,
-        transformlist=reg["fwdtransforms"],
-        interpolator="nearestNeighbor",
-    )
-    myregionAroundRegion = registration.apply_transforms(
-        target_image,
-        myregionAroundRegion,
-        transformlist=reg["fwdtransforms"],
-        interpolator="nearestNeighbor",
-    )
-    myregionAroundRegion = utils.iMath(myregionAroundRegion, "MD", submask_dilation)
+    if myregion.max() == 0:
+        myregion = utils.threshold_image(initial_label, 1, math.inf)
+
+    myregionAroundRegion = utils.iMath(myregion, "MD", submask_dilation)
     if target_mask is not None:
         myregionAroundRegion = myregionAroundRegion * target_mask
-    croppedImage = utils.crop_image(
-        target_image, utils.iMath(myregion, "MD", submask_dilation)
-    )
-    croppedMask = utils.crop_image(
-        myregionAroundRegion, utils.iMath(myregion, "MD", submask_dilation)
-    )
+    croppedImage = utils.crop_image(target_image, myregionAroundRegion)
+    croppedMask = utils.crop_image(myregionAroundRegion, myregionAroundRegion)
     croppedmappedImages = []
     croppedmappedSegs = []
     if verbose is True:
