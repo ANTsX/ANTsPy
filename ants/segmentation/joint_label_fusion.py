@@ -407,6 +407,7 @@ def local_joint_label_fusion(
         myregionAroundRegion = myregionAroundRegion * target_mask
     croppedImage = utils.crop_image(target_image, myregionAroundRegion)
     croppedMask = utils.crop_image(myregionAroundRegion, myregionAroundRegion)
+    mycroppedregion = utils.crop_image(myregion, myregionAroundRegion)
     croppedmappedImages = []
     croppedmappedSegs = []
     if verbose is True:
@@ -425,7 +426,7 @@ def local_joint_label_fusion(
                     label_list[k], which_labels[kk], which_labels[kk]
                 )
         initMap = registration.registration(
-            myregion, libregion, typeofTransform="Similarity"
+            mycroppedregion, libregion, typeofTransform="Similarity"
         )["fwdtransforms"]
         localReg = registration.registration(
             croppedImage,
