@@ -426,10 +426,7 @@ def local_joint_label_fusion(
                     label_list[k], which_labels[kk], which_labels[kk]
                 )
         initMap = registration.registration(
-            mycroppedregion,
-            libregion,
-            type_of_transform="Similarity",
-            aff_metric="meansquares",
+            mycroppedregion, libregion, type_of_transform="Similarity", aff_sampling=16
         )["fwdtransforms"]
         localReg = registration.registration(
             croppedImage,
