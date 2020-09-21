@@ -393,16 +393,12 @@ def local_joint_label_fusion(
             probability map image for each label
 
     """
-    myregion = utils.threshold_image(initial_label, which_labels[0], which_labels[0])
-    if len(which_labels) > 1:
-        for k in range(1, len(which_labels)):
-            myregion = myregion + utils.threshold_image(
-                initial_label, which_labels[k], which_labels[k]
-            )
+    myregion = utils.mask_image(initial_label, initial_label, which_labels)
     if myregion.max() == 0:
         myregion = utils.threshold_image(initial_label, 1, math.inf)
 
-    myregionAroundRegion = utils.iMath(myregion, "MD", submask_dilation)
+    myregionb = utils.threshold_image(myregion, 1, math.inf)
+    myregionAroundRegion = utils.iMath(myregionb, "MD", submask_dilation)
     if target_mask is not None:
         myregionAroundRegion = myregionAroundRegion * target_mask
     croppedImage = utils.crop_image(target_image, myregionAroundRegion)
@@ -417,14 +413,7 @@ def local_joint_label_fusion(
         if verbose is True:
             print(str(k) + "...")
 
-        libregion = utils.threshold_image(
-            label_list[k], which_labels[0], which_labels[0]
-        )
-        if len(which_labels) > 1:
-            for kk in range(1, len(which_labels)):
-                libregion = libregion + utils.threshold_image(
-                    label_list[k], which_labels[kk], which_labels[kk]
-                )
+        libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
             mycroppedregion, libregion, type_of_transform="Similarity", aff_sampling=16
         )["fwdtransforms"]
@@ -439,7 +428,7 @@ def local_joint_label_fusion(
             syn_metric=syn_metric,
             syn_sampling=syn_sampling,
             initial_transform=initMap[0],
-            verbose=verbose,
+            verbose=False,
         )
         transformedImage = registration.apply_transforms(
             croppedImage, atlas_list[k], localReg["fwdtransforms"]
@@ -450,16 +439,9 @@ def local_joint_label_fusion(
             localReg["fwdtransforms"],
             interpolator="nearestNeighbor",
         )
-        remappedseg = utils.threshold_image(transformedLabels, 1, math.inf) + 1
-        temp = utils.threshold_image(
-            transformedLabels, which_labels[0], which_labels[0]
+        remappedseg = utils.mask_image(
+            transformedLabels, transformedLabels, which_labels
         )
-        if len(which_labels) > 1:
-            for kk in range(1, len(which_labels)):
-                temp = temp + utils.threshold_image(
-                    transformedLabels, which_labels[kk], which_labels[kk]
-                )
-        remappedseg[temp > 0] = 3
         croppedmappedImages.append(transformedImage)
         croppedmappedSegs.append(remappedseg)
 
@@ -475,7 +457,7 @@ def local_joint_label_fusion(
         r_search=r_search,
         nonnegative=nonnegative,
         no_zeroes=no_zeroes,
-        max_lab_plus_one=max_lab_plus_one,
+        max_lab_plus_one=True,
         output_prefix=output_prefix,
         verbose=verbose,
     )
