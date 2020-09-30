@@ -288,6 +288,7 @@ def local_joint_label_fusion(
     nonnegative=False,
     no_zeroes=False,
     max_lab_plus_one=False,
+    local_mask_transform="Similarity",
     output_prefix=None,
     verbose=False,
 ):
@@ -374,6 +375,10 @@ def local_joint_label_fusion(
         labels have some label, rather than none.  Ie it guarantees to explicitly parcellate the
         input data.
 
+    local_mask_transform: string
+        the type of transform for the local mask alignment - usually translation,
+        rigid, similarity or affine.
+
     output_prefix: string
         file prefix for storing output probabilityimages to disk
 
@@ -415,7 +420,7 @@ def local_joint_label_fusion(
 
         libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
-            mycroppedregion, libregion, type_of_transform="Similarity", aff_sampling=16
+            mycroppedregion, libregion, type_of_transform=local_mask_transform
         )["fwdtransforms"]
         localReg = registration.registration(
             croppedImage,
