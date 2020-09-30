@@ -2219,6 +2219,8 @@ def plot(
     if not isinstance(image, iio.ANTsImage):
         raise ValueError("image argument must be an ANTsImage")
 
+    assert image.sum() > 0, "Image must be non-zero"
+
     if (image.pixeltype not in {"float", "double"}) or (image.is_rgb):
         scale = False  # turn off scaling if image is discrete
 
