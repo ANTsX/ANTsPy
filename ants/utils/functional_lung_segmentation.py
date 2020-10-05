@@ -8,11 +8,12 @@ from .. import segmentation
 
 def functional_lung_segmentation(image,
                                  mask=None,
-                                 number_of_iterations=1,
-                                 number_of_atropos_iterations=0,
-                                 mrf_parameters="[0.3,2x2x2]",
-                                 number_of_clusters = 4,
+                                 number_of_iterations=2,
+                                 number_of_atropos_iterations=5,
+                                 mrf_parameters="[0.7,2x2x2]",
+                                 number_of_clusters = 6,
                                  cluster_centers = None,
+                                 bias_correction = "n4",
                                  verbose=True):
 
     """
@@ -32,7 +33,7 @@ def functional_lung_segmentation(image,
         Mask image designating the region to segment.  0/1 = background/foreground.
 
     number_of_iterations : integer
-        Number of Atropos <--> N4 iterations (outer loop).
+        Number of Atropos <--> bias correction iterations (outer loop).
 
     number_of_atropos_iterations : integer
         Number of Atropos iterations (inner loop).  If number_of_atropos_iterations = 0,
@@ -46,6 +47,9 @@ def functional_lung_segmentation(image,
 
     cluster_centers: array or tuple
         Initialization centers for k-means.
+
+    bias_correction: string
+        Apply "n3", "n4", or no bias correction (default = "n4").
 
     verbose : boolean
         Print progress to the screen.
@@ -90,7 +94,7 @@ def functional_lung_segmentation(image,
     number_of_atropos_n4_iterations = number_of_iterations
     for i in range(number_of_atropos_n4_iterations):
         if verbose == True:
-            print("Atropos/N4 iteration: ", i, " out of ", number_of_atropos_n4_iterations)
+            print("Outer iteration: ", i, " out of ", number_of_atropos_n4_iterations)
 
         preprocessed_image = core.image_clone(image)
 
@@ -99,15 +103,19 @@ def functional_lung_segmentation(image,
         preprocessed_image[preprocessed_image > quantiles[1]] = quantiles[1]
 
         if verbose == True:
-            print("Atropos/N4: initial N4 bias correction.")
-        preprocessed_image = utils.n4_bias_field_correction(preprocessed_image,
-            mask=dilated_mask, shrink_factor=2, convergence={'iters': [50, 50, 50, 50], 'tol': 0.0000000001},
-            spline_param=200, return_bias_field=False, weight_mask=weight_mask, verbose=verbose)
+            print("Outer: bias correction.")
+
+        if bias_correction.lower() == "n4":
+            preprocessed_image = utils.n4_bias_field_correction(preprocessed_image,
+                mask=dilated_mask, shrink_factor=2, convergence={'iters': [50, 50, 50, 50], 'tol': 0.0000000001},
+                spline_param=200, return_bias_field=False, weight_mask=weight_mask, verbose=verbose)
+        elif bias_correction.lower == "n3":
+            preprocessed_image = utils.n3_bias_field_correction(preprocessed_image, downsample_factor=2)
+
         preprocessed_image = (preprocessed_image - preprocessed_image.min())/(preprocessed_image.max() - preprocessed_image.min())
-        preprocessed_image *= 1000
 
         if verbose == True:
-            print("Atropos/N4: Atropos segmentation.")
+            print("Outer: Atropos segmentation.")
 
         atropos_initialization = "Kmeans[" + str(number_of_clusters) + "]"
         if cluster_centers is not None:
