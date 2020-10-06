@@ -90,6 +90,12 @@ def functional_lung_segmentation(image,
 
     weight_mask = None
 
+    # This is a multiplicative factor for both the image
+    # and the cluster centers which shouldn't effect the
+    # user.  Otherwise, we'll get a singular covariance
+    # complaint from Atropos.
+    image_scale_factor = 1000.0
+
     number_of_atropos_n4_iterations = number_of_iterations
     for i in range(number_of_atropos_n4_iterations):
         if verbose == True:
@@ -111,7 +117,8 @@ def functional_lung_segmentation(image,
         elif bias_correction.lower == "n3":
             preprocessed_image = utils.n3_bias_field_correction(preprocessed_image, downsample_factor=2)
 
-        preprocessed_image = (preprocessed_image - preprocessed_image.min())/(preprocessed_image.max() - preprocessed_image.min())
+        preprocessed_image = image_scale_factor * ((preprocessed_image - preprocessed_image.min())
+                                                  /(preprocessed_image.max() - preprocessed_image.min()))
 
         if verbose == True:
             print("Outer: Atropos segmentation.")
@@ -121,7 +128,8 @@ def functional_lung_segmentation(image,
             if len(cluster_centers) != number_of_clusters:
                 raise ValueError("number_of_clusters should match the vector size of the cluster_centers.")
             else:
-                cluster_centers_string = 'x'.join(str(s) for s in set(cluster_centers))
+                scaled_cluster_centers = image_scale_factor * cluster_centers
+                cluster_centers_string = 'x'.join(str(s) for s in set(scaled_cluster_centers))
                 atropos_initialization = "Kmeans[" + str(number_of_clusters) + "," + cluster_centers_string + "]"
 
         posterior_formulation = "Socrates[0]"
@@ -145,5 +153,5 @@ def functional_lung_segmentation(image,
 
     return_dict = {'segmentation_image' : masked_segmentation_image,
                    'probability_images' : masked_probability_images,
-                   'processed_image' : preprocessed_image}
+                   'processed_image' : (preprocessed_image / image_scale_factor)}
     return(return_dict)
