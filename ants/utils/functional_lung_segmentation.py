@@ -19,7 +19,7 @@ def functional_lung_segmentation(image,
     """
     Ventilation-based segmentation of hyperpolarized gas lung MRI.
 
-    Lung segmentation into four classes based on ventilation as described in
+    Lung segmentation into classes based on ventilation as described in
     this paper:
 
          https://pubmed.ncbi.nlm.nih.gov/21837781/
