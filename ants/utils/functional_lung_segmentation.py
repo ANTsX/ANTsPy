@@ -88,7 +88,6 @@ def functional_lung_segmentation(image,
                 pure_tissue_mask = pure_tissue_mask + negation_image * probability_images[i]
         return(pure_tissue_mask)
 
-    dilated_mask = iMath(mask, 'MD', 5)
     weight_mask = None
 
     number_of_atropos_n4_iterations = number_of_iterations
@@ -107,7 +106,7 @@ def functional_lung_segmentation(image,
 
         if bias_correction.lower() == "n4":
             preprocessed_image = utils.n4_bias_field_correction(preprocessed_image,
-                mask=dilated_mask, shrink_factor=2, convergence={'iters': [50, 50, 50, 50], 'tol': 0.0000000001},
+                mask=mask, shrink_factor=2, convergence={'iters': [50, 50, 50, 50], 'tol': 0.0000000001},
                 spline_param=200, return_bias_field=False, weight_mask=weight_mask, verbose=verbose)
         elif bias_correction.lower == "n3":
             preprocessed_image = utils.n3_bias_field_correction(preprocessed_image, downsample_factor=2)
@@ -134,7 +133,7 @@ def functional_lung_segmentation(image,
         atropos_verbose = 0
         if verbose == True:
             atropos_verbose = 1
-        atropos_output = segmentation.atropos(preprocessed_image, x=dilated_mask, i=atropos_initialization,
+        atropos_output = segmentation.atropos(preprocessed_image, x=mask, i=atropos_initialization,
             m=mrf_parameters, c=iterations, priorweight=0.0, v=atropos_verbose, p=posterior_formulation)
 
         weight_mask = generate_pure_tissue_n4_weight_mask(atropos_output['probabilityimages'][1:number_of_clusters])
