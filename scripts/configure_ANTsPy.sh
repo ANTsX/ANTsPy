@@ -23,7 +23,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=0716509a3dfce9ef85169c9377759efaf8fbc83e # integrate velocity fields
+antstag=952e7918b47385ebfb730f9c844977762b8437f8 # Add N4 builds and whistles to N3
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
