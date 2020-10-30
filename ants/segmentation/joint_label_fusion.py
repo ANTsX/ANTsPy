@@ -111,6 +111,10 @@ def joint_label_fusion(
         `probabilityimages` : list of ANTsImage types
             probability map image for each label
 
+        `segmentation_numbers` : list of numbers
+            segmentation label (number, int) for each probability map
+
+
     Example
     -------
     >>> import ants
@@ -249,8 +253,15 @@ def joint_label_fusion(
     probimgs = []
     for idx in range(len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
-    if len(probsout) != (len(inlabs)) and max_lab_plus_one == False:
-        warnings.warn("Length of output probabilities != length of unique input labels")
+
+    #    if len(probsout) != (len(inlabs)) and max_lab_plus_one == False:
+    #        warnings.warn("Length of output probabilities != length of unique input labels")
+
+    segmentation_numbers = [0] * len(probsout)
+    for i in range(len(probsout)):
+        temp = str.split(probsout[i], "prob")
+        segnum = temp[len(temp) - 1].split(".nii.gz")[0]
+        segmentation_numbers[i] = int(segnum)
 
     if max_lab_plus_one == False:
         segmat = iio2.images_to_matrix(probimgs, target_image_mask)
@@ -267,23 +278,22 @@ def joint_label_fusion(
             "segmentation": outimg,
             "intensity": outimgi,
             "probabilityimages": probimgs,
+            "segmentation_numbers": segmentation_numbers,
         }
 
     if max_lab_plus_one == True:
-        maxsegnum = [0] * len(probsout)
-        for i in range(len(probsout)):
-            temp = str.split(probsout[i], "prob")
-            segnum = temp[len(temp) - 1].split(".nii.gz")[0]
-            maxsegnum[i] = int(segnum)
-
-        mymaxlab = max(maxsegnum)
+        mymaxlab = max(segmentation_numbers)
         matchings_indices = [
-            i for i, maxsegnum in enumerate(maxsegnum) if maxsegnum == mymaxlab
+            i
+            for i, segmentation_numbers in enumerate(segmentation_numbers)
+            if segmentation_numbers == mymaxlab
         ]
         background_prob = probimgs[matchings_indices[0]]
         background_probfn = probsout[matchings_indices[0]]
         del probimgs[matchings_indices[0]]
         del probsout[matchings_indices[0]]
+        del segmentation_numbers[matchings_indices[0]]
+
         segmat = iio2.images_to_matrix(probimgs, target_image_mask)
 
         finalsegvec = segmat.argmax(axis=0)
@@ -306,9 +316,12 @@ def joint_label_fusion(
         outimg = outimg * iio2.make_image(target_image_mask, bkgsegvec)
 
         return {
-            "segmentation": outimg,
+            "segmentation": outimg * iio2.make_image(target_image_mask, bkgsegvec),
+            "segmentation_raw": outimg,
             "intensity": outimgi,
             "probabilityimages": probimgs,
+            "segmentation_numbers": segmentation_numbers,
+            "background_prob": background_prob,
         }
 
 
