@@ -252,7 +252,7 @@ def joint_label_fusion(
     if len(probsout) != (len(inlabs)):
         warnings.warn("Length of output probabilities != length of unique input labels")
 
-    if max_lab_plus_one==False:    
+    if max_lab_plus_one == False:
         segmat = iio2.images_to_matrix(probimgs, target_image_mask)
         finalsegvec = segmat.argmax(axis=0)
         finalsegvec2 = finalsegvec.copy()
@@ -263,10 +263,29 @@ def joint_label_fusion(
             finalsegvec2[finalsegvec == i] = segnum
         outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
-        return {"segmentation": outimg, "intensity": outimgi, "probabilityimages": probimgs}
+        return {
+            "segmentation": outimg,
+            "intensity": outimgi,
+            "probabilityimages": probimgs,
+        }
 
-    if max_lab_plus_one==True:    
-        segmat = iio2.images_to_matrix(probimgs[0:(len(probimgs)-1)], target_image_mask)
+    if max_lab_plus_one == True:
+        maxsegnum = [0] * len(probsout)
+        for i in range(len(probsout)):
+            temp = str.split(probsout[i], "prob")
+            segnum = temp[len(temp) - 1].split(".nii.gz")[0]
+            maxsegnum[i] = int(segnum)
+
+        mymaxlab = max(maxsegnum)
+        matchings_indices = [
+            i for i, maxsegnum in enumerate(maxsegnum) if maxsegnum == mymaxlab
+        ]
+        background_prob = probimgs[matchings_indices[0]]
+        background_probfn = probsout[matchings_indices[0]]
+        del probimgs[matchings_indices[0]]
+        del probsout[matchings_indices[0]]
+        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+
         finalsegvec = segmat.argmax(axis=0)
         finalsegvec2 = finalsegvec.copy()
         # mapfinalsegvec to original labels
@@ -274,17 +293,23 @@ def joint_label_fusion(
             temp = str.split(probsout[i], "prob")
             segnum = temp[len(temp) - 1].split(".nii.gz")[0]
             finalsegvec2[finalsegvec == i] = segnum
+
         outimg = iio2.make_image(target_image_mask, finalsegvec2)
 
         # next decide what is "background" based on the sum of the first k labels vs the prob of the last one
-        firstK = probimgs[0]
-        for i in range(1,len(probsout)-1):
+        firstK = probimgs[0] * 0
+        for i in range(len(probsout)):
             firstK = firstK + probimgs[i]
-        segmat = iio2.images_to_matrix( [probimgs[len(probsout)-1],firstK], target_image_mask)
+
+        segmat = iio2.images_to_matrix([background_prob, firstK], target_image_mask)
         bkgsegvec = segmat.argmax(axis=0)
         outimg = outimg * iio2.make_image(target_image_mask, bkgsegvec)
 
-        return {"segmentation": outimg, "intensity": outimgi, "probabilityimages": probimgs}
+        return {
+            "segmentation": outimg,
+            "intensity": outimgi,
+            "probabilityimages": probimgs,
+        }
 
 
 def local_joint_label_fusion(
