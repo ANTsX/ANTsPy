@@ -293,9 +293,9 @@ def local_joint_label_fusion(
     verbose=False,
 ):
     """
-    A local version of joint label fusion that focuses on a specific label.
+    A local version of joint label fusion that focuses on a subset of labels.
     This is primarily different from standard JLF because it performs
-    registration on a per label basis and focuses JLF on that label alone.
+    registration on the label subset and focuses JLF on those labels alone.
 
     ANTsR function: `localJointLabelFusion`
 
