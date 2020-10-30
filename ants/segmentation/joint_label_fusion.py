@@ -249,7 +249,7 @@ def joint_label_fusion(
     probimgs = []
     for idx in range(len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
-    if len(probsout) != (len(inlabs)):
+    if len(probsout) != (len(inlabs)) and max_lab_plus_one == False:
         warnings.warn("Length of output probabilities != length of unique input labels")
 
     if max_lab_plus_one == False:
