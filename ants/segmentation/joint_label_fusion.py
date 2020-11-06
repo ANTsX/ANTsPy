@@ -214,7 +214,10 @@ def joint_label_fusion(
     myrad = "x".join([str(mr) for mr in myrad])
     vnum = 1 if verbose else 0
     nnum = 1 if nonnegative else 0
-
+    mypc = "MSQ"
+    if usecor:
+        mypc = "PC"
+        
     myargs = {
         "d": mydim,
         "t": target_image,
@@ -222,7 +225,7 @@ def joint_label_fusion(
         "b": beta,
         "c": nnum,
         "p": myrad,
-        "m": "PC",
+        "m": mypc,
         "s": r_search,
         "x": mymask,
         "o": outs,
