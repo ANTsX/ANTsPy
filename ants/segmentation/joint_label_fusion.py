@@ -8,6 +8,7 @@ import os
 import numpy as np
 import warnings
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from tempfile import mktemp
 import glob
 import re
@@ -169,6 +170,15 @@ def joint_label_fusion(
     else:
         mymask = target_image_mask
 
+###### security issues with mktemp but could not figure out the right solution
+###### NamedTemporaryFile creates a file with permissions:
+###### -rw-------  1 stnava  staff
+###### whereas mktemp gives
+###### -rw-r--r--  1 stnava  staff
+###### the latter is what we want - one solution is to use chmod via os but
+###### am currently too lazy to change one line of code to two or more everywhere
+
+#    osegfn = NamedTemporaryFile(prefix="antsr", suffix="myseg.nii.gz",delete=False).name
     osegfn = mktemp(prefix="antsr", suffix="myseg.nii.gz")
     # segdir = osegfn.replace(os.path.basename(osegfn),'')
 
@@ -176,6 +186,7 @@ def joint_label_fusion(
         os.remove(osegfn)
 
     if output_prefix is None:
+#        probs = NamedTemporaryFile(prefix="antsr", suffix="prob%02d.nii.gz",delete=False).name
         probs = mktemp(prefix="antsr", suffix="prob%02d.nii.gz")
         probsbase = os.path.basename(probs)
         tdir = probs.replace(probsbase, "")
@@ -217,7 +228,7 @@ def joint_label_fusion(
     mypc = "MSQ"
     if usecor:
         mypc = "PC"
-        
+
     myargs = {
         "d": mydim,
         "t": target_image,
@@ -254,6 +265,7 @@ def joint_label_fusion(
     probsout = glob.glob(os.path.join(tdir, "*" + searchpattern))
     probsout.sort()
     probimgs = []
+#    print( os.system("ls -l "+probsout[0]) )
     for idx in range(len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
 
