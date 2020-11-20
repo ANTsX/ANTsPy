@@ -2465,9 +2465,11 @@ def plot(
     ## multi-channel images ##
     elif image.components > 1:
         if not image.is_rgb:
-            raise ValueError("Multi-component images only supported if they are RGB")
+            if not image.components == 3:
+                raise ValueError("Multi-component images only supported if they have 3 components")
 
         img_arr = image.numpy()
+        img_arr = img_arr / img_arr.max()
         img_arr = np.stack(
             [rotate90_matrix(img_arr[:, :, i]) for i in range(3)], axis=-1
         )
