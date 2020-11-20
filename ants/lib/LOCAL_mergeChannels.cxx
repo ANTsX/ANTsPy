@@ -207,7 +207,7 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("splitChannelsVF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
   m.def("splitChannelsVF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
   m.def("splitChannelsVF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
-  m.def("splitChannelsRGBF2", &splitChannels<itk::RGBPixel<unsigned char>, 2>, itk::Image<float, 2> >);
+  m.def("splitChannelsRGBF2", &splitChannels<  itk::Image<itk::RGBPixel<unsigned char>, 2>, itk::Image<float, 2> >);
 
 
 }
