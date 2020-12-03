@@ -32,6 +32,8 @@ import matplotlib.lines as mlines
 import matplotlib.patches as patches
 import matplotlib.mlab as mlab
 import matplotlib.animation as animation
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
 
 import numpy as np
 
@@ -160,6 +162,8 @@ def plot_grid(
     cpad=0,
     vmin=None,
     vmax=None,
+    colorbar=True,
+    cmap="Greys_r",
     # title arguments
     title=None,
     tfontsize=20,
@@ -346,7 +350,28 @@ def plot_grid(
         right=1 - 0.5 / (ncol + 1),
     )
 
-    for rowidx in range(nrow):
+    if isinstance(vmin, (int, float)):
+        vmins = [vmin] * nrow
+    elif vmin is None:
+        vmins = [None] * nrow
+    else:
+        vmins = vmin
+
+    if isinstance(vmax, (int, float)):
+        vmaxs = [vmax] * nrow
+    elif vmax is None:
+        vmaxs = [None] * nrow
+    else:
+        vmaxs = vmax
+
+    if isinstance(cmap, str):
+        cmaps = [cmap] * nrow
+    elif cmap is None:
+        cmaps = [None] * nrow
+    else:
+        cmaps = cmap
+
+    for rowidx, rvmin, rvmax, rcmap in zip(range(nrow), vmins, vmaxs, cmaps):
         for colidx in range(ncol):
             ax = plt.subplot(gs[rowidx, colidx])
 
@@ -419,8 +444,23 @@ def plot_grid(
             sliceidx = slices[rowidx][colidx] if not one_slice else slices
             tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
             tmpslice = reorient_slice(tmpslice, tmpaxis)
-            ax.imshow(tmpslice, cmap="Greys_r", aspect="auto", vmin=vmin, vmax=vmax)
+            im = ax.imshow(tmpslice, cmap=rcmap, aspect="auto", vmin=rvmin, vmax=rvmax)
             ax.axis("off")
+
+        # A colorbar solution with make_axes_locatable will not allow y-scaling of the colorbar.
+        # from mpl_toolkits.axes_grid1 import make_axes_locatable
+        # divider = make_axes_locatable(ax)
+        # cax = divider.append_axes('right', size='5%', pad=0.05)
+        if colorbar:
+            axins = inset_axes(ax,
+                               width="5%",  # width = 5% of parent_bbox width
+                               height="90%",  # height : 50%
+                               loc='center left',
+                               bbox_to_anchor=(1.03, 0., 1, 1),
+                               bbox_transform=ax.transAxes,
+                               borderpad=0,
+            )
+            fig.colorbar(im, cax=axins, orientation='vertical')
 
     if filename is not None:
         filename = os.path.expanduser(filename)
@@ -2179,6 +2219,8 @@ def plot(
     if not isinstance(image, iio.ANTsImage):
         raise ValueError("image argument must be an ANTsImage")
 
+    assert image.sum() > 0, "Image must be non-zero"
+
     if (image.pixeltype not in {"float", "double"}) or (image.is_rgb):
         scale = False  # turn off scaling if image is discrete
 
@@ -2423,9 +2465,11 @@ def plot(
     ## multi-channel images ##
     elif image.components > 1:
         if not image.is_rgb:
-            raise ValueError("Multi-component images only supported if they are RGB")
+            if not image.components == 3:
+                raise ValueError("Multi-component images only supported if they have 3 components")
 
         img_arr = image.numpy()
+        img_arr = img_arr / img_arr.max()
         img_arr = np.stack(
             [rotate90_matrix(img_arr[:, :, i]) for i in range(3)], axis=-1
         )

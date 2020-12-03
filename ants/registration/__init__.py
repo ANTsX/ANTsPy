@@ -12,5 +12,6 @@ from .reorient_image import *
 from .resample_image import *
 from .symmetrize_image import *
 from .build_template import *
+from .landmark_transforms import *
 
 from .interface import *

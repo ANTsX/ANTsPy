@@ -19,6 +19,7 @@ ANTS TIME: 33.601 seconds
 
 import os
 
+import numpy as np
 import nibabel as nib
 import itk
 import ants
@@ -33,7 +34,7 @@ def time_nifti_to_numpy(N_TRIALS):
     
     def test_nibabel():
         for img_path in img_paths:
-            array = nib.load(img_path).get_data()
+            array = np.asanyarray(nib.load(img_path).dataobj)
 
     def test_itk():
         for img_path in img_paths:

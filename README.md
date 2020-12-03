@@ -12,6 +12,7 @@
     <img src='https://readthedocs.org/projects/antspyx/badge/?version=latest' alt='Documentation Status' />
 </a>
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/stnava/ANTsPyDocker/master)
 
 ## About ANTsPy
@@ -41,42 +42,26 @@ We recommend that users install the latest pre-compiled binaries, which takes ~1
 that <i>ANTsPy</i> is not currently tested for Python 2.7 support.
 Copy the following command and paste it into your bash terminal:
 
-For MacOS:
+For MacOS and Linux:
 ```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/Weekly/antspy-0.1.4-cp36-cp36m-macosx_10_7_x86_64.whl
+pip install antspyx
 ```
 
-For Linux:
-```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.4/antspy-0.1.4-cp36-cp36m-linux_x86_64.whl
-```
-
-If the above doesn't work on your platform, then use:
+If we do not have releases for your platform, then use:
 
 ```
 git clone https://github.com/ANTsX/ANTsPy
 cd ANTsPy
 python3 setup.py install
 ```
-if you want more detailed instructions on installing <i>ANTsPy</i>, you can
+if you want more detailed instructions on compiling <i>ANTsPy</i> from source, you can
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
+NOTE: we are hoping to relatively soon release windows wheels via `pip`.
+If they are not yet available, please check the discussion in the issues
+for how to build from source on windows machines.
+
 ------------------------------------------------------------------------------
-## ITK & VTK
-
-#### Insight Toolkit (ITK)
-
-By default, <i>ANTsPy</i> will search for an existing ITK build by checking if the `ITK_DIR`
-environment variable is set. If that is not
-found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
-ITK.
-
-#### Visualization Toolkit (VTK)
-
-By default, <i>ANTsPy</i> will search for an existing VTK build by checking if the `VTK_DIR`
-environment variable is set. If that is not
-found, it will build it for you. It does <b>NOT</b> require the Python wrappings for
-VTK. If you do not want VTK, then add the `--novtk` flag to setup (e.g. `python setup.py install --novtk`).
 
 ## ANTsR Comparison
 
@@ -92,7 +77,7 @@ segs1 <- atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 ```
 
 <i>ANTsPy</i> code:
-```python     
+```python
 import ants
 img   = ants.image_read(ants.get_ants_data("r16"))
 img   = ants.resample_image(img, (64,64), 1, 0 )
@@ -117,3 +102,11 @@ cd docs
 sphinx-apidoc -o source/ ../
 make html
 ```
+
+## References
+
+1. See references at the main [ANTs page](https://github.com/ANTsX/ANTs#boilerplate-ants).
+
+2. [Google scholar search reveals plenty of explanation of methods and evaluation results by ourselves](https://scholar.google.com/scholar?start=0&q=advanced+normalization+tools+ants+image+registration&hl=en&as_sdt=0,40)
+
+3. [ANTs evaluation and comparison by other authors](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C40&q=advanced+normalization+tools+ants+image+registration+-avants+-tustison&btnG=)

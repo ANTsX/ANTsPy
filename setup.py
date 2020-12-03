@@ -17,7 +17,7 @@ import setuptools.command.develop
 import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
-version = "0.2.2"  # ANTsPy version
+version = "0.2.6"  # ANTsPy version
 
 if "--weekly" in sys.argv:
     sys.argv.remove("--weekly")
@@ -151,6 +151,21 @@ long_description = open("README.md").read()
 setup(
     name="antspyx",
     version=version,
+    install_requires=[
+        "pandas",
+        "numpy",
+        "scipy",
+        "sklearn",
+        "scikit-image",
+        "scikit-learn",
+        "statsmodels",
+        "webcolors",
+        "matplotlib",
+        "pyyaml",
+        "chart_studio",
+        "Pillow",
+        "nibabel",
+    ],
     author="Brian B. Avants and Nicholas Cullen",
     author_email="stnava@gmail.com",
     description="Advanced Normalization Tools in Python",

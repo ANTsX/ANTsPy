@@ -4,14 +4,16 @@ Affine transforms
 See http://www.cs.cornell.edu/courses/cs4620/2010fa/lectures/03transforms3D.pdf
 """
 
-__all__ = ['Zoom2D',
-           'RandomZoom2D',
-           'Rotate2D',
-           'RandomRotate2D',
-           'Shear2D',
-           'RandomShear2D',
-           'Translate2D',
-           'RandomTranslate2D']
+__all__ = [
+    "Zoom2D",
+    "RandomZoom2D",
+    "Rotate2D",
+    "RandomRotate2D",
+    "Shear2D",
+    "RandomShear2D",
+    "Translate2D",
+    "RandomTranslate2D",
+]
 
 import random
 import math
@@ -24,10 +26,8 @@ class Translate2D(object):
     """
     Create an ANTs Affine Transform with a specified translation.
     """
-    def __init__(self,
-                 translation,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, translation, reference=None, lazy=False):
         """
         Initialize a Shear2D object
 
@@ -48,16 +48,17 @@ class Translate2D(object):
             transform the image
         """
         if (not isinstance(translation, (list, tuple))) or (len(translation) != 2):
-            raise ValueError('translation argument must be list/tuple with two values!')
+            raise ValueError("translation argument must be list/tuple with two values!")
 
         self.translation = translation
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=2, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -92,13 +93,18 @@ class Translate2D(object):
         # convert to radians and unpack
         translation_x, translation_y = self.translation
 
-        translation_matrix = np.array([[1, 0, translation_x],
-                                       [0, 1, translation_y]])
+        translation_matrix = np.array([[1, 0, translation_x], [0, 1, translation_y]])
         self.tx.set_parameters(translation_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomTranslate2D(object):
@@ -108,10 +114,8 @@ class RandomTranslate2D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 translation_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, translation_range, reference=None, lazy=False):
         """
         Initialize a RandomTranslate2D object
 
@@ -131,8 +135,10 @@ class RandomTranslate2D(object):
             the randomly generated transform and does not actually
             transform the image
         """
-        if (not isinstance(translation_range, (list, tuple))) or (len(translation_range) != 2):
-            raise ValueError('shear_range argument must be list/tuple with two values!')
+        if (not isinstance(translation_range, (list, tuple))) or (
+            len(translation_range) != 2
+        ):
+            raise ValueError("shear_range argument must be list/tuple with two values!")
 
         self.translation_range = translation_range
         self.reference = reference
@@ -164,25 +170,27 @@ class RandomTranslate2D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in translation range
-        translation_x = random.gauss(self.translation_range[0], self.translation_range[1])
-        translation_y = random.gauss(self.translation_range[0], self.translation_range[1])
+        translation_x = random.gauss(
+            self.translation_range[0], self.translation_range[1]
+        )
+        translation_y = random.gauss(
+            self.translation_range[0], self.translation_range[1]
+        )
         self.params = (translation_x, translation_y)
 
-        tx = Translate2D((translation_x, translation_y),
-                          reference=self.reference,
-                          lazy=self.lazy)
+        tx = Translate2D(
+            (translation_x, translation_y), reference=self.reference, lazy=self.lazy
+        )
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)
 
 
 class Shear2D(object):
     """
     Create an ANTs Affine Transform with a specified shear.
     """
-    def __init__(self,
-                 shear,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, shear, reference=None, lazy=False):
         """
         Initialize a Shear2D object
 
@@ -203,16 +211,17 @@ class Shear2D(object):
             transform the image
         """
         if (not isinstance(shear, (list, tuple))) or (len(shear) != 2):
-            raise ValueError('shear argument must be list/tuple with two values!')
+            raise ValueError("shear argument must be list/tuple with two values!")
 
         self.shear = shear
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=2, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -250,13 +259,18 @@ class Shear2D(object):
         shear = [math.pi / 180 * s for s in self.shear]
         shear_x, shear_y = shear
 
-        shear_matrix = np.array([[1, shear_x, 0],
-                                 [shear_y, 1, 0]])
+        shear_matrix = np.array([[1, shear_x, 0], [shear_y, 1, 0]])
         self.tx.set_parameters(shear_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomShear2D(object):
@@ -266,10 +280,8 @@ class RandomShear2D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 shear_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, shear_range, reference=None, lazy=False):
         """
         Initialize a RandomRotate2D object
 
@@ -290,7 +302,7 @@ class RandomShear2D(object):
             transform the image
         """
         if (not isinstance(shear_range, (list, tuple))) or (len(shear_range) != 2):
-            raise ValueError('shear_range argument must be list/tuple with two values!')
+            raise ValueError("shear_range argument must be list/tuple with two values!")
 
         self.shear_range = shear_range
         self.reference = reference
@@ -326,11 +338,9 @@ class RandomShear2D(object):
         shear_y = random.gauss(self.shear_range[0], self.shear_range[1])
         self.params = (shear_x, shear_y)
 
-        tx = Shear2D((shear_x, shear_y),
-                     reference=self.reference,
-                     lazy=self.lazy)
+        tx = Shear2D((shear_x, shear_y), reference=self.reference, lazy=self.lazy)
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)
 
 
 class Rotate2D(object):
@@ -338,10 +348,8 @@ class Rotate2D(object):
     Create an ANTs Affine Transform with a specified level
     of rotation.
     """
-    def __init__(self,
-                 rotation,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, rotation, reference=None, lazy=False):
         """
         Initialize a Rotate2D object
 
@@ -365,10 +373,11 @@ class Rotate2D(object):
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=2, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -399,14 +408,21 @@ class Rotate2D(object):
 
         # Rotation about X axis
         theta = math.pi / 180 * rotation
-        rotation_matrix = np.array([[np.cos(theta), -np.sin(theta), 0],
-                                    [np.sin(theta),  np.cos(theta), 0]])
+        rotation_matrix = np.array(
+            [[np.cos(theta), -np.sin(theta), 0], [np.sin(theta), np.cos(theta), 0]]
+        )
 
         self.tx.set_parameters(rotation_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomRotate2D(object):
@@ -416,10 +432,8 @@ class RandomRotate2D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 rotation_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, rotation_range, reference=None, lazy=False):
         """
         Initialize a RandomRotate2D object
 
@@ -439,8 +453,12 @@ class RandomRotate2D(object):
             the randomly generated transform and does not actually
             transform the image
         """
-        if (not isinstance(rotation_range, (list, tuple))) or (len(rotation_range) != 2):
-            raise ValueError('rotation_range argument must be list/tuple with two values!')
+        if (not isinstance(rotation_range, (list, tuple))) or (
+            len(rotation_range) != 2
+        ):
+            raise ValueError(
+                "rotation_range argument must be list/tuple with two values!"
+            )
 
         self.rotation_range = rotation_range
         self.reference = reference
@@ -475,11 +493,9 @@ class RandomRotate2D(object):
         rotation = random.gauss(self.rotation_range[0], self.rotation_range[1])
         self.params = rotation
 
-        tx = Rotate2D(rotation,
-                    reference=self.reference,
-                    lazy=self.lazy)
+        tx = Rotate2D(rotation, reference=self.reference, lazy=self.lazy)
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)
 
 
 class Zoom2D(object):
@@ -488,10 +504,8 @@ class Zoom2D(object):
     of zoom. Any value greater than 1 implies a "zoom-out" and anything
     less than 1 implies a "zoom-in".
     """
-    def __init__(self,
-                 zoom,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, zoom, reference=None, lazy=False):
         """
         Initialize a Zoom2D object
 
@@ -512,16 +526,17 @@ class Zoom2D(object):
             transform the image
         """
         if (not isinstance(zoom, (list, tuple))) or (len(zoom) != 2):
-            raise ValueError('zoom_range argument must be list/tuple with two values!')
+            raise ValueError("zoom_range argument must be list/tuple with two values!")
 
         self.zoom = zoom
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=2,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=2, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -548,16 +563,21 @@ class Zoom2D(object):
         >>> img2 = tx.transform(img)
         """
         # unpack zoom range
-        zoom_x, zoom_y= self.zoom
+        zoom_x, zoom_y = self.zoom
 
         self.params = (zoom_x, zoom_y)
-        zoom_matrix = np.array([[zoom_x, 0, 0],
-                                [0, zoom_y, 0]])
+        zoom_matrix = np.array([[zoom_x, 0, 0], [0, zoom_y, 0]])
         self.tx.set_parameters(zoom_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomZoom2D(object):
@@ -567,10 +587,8 @@ class RandomZoom2D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 zoom_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, zoom_range, reference=None, lazy=False):
         """
         Initialize a RandomZoom2D object
 
@@ -591,7 +609,7 @@ class RandomZoom2D(object):
             transform the image
         """
         if (not isinstance(zoom_range, (list, tuple))) or (len(zoom_range) != 2):
-            raise ValueError('zoom_range argument must be list/tuple with two values!')
+            raise ValueError("zoom_range argument must be list/tuple with two values!")
 
         self.zoom_range = zoom_range
         self.reference = reference
@@ -623,16 +641,14 @@ class RandomZoom2D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in zoom range
-        zoom_x = np.exp( random.gauss(
-          np.log( self.zoom_range[0] ),
-          np.log( self.zoom_range[1] ) ) )
-        zoom_y = np.exp( random.gauss(
-          np.log( self.zoom_range[0] ),
-          np.log( self.zoom_range[1] ) ) )
+        zoom_x = np.exp(
+            random.gauss(np.log(self.zoom_range[0]), np.log(self.zoom_range[1]))
+        )
+        zoom_y = np.exp(
+            random.gauss(np.log(self.zoom_range[0]), np.log(self.zoom_range[1]))
+        )
         self.params = (zoom_x, zoom_y)
 
-        tx = Zoom2D((zoom_x,zoom_y),
-                    reference=self.reference,
-                    lazy=self.lazy)
+        tx = Zoom2D((zoom_x, zoom_y), reference=self.reference, lazy=self.lazy)
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)

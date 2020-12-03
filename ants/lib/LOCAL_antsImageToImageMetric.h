@@ -53,7 +53,7 @@ template <typename MetricType>
 ANTsImageToImageMetric<MetricType> wrap_metric( const typename MetricType::Pointer & itkMetric )
 {
     typedef typename MetricType::Pointer MetricPointerType;
-    MetricPointerType * ptr = new MetricPointerType( itkMetric );
+    MetricPointerType* ptr = new MetricPointerType( itkMetric );
 
 
     ANTsImageToImageMetric<MetricType> antsMetric;
@@ -61,7 +61,7 @@ ANTsImageToImageMetric<MetricType> wrap_metric( const typename MetricType::Point
     antsMetric.dimension         = MetricType::FixedImageDimension;
     antsMetric.metrictype        = itkMetric->GetNameOfClass();
     antsMetric.isVector          = 0;
-    antsMetric.pointer           = py::capsule(ptr, "itk::ImageToImageMetricv4::Pointer");
+    antsMetric.pointer           = py::capsule(ptr, capsuleDestructor<MetricType>);
 
     return antsMetric;
 }
@@ -182,7 +182,7 @@ void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, fl
           {
           point[d] += randomizer->GetNormalVariate() * oneThirdVirtualSpacing[d];
           }
-        if( !metric->GetFixedImageMask() || metric->GetFixedImageMask()->IsInside( point ) )
+        if( !metric->GetFixedImageMask() || metric->GetFixedImageMask()->IsInsideInWorldSpace( point ) )
           {
           samplePointSet->SetPoint( index, point );
           ++index;
@@ -209,7 +209,7 @@ void ANTsImageToImageMetric< MetricType >::setSampling( std::string strategy, fl
           {
           point[d] += randomizer->GetNormalVariate() * oneThirdVirtualSpacing[d];
           }
-        if( !metric->GetFixedImageMask() || metric->GetFixedImageMask()->IsInside( point ) )
+        if( !metric->GetFixedImageMask() || metric->GetFixedImageMask()->IsInsideInWorldSpace( point ) )
           {
           samplePointSet->SetPoint( index, point );
           ++index;

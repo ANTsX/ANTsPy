@@ -1,9 +1,14 @@
 language: python
-python:
-  - "3.6"
 
-os:
-  - linux
+jobs:
+  include:
+    # perform a linux build
+    - services: docker
+
+env:
+  global:
+    - TWINE_USERNAME=__token__
+    - CIBW_SKIP="cp2* pp2*"
 
 cache:
     - directories:
@@ -41,10 +46,22 @@ before_install:
   - export ITK_DIR=/home/travis/build/ANTsX/itkbuild/
 
 install:
+  - python3 -m pip install cibuildwheel==1.3.0
   - python3 setup.py install
+#  - travis_wait 30 python3 setup.py sdist bdist_wheel
 
-script: ./tests/run_tests_travis.sh
+script:
+  # build the wheels, put them into './wheelhouse'
+  - ./tests/run_tests_travis.sh
+#  - python3 -m cibuildwheel --output-dir wheelhouse
+#  - python3 -m pip install twine
+#  - ls wheelhouse/*whl
 
-branches:
-  only:
-    - master
+# FIXME see https://github.com/joerick/cibuildwheel
+
+after_success:
+  # if the release was tagged, upload them to PyPI
+  - |
+    if [[ $TRAVIS_TAG ]]; then
+      echo nada # python3 -m twine upload wheelhouse/*.whl
+    fi

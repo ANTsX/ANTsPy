@@ -15,7 +15,7 @@ fi
 
 #cd ./src
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itktag=81c14ce858a530699ee2fbf7fa48b884ad26b984
+itktag=e21a56d1227c5433066237060368cb4532b8a9d2 # update ITK tag 10/2/2020
 # if there is a directory but no git, remove it
 if [[ -d itksource ]]; then
     if [[ ! -d itksource/.git ]]; then
@@ -71,6 +71,7 @@ cmake \
     -DITKGroup_Numerics=ON \
     -DITKGroup_Registration=ON \
     -DITKGroup_Segmentation=ON \
+    -DModule_AdaptiveDenoising:BOOL=ON \
     -DModule_GenericLabelInterpolator:BOOL=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \

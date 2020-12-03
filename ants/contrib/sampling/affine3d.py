@@ -4,14 +4,16 @@ Affine transforms
 See http://www.cs.cornell.edu/courses/cs4620/2010fa/lectures/03transforms3d.pdf
 """
 
-__all__ = ['Zoom3D',
-           'RandomZoom3D',
-           'Rotate3D',
-           'RandomRotate3D',
-           'Shear3D',
-           'RandomShear3D',
-           'Translate3D',
-           'RandomTranslate3D']
+__all__ = [
+    "Zoom3D",
+    "RandomZoom3D",
+    "Rotate3D",
+    "RandomRotate3D",
+    "Shear3D",
+    "RandomShear3D",
+    "Translate3D",
+    "RandomTranslate3D",
+]
 
 import random
 import math
@@ -24,10 +26,8 @@ class Translate3D(object):
     """
     Create an ANTs Affine Transform with a specified translation.
     """
-    def __init__(self,
-                 translation,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, translation, reference=None, lazy=False):
         """
         Initialize a Shear3D object
 
@@ -48,16 +48,19 @@ class Translate3D(object):
             transform the image
         """
         if (not isinstance(translation, (list, tuple))) or (len(translation) != 3):
-            raise ValueError('translation argument must be list/tuple with three values!')
+            raise ValueError(
+                "translation argument must be list/tuple with three values!"
+            )
 
         self.translation = translation
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=3, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -94,14 +97,24 @@ class Translate3D(object):
         # convert to radians and unpack
         translation_x, translation_y, translation_z = self.translation
 
-        translation_matrix = np.array([[1, 0, 0, translation_x],
-                                       [0, 1, 0, translation_y],
-                                       [0, 0, 1, translation_z]])
+        translation_matrix = np.array(
+            [
+                [1, 0, 0, translation_x],
+                [0, 1, 0, translation_y],
+                [0, 0, 1, translation_z],
+            ]
+        )
         self.tx.set_parameters(translation_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomTranslate3D(object):
@@ -111,10 +124,8 @@ class RandomTranslate3D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 translation_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, translation_range, reference=None, lazy=False):
         """
         Initialize a RandomTranslate3D object
 
@@ -134,8 +145,10 @@ class RandomTranslate3D(object):
             the randomly generated transform and does not actually
             transform the image
         """
-        if (not isinstance(translation_range, (list, tuple))) or (len(translation_range) != 2):
-            raise ValueError('shear_range argument must be list/tuple with two values!')
+        if (not isinstance(translation_range, (list, tuple))) or (
+            len(translation_range) != 2
+        ):
+            raise ValueError("shear_range argument must be list/tuple with two values!")
 
         self.translation_range = translation_range
         self.reference = reference
@@ -167,26 +180,32 @@ class RandomTranslate3D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in translation range
-        translation_x = random.gauss(self.translation_range[0], self.translation_range[1])
-        translation_y = random.gauss(self.translation_range[0], self.translation_range[1])
-        translation_z = random.gauss(self.translation_range[0], self.translation_range[1])
+        translation_x = random.gauss(
+            self.translation_range[0], self.translation_range[1]
+        )
+        translation_y = random.gauss(
+            self.translation_range[0], self.translation_range[1]
+        )
+        translation_z = random.gauss(
+            self.translation_range[0], self.translation_range[1]
+        )
         self.params = (translation_x, translation_y, translation_z)
 
-        tx = Translate3D((translation_x, translation_y, translation_z),
-                          reference=self.reference,
-                          lazy=self.lazy)
+        tx = Translate3D(
+            (translation_x, translation_y, translation_z),
+            reference=self.reference,
+            lazy=self.lazy,
+        )
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)
 
 
 class Shear3D(object):
     """
     Create an ANTs Affine Transform with a specified shear.
     """
-    def __init__(self,
-                 shear,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, shear, reference=None, lazy=False):
         """
         Initialize a Shear3D object
 
@@ -207,16 +226,17 @@ class Shear3D(object):
             transform the image
         """
         if (not isinstance(shear, (list, tuple))) or (len(shear) != 3):
-            raise ValueError('shear argument must be list/tuple with three values!')
+            raise ValueError("shear argument must be list/tuple with three values!")
 
         self.shear = shear
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=3, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -254,14 +274,24 @@ class Shear3D(object):
         shear = [math.pi / 180 * s for s in self.shear]
         shear_x, shear_y, shear_z = shear
 
-        shear_matrix = np.array([[1, shear_x, shear_x, 0],
-                                 [shear_y, 1, shear_y, 0],
-                                 [shear_z, shear_z, 1, 0]])
+        shear_matrix = np.array(
+            [
+                [1, shear_x, shear_x, 0],
+                [shear_y, 1, shear_y, 0],
+                [shear_z, shear_z, 1, 0],
+            ]
+        )
         self.tx.set_parameters(shear_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomShear3D(object):
@@ -271,10 +301,8 @@ class RandomShear3D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 shear_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, shear_range, reference=None, lazy=False):
         """
         Initialize a RandomRotate3D object
 
@@ -295,7 +323,7 @@ class RandomShear3D(object):
             transform the image
         """
         if (not isinstance(shear_range, (list, tuple))) or (len(shear_range) != 2):
-            raise ValueError('shear_range argument must be list/tuple with two values!')
+            raise ValueError("shear_range argument must be list/tuple with two values!")
 
         self.shear_range = shear_range
         self.reference = reference
@@ -332,11 +360,11 @@ class RandomShear3D(object):
         shear_z = random.gauss(self.shear_range[0], self.shear_range[1])
         self.params = (shear_x, shear_y, shear_z)
 
-        tx = Shear3D((shear_x, shear_y, shear_z),
-                     reference=self.reference,
-                     lazy=self.lazy)
+        tx = Shear3D(
+            (shear_x, shear_y, shear_z), reference=self.reference, lazy=self.lazy
+        )
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)
 
 
 class Rotate3D(object):
@@ -344,10 +372,8 @@ class Rotate3D(object):
     Create an ANTs Affine Transform with a specified level
     of rotation.
     """
-    def __init__(self,
-                 rotation,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, rotation, reference=None, lazy=False):
         """
         Initialize a Rotate3D object
 
@@ -368,16 +394,17 @@ class Rotate3D(object):
             transform the image
         """
         if (not isinstance(rotation, (list, tuple))) or (len(rotation) != 3):
-            raise ValueError('rotation argument must be list/tuple with three values!')
+            raise ValueError("rotation argument must be list/tuple with three values!")
 
         self.rotation = rotation
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=3, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -408,31 +435,49 @@ class Rotate3D(object):
 
         # Rotation about X axis
         theta_x = math.pi / 180 * rotation_x
-        rotate_matrix_x = np.array([[1, 0,                  0,                 0],
-                                    [0, math.cos(theta_x), -math.sin(theta_x), 0],
-                                    [0, math.sin(theta_x),  math.cos(theta_x), 0],
-                                    [0,0,0,1]])
+        rotate_matrix_x = np.array(
+            [
+                [1, 0, 0, 0],
+                [0, math.cos(theta_x), -math.sin(theta_x), 0],
+                [0, math.sin(theta_x), math.cos(theta_x), 0],
+                [0, 0, 0, 1],
+            ]
+        )
 
         # Rotation about Y axis
         theta_y = math.pi / 180 * rotation_y
-        rotate_matrix_y = np.array([[math.cos(theta_y),  0, math.sin(theta_y), 0],
-                                    [0,                  1, 0,                 0],
-                                    [-math.sin(theta_y), 0, math.cos(theta_y), 0],
-                                    [0,0,0,1]])
+        rotate_matrix_y = np.array(
+            [
+                [math.cos(theta_y), 0, math.sin(theta_y), 0],
+                [0, 1, 0, 0],
+                [-math.sin(theta_y), 0, math.cos(theta_y), 0],
+                [0, 0, 0, 1],
+            ]
+        )
 
         # Rotation about Z axis
         theta_z = math.pi / 180 * rotation_z
-        rotate_matrix_z = np.array([[math.cos(theta_z), -math.sin(theta_z), 0, 0],
-                                    [math.sin(theta_z),  math.cos(theta_z), 0, 0],
-                                    [0,                0,                   1, 0],
-                                    [0,0,0,1]])
-        rotate_matrix = rotate_matrix_x.dot(rotate_matrix_y).dot(rotate_matrix_z)[:3,:]
+        rotate_matrix_z = np.array(
+            [
+                [math.cos(theta_z), -math.sin(theta_z), 0, 0],
+                [math.sin(theta_z), math.cos(theta_z), 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+        rotate_matrix = rotate_matrix_x.dot(rotate_matrix_y).dot(rotate_matrix_z)[:3, :]
 
         self.tx.set_parameters(rotate_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomRotate3D(object):
@@ -442,10 +487,8 @@ class RandomRotate3D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 rotation_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, rotation_range, reference=None, lazy=False):
         """
         Initialize a RandomRotate3D object
 
@@ -465,8 +508,12 @@ class RandomRotate3D(object):
             the randomly generated transform and does not actually
             transform the image
         """
-        if (not isinstance(rotation_range, (list, tuple))) or (len(rotation_range) != 2):
-            raise ValueError('rotation_range argument must be list/tuple with two values!')
+        if (not isinstance(rotation_range, (list, tuple))) or (
+            len(rotation_range) != 2
+        ):
+            raise ValueError(
+                "rotation_range argument must be list/tuple with two values!"
+            )
 
         self.rotation_range = rotation_range
         self.reference = reference
@@ -503,11 +550,13 @@ class RandomRotate3D(object):
         rotation_z = random.gauss(self.rotation_range[0], self.rotation_range[1])
         self.params = (rotation_x, rotation_y, rotation_z)
 
-        tx = Rotate3D((rotation_x, rotation_y, rotation_z),
-                    reference=self.reference,
-                    lazy=self.lazy)
+        tx = Rotate3D(
+            (rotation_x, rotation_y, rotation_z),
+            reference=self.reference,
+            lazy=self.lazy,
+        )
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)
 
 
 class Zoom3D(object):
@@ -516,10 +565,8 @@ class Zoom3D(object):
     of zoom. Any value greater than 1 implies a "zoom-out" and anything
     less than 1 implies a "zoom-in".
     """
-    def __init__(self,
-                 zoom,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, zoom, reference=None, lazy=False):
         """
         Initialize a Zoom3D object
 
@@ -540,16 +587,19 @@ class Zoom3D(object):
             transform the image
         """
         if (not isinstance(zoom, (list, tuple))) or (len(zoom) != 3):
-            raise ValueError('zoom_range argument must be list/tuple with three values!')
+            raise ValueError(
+                "zoom_range argument must be list/tuple with three values!"
+            )
 
         self.zoom = zoom
         self.lazy = lazy
         self.reference = reference
 
-        self.tx = tio.ANTsTransform(precision='float', dimension=3,
-                                    transform_type='AffineTransform')
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=3, transform_type="AffineTransform"
+        )
         if self.reference is not None:
-            self.tx.set_fixed_parameters( self.reference.get_center_of_mass() )
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
 
     def transform(self, X=None, y=None):
         """
@@ -579,14 +629,20 @@ class Zoom3D(object):
         zoom_x, zoom_y, zoom_z = self.zoom
 
         self.params = (zoom_x, zoom_y, zoom_z)
-        zoom_matrix = np.array([[zoom_x, 0, 0, 0],
-                                [0, zoom_y, 0, 0],
-                                [0, 0, zoom_z, 0]])
+        zoom_matrix = np.array(
+            [[zoom_x, 0, 0, 0], [0, zoom_y, 0, 0], [0, 0, zoom_z, 0]]
+        )
         self.tx.set_parameters(zoom_matrix)
         if self.lazy or X is None:
             return self.tx
         else:
-            return self.tx.apply_to_image(X, reference=self.reference)
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class RandomZoom3D(object):
@@ -596,10 +652,8 @@ class RandomZoom3D(object):
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.
     """
-    def __init__(self,
-                 zoom_range,
-                 reference=None,
-                 lazy=False):
+
+    def __init__(self, zoom_range, reference=None, lazy=False):
         """
         Initialize a RandomZoom3D object
 
@@ -620,7 +674,7 @@ class RandomZoom3D(object):
             transform the image
         """
         if (not isinstance(zoom_range, (list, tuple))) or (len(zoom_range) != 2):
-            raise ValueError('zoom_range argument must be list/tuple with two values!')
+            raise ValueError("zoom_range argument must be list/tuple with two values!")
 
         self.zoom_range = zoom_range
         self.reference = reference
@@ -652,19 +706,17 @@ class RandomZoom3D(object):
         >>> img2 = tx.transform(img)
         """
         # random draw in zoom range
-        zoom_x = np.exp( random.gauss(
-          np.log( self.zoom_range[0] ),
-          np.log( self.zoom_range[1] ) ) )
-        zoom_y = np.exp( random.gauss(
-          np.log( self.zoom_range[0] ),
-          np.log( self.zoom_range[1] ) ) )
-        zoom_z = np.exp( random.gauss(
-          np.log( self.zoom_range[0] ),
-          np.log( self.zoom_range[1] ) ) )
+        zoom_x = np.exp(
+            random.gauss(np.log(self.zoom_range[0]), np.log(self.zoom_range[1]))
+        )
+        zoom_y = np.exp(
+            random.gauss(np.log(self.zoom_range[0]), np.log(self.zoom_range[1]))
+        )
+        zoom_z = np.exp(
+            random.gauss(np.log(self.zoom_range[0]), np.log(self.zoom_range[1]))
+        )
         self.params = (zoom_x, zoom_y, zoom_z)
 
-        tx = Zoom3D((zoom_x,zoom_y,zoom_z),
-                    reference=self.reference,
-                    lazy=self.lazy)
+        tx = Zoom3D((zoom_x, zoom_y, zoom_z), reference=self.reference, lazy=self.lazy)
 
-        return tx.transform(X,y)
+        return tx.transform(X, y)

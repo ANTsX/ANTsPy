@@ -1,6 +1,5 @@
-
-
 ## LOCAL ##
+from .addNoiseToImage import *
 from .antiAlias import *
 from .antsImage import *
 from .antsImageClone import *
@@ -10,9 +9,14 @@ from .antsImageToImageMetric import *
 from .antsImageUtils import *
 from .antsTransform import *
 from .cropImage import *
+from .fitBsplineObjectToScatteredData import *
+from .fitBsplineDisplacementField import *
+from .fitBsplineDisplacementFieldToScatteredData import *
 from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
+from .histogramMatchImage import *
 from .invariantImageSimilarity import *
+from .labelOverlapMeasures import *
 from .labelStats import *
 from .mergeChannels import *
 from .padImage import *
@@ -23,6 +27,7 @@ from .reorientImage import *
 from .reorientImage2 import *
 from .rgbToVector import *
 from .sccaner import *
+from .simulateDisplacementField import *
 from .sliceImage import *
 from .SmoothImage import *
 from .weingartenImageCurvature import *
@@ -45,6 +50,7 @@ from .N3BiasFieldCorrection import *
 from .N4BiasFieldCorrection import *
 from .ResampleImage import *
 from .ThresholdImage import *
+from .integrateVelocityField import *
 from .TileImages import *
 
 
@@ -54,27 +60,26 @@ from .antsImageAugment import *
 
 
 ## NOT WRAPPED ##
-#from .antsLandmarkBasedTransformInitializer import *
-#from .antsMotionCorr import *
-#from .antsMotionCorrStats import *
-#from .antsSliceRegularizedRegistration import *
-#from .LesionFilling import *
-#from .NonLocalSuperResolution import *
-#from .SuperResolution import *
-#from .TimeSCCAN import *
+# from .antsLandmarkBasedTransformInitializer import *
+# from .antsMotionCorr import *
+# from .antsMotionCorrStats import *
+# from .antsSliceRegularizedRegistration import *
+# from .LesionFilling import *
+# from .NonLocalSuperResolution import *
+# from .SuperResolution import *
+# from .TimeSCCAN import *
 
 
 ## VIZ ##
-#try:
+# try:
 #    from .antsSurf import *
-#except:
+# except:
 #    pass
-#try:
+# try:
 #    from .antsVol import *
-#except:
+# except:
 #    pass
-#try:
-#    from .ConvertScalarImageToRGB import *
-#except:
-#    pass
-
+try:
+    from .ConvertScalarImageToRGB import *
+except:
+    pass

@@ -9,6 +9,7 @@ from tempfile import mktemp
 import glob
 import re
 import pandas as pd
+import itertools
 
 from . import apply_transforms_to_points
 from .. import utils
@@ -32,6 +33,9 @@ def registration(
     syn_metric="mattes",
     syn_sampling=32,
     reg_iterations=(40, 20, 0),
+    aff_iterations=(2100, 1200, 1200, 10),
+    aff_shrink_factors=(6, 4, 2, 1),
+    aff_smoothing_sigmas=(3, 2, 1, 0),
     write_composite_transform=False,
     random_seed=None,
     verbose=False,
@@ -93,6 +97,15 @@ def registration(
     reg_iterations : list/tuple of integers
         vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
 
+    aff_iterations : list/tuple of integers
+        vector of iterations for low-dimensional (translation, rigid, affine) registration.
+
+    aff_shrink_factors : list/tuple of integers
+        vector of multi-resolution shrink factors for low-dimensional (translation, rigid, affine) registration.
+
+    aff_smoothing_sigmas : list/tuple of integers
+        vector of multi-resolution smoothing factors for low-dimensional (translation, rigid, affine) registration.
+
     random_seed : integer
         random seed to improve reproducibility. note that the number of ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS should be 1 if you want perfect reproducibility.
 
@@ -127,7 +140,7 @@ def registration(
 
     Notes
     -----
-    typeofTransform can be one of:
+    type_of_transform can be one of:
         - "Translation": Translation transformation.
         - "Rigid": Rigid transformation: Only rotation and translation.
         - "Similarity": Similarity transformation: scaling, rotation and translation.
@@ -165,8 +178,15 @@ def registration(
         - "SyNAggro": SyN, but with more aggressive registration
                         (fine-scale matching and more deformation).
                         Takes more time than SyN.
+        - "TV[n]": time-varying diffeomorphism with where 'n' indicates number of
+            time points in velocity field discretization.  The initial transform
+            should be computed, if needed, in a separate call to ants.registration.
         - "TVMSQ": time-varying diffeomorphism with mean square metric
         - "TVMSQC": time-varying diffeomorphism with mean square metric for very large deformation
+        - "antsRegistrationSyN[x]": recreation of the antsRegistrationSyN.sh script in ANTs
+                                    where 'x' is one of the transforms available (e.g., 't', 'b', 's')
+        - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
+                                    where 'x' is one of the transforms available (e.g., 't', 'b', 's')
 
     Example
     -------
@@ -200,10 +220,40 @@ def registration(
 
     args = [fixed, moving, type_of_transform, outprefix]
     myl = 0
-    myf_aff = "6x4x2x1"
-    mys_aff = "3x2x1x0"
+    myf_aff = "6x4x2x1"  # old fixed params
+    mys_aff = "3x2x1x0"  # old fixed params
+    if (
+        type(aff_shrink_factors) is int
+        or type(aff_smoothing_sigmas) is int
+        or type(aff_iterations) is int
+    ):
+        if type(aff_smoothing_sigmas) is not int:
+            raise ValueError("aff_smoothing_sigmas should be a single integer.")
+        if type(aff_iterations) is not int:
+            raise ValueError("aff_iterations should be a single integer.")
+        if type(aff_shrink_factors) is not int:
+            raise ValueError("aff_shrink_factors should be a single integer.")
+        myf_aff = aff_shrink_factors
+        mys_aff = aff_smoothing_sigmas
+        myiterations = aff_iterations
 
-    myiterations = "2100x1200x1200x10"
+    if type(aff_shrink_factors) is tuple:
+        myf_aff = "x".join([str(ri) for ri in aff_shrink_factors])
+        mys_aff = "x".join([str(ri) for ri in aff_smoothing_sigmas])
+        myiterations = "x".join([str(ri) for ri in aff_iterations])
+        if len(aff_iterations) != len(aff_smoothing_sigmas):
+            raise ValueError(
+                "aff_iterations length should equal aff_smoothing_sigmas length."
+            )
+        if len(aff_iterations) != len(aff_shrink_factors):
+            raise ValueError(
+                "aff_iterations length should equal aff_shrink_factors length."
+            )
+        if len(aff_shrink_factors) != len(aff_smoothing_sigmas):
+            raise ValueError(
+                "aff_shrink_factors length should equal aff_smoothing_sigmas length."
+            )
+
     if type_of_transform == "AffineFast":
         type_of_transform = "Affine"
         myiterations = "2100x1200x0x0"
@@ -245,6 +295,16 @@ def registration(
     if not isinstance(fixed, str):
         if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
             inpixeltype = fixed.pixeltype
+            tvTypes = [
+                "TV[1]",
+                "TV[2]",
+                "TV[3]",
+                "TV[4]",
+                "TV[5]",
+                "TV[6]",
+                "TV[7]",
+                "TV[8]",
+            ]
             ttexists = False
             allowable_tx = {
                 "SyNBold",
@@ -258,6 +318,14 @@ def registration(
                 "TRSAA",
                 "SyNabp",
                 "SyNLessAggro",
+                "TV[1]",
+                "TV[2]",
+                "TV[3]",
+                "TV[4]",
+                "TV[5]",
+                "TV[6]",
+                "TV[7]",
+                "TV[8]",
                 "TVMSQ",
                 "TVMSQC",
                 "Rigid",
@@ -269,6 +337,24 @@ def registration(
                 "QuickRigid",
                 "DenseRigid",
                 "BOLDRigid",
+                "antsRegistrationSyN[r]",
+                "antsRegistrationSyN[t]",
+                "antsRegistrationSyN[a]",
+                "antsRegistrationSyN[b]",
+                "antsRegistrationSyN[s]",
+                "antsRegistrationSyN[br]",
+                "antsRegistrationSyN[sr]",
+                "antsRegistrationSyN[bo]",
+                "antsRegistrationSyN[so]",
+                "antsRegistrationSyNQuick[r]",
+                "antsRegistrationSyNQuick[t]",
+                "antsRegistrationSyNQuick[a]",
+                "antsRegistrationSyNQuick[b]",
+                "antsRegistrationSyNQuick[s]",
+                "antsRegistrationSyNQuick[br]",
+                "antsRegistrationSyNQuick[sr]",
+                "antsRegistrationSyNQuick[bo]",
+                "antsRegistrationSyNQuick[so]",
             }
             ttexists = type_of_transform in allowable_tx
             if not ttexists:
@@ -937,6 +1023,51 @@ def registration(
                         args.append("-x")
                         args.append("[NA,NA]")
                 # ------------------------------------------------------------
+                elif type_of_transform in tvTypes:
+                    if grad_step is None:
+                        grad_step = 1.0
+                    nTimePoints = type_of_transform.split("[")[1].split("]")[0]
+                    tvtx = (
+                        "TimeVaryingVelocityField["
+                        + str(grad_step)
+                        + ","
+                        + nTimePoints
+                        + ","
+                        + str(flow_sigma)
+                        + ",0.0,"
+                        + str(total_sigma)
+                        + ",0]"
+                    )
+                    args = [
+                        "-d",
+                        str(fixed.dimension),
+                        "-r",
+                        initx,
+                        "-m",
+                        "%s[%s,%s,1,%s]" % (syn_metric, f, m, syn_sampling),
+                        "-t",
+                        tvtx,
+                        "-c",
+                        "[%s,1e-7,8]" % synits,
+                        "-s",
+                        smoothingsigmas,
+                        "-f",
+                        shrinkfactors,
+                        "-u",
+                        "1",
+                        "-z",
+                        "0",
+                        "-l",
+                        myl,
+                        "-o",
+                        "[%s,%s,%s]" % (outprefix, wmo, wfo),
+                    ]
+                    if maskopt is not None:
+                        args.append("-x")
+                        args.append(maskopt)
+                    else:
+                        args.append("-x")
+                        args.append("[NA,NA]")
                 elif type_of_transform == "TVMSQ":
                     if grad_step is None:
                         grad_step = 1.0
@@ -961,7 +1092,7 @@ def registration(
                         "-u",
                         "1",
                         "-z",
-                        "1",
+                        "0",
                         "-l",
                         myl,
                         "-o",
@@ -1000,7 +1131,7 @@ def registration(
                         "-u",
                         "1",
                         "-z",
-                        "1",
+                        "0",
                         "-l",
                         myl,
                         "-o",
@@ -1051,6 +1182,145 @@ def registration(
                         args.append("-x")
                         args.append("[NA,NA]")
                 # ------------------------------------------------------------
+                elif "antsRegistrationSyN" in type_of_transform:
+                    subtype_of_transform = "s"
+                    if "[" in type_of_transform and "]" in type_of_transform:
+                        subtype_of_transform = type_of_transform.split("[")[1].split(
+                            "]"
+                        )[0]
+
+                    do_quick = False
+                    if "Quick" in type_of_transform:
+                        do_quick = True
+
+                    if do_quick == True:
+                        rigid_convergence = "[1000x500x250x0,1e-6,10]"
+                    else:
+                        rigid_convergence = "[1000x500x250x100,1e-6,10]"
+                    rigid_shrink_factors = "8x4x2x1"
+                    rigid_smoothing_sigmas = "3x2x1x0vox"
+
+                    if do_quick == True:
+                        affine_convergence = "[1000x500x250x0,1e-6,10]"
+                    else:
+                        affine_convergence = "[1000x500x250x100,1e-6,10]"
+                    affine_shrink_factors = "8x4x2x1"
+                    affine_smoothing_sigmas = "3x2x1x0vox"
+
+                    if do_quick == True:
+                        syn_convergence = "[100x70x50x0,1e-6,10]"
+                        syn_metric = "MI[%s,%s,1,32]" % (f, m)
+                    else:
+                        syn_convergence = "[100x70x50x20,1e-6,10]"
+                        syn_metric = "CC[%s,%s,1,4]" % (f, m)
+                    syn_shrink_factors = "8x4x2x1"
+                    syn_smoothing_sigmas = "3x2x1x0vox"
+
+                    tx = "Rigid"
+                    if subtype_of_transform == "t":
+                        tx = "Translation"
+
+                    rigid_stage = [
+                        "--transform",
+                        tx + "[0.1]",
+                        "--metric",
+                        "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                        "--convergence",
+                        rigid_convergence,
+                        "--shrink-factors",
+                        rigid_shrink_factors,
+                        "--smoothing-sigmas",
+                        rigid_smoothing_sigmas,
+                    ]
+
+                    affine_stage = [
+                        "--transform",
+                        "Affine[0.1]",
+                        "--metric",
+                        "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                        "--convergence",
+                        affine_convergence,
+                        "--shrink-factors",
+                        affine_shrink_factors,
+                        "--smoothing-sigmas",
+                        affine_smoothing_sigmas,
+                    ]
+
+                    if subtype_of_transform == "sr" or subtype_of_transform == "br":
+                        if do_quick == True:
+                            syn_convergence = "[50x0,1e-6,10]"
+                        else:
+                            syn_convergence = "[50x20,1e-6,10]"
+                        syn_shrink_factors = "2x1"
+                        syn_smoothing_sigmas = "1x0vox"
+
+                    syn_stage = [
+                        "--metric",
+                        syn_metric,
+                        "--convergence",
+                        syn_convergence,
+                        "--shrink-factors",
+                        syn_shrink_factors,
+                        "--smoothing-sigmas",
+                        syn_smoothing_sigmas,
+                    ]
+
+                    if (
+                        subtype_of_transform == "b"
+                        or subtype_of_transform == "br"
+                        or subtype_of_transform == "bo"
+                    ):
+                        syn_stage.insert(0, "BSplineSyN[0.1,26,0,3]")
+                        syn_stage.insert(0, "--transform")
+
+                    if (
+                        subtype_of_transform == "s"
+                        or subtype_of_transform == "sr"
+                        or subtype_of_transform == "so"
+                    ):
+                        syn_stage.insert(0, "SyN[0.1,3,0]")
+                        syn_stage.insert(0, "--transform")
+
+                    args = [
+                        "-d",
+                        str(fixed.dimension),
+                        "-r",
+                        initx,
+                        "-o",
+                        "[%s,%s,%s]" % (outprefix, wmo, wfo),
+                    ]
+
+                    if subtype_of_transform == "r" or subtype_of_transform == "t":
+                        args.append(rigid_stage)
+                    if subtype_of_transform == "a":
+                        args.append(rigid_stage)
+                        args.append(affine_stage)
+                    if subtype_of_transform == "b" or subtype_of_transform == "s":
+                        args.append(rigid_stage)
+                        args.append(affine_stage)
+                        args.append(syn_stage)
+                    if subtype_of_transform == "br" or subtype_of_transform == "sr":
+                        args.append(rigid_stage)
+                        args.append(syn_stage)
+                    if subtype_of_transform == "bo" or subtype_of_transform == "so":
+                        args.append(syn_stage)
+
+                    if maskopt is not None:
+                        args.append("-x")
+                        args.append(maskopt)
+                    else:
+                        args.append("-x")
+                        args.append("[NA,NA]")
+
+                    args = list(
+                        itertools.chain.from_iterable(
+                            itertools.repeat(x, 1) if isinstance(x, str) else x
+                            for x in args
+                        )
+                    )
+
+                # ------------------------------------------------------------
+
                 if random_seed is not None:
                     args.append("--random-seed")
                     args.append(random_seed)
@@ -1069,6 +1339,7 @@ def registration(
                 afffns = glob.glob(outprefix + "*" + "[0-9]GenericAffine.mat")
                 fwarpfns = glob.glob(outprefix + "*" + "[0-9]Warp.nii.gz")
                 iwarpfns = glob.glob(outprefix + "*" + "[0-9]InverseWarp.nii.gz")
+                vfieldfns = glob.glob(outprefix + "*" + "[0-9]VelocityField.nii.gz")
                 # print(afffns, fwarpfns, iwarpfns)
                 if len(afffns) == 0:
                     afffns = ""
@@ -1076,8 +1347,13 @@ def registration(
                     fwarpfns = ""
                 if len(iwarpfns) == 0:
                     iwarpfns = ""
+                if len(vfieldfns) == 0:
+                    vfieldfns = ""
 
-                alltx = sorted(glob.glob(outprefix + "*" + "[0-9]*"))
+                alltx = sorted(
+                    set(glob.glob(outprefix + "*" + "[0-9]*"))
+                    - set(glob.glob(outprefix + "*VelocityField*"))
+                )
                 findinv = np.where(
                     [re.search("[0-9]InverseWarp.nii.gz", ff) for ff in alltx]
                 )[0]
@@ -1101,12 +1377,22 @@ def registration(
                     fwdtransforms = outprefix + "Composite.h5"
                     invtransforms = outprefix + "InverseComposite.h5"
 
-                return {
-                    "warpedmovout": warpedmovout.clone(inpixeltype),
-                    "warpedfixout": warpedfixout.clone(inpixeltype),
-                    "fwdtransforms": fwdtransforms,
-                    "invtransforms": invtransforms,
-                }
+                if not vfieldfns:
+                    return {
+                        "warpedmovout": warpedmovout.clone(inpixeltype),
+                        "warpedfixout": warpedfixout.clone(inpixeltype),
+                        "fwdtransforms": fwdtransforms,
+                        "invtransforms": invtransforms,
+                    }
+                else:
+                    return {
+                        "warpedmovout": warpedmovout.clone(inpixeltype),
+                        "warpedfixout": warpedfixout.clone(inpixeltype),
+                        "fwdtransforms": fwdtransforms,
+                        "invtransforms": invtransforms,
+                        "velocityfield": vfieldfns,
+                    }
+
     else:
         args.append("--float")
         args.append("1")
