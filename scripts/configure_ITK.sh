@@ -1,14 +1,14 @@
 #!/bin/bash
 CXX_STD=CXX11
 JTHREADS=2
-if [[ "`uname`" -eq "Darwin" ]] ; then
+if [[ "`uname`" == "Darwin" ]] ; then
   CMAKE_BUILD_TYPE=Release
 fi
 ADD_G="Unix Makefiles"
-if [[ "$APPVEYOR" -eq True ]] ; then
+if [[ "$APPVEYOR" == "true" ]] ; then
   ADD_G="MinGW Makefiles"
 fi
-if [[ "$TRAVIS" -eq true ]] ; then
+if [[ "$TRAVIS" == "true" ]] ; then
   CMAKE_BUILD_TYPE=Release
   JTHREADS=2
 fi
