@@ -64,6 +64,7 @@ cmake \
     -DModule_ITKDeprecated:BOOL=OFF \
     -DModule_ITKReview:BOOL=ON \
     -DModule_ITKVtkGlue:BOOL=OFF \
+    -DModule_GenericLabelInterpolator:BOOL=ON \
     -DITKGroup_Core=ON \
     -DModule_ITKReview=ON \
     -DITKGroup_Filtering=ON \
