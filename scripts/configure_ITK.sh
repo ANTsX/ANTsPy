@@ -1,10 +1,14 @@
 #!/bin/bash
 CXX_STD=CXX11
 JTHREADS=2
-if [[ `uname` -eq Darwin ]] ; then
+if [[ "`uname`" == "Darwin" ]] ; then
   CMAKE_BUILD_TYPE=Release
 fi
-if [[ $TRAVIS -eq true ]] ; then
+ADD_G="Unix Makefiles"
+if [[ "$APPVEYOR" == "true" ]] ; then
+  ADD_G="MinGW Makefiles"
+fi
+if [[ "$TRAVIS" == "true" ]] ; then
   CMAKE_BUILD_TYPE=Release
   JTHREADS=2
 fi
@@ -41,6 +45,8 @@ mkdir -p itkbuild
 cd itkbuild
 compflags=" -fPIC -O2  "
 cmake \
+	-G"${ADD_G}" \
+    -DCMAKE_SH:BOOL=OFF \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
@@ -58,6 +64,7 @@ cmake \
     -DModule_ITKDeprecated:BOOL=OFF \
     -DModule_ITKReview:BOOL=ON \
     -DModule_ITKVtkGlue:BOOL=OFF \
+    -DModule_GenericLabelInterpolator:BOOL=ON \
     -DITKGroup_Core=ON \
     -DModule_ITKReview=ON \
     -DITKGroup_Filtering=ON \
