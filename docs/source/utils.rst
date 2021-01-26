@@ -12,6 +12,7 @@ Utilities
 .. autofunction:: decrop_image
 .. autofunction:: denoise_image
 .. autofunction:: fit_bspline_object_to_scattered_data
+.. autofunction:: fit_bspline_displacement_field
 .. autofunction:: functional_lung_segmentation
 .. autofunction:: get_ants_data
 .. autofunction:: get_centroids

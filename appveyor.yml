@@ -1,0 +1,109 @@
+environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
+  matrix:
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6.x" # currently 3.6.5
+      PYTHON_ARCH: "64"
+
+install:
+  - ps: $env:PATH = "C:\Program Files (x86)\Git\bin;" + $env:PATH  
+  - ps: $env:PATH = 'C:\MinGW\msys\1.0\bin;' + $env:PATH
+  # If there is a newer build queued for the same PR, cancel this one.
+  # The AppVeyor 'rollout builds' option is supposed to serve the same
+  # purpose but it is problematic because it tends to cancel builds pushed
+  # directly to master instead of just PR builds (or the converse).
+  # credits: JuliaLang developers.
+  # - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
+  #       https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
+  #       Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
+  #         throw "There are newer queued builds for this pull request, failing early." }
+  - ECHO "Filesystem root:"
+  - ps: "ls \"C:/\""
+
+  - ECHO "Installed SDKs:"
+  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  # Install Python (from the official .msi of https://python.org) and pip when
+  # not already installed.
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  # Upgrade to the latest version of pip to avoid it displaying warnings
+  # about it being out of date.
+  - "python -m pip install --upgrade pip"
+
+  # Install the build dependencies of the project. If some dependencies contain
+  # compiled extensions and are not provided as pre-built wheel packages,
+  # pip will build them from source using the MSVC compiler matching the
+  # target Python version and architecture
+  - "%CMD_IN_ENV% pip install -r requirements.txt"
+  - git --version
+  - ps: Invoke-WebRequest https://github.com/muschellij2/ITKR/releases/download/v0.5.2.0.2/ITKR_0.5.2_R3.6.zip -OutFile "ITKR.zip"
+  - unzip -q ITKR.zip
+  - ls 
+  - ls ITKR
+  # - temp=`find ./ -name "ITKConfig.cmake"`
+  - sh: export ITK_DIR=$APPVEYOR_BUILD_FOLDER/ITKR/libs/  
+  - "SET ITK_DIR=%APPVEYOR_BUILD_FOLDER%/ITKR/libs/"
+
+
+build_script:
+  - cmake --version  
+  - sh ./scripts/configure_ANTsPy_windows.sh
+  - python setup.py install
+  # - "python setup.py install"
+  # Build the compiled extension
+  # - "%CMD_IN_ENV% python setup.py install"
+
+# test_script:
+#   # Run the project tests and store results in .xml log
+#   - ps: |
+#       # this produces nosetests.xml which is uploaded on_finish
+#       &$env:PYTHON\python setup.py nosetests --with-xunit
+#       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+      
+test_script:
+  - python setup.py sdist bdist_wheel
+  - ls dist
+  # If tests are successful, create binary packages for the project.
+  # - "%CMD_IN_ENV% python setup.py sdist bdist_wheel"
+  # - "%CMD_IN_ENV% python setup.py bdist_wininst"
+  # - "%CMD_IN_ENV% python setup.py bdist_msi"
+
+artifacts:
+  - path: '\*_*.zip'
+    name: Bits  
+  # - path: $APPVEYOR_BUILD_FOLDER/itkbuild/  
+  # Archive the generated packages in the ci.appveyor.com build report.
+  - path: dist\*
+
+on_failure:
+  - 7z a whole.zip *
+  - appveyor PushArtifact whole.zip  
+  # - 7z a itkbuild.zip itkbuild/
+  # - appveyor PushArtifact itkbuild.zip
+
+
+
+#on_success:
+#  - TODO: upload the content of dist/*.whl to a public wheelhouse
+#
+
+# on_finish:
+#   # Upload test results to AppVeyor
+#   - ps: |
+#       # this uploads nosetests.xml produced in test_script step
+#       $wc = New-Object 'System.Net.WebClient'
+#       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\nosetests.xml))
