@@ -158,6 +158,7 @@ def registration(
                     regIterations if using this option. this would be used in
                     cases where you want a really high quality affine mapping
                     (perhaps with mask).
+        - "Elastic": Elastic deformation: Affine + deformable.
         - "ElasticSyN": Symmetric normalization: Affine + deformable
                         transformation, with mutual information as optimization
                         metric and elastic regularization.
@@ -277,6 +278,8 @@ def registration(
         myl = 1
 
     mysyn = "SyN[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
+    if type_of_transform == "Elastic":
+        mysyn = "GaussianDisplacementField[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
     itlen = len(reg_iterations)  # NEED TO CHECK THIS
     if itlen == 0:
         smoothingsigmas = 0
@@ -310,6 +313,7 @@ def registration(
                 "SyNBold",
                 "SyNBoldAff",
                 "ElasticSyN",
+                "Elastic",
                 "SyN",
                 "SyNRA",
                 "SyNOnly",
@@ -534,7 +538,7 @@ def registration(
                         args.append("-x")
                         args.append("[NA,NA]")
                 # ------------------------------------------------------------
-                elif type_of_transform == "SyN":
+                elif type_of_transform == "SyN" or type_of_transform == "Elastic":
                     args = [
                         "-d",
                         str(fixed.dimension),
