@@ -497,7 +497,7 @@ def local_joint_label_fusion(
             print( "local-seg-tx: " + local_mask_transform )
         libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
-            mycroppedregion, libregion, type_of_transform=local_mask_transform, verbose=verbose
+            mycroppedregion, libregion, type_of_transform=local_mask_transform, verbose=False
         )["fwdtransforms"]
         if verbose is True:
             print( "local-img-tx: " + type_of_transform )
@@ -512,7 +512,7 @@ def local_joint_label_fusion(
             syn_metric=syn_metric,
             syn_sampling=syn_sampling,
             initial_transform=initMap[0],
-            verbose=verbose,
+            verbose=False,
         )
         transformedImage = registration.apply_transforms(
             croppedImage, atlas_list[k], localReg["fwdtransforms"]
