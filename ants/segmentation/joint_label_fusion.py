@@ -523,9 +523,6 @@ def local_joint_label_fusion(
             localReg["fwdtransforms"],
             interpolator="nearestNeighbor",
         )
-        #        remappedseg = utils.mask_image(
-        #            transformedLabels, transformedLabels, which_labels
-        #        )
         croppedmappedImages.append(transformedImage)
         croppedmappedSegs.append(transformedLabels)
 
