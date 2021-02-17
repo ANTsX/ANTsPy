@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <limits>
 
 #include "itkAddImageFilter.h"
 #include "itkDefaultConvertPixelTraits.h"
@@ -79,7 +80,7 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
       }
     ++it;
     }
-  
+
   //Rcpp::NumericMatrix matrix(maxSize, nVoxels);
     std::vector<std::vector<float> > matrix(maxSize, std::vector<float>(nVoxels));
   if ( ( ! spatial )  && ( ! getgradient ) )
@@ -113,13 +114,13 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
                   }
                 else
                   {
-                  matrix[row][col] = 0.0;
+                  matrix[row][col] = std::numeric_limits<double>::quiet_NaN();
                   }
                 }
               }
             else
               {
-              matrix[row][col] = 0.0;
+              matrix[row][col] = std::numeric_limits<double>::quiet_NaN();
               }
             }
 
@@ -188,13 +189,13 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
                 }
               else
                 {
-                matrix[row][col] = 0.0;
+                matrix[row][col] = std::numeric_limits<double>::quiet_NaN();
                 }
               }
             }
           else
             {
-            matrix[row][col] = 0.0;
+            matrix[row][col] = std::numeric_limits<double>::quiet_NaN();
             }
           }
 
@@ -290,13 +291,13 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
               }
             else
               {
-              matrix[row][col] = 0.0;
+              matrix[row][col] = std::numeric_limits<double>::quiet_NaN();
               }
             }
           }
         else
           {
-          matrix[row][col] = 0.0;
+          matrix[row][col] = std::numeric_limits<double>::quiet_NaN();
           }
         }
 
@@ -326,9 +327,9 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
 
 template< class PixelType , unsigned int Dimension >
 py::dict getNeighborhood( py::capsule ants_image,
-                          std::vector<float> index, 
-                          std::vector<float> kernel, 
-                          std::vector<int> radius, 
+                          std::vector<float> index,
+                          std::vector<float> kernel,
+                          std::vector<int> radius,
                           int physicalFlag )
 {
 
@@ -432,7 +433,7 @@ PYBIND11_MODULE(getNeighborhoodMatrix, m)
     m.def("getNeighborhoodMatrixUI2", &getNeighborhoodMatrix<unsigned int,2>);
     m.def("getNeighborhoodMatrixUI3", &getNeighborhoodMatrix<unsigned int,3>);
     m.def("getNeighborhoodMatrixUI4", &getNeighborhoodMatrix<unsigned int,4>);
-    
+
     m.def("getNeighborhoodMatrixF2", &getNeighborhoodMatrix<float,2>);
     m.def("getNeighborhoodMatrixF3", &getNeighborhoodMatrix<float,3>);
     m.def("getNeighborhoodMatrixF4", &getNeighborhoodMatrix<float,4>);
@@ -444,7 +445,7 @@ PYBIND11_MODULE(getNeighborhoodMatrix, m)
     m.def("getNeighborhoodUI2", &getNeighborhood<unsigned int,2>);
     m.def("getNeighborhoodUI3", &getNeighborhood<unsigned int,3>);
     m.def("getNeighborhoodUI4", &getNeighborhood<unsigned int,4>);
-    
+
     m.def("getNeighborhoodF2", &getNeighborhood<float,2>);
     m.def("getNeighborhoodF3", &getNeighborhood<float,3>);
     m.def("getNeighborhoodF4", &getNeighborhood<float,4>);

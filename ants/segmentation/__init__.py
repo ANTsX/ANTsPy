@@ -1,6 +1,7 @@
 from .anti_alias import *
 from .atropos import *
 from .kmeans import *
+from .fuzzy_spatial_cmeans_segmentation import *
 from .kelly_kapowski import *
 from .joint_label_fusion import joint_label_fusion
 from .joint_label_fusion import local_joint_label_fusion
