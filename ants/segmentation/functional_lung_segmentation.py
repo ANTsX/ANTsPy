@@ -1,7 +1,6 @@
 
 __all__ = ['functional_lung_segmentation']
 
-from .iMath import iMath
 from .. import core
 from .. import utils
 from .. import segmentation
@@ -117,8 +116,9 @@ def functional_lung_segmentation(image,
         elif bias_correction.lower == "n3":
             preprocessed_image = utils.n3_bias_field_correction(preprocessed_image, downsample_factor=2)
 
-        preprocessed_image = image_scale_factor * ((preprocessed_image - preprocessed_image.min())
-                                                  /(preprocessed_image.max() - preprocessed_image.min()))
+        preprocessed_image = ((preprocessed_image - preprocessed_image.min())
+                              /(preprocessed_image.max() - preprocessed_image.min()))
+        preprocessed_image *= image_scale_factor
 
         if verbose == True:
             print("Outer: Atropos segmentation.")
