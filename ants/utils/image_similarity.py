@@ -25,7 +25,7 @@ def image_similarity(fixed_image, moving_image, metric_type='MeanSquares',
         image metric to calculate
             MeanSquares
             Correlation
-            ANTSNeighborhoodCorrelation
+            ANTsNeighborhoodCorrelation
             MattesMutualInformation
             JointHistogramMutualInformation
             Demons
