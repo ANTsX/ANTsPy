@@ -1,7 +1,7 @@
 # use conda to resolve dependencies cross-platform
 FROM fnndsc/conda:4.9.2 as builder
 
-RUN apt-get update && apt-get install -y build-essential git cmake libpng
+RUN apt-get update && apt-get install -y build-essential git cmake libpng-dev
 
 WORKDIR /usr/local/src
 COPY environment.yml .
