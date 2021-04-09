@@ -12,3 +12,4 @@ RUN pip --no-cache-dir install .
 
 FROM debian:buster
 COPY --from=builder /opt/conda /opt/conda
+ENV PATH=/opt/conda/bin:$PATH
