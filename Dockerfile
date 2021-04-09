@@ -2,7 +2,7 @@
 # TODO: pin dependency versions
 FROM fnndsc/conda:4.9.2 as builder
 
-RUN apt-get update && apt-get install -y build-essential git cmake
+RUN apt-get update && apt-get install -y build-essential git cmake libpng
 
 WORKDIR /usr/local/src
 COPY environment.yml .
