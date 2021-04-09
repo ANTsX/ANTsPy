@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y build-essential git cmake
 
 WORKDIR /usr/local/src
 COPY environment.yml .
-RUN conda env update
+RUN conda env update -n base
 COPY . .
 RUN pip --no-cache-dir install .
 
