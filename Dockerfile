@@ -1,5 +1,4 @@
 # use conda to resolve dependencies cross-platform
-# TODO: pin dependency versions
 FROM fnndsc/conda:4.9.2 as builder
 
 RUN apt-get update && apt-get install -y build-essential git cmake libpng

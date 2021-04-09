@@ -1,3 +1,4 @@
+# TODO: pin dependency versions
 name: antspy
 dependencies:
 - pandas
