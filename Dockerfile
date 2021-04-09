@@ -1,8 +1,7 @@
 # use conda to resolve dependencies cross-platform
 # TODO: pin dependency versions
-FROM fnndsc/conda:4.9.2 as base
+FROM fnndsc/conda:4.9.2 as builder
 
-FROM base as builder
 RUN apt-get update && apt-get install -y build-essential git cmake
 
 WORKDIR /usr/local/src
@@ -11,6 +10,5 @@ RUN conda env update -n base
 COPY . .
 RUN pip --no-cache-dir install .
 
-FROM base
-
+FROM debian:buster
 COPY --from=builder /opt/conda /opt/conda
