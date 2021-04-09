@@ -8,6 +8,7 @@ WORKDIR /usr/local/src
 COPY environment.yml .
 RUN conda env update -n base
 COPY . .
+ARG j=4
 RUN pip --no-cache-dir install .
 
 FROM debian:buster
