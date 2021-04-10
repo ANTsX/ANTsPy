@@ -12,6 +12,7 @@ WORKDIR /usr/local/src
 COPY environment.yml .
 RUN conda env update -n base
 COPY . .
+# number of parallel make jobs
 ARG j=4
 RUN pip --no-cache-dir install .
 
