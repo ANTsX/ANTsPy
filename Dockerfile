@@ -1,4 +1,7 @@
-# use conda to resolve dependencies cross-platform
+# This Dockerfile supports amd64,ppc64le
+# Note: QEMU emulated ppc64le build might take ~6 hours
+
+# Use conda to resolve dependencies cross-platform
 FROM fnndsc/conda:4.9.2 as builder
 
 # install libpng to system for cross-architecture support
@@ -12,6 +15,7 @@ COPY . .
 ARG j=4
 RUN pip --no-cache-dir install .
 
+# optimize layers
 FROM debian:buster
 COPY --from=builder /opt/conda /opt/conda
 ENV PATH=/opt/conda/bin:$PATH
