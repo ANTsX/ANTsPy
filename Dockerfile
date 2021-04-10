@@ -14,7 +14,7 @@ RUN conda env update -n base
 COPY . .
 # number of parallel make jobs
 ARG j=4
-RUN pip --no-cache-dir install .
+RUN pip --no-cache-dir -v install .
 
 # optimize layers
 FROM debian:buster
