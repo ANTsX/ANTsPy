@@ -46,6 +46,7 @@ cd itkbuild
 compflags=" -fPIC -O2  "
 cmake \
 	-G"${ADD_G}" \
+    -DITK_USE_SYSTEM_PNG=ON \
     -DCMAKE_SH:BOOL=OFF \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
@@ -77,6 +78,6 @@ cmake \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
-make -j 4
+make -j ${j:-4}
 #make install
 cd ../
