@@ -155,7 +155,6 @@ setup(
         "pandas",
         "numpy",
         "scipy",
-        "sklearn",
         "scikit-image",
         "scikit-learn",
         "statsmodels",
