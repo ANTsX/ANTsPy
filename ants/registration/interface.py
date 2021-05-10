@@ -188,6 +188,8 @@ def registration(
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
         - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
+        - "antsRegistrationSyNQuickRepro[x]": quick reproducible registration.  x options as above.
+        - "antsRegistrationSyNQRepro[x]": quick reproducible registration.  x options as above.
 
     Example
     -------
@@ -359,6 +361,24 @@ def registration(
                 "antsRegistrationSyNQuick[sr]",
                 "antsRegistrationSyNQuick[bo]",
                 "antsRegistrationSyNQuick[so]",
+                "antsRegistrationSyNRepro[r]",
+                "antsRegistrationSyNRepro[t]",
+                "antsRegistrationSyNRepro[a]",
+                "antsRegistrationSyNRepro[b]",
+                "antsRegistrationSyNRepro[s]",
+                "antsRegistrationSyNRepro[br]",
+                "antsRegistrationSyNRepro[sr]",
+                "antsRegistrationSyNRepro[bo]",
+                "antsRegistrationSyNRepro[so]",
+                "antsRegistrationSyNQuickRepro[r]",
+                "antsRegistrationSyNQuickRepro[t]",
+                "antsRegistrationSyNQuickRepro[a]",
+                "antsRegistrationSyNQuickRepro[b]",
+                "antsRegistrationSyNQuickRepro[s]",
+                "antsRegistrationSyNQuickRepro[br]",
+                "antsRegistrationSyNQuickRepro[sr]",
+                "antsRegistrationSyNQuickRepro[bo]",
+                "antsRegistrationSyNQuickRepro[so]",
             }
             ttexists = type_of_transform in allowable_tx
             if not ttexists:
@@ -1197,6 +1217,10 @@ def registration(
                     if "Quick" in type_of_transform:
                         do_quick = True
 
+                    do_repro = False
+                    if "Repro" in type_of_transform:
+                        do_repro = True
+
                     if do_quick == True:
                         rigid_convergence = "[1000x500x250x0,1e-6,10]"
                     else:
@@ -1217,6 +1241,20 @@ def registration(
                     else:
                         syn_convergence = "[100x70x50x20,1e-6,10]"
                         syn_metric = "CC[%s,%s,1,4]" % (f, m)
+
+
+                    aff_metric="MI[%s,%s,1,32,Regular,0.25]"
+                    if do_repro == True:
+                        aff_metric="GC[%s,%s,1,1,Regular,0.25]"
+
+
+                    if random_seed is None and do_repro == True:
+                        random_seed = str( 1 )
+
+                    if do_quick == True and do_repro == True:
+                        syn_convergence = "[100x70x50x0,1e-6,10]"
+                        syn_metric = "CC[%s,%s,1,2]" % (f, m)
+
                     syn_shrink_factors = "8x4x2x1"
                     syn_smoothing_sigmas = "3x2x1x0vox"
 
@@ -1228,7 +1266,7 @@ def registration(
                         "--transform",
                         tx + "[0.1]",
                         "--metric",
-                        "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                        aff_metric % (f, m),
                         "--convergence",
                         rigid_convergence,
                         "--shrink-factors",
@@ -1241,7 +1279,7 @@ def registration(
                         "--transform",
                         "Affine[0.1]",
                         "--metric",
-                        "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                        aff_metric % (f, m),
                         "--convergence",
                         affine_convergence,
                         "--shrink-factors",
