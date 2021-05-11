@@ -2061,6 +2061,7 @@ def plot(
     dpi=500,
     figsize=1.5,
     reorient=True,
+    resample=True,
 ):
     """
     Plot an ANTsImage.
@@ -2167,6 +2168,9 @@ def plot(
         determines resolution of image if saved to file. Higher values
         result in higher resolution images, but at a cost of having a
         larger file size
+
+    resample : bool
+        if true, resample image if spacing is very unbalanced.
 
     Example
     -------
@@ -2337,7 +2341,7 @@ def plot(
             # resample image if spacing is very unbalanced
             spacing = [s for i, s in enumerate(image.spacing) if i != axis]
             was_resampled = False
-            if (max(spacing) / min(spacing)) > 3.0:
+            if (max(spacing) / min(spacing)) > 3.0 and resample:
                 was_resampled = True
                 new_spacing = (1, 1, 1)
                 image = image.resample_image(tuple(new_spacing))
