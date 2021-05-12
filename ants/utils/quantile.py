@@ -1,5 +1,6 @@
 
 __all__ = ['ilr',
+           'rank_intensity',
            'quantile',
            'regress_poly',
            'regress_components',
@@ -11,6 +12,7 @@ import numpy as np
 from numpy.polynomial import Legendre
 from scipy import linalg
 from scipy.stats import pearsonr
+from scipy.stats import rankdata
 import pandas as pd
 from pandas import DataFrame
 from sklearn import linear_model
@@ -19,6 +21,47 @@ import statsmodels.formula.api as smf
 
 from .. import utils
 from .. import core
+
+
+def rank_intensity( x, mask=None, method='max',  ):
+    """
+    Rank transform the intensity of the input image with or without masking.
+    Intensities will transform from [0,1,2,55] to [0,1,2,3] so this may not be
+    appropriate for quantitative images - however, you never know.  rank
+    transformations generally improve robustness so it is an empirical question
+    that should be evaluated.
+
+    Arguments
+    ---------
+
+    x : ANTsImage
+        input image
+
+    mask : ANTsImage
+        optional mask
+
+    method : a scipy rank method (max,min,average,dense)
+
+
+    return: transformed image
+
+    Example
+    -------
+    >>> rank_intensity( some_image )
+    """
+    if mask is not None:
+        fir = rankdata( (x*mask).numpy(), method=method )
+    else:
+        fir = rankdata( x.numpy(), method=method )
+    fir = fir - 1
+    fir = fir.reshape( x.shape )
+    rimg = core.from_numpy( fir.astype(float)  )
+    rimg = utils.iMath(rimg,"Normalize")
+    core.copy_image_info( x, rimg )
+    if mask is not None:
+        rimg = rimg * mask
+    return( rimg )
+
 
 def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
     """
