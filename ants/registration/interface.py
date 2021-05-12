@@ -188,7 +188,7 @@ def registration(
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
         - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
-        - "antsRegistrationSyNRepro[x]": quick reproducible registration.  x options as above.
+        - "antsRegistrationSyNRepro[x]": reproducible registration.  x options as above.
         - "antsRegistrationSyNQuickRepro[x]": quick reproducible registration.  x options as above.
 
     Example
