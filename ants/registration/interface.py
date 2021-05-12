@@ -188,8 +188,8 @@ def registration(
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
         - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
+        - "antsRegistrationSyNRepro[x]": quick reproducible registration.  x options as above.
         - "antsRegistrationSyNQuickRepro[x]": quick reproducible registration.  x options as above.
-        - "antsRegistrationSyNQRepro[x]": quick reproducible registration.  x options as above.
 
     Example
     -------
@@ -1242,11 +1242,9 @@ def registration(
                         syn_convergence = "[100x70x50x20,1e-6,10]"
                         syn_metric = "CC[%s,%s,1,4]" % (f, m)
 
-
                     aff_metric="MI[%s,%s,1,32,Regular,0.25]"
                     if do_repro == True:
                         aff_metric="GC[%s,%s,1,1,Regular,0.25]"
-
 
                     if random_seed is None and do_repro == True:
                         random_seed = str( 1 )
