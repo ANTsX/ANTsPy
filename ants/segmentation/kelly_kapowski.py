@@ -8,37 +8,37 @@ from ..core import ants_image as iio
 from .. import utils
 
 
-def kelly_kapowski(s, g, w, its=50, r=0.025, m=1.5, **kwargs):
+def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, **kwargs):
     """
     Compute cortical thickness using the DiReCT algorithm.
 
     Diffeomorphic registration-based cortical thickness based on probabilistic
     segmentation of an image.  This is an optimization algorithm.
 
-    
+
     Arguments
     ---------
     s : ANTsimage
         segmentation image
-    
+
     g : ANTsImage
         gray matter probability image
-    
+
     w : ANTsImage
         white matter probability image
-    
+
     its : integer
         convergence params - controls iterations
-    
+
     r : scalar
         gradient descent update parameter
-    
+
     m : scalar
         gradient field smoothing parameter
-    
+
     kwargs : keyword arguments
         anything else, see KellyKapowski help in ANTs
-    
+
     Returns
     -------
     ANTsImage
@@ -51,7 +51,7 @@ def kelly_kapowski(s, g, w, its=50, r=0.025, m=1.5, **kwargs):
     >>> mask = ants.get_mask( img )
     >>> segs = ants.kmeans_segmentation( img, k=3, kmask = mask)
     >>> thick = ants.kelly_kapowski(s=segs['segmentation'], g=segs['probabilityimages'][1],
-                                    w=segs['probabilityimages'][2], its=45, 
+                                    w=segs['probabilityimages'][2], its=45,
                                     r=0.5, m=1)
     """
     if isinstance(s, iio.ANTsImage):

@@ -519,7 +519,12 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         pclass = hinfo["pixelclass"]
         ndim = hinfo["nDimensions"]
         ncomp = hinfo["nComponents"]
-        is_rgb = True if pclass == "rgb" else False
+        is_rgb = False
+        if pclass == "rgb":
+            pclass = "vector"
+        if pclass == "rgba":
+            pclass = "vector"
+#        is_rgb = True if pclass == "rgb" else False
         if dimension is not None:
             ndim = dimension
 

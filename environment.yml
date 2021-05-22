@@ -1,16 +1,12 @@
+# TODO: pin dependency versions
 name: antspy
 dependencies:
-- python>=3.4
 - pandas
-- scipy
-- matplotlib>=1.4.3
-- nibabel
 - numpy
-- statsmodels
-- plotly
+- scipy
 - scikit-image
 - scikit-learn
-- webcolors
-- pip>=3
-- pip:
-  - cmake>=3.11
+- statsmodels
+- matplotlib
+- pyyaml
+- Pillow

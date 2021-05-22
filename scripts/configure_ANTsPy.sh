@@ -23,7 +23,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=0716509a3dfce9ef85169c9377759efaf8fbc83e # integrate velocity fields
+antstag=2251ca1dfca9d27a58623eb36784704a032d97a0 # reconciling KK params
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir

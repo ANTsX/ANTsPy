@@ -1,17 +1,21 @@
 #!/bin/bash
 CXX_STD=CXX11
 JTHREADS=2
-if [[ `uname` -eq Darwin ]] ; then
+if [[ "`uname`" == "Darwin" ]] ; then
   CMAKE_BUILD_TYPE=Release
 fi
-if [[ $TRAVIS -eq true ]] ; then
+ADD_G="Unix Makefiles"
+if [[ "$APPVEYOR" == "true" ]] ; then
+  ADD_G="MinGW Makefiles"
+fi
+if [[ "$TRAVIS" == "true" ]] ; then
   CMAKE_BUILD_TYPE=Release
   JTHREADS=2
 fi
 
 #cd ./src
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itktag=1e708db2f586997e408cfdc2cea5114ae5575892 # update ITK tag 2020-03-18
+itktag=e21a56d1227c5433066237060368cb4532b8a9d2 # update ITK tag 10/2/2020
 # if there is a directory but no git, remove it
 if [[ -d itksource ]]; then
     if [[ ! -d itksource/.git ]]; then
@@ -41,6 +45,9 @@ mkdir -p itkbuild
 cd itkbuild
 compflags=" -fPIC -O2  "
 cmake \
+	-G"${ADD_G}" \
+    -DITK_USE_SYSTEM_PNG=ON \
+    -DCMAKE_SH:BOOL=OFF \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
@@ -58,6 +65,7 @@ cmake \
     -DModule_ITKDeprecated:BOOL=OFF \
     -DModule_ITKReview:BOOL=ON \
     -DModule_ITKVtkGlue:BOOL=OFF \
+    -DModule_GenericLabelInterpolator:BOOL=ON \
     -DITKGroup_Core=ON \
     -DModule_ITKReview=ON \
     -DITKGroup_Filtering=ON \
@@ -65,10 +73,11 @@ cmake \
     -DITKGroup_Numerics=ON \
     -DITKGroup_Registration=ON \
     -DITKGroup_Segmentation=ON \
+    -DModule_AdaptiveDenoising:BOOL=ON \
     -DModule_GenericLabelInterpolator:BOOL=ON \
     -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
-make -j 4
+make -j ${j:-4}
 #make install
 cd ../

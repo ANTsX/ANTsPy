@@ -5,12 +5,13 @@ from .convert_nibabel import *
 from .crop_image import *
 from .denoise_image import *
 from .fit_bspline_object_to_scattered_data import *
-from .functional_lung_segmentation import *
+from .fit_bspline_displacement_field import *
 from .get_ants_data import *
 from .get_centroids import *
 from .get_mask import *
 from .get_neighborhood import *
 from .histogram_match_image import *
+from .hausdorff_distance import *
 from .image_similarity import *
 from .image_to_cluster_images import *
 from .iMath import *

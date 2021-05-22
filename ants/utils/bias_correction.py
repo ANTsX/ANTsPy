@@ -1,4 +1,4 @@
-__all__ = ["n3_bias_field_correction", "n4_bias_field_correction", "abp_n4"]
+__all__ = ["n3_bias_field_correction", "n3_bias_field_correction2", "n4_bias_field_correction", "abp_n4"]
 
 
 from . import process_args as pargs
@@ -40,6 +40,110 @@ def n3_bias_field_correction(image, downsample_factor=3):
     libfn(processed_args)
     return outimage
 
+def n3_bias_field_correction2(
+    image,
+    mask=None,
+    shrink_factor=4,
+    convergence={"iters": 50, "tol": 1e-07},
+    spline_param=200,
+    number_of_fitting_levels=4,
+    return_bias_field=False,
+    verbose=False,
+    weight_mask=None,
+):
+    """
+    N3 Bias Field Correction
+
+    ANTsR function: `n3BiasFieldCorrection2`
+
+    Arguments
+    ---------
+    image : ANTsImage
+        image to bias correct
+
+    mask : ANTsImage
+        input mask, if one is not passed one will be made
+
+    shrink_factor : scalar
+        Shrink factor for multi-resolution correction, typically integer less than 4
+
+    convergence : dict w/ keys `iters` and `tol`
+        iters : maximum number of iterations
+        tol : the convergence tolerance.
+
+    spline_param : float or vector
+        Parameter controlling number of control points in spline. Either single value, indicating the spacing in each direction, or vector with one entry per dimension of image, indicating the mesh size.
+
+    number_of_fitting_levels : integer
+        Number of fitting levels per iteration.
+
+    return_bias_field : boolean
+        Return bias field instead of bias corrected image.
+
+    verbose : boolean
+        enables verbose output.
+
+    weight_mask : ANTsImage (optional)
+        antsImage of weight mask
+
+    Returns
+    -------
+    ANTsImage
+
+    Example
+    -------
+    >>> image = ants.image_read( ants.get_ants_data('r16') )
+    >>> image_n3 = ants.n3_bias_field_correction2(image)
+    """
+    if image.pixeltype != "float":
+        image = image.clone("float")
+    iters = convergence["iters"]
+    tol = convergence["tol"]
+    if mask is None:
+        mask = get_mask(image)
+
+    N3_CONVERGENCE_1 = "[%i,%.10f]" % (iters, tol)
+    N3_SHRINK_FACTOR_1 = str(shrink_factor)
+    if (not isinstance(spline_param, (list, tuple))) or (len(spline_param) == 1):
+        N3_BSPLINE_PARAMS = "[%i,%i]" % (spline_param, number_of_fitting_levels)
+    elif (isinstance(spline_param, (list, tuple))) and (
+        len(spline_param) == image.dimension
+    ):
+        N3_BSPLINE_PARAMS = "[%s,%i]" % (("x".join([str(sp) for sp in spline_param])), number_of_fitting_levels)
+    else:
+        raise ValueError(
+            "Length of splineParam must either be 1 or dimensionality of image"
+        )
+
+    if weight_mask is not None:
+        if not isinstance(weight_mask, iio.ANTsImage):
+            raise ValueError("Weight Image must be an antsImage")
+
+    outimage = image.clone("float")
+    outbiasfield = image.clone("float")
+    i = utils.get_pointer_string(outimage)
+    b = utils.get_pointer_string(outbiasfield)
+    output = "[%s,%s]" % (i, b)
+
+    kwargs = {
+        "d": outimage.dimension,
+        "i": image,
+        "w": weight_mask,
+        "s": N3_SHRINK_FACTOR_1,
+        "c": N3_CONVERGENCE_1,
+        "b": N3_BSPLINE_PARAMS,
+        "x": mask,
+        "o": output,
+        "v": int(verbose),
+    }
+
+    processed_args = pargs._int_antsProcessArguments(kwargs)
+    libfn = utils.get_lib_fn("N3BiasFieldCorrection")
+    libfn(processed_args)
+    if return_bias_field == True:
+        return outbiasfield
+    else:
+        return outimage
 
 def n4_bias_field_correction(
     image,
@@ -68,11 +172,11 @@ def n4_bias_field_correction(
         Shrink factor for multi-resolution correction, typically integer less than 4
 
     convergence : dict w/ keys `iters` and `tol`
-        iters : vector of maximum number of iterations for each shrinkage factor
+        iters : vector of maximum number of iterations for each level
         tol : the convergence tolerance.
 
-    spline_param : integer
-        Parameter controlling number of control points in spline. Either single value, indicating how many control points, or vector with one entry per dimension of image, indicating the spacing in each direction.
+    spline_param : float or vector
+        Parameter controlling number of control points in spline. Either single value, indicating the spacing in each direction, or vector with one entry per dimension of image, indicating the mesh size.
 
     return_bias_field : boolean
         Return bias field instead of bias corrected image.
@@ -117,7 +221,7 @@ def n4_bias_field_correction(
             raise ValueError("Weight Image must be an antsImage")
 
     outimage = image.clone("float")
-    outbiasfield = image.clone("float")    
+    outbiasfield = image.clone("float")
     i = utils.get_pointer_string(outimage)
     b = utils.get_pointer_string(outbiasfield)
     output = "[%s,%s]" % (i, b)
@@ -139,7 +243,7 @@ def n4_bias_field_correction(
     libfn(processed_args)
     if return_bias_field == True:
         return outbiasfield
-    else:        
+    else:
         return outimage
 
 

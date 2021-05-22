@@ -158,6 +158,7 @@ def registration(
                     regIterations if using this option. this would be used in
                     cases where you want a really high quality affine mapping
                     (perhaps with mask).
+        - "Elastic": Elastic deformation: Affine + deformable.
         - "ElasticSyN": Symmetric normalization: Affine + deformable
                         transformation, with mutual information as optimization
                         metric and elastic regularization.
@@ -187,6 +188,8 @@ def registration(
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
         - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
                                     where 'x' is one of the transforms available (e.g., 't', 'b', 's')
+        - "antsRegistrationSyNRepro[x]": reproducible registration.  x options as above.
+        - "antsRegistrationSyNQuickRepro[x]": quick reproducible registration.  x options as above.
 
     Example
     -------
@@ -277,6 +280,8 @@ def registration(
         myl = 1
 
     mysyn = "SyN[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
+    if type_of_transform == "Elastic":
+        mysyn = "GaussianDisplacementField[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
     itlen = len(reg_iterations)  # NEED TO CHECK THIS
     if itlen == 0:
         smoothingsigmas = 0
@@ -310,6 +315,7 @@ def registration(
                 "SyNBold",
                 "SyNBoldAff",
                 "ElasticSyN",
+                "Elastic",
                 "SyN",
                 "SyNRA",
                 "SyNOnly",
@@ -355,6 +361,24 @@ def registration(
                 "antsRegistrationSyNQuick[sr]",
                 "antsRegistrationSyNQuick[bo]",
                 "antsRegistrationSyNQuick[so]",
+                "antsRegistrationSyNRepro[r]",
+                "antsRegistrationSyNRepro[t]",
+                "antsRegistrationSyNRepro[a]",
+                "antsRegistrationSyNRepro[b]",
+                "antsRegistrationSyNRepro[s]",
+                "antsRegistrationSyNRepro[br]",
+                "antsRegistrationSyNRepro[sr]",
+                "antsRegistrationSyNRepro[bo]",
+                "antsRegistrationSyNRepro[so]",
+                "antsRegistrationSyNQuickRepro[r]",
+                "antsRegistrationSyNQuickRepro[t]",
+                "antsRegistrationSyNQuickRepro[a]",
+                "antsRegistrationSyNQuickRepro[b]",
+                "antsRegistrationSyNQuickRepro[s]",
+                "antsRegistrationSyNQuickRepro[br]",
+                "antsRegistrationSyNQuickRepro[sr]",
+                "antsRegistrationSyNQuickRepro[bo]",
+                "antsRegistrationSyNQuickRepro[so]",
             }
             ttexists = type_of_transform in allowable_tx
             if not ttexists:
@@ -534,7 +558,7 @@ def registration(
                         args.append("-x")
                         args.append("[NA,NA]")
                 # ------------------------------------------------------------
-                elif type_of_transform == "SyN":
+                elif type_of_transform == "SyN" or type_of_transform == "Elastic":
                     args = [
                         "-d",
                         str(fixed.dimension),
@@ -1193,6 +1217,10 @@ def registration(
                     if "Quick" in type_of_transform:
                         do_quick = True
 
+                    do_repro = False
+                    if "Repro" in type_of_transform:
+                        do_repro = True
+
                     if do_quick == True:
                         rigid_convergence = "[1000x500x250x0,1e-6,10]"
                     else:
@@ -1213,6 +1241,18 @@ def registration(
                     else:
                         syn_convergence = "[100x70x50x20,1e-6,10]"
                         syn_metric = "CC[%s,%s,1,4]" % (f, m)
+
+                    aff_metric="MI[%s,%s,1,32,Regular,0.25]"
+                    if do_repro == True:
+                        aff_metric="GC[%s,%s,1,1,Regular,0.25]"
+
+                    if random_seed is None and do_repro == True:
+                        random_seed = str( 1 )
+
+                    if do_quick == True and do_repro == True:
+                        syn_convergence = "[100x70x50x0,1e-6,10]"
+                        syn_metric = "CC[%s,%s,1,2]" % (f, m)
+
                     syn_shrink_factors = "8x4x2x1"
                     syn_smoothing_sigmas = "3x2x1x0vox"
 
@@ -1224,7 +1264,7 @@ def registration(
                         "--transform",
                         tx + "[0.1]",
                         "--metric",
-                        "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                        aff_metric % (f, m),
                         "--convergence",
                         rigid_convergence,
                         "--shrink-factors",
@@ -1237,7 +1277,7 @@ def registration(
                         "--transform",
                         "Affine[0.1]",
                         "--metric",
-                        "MI[%s,%s,1,32,Regular,0.25]" % (f, m),
+                        aff_metric % (f, m),
                         "--convergence",
                         affine_convergence,
                         "--shrink-factors",

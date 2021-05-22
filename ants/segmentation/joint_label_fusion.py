@@ -8,6 +8,7 @@ import os
 import numpy as np
 import warnings
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from tempfile import mktemp
 import glob
 import re
@@ -111,6 +112,10 @@ def joint_label_fusion(
         `probabilityimages` : list of ANTsImage types
             probability map image for each label
 
+        `segmentation_numbers` : list of numbers
+            segmentation label (number, int) for each probability map
+
+
     Example
     -------
     >>> import ants
@@ -165,6 +170,15 @@ def joint_label_fusion(
     else:
         mymask = target_image_mask
 
+###### security issues with mktemp but could not figure out the right solution
+###### NamedTemporaryFile creates a file with permissions:
+###### -rw-------  1 stnava  staff
+###### whereas mktemp gives
+###### -rw-r--r--  1 stnava  staff
+###### the latter is what we want - one solution is to use chmod via os but
+###### am currently too lazy to change one line of code to two or more everywhere
+
+#    osegfn = NamedTemporaryFile(prefix="antsr", suffix="myseg.nii.gz",delete=False).name
     osegfn = mktemp(prefix="antsr", suffix="myseg.nii.gz")
     # segdir = osegfn.replace(os.path.basename(osegfn),'')
 
@@ -172,6 +186,7 @@ def joint_label_fusion(
         os.remove(osegfn)
 
     if output_prefix is None:
+#        probs = NamedTemporaryFile(prefix="antsr", suffix="prob%02d.nii.gz",delete=False).name
         probs = mktemp(prefix="antsr", suffix="prob%02d.nii.gz")
         probsbase = os.path.basename(probs)
         tdir = probs.replace(probsbase, "")
@@ -210,6 +225,9 @@ def joint_label_fusion(
     myrad = "x".join([str(mr) for mr in myrad])
     vnum = 1 if verbose else 0
     nnum = 1 if nonnegative else 0
+    mypc = "MSQ"
+    if usecor:
+        mypc = "PC"
 
     myargs = {
         "d": mydim,
@@ -218,7 +236,7 @@ def joint_label_fusion(
         "b": beta,
         "c": nnum,
         "p": myrad,
-        "m": "PC",
+        "m": mypc,
         "s": r_search,
         "x": mymask,
         "o": outs,
@@ -247,22 +265,79 @@ def joint_label_fusion(
     probsout = glob.glob(os.path.join(tdir, "*" + searchpattern))
     probsout.sort()
     probimgs = []
+#    print( os.system("ls -l "+probsout[0]) )
     for idx in range(len(probsout)):
         probimgs.append(iio2.image_read(probsout[idx]))
-    if len(probsout) != (len(inlabs)):
-        warnings.warn("Length of output probabilities != length of unique input labels")
 
-    segmat = iio2.images_to_matrix(probimgs, target_image_mask)
-    finalsegvec = segmat.argmax(axis=0)
-    finalsegvec2 = finalsegvec.copy()
-    # mapfinalsegvec to original labels
+    #    if len(probsout) != (len(inlabs)) and max_lab_plus_one == False:
+    #        warnings.warn("Length of output probabilities != length of unique input labels")
+
+    segmentation_numbers = [0] * len(probsout)
     for i in range(len(probsout)):
         temp = str.split(probsout[i], "prob")
         segnum = temp[len(temp) - 1].split(".nii.gz")[0]
-        finalsegvec2[finalsegvec == i] = segnum
-    outimg = iio2.make_image(target_image_mask, finalsegvec2)
+        segmentation_numbers[i] = int(segnum)
 
-    return {"segmentation": outimg, "intensity": outimgi, "probabilityimages": probimgs}
+    if max_lab_plus_one == False:
+        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+        finalsegvec = segmat.argmax(axis=0)
+        finalsegvec2 = finalsegvec.copy()
+        # mapfinalsegvec to original labels
+        for i in range(len(probsout)):
+            temp = str.split(probsout[i], "prob")
+            segnum = temp[len(temp) - 1].split(".nii.gz")[0]
+            finalsegvec2[finalsegvec == i] = segnum
+        outimg = iio2.make_image(target_image_mask, finalsegvec2)
+
+        return {
+            "segmentation": outimg,
+            "intensity": outimgi,
+            "probabilityimages": probimgs,
+            "segmentation_numbers": segmentation_numbers,
+        }
+
+    if max_lab_plus_one == True:
+        mymaxlab = max(segmentation_numbers)
+        matchings_indices = [
+            i
+            for i, segmentation_numbers in enumerate(segmentation_numbers)
+            if segmentation_numbers == mymaxlab
+        ]
+        background_prob = probimgs[matchings_indices[0]]
+        background_probfn = probsout[matchings_indices[0]]
+        del probimgs[matchings_indices[0]]
+        del probsout[matchings_indices[0]]
+        del segmentation_numbers[matchings_indices[0]]
+
+        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+
+        finalsegvec = segmat.argmax(axis=0)
+        finalsegvec2 = finalsegvec.copy()
+        # mapfinalsegvec to original labels
+        for i in range(len(probsout)):
+            temp = str.split(probsout[i], "prob")
+            segnum = temp[len(temp) - 1].split(".nii.gz")[0]
+            finalsegvec2[finalsegvec == i] = segnum
+
+        outimg = iio2.make_image(target_image_mask, finalsegvec2)
+
+        # next decide what is "background" based on the sum of the first k labels vs the prob of the last one
+        firstK = probimgs[0] * 0
+        for i in range(len(probsout)):
+            firstK = firstK + probimgs[i]
+
+        segmat = iio2.images_to_matrix([background_prob, firstK], target_image_mask)
+        bkgsegvec = segmat.argmax(axis=0)
+        outimg = outimg * iio2.make_image(target_image_mask, bkgsegvec)
+
+        return {
+            "segmentation": outimg * iio2.make_image(target_image_mask, bkgsegvec),
+            "segmentation_raw": outimg,
+            "intensity": outimgi,
+            "probabilityimages": probimgs,
+            "segmentation_numbers": segmentation_numbers,
+            "background_prob": background_prob,
+        }
 
 
 def local_joint_label_fusion(
@@ -288,13 +363,14 @@ def local_joint_label_fusion(
     nonnegative=False,
     no_zeroes=False,
     max_lab_plus_one=False,
+    local_mask_transform="Similarity",
     output_prefix=None,
     verbose=False,
 ):
     """
-    A local version of joint label fusion that focuses on a specific label.
+    A local version of joint label fusion that focuses on a subset of labels.
     This is primarily different from standard JLF because it performs
-    registration on a per label basis and focuses JLF on that label alone.
+    registration on the label subset and focuses JLF on those labels alone.
 
     ANTsR function: `localJointLabelFusion`
 
@@ -374,6 +450,10 @@ def local_joint_label_fusion(
         labels have some label, rather than none.  Ie it guarantees to explicitly parcellate the
         input data.
 
+    local_mask_transform: string
+        the type of transform for the local mask alignment - usually translation,
+        rigid, similarity or affine.
+
     output_prefix: string
         file prefix for storing output probabilityimages to disk
 
@@ -413,10 +493,14 @@ def local_joint_label_fusion(
         if verbose is True:
             print(str(k) + "...")
 
+        if verbose is True:
+            print( "local-seg-tx: " + local_mask_transform )
         libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
-            mycroppedregion, libregion, type_of_transform="Similarity", aff_sampling=16
+            mycroppedregion, libregion, type_of_transform=local_mask_transform, verbose=False
         )["fwdtransforms"]
+        if verbose is True:
+            print( "local-img-tx: " + type_of_transform )
         localReg = registration.registration(
             croppedImage,
             atlas_list[k],
@@ -439,11 +523,8 @@ def local_joint_label_fusion(
             localReg["fwdtransforms"],
             interpolator="nearestNeighbor",
         )
-        remappedseg = utils.mask_image(
-            transformedLabels, transformedLabels, which_labels
-        )
         croppedmappedImages.append(transformedImage)
-        croppedmappedSegs.append(remappedseg)
+        croppedmappedSegs.append(transformedLabels)
 
     ljlf = joint_label_fusion(
         croppedImage,
@@ -457,7 +538,7 @@ def local_joint_label_fusion(
         r_search=r_search,
         nonnegative=nonnegative,
         no_zeroes=no_zeroes,
-        max_lab_plus_one=True,
+        max_lab_plus_one=max_lab_plus_one,
         output_prefix=output_prefix,
         verbose=verbose,
     )
