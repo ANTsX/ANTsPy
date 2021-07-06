@@ -23,7 +23,7 @@ from .. import utils
 from .. import core
 
 
-def rank_intensity( x, mask=None, method='max',  ):
+def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
     """
     Rank transform the intensity of the input image with or without masking.
     Intensities will transform from [0,1,2,55] to [0,1,2,3] so this may not be
@@ -40,6 +40,9 @@ def rank_intensity( x, mask=None, method='max',  ):
     mask : ANTsImage
         optional mask
 
+    get_mask: boolean
+        will estimate a mask when none provided
+
     method : a scipy rank method (max,min,average,dense)
 
 
@@ -50,6 +53,9 @@ def rank_intensity( x, mask=None, method='max',  ):
     >>> rank_intensity( some_image )
     """
     if mask is not None:
+        fir = rankdata( (x*mask).numpy(), method=method )
+    elif mask is None and get_mask == True:
+        mask = utils.get_mask( x )
         fir = rankdata( (x*mask).numpy(), method=method )
     else:
         fir = rankdata( x.numpy(), method=method )

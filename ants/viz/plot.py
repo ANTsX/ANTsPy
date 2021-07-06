@@ -133,7 +133,7 @@ def plot_hist(
     if normfreq != False:
         normfreq = 1.0 if normfreq == True else normfreq
     n, bins, patches = plt.hist(
-        img_arr, 50, normed=normfreq, facecolor=facecolor, alpha=alpha
+        img_arr, 50, facecolor=facecolor, alpha=alpha
     )
 
     if fit_line:
@@ -710,9 +710,13 @@ def plot_ortho_stack(
     )
 
     # pad image to have isotropic array dimensions
+    vminols=[]
+    vmaxols=[]
     for i in range(n_images):
         images[i] = images[i].numpy()
         if overlays[i] is not None:
+            vminols.append( overlays[i].min() )
+            vmaxols.append( overlays[i].max() )
             overlays[i] = overlays[i].numpy()
             if overlays[i].dtype not in ["uint8", "uint32"]:
                 overlays[i][np.abs(overlays[i]) == 0] = np.nan
@@ -728,7 +732,8 @@ def plot_ortho_stack(
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlays[i] is not None:
             yz_overlay = reorient_slice(overlays[i][xyz[0], :, :], 0)
-            ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
+            ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap,
+                vmin=vminols[i], vmax=vmaxols[i])
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -800,7 +805,8 @@ def plot_ortho_stack(
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlays[i] is not None:
             xz_overlay = reorient_slice(overlays[i][:, xyz[1], :], 1)
-            ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
+            ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap,
+                vmin=vminols[i], vmax=vmaxols[i])
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -872,7 +878,8 @@ def plot_ortho_stack(
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlays[i] is not None:
             xy_overlay = reorient_slice(overlays[i][:, :, xyz[2]], 2)
-            ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
+            ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap,
+                vmin=vminols[i], vmax=vmaxols[i])
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -1649,6 +1656,8 @@ def plot_ortho(
 
     # handle `overlay` argument
     if overlay is not None:
+        vminol = overlay.min()
+        vmaxol = overlay.max()
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
@@ -1793,7 +1802,7 @@ def plot_ortho(
         ax.imshow(yz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             yz_overlay = reorient_slice(overlay[xyz[0], :, :], 0)
-            ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
+            ax.imshow(yz_overlay, alpha=overlay_alpha, cmap=overlay_cmap, vmin=vminol, vmax=vmaxol )
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -1860,7 +1869,7 @@ def plot_ortho(
         ax.imshow(xz_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             xz_overlay = reorient_slice(overlay[:, xyz[1], :], 1)
-            ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
+            ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap, vmin=vminol, vmax=vmaxol )
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -1930,7 +1939,7 @@ def plot_ortho(
         ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             xy_overlay = reorient_slice(overlay[:, :, xyz[2]], 2)
-            ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap)
+            ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap, vmin=vminol, vmax=vmaxol )
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -2230,6 +2239,8 @@ def plot(
 
     # handle `overlay` argument
     if overlay is not None:
+        vminol = overlay.min()
+        vmaxol = overlay.max()
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
@@ -2328,7 +2339,8 @@ def plot(
             im = ax.imshow(img_arr, cmap=cmap, alpha=alpha, vmin=vmin, vmax=vmax)
 
             if overlay is not None:
-                im = ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap)
+                im = ax.imshow(ov_arr, alpha=overlay_alpha, cmap=overlay_cmap,
+                    vmin=vminol, vmax=vmaxol )
 
             if cbar:
                 cbar_orient = "vertical" if cbar_vertical else "horizontal"
@@ -2451,8 +2463,8 @@ def plot(
                             ovslice = ov_arr[slice_idxs[slice_idx_idx]]
                             ovslice = reorient_slice(ovslice, axis)
                             im = ax.imshow(
-                                ovslice, alpha=overlay_alpha, cmap=overlay_cmap
-                            )
+                                ovslice, alpha=overlay_alpha, cmap=overlay_cmap,
+                                    vmin=vminol, vmax=vmaxol )
                     ax.axis("off")
                     slice_idx_idx += 1
 
