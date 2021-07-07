@@ -1235,26 +1235,25 @@ def registration(
                     affine_shrink_factors = "8x4x2x1"
                     affine_smoothing_sigmas = "3x2x1x0vox"
 
+                    linear_metric="MI[%s,%s,1,32,Regular,0.25]"
+                    if do_repro == True:
+                        linear_metric="GC[%s,%s,1,1,Regular,0.25]"
+
                     if do_quick == True:
                         syn_convergence = "[100x70x50x0,1e-6,10]"
                         syn_metric = "MI[%s,%s,1,32]" % (f, m)
                     else:
                         syn_convergence = "[100x70x50x20,1e-6,10]"
                         syn_metric = "CC[%s,%s,1,4]" % (f, m)
-
-                    aff_metric="MI[%s,%s,1,32,Regular,0.25]"
-                    if do_repro == True:
-                        aff_metric="GC[%s,%s,1,1,Regular,0.25]"
-
-                    if random_seed is None and do_repro == True:
-                        random_seed = str( 1 )
+                    syn_shrink_factors = "8x4x2x1"
+                    syn_smoothing_sigmas = "3x2x1x0vox"
 
                     if do_quick == True and do_repro == True:
                         syn_convergence = "[100x70x50x0,1e-6,10]"
                         syn_metric = "CC[%s,%s,1,2]" % (f, m)
 
-                    syn_shrink_factors = "8x4x2x1"
-                    syn_smoothing_sigmas = "3x2x1x0vox"
+                    if random_seed is None and do_repro == True:
+                        random_seed = str( 1 )
 
                     tx = "Rigid"
                     if subtype_of_transform == "t":
@@ -1264,7 +1263,7 @@ def registration(
                         "--transform",
                         tx + "[0.1]",
                         "--metric",
-                        aff_metric % (f, m),
+                        linear_metric % (f, m),
                         "--convergence",
                         rigid_convergence,
                         "--shrink-factors",
@@ -1277,7 +1276,7 @@ def registration(
                         "--transform",
                         "Affine[0.1]",
                         "--metric",
-                        aff_metric % (f, m),
+                        linear_metric % (f, m),
                         "--convergence",
                         affine_convergence,
                         "--shrink-factors",
