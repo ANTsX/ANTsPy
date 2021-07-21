@@ -249,7 +249,8 @@ def plot_grid(
                            [0, 1, 2]])
     >>> ants.plot_grid(images, slices, axes, title='Publication Figures with ANTsPy',
                        tfontsize=20, title_dy=0.03, title_dx=-0.04,
-                       rlabels=['Row 1', 'Row 2'], clabels=['Col 1', 'Col 2', 'Col 3'],
+                       rlabels=['Row 1', 'Row 2'],
+                       clabels=['Col 1', 'Col 2', 'Col 3'],
                        rfontsize=16, cfontsize=16)
     """
 
@@ -517,6 +518,11 @@ def plot_ortho_stack(
     orient_labels=True,
 ):
     """
+    Create a stack of orthographic plots with optional overlays.
+
+    Use mask_image and/or threshold_image to preprocess images to be be
+    overlaid and display the overlays in a given range. See the wiki examples.
+
     Example
     -------
     >>> import ants
@@ -1007,6 +1013,11 @@ def plot_ortho_double(
     transparent=True,
 ):
     """
+    Create a pair of orthographic plots with overlays.
+
+    Use mask_image and/or threshold_image to preprocess images to be be
+    overlaid and display the overlays in a given range. See the wiki examples.
+
     Example
     -------
     >>> import ants
@@ -1528,6 +1539,9 @@ def plot_ortho(
 ):
     """
     Plot an orthographic view of a 3D image
+
+    Use mask_image and/or threshold_image to preprocess images to be be
+    overlaid and display the overlays in a given range. See the wiki examples.
 
     TODO:
         - add colorbar option
@@ -2074,6 +2088,9 @@ def plot(
 ):
     """
     Plot an ANTsImage.
+
+    Use mask_image and/or threshold_image to preprocess images to be be
+    overlaid and display the overlays in a given range. See the wiki examples.
 
     By default, images will be reoriented to 'LAI' orientation before plotting.
     So, if axis == 0, the images will be ordered from the
