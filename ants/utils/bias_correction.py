@@ -44,7 +44,7 @@ def n3_bias_field_correction2(
     image,
     mask=None,
     shrink_factor=4,
-    convergence={"iters": 50, "tol": 1e-07},
+    convergence={"iters": 50, "tol": 0.0},
     spline_param=200,
     number_of_fitting_levels=4,
     return_bias_field=False,
@@ -133,6 +133,7 @@ def n3_bias_field_correction2(
         "c": N3_CONVERGENCE_1,
         "b": N3_BSPLINE_PARAMS,
         "x": mask,
+        "r": 1,
         "o": output,
         "v": int(verbose),
     }
@@ -149,8 +150,8 @@ def n4_bias_field_correction(
     image,
     mask=None,
     shrink_factor=4,
-    convergence={"iters": [50, 50, 50, 50], "tol": 1e-07},
-    spline_param=200,
+    convergence={"iters": [50, 50, 50, 50], "tol": 0.0},
+    spline_param=None,
     return_bias_field=False,
     verbose=False,
     weight_mask=None,
@@ -176,7 +177,10 @@ def n4_bias_field_correction(
         tol : the convergence tolerance.
 
     spline_param : float or vector
-        Parameter controlling number of control points in spline. Either single value, indicating the spacing in each direction, or vector with one entry per dimension of image, indicating the mesh size.
+        Parameter controlling number of control points in spline. Either single value,
+        indicating the spacing in each direction, or vector with one entry per
+        dimension of image, indicating the mesh size.  Default is a mesh size of
+        4 per dimension.
 
     return_bias_field : boolean
         Return bias field instead of bias corrected image.
@@ -202,6 +206,8 @@ def n4_bias_field_correction(
     tol = convergence["tol"]
     if mask is None:
         mask = get_mask(image)
+    if spline_param is None:
+        spline_param = [1] * image.dimension
 
     N4_CONVERGENCE_1 = "[%s, %.10f]" % ("x".join([str(it) for it in iters]), tol)
     N4_SHRINK_FACTOR_1 = str(shrink_factor)
@@ -234,6 +240,7 @@ def n4_bias_field_correction(
         "c": N4_CONVERGENCE_1,
         "b": N4_BSPLINE_PARAMS,
         "x": mask,
+        "r": 1,
         "o": output,
         "v": int(verbose),
     }
