@@ -45,7 +45,7 @@ def n3_bias_field_correction2(
     mask=None,
     shrink_factor=4,
     convergence={"iters": 50, "tol": 0.0},
-    spline_param=200,
+    spline_param=None,
     number_of_fitting_levels=4,
     return_bias_field=False,
     verbose=False,
@@ -71,8 +71,10 @@ def n3_bias_field_correction2(
         iters : maximum number of iterations
         tol : the convergence tolerance.
 
-    spline_param : float or vector
-        Parameter controlling number of control points in spline. Either single value, indicating the spacing in each direction, or vector with one entry per dimension of image, indicating the mesh size.
+    spline_param : float or vector Parameter controlling number of control
+        points in spline. Either single value, indicating the spacing in each
+        direction, or vector with one entry per dimension of image, indicating
+        the mesh size.  Default is a mesh size of 1 per dimension.
 
     number_of_fitting_levels : integer
         Number of fitting levels per iteration.
@@ -101,6 +103,8 @@ def n3_bias_field_correction2(
     tol = convergence["tol"]
     if mask is None:
         mask = get_mask(image)
+    if spline_param is None:
+        spline_param = [1] * image.dimension
 
     N3_CONVERGENCE_1 = "[%i,%.10f]" % (iters, tol)
     N3_SHRINK_FACTOR_1 = str(shrink_factor)
@@ -180,7 +184,7 @@ def n4_bias_field_correction(
         Parameter controlling number of control points in spline. Either single value,
         indicating the spacing in each direction, or vector with one entry per
         dimension of image, indicating the mesh size.  Default is a mesh size of
-        4 per dimension.
+        1 per dimension.
 
     return_bias_field : boolean
         Return bias field instead of bias corrected image.
