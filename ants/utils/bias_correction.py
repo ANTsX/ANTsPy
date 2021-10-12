@@ -43,8 +43,9 @@ def n3_bias_field_correction(image, downsample_factor=3):
 def n3_bias_field_correction2(
     image,
     mask=None,
+    rescale_intensities=False,
     shrink_factor=4,
-    convergence={"iters": 50, "tol": 0.0},
+    convergence={"iters": 50, "tol": 1e-7},
     spline_param=None,
     number_of_fitting_levels=4,
     return_bias_field=False,
@@ -64,12 +65,21 @@ def n3_bias_field_correction2(
     mask : ANTsImage
         input mask, if one is not passed one will be made
 
+    rescale_intensities : boolean
+        At each iteration, a new intensity mapping is
+        calculated and applied but there is nothing which constrains the new
+        intensity range to be within certain values. The result is that the
+        range can "drift" from the original at each iteration. This option
+        rescales to the [min,max] range of the original image intensities within
+        the user-specified mask. A mask is required to perform rescaling.  Default
+        is False in ANTsR/ANTsPy but True in ANTs.
+
     shrink_factor : scalar
         Shrink factor for multi-resolution correction, typically integer less than 4
 
     convergence : dict w/ keys `iters` and `tol`
         iters : maximum number of iterations
-        tol : the convergence tolerance.
+        tol : the convergence tolerance.  Default tolerance is 1e-7 in ANTsR/ANTsPy but 0.0 in ANTs.
 
     spline_param : float or vector Parameter controlling number of control
         points in spline. Either single value, indicating the spacing in each
@@ -137,7 +147,7 @@ def n3_bias_field_correction2(
         "c": N3_CONVERGENCE_1,
         "b": N3_BSPLINE_PARAMS,
         "x": mask,
-        "r": 1,
+        "r": int(rescale_intensities),
         "o": output,
         "v": int(verbose),
     }
@@ -153,8 +163,9 @@ def n3_bias_field_correction2(
 def n4_bias_field_correction(
     image,
     mask=None,
+    rescale_intensities=False,
     shrink_factor=4,
-    convergence={"iters": [50, 50, 50, 50], "tol": 0.0},
+    convergence={"iters": [50, 50, 50, 50], "tol": 1e-7},
     spline_param=None,
     return_bias_field=False,
     verbose=False,
@@ -173,12 +184,21 @@ def n4_bias_field_correction(
     mask : ANTsImage
         input mask, if one is not passed one will be made
 
+    rescale_intensities : boolean
+        At each iteration, a new intensity mapping is
+        calculated and applied but there is nothing which constrains the new
+        intensity range to be within certain values. The result is that the
+        range can "drift" from the original at each iteration. This option
+        rescales to the [min,max] range of the original image intensities within
+        the user-specified mask. A mask is required to perform rescaling.  Default
+        is False in ANTsR/ANTsPy but True in ANTs.
+
     shrink_factor : scalar
         Shrink factor for multi-resolution correction, typically integer less than 4
 
     convergence : dict w/ keys `iters` and `tol`
         iters : vector of maximum number of iterations for each level
-        tol : the convergence tolerance.
+        tol : the convergence tolerance.  Default tolerance is 1e-7 in ANTsR/ANTsPy but 0.0 in ANTs.
 
     spline_param : float or vector
         Parameter controlling number of control points in spline. Either single value,
@@ -244,7 +264,7 @@ def n4_bias_field_correction(
         "c": N4_CONVERGENCE_1,
         "b": N4_BSPLINE_PARAMS,
         "x": mask,
-        "r": 1,
+        "r": int(rescale_intensities),
         "o": output,
         "v": int(verbose),
     }
