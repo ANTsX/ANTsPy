@@ -349,6 +349,7 @@ def local_joint_label_fusion(
     label_list,
     submask_dilation=10,
     type_of_transform="SyN",
+    aff_metric="meansquares",
     syn_metric="mattes",
     syn_sampling=32,
     reg_iterations=(40, 20, 0),
@@ -403,6 +404,9 @@ def local_joint_label_fusion(
     type_of_transform : string
         A linear or non-linear registration type. Mutual information metric by default.
         See Notes below for more.
+
+    aff_metric : string
+        the metric for the affine part (GC, mattes, meansquares)
 
     syn_metric : string
         the metric for the syn part (CC, mattes, meansquares, demons)
@@ -497,7 +501,7 @@ def local_joint_label_fusion(
             print( "local-seg-tx: " + local_mask_transform )
         libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
-            mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric='GC', verbose=False
+            mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric=aff_metric, verbose=False
         )["fwdtransforms"]
         if verbose is True:
             print( "local-img-tx: " + type_of_transform )
