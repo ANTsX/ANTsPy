@@ -353,6 +353,7 @@ def local_joint_label_fusion(
     syn_metric="mattes",
     syn_sampling=32,
     reg_iterations=(40, 20, 0),
+    aff_iterations=(500, 50, 0),
     grad_step=0.2,
     flow_sigma=3,
     total_sigma=0,
@@ -416,6 +417,10 @@ def local_joint_label_fusion(
 
     reg_iterations : list/tuple of integers
         vector of iterations for syn. we will set the smoothing and multi-resolution parameters based on the length of this vector.
+
+
+    aff_iterations : list/tuple of integers
+        vector of iterations for low-dimensional registration.
 
     grad_step : scalar
         gradient step size (not for all tx)
@@ -501,7 +506,7 @@ def local_joint_label_fusion(
             print( "local-seg-tx: " + local_mask_transform )
         libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
-            mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric=aff_metric, verbose=False
+            mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric=aff_metric, aff_iterations=aff_iterations, verbose=False
         )["fwdtransforms"]
         if verbose is True:
             print( "local-img-tx: " + type_of_transform )
