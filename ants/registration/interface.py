@@ -40,6 +40,7 @@ def registration(
     random_seed=None,
     verbose=False,
     multivariate_extras=None,
+    restrict_transformation=None,
     **kwargs
 ):
     """
@@ -126,6 +127,15 @@ def registration(
           ), ( "CC", f2, m2, 0.5, 2 ) ) .  This is only compatible
         with the SyNOnly transformation.
 
+    restrict_transformation : This option allows the user to restrict the
+          optimization of the displacement field, translation, rigid or
+          affine transform on a per-component basis. For example, if
+          one wants to limit the deformation or rotation of 3-D volume
+          to the first two dimensions, this is possible by specifying a
+          weight vector of ‘(1,1,0)’ for a 3D deformation field or
+          ‘(1,1,0,1,1,0)’ for a rigid transformation. Restriction
+          currently only works if there are no preceding
+          transformations.
 
     kwargs : keyword args
         extra arguments
@@ -239,6 +249,10 @@ def registration(
         myf_aff = aff_shrink_factors
         mys_aff = aff_smoothing_sigmas
         myiterations = aff_iterations
+
+    if restrict_transformation is not None:
+        if type(restrict_transformation) is tuple:
+            restrict_transformationchar = "x".join([str(ri) for ri in restrict_transformation])
 
     if type(aff_shrink_factors) is tuple:
         myf_aff = "x".join([str(ri) for ri in aff_shrink_factors])
@@ -1363,6 +1377,10 @@ def registration(
                 if random_seed is not None:
                     args.append("--random-seed")
                     args.append(random_seed)
+
+                if restrict_transformation is not None:
+                    args.append("-g")
+                    args.append(restrict_transformationchar)
 
                 args.append("--float")
                 args.append("1")
