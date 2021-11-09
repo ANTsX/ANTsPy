@@ -17,7 +17,7 @@ import setuptools.command.develop
 import setuptools.command.build_py
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
-version = "0.2.9"  # ANTsPy version
+version = "0.3.0"  # ANTsPy version
 
 if "--weekly" in sys.argv:
     sys.argv.remove("--weekly")
