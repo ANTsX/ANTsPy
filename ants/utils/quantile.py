@@ -23,7 +23,7 @@ from .. import utils
 from .. import core
 
 
-def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
+def rank_intensity( x, mask=None, get_mask=False, method='max',  ):
     """
     Rank transform the intensity of the input image with or without masking.
     Intensities will transform from [0,1,2,55] to [0,1,2,3] so this may not be
