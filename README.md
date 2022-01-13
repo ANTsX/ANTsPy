@@ -95,6 +95,18 @@ We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tr
 
 [Composite registrations](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)
 
+## other notes on compilation
+
+in some cases, you may need some other libraries if they are not already installed eg if cmake says something about 
+a missing png library or a missing `Python.h` file.
+
+```
+sudo apt-get install libblas-dev liblapack-dev
+sudo apt-get install gfortran
+sudo apt-get install libpng-dev
+sudo apt-get install python3-dev  # for python3.x installs
+```
+
 ## Build documentation
 
 ```
