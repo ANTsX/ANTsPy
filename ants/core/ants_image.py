@@ -92,6 +92,8 @@ class ANTsImage(object):
                 raise ValueError('label_image argument must be a LabelImage type')
             self.label_image = label_image
 
+        self._array = None
+
     @property
     def spacing(self):
         """
@@ -555,13 +557,15 @@ class ANTsImage(object):
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
-        arr = self.numpy()
+        if self._array is None:
+            self._array = self.numpy()
+
         if isinstance(idx, ANTsImage):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
-            return arr.__getitem__(idx.numpy().astype('bool'))
+            return self._array.__getitem__(idx.numpy().astype('bool'))
         else:
-            return arr.__getitem__(idx)
+            return self._array.__getitem__(idx)
 
 
     def __setitem__(self, idx, value):
