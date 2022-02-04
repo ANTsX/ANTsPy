@@ -2060,6 +2060,8 @@ def plot(
     cmap="Greys_r",
     overlay_cmap="turbo",
     overlay_alpha=0.9,
+    vminol=None,
+    vmaxol=None,
     cbar=False,
     cbar_length=0.8,
     cbar_dx=0.0,
@@ -2256,8 +2258,10 @@ def plot(
 
     # handle `overlay` argument
     if overlay is not None:
-        vminol = overlay.min()
-        vmaxol = overlay.max()
+        if vminol is None:
+            vminol = overlay.min()
+        if vmaxol is None:
+            vmaxol = overlay.max()
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
