@@ -2058,7 +2058,7 @@ def plot(
     blend=False,
     alpha=1,
     cmap="Greys_r",
-    overlay_cmap="jet",
+    overlay_cmap="turbo",
     overlay_alpha=0.9,
     cbar=False,
     cbar_length=0.8,
