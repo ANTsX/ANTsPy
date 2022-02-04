@@ -2342,7 +2342,7 @@ def plot(
                 ov_arr = overlay.numpy()
                 ov_arr = rotate90_matrix(ov_arr)
                 if ov_arr.dtype not in ["uint8", "uint32"]:
-                    ov_arr[np.abs(ov_arr) == 0] = np.nan
+                    ov_arr = np.ma.masked_where(ov_arr == 0, ov_arr)
 
             fig = plt.figure()
             if title is not None:
@@ -2388,7 +2388,7 @@ def plot(
                     overlay = overlay.reorient_image2("LAI")
                 ov_arr = overlay.numpy()
                 if ov_arr.dtype not in ["uint8", "uint32"]:
-                    ov_arr[np.abs(ov_arr) == 0] = np.nan
+                    ov_arr = np.ma.masked_where(ov_arr == 0, ov_arr)
                 ov_arr = np.rollaxis(ov_arr, axis)
 
             if slices is None:
