@@ -2058,8 +2058,10 @@ def plot(
     blend=False,
     alpha=1,
     cmap="Greys_r",
-    overlay_cmap="jet",
+    overlay_cmap="turbo",
     overlay_alpha=0.9,
+    vminol=None,
+    vmaxol=None,
     cbar=False,
     cbar_length=0.8,
     cbar_dx=0.0,
@@ -2256,15 +2258,17 @@ def plot(
 
     # handle `overlay` argument
     if overlay is not None:
-        vminol = overlay.min()
-        vmaxol = overlay.max()
+        if vminol is None:
+            vminol = overlay.min()
+        if vmaxol is None:
+            vmaxol = overlay.max()
         if isinstance(overlay, str):
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
             raise ValueError("overlay argument must be an ANTsImage")
 
         if not iio.image_physical_space_consistency(image, overlay):
-            overlay = reg.resample_image_to_target(overlay, image, interp_type="linear")
+            overlay = reg.resample_image_to_target(overlay, image, interp_type="nearestNeighbor")
 
         if blend:
             if alpha == 1:
@@ -2284,7 +2288,7 @@ def plot(
             image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
                 overlay = tio.apply_ants_transform_to_image(
-                    tx, overlay, domain_image_map, interpolation="linear"
+                    tx, overlay, domain_image_map, interpolation="nearestNeighbor"
                 )
         elif isinstance(domain_image_map, (list, tuple)):
             # expect an image and transformation
@@ -2342,7 +2346,7 @@ def plot(
                 ov_arr = overlay.numpy()
                 ov_arr = rotate90_matrix(ov_arr)
                 if ov_arr.dtype not in ["uint8", "uint32"]:
-                    ov_arr[np.abs(ov_arr) == 0] = np.nan
+                    ov_arr = np.ma.masked_where(ov_arr == 0, ov_arr)
 
             fig = plt.figure()
             if title is not None:
@@ -2388,7 +2392,7 @@ def plot(
                     overlay = overlay.reorient_image2("LAI")
                 ov_arr = overlay.numpy()
                 if ov_arr.dtype not in ["uint8", "uint32"]:
-                    ov_arr[np.abs(ov_arr) == 0] = np.nan
+                    ov_arr = np.ma.masked_where(ov_arr == 0, ov_arr)
                 ov_arr = np.rollaxis(ov_arr, axis)
 
             if slices is None:

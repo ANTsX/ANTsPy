@@ -14,8 +14,10 @@ __all__ = ['ANTsImage',
            'allclose']
 
 import os
+
 import numpy as np
 import pandas as pd
+
 try:
     from functools import partialmethod
     HAS_PY3 = True
@@ -24,9 +26,8 @@ except:
 
 import inspect
 
-from .. import utils, registration, segmentation, viz
+from .. import registration, segmentation, utils, viz
 from . import ants_image_io as iio2
-
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
@@ -90,6 +91,8 @@ class ANTsImage(object):
             if not isinstance(label_image, LabelImage):
                 raise ValueError('label_image argument must be a LabelImage type')
             self.label_image = label_image
+
+        self._array = None
 
     @property
     def spacing(self):
@@ -205,8 +208,8 @@ class ANTsImage(object):
 
     def view(self, single_components=False):
         """
-        Geet a numpy array providing direct, shared access to the image data. 
-        IMPORTANT: If you alter the view, then the underlying image data 
+        Geet a numpy array providing direct, shared access to the image data.
+        IMPORTANT: If you alter the view, then the underlying image data
         will also be altered.
 
         Arguments
@@ -235,7 +238,7 @@ class ANTsImage(object):
         """
         Get a numpy array copy representing the underlying image data. Altering
         this ndarray will have NO effect on the underlying image data.
-        
+
         Arguments
         ---------
         single_components : boolean (default is False)
@@ -290,15 +293,15 @@ class ANTsImage(object):
             fn_suffix = '%s%i%s%i' % (p1_short,ndim,p2_short,ndim)
             libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
             pointer_cloned = libfn(self.pointer)
-            return ANTsImage(pixeltype=pixeltype, 
-                            dimension=self.dimension, 
-                            components=self.components, 
+            return ANTsImage(pixeltype=pixeltype,
+                            dimension=self.dimension,
+                            components=self.components,
                             is_rgb=self.is_rgb,
-                            pointer=pointer_cloned) 
+                            pointer=pointer_cloned)
 
     # pythonic alias for `clone` is `copy`
     copy = clone
-    
+
     def astype(self, dtype):
         """
         Cast & clone an ANTsImage to a given numpy datatype.
@@ -317,13 +320,13 @@ class ANTsImage(object):
 
     def new_image_like(self, data):
         """
-        Create a new ANTsImage with the same header information, but with 
+        Create a new ANTsImage with the same header information, but with
         a new image array.
 
         Arguments
         ---------
         data : ndarray or py::capsule
-            New array or pointer for the image. 
+            New array or pointer for the image.
             It must have the same shape as the current
             image data.
 
@@ -340,8 +343,8 @@ class ANTsImage(object):
             if (data.shape[-1] != self.components) or (data.shape[:-1] != self.shape):
                 raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
 
-        return iio2.from_numpy(data, origin=self.origin, 
-            spacing=self.spacing, direction=self.direction, 
+        return iio2.from_numpy(data, origin=self.origin,
+            spacing=self.spacing, direction=self.direction,
             has_components=self.has_components)
 
     def to_file(self, filename):
@@ -434,18 +437,18 @@ class ANTsImage(object):
     ## OVERLOADED OPERATORS ##
     def __add__(self, other):
         this_array = self.numpy()
-        
+
         if isinstance(other, ANTsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
 
         new_array = this_array + other
-        return self.new_image_like(new_array)    
+        return self.new_image_like(new_array)
 
     def __sub__(self, other):
         this_array = self.numpy()
-        
+
         if isinstance(other, ANTsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
@@ -456,18 +459,18 @@ class ANTsImage(object):
 
     def __mul__(self, other):
         this_array = self.numpy()
-        
+
         if isinstance(other, ANTsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
 
         new_array = this_array * other
-        return self.new_image_like(new_array)    
+        return self.new_image_like(new_array)
 
     def __truediv__(self, other):
         this_array = self.numpy()
-        
+
         if isinstance(other, ANTsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
@@ -554,13 +557,15 @@ class ANTsImage(object):
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
-        arr = self.numpy()
+        if self._array is None:
+            self._array = self.numpy()
+
         if isinstance(idx, ANTsImage):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
-            return arr.__getitem__(idx.numpy().astype('bool'))
+            return self._array.__getitem__(idx.numpy().astype('bool'))
         else:
-            return arr.__getitem__(idx)
+            return self._array.__getitem__(idx)
 
 
     def __setitem__(self, idx, value):
@@ -593,7 +598,7 @@ if HAS_PY3:
             args = inspect.getargspec(getattr(utils,k)).args
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
-    
+
     for k, v in registration.__dict__.items():
         if callable(v):
             args = inspect.getargspec(getattr(registration,k)).args
@@ -625,7 +630,7 @@ class LabelImage(ANTsImage):
     """
     A LabelImage is a special class of ANTsImage which has discrete values
     and string labels or other metadata (e.g. another string label such as the
-    "lobe" of the region) associated with each of the discrete values. 
+    "lobe" of the region) associated with each of the discrete values.
     A canonical example of a LabelImage is a brain label_image or parcellation.
 
     This class provides convenient functionality for manipulating and visualizing
@@ -634,7 +639,7 @@ class LabelImage(ANTsImage):
 
     Commonly-used functionality for LabelImage types:
         - create publication-quality figures of an label_image
-    
+
     Nomenclature
     ------------
     - key : a string representing the name of the associated index in the atlas image
@@ -644,11 +649,11 @@ class LabelImage(ANTsImage):
         - e.g. 'Lobes' or 'Regions'
     Notes
     -----
-    - indexing works by creating a separate dict for each metakey, where 
+    - indexing works by creating a separate dict for each metakey, where
     """
     def __init__(self, label_image, label_info=None, template=None):
         """
-        Initialize a LabelImage 
+        Initialize a LabelImage
 
         ANTsR function: N/A
 
@@ -686,7 +691,7 @@ class LabelImage(ANTsImage):
             raise ValueError('Label images must have discrete pixeltype - got %s' % label_image.pixeltype)
         if label_image.components > 1:
             raise ValueError('Label images must have only one component - got %i' % label_image.components)
-        
+
         if label_info is None:
             label_info = {k:'Label%i'%k for k in range(len(label_image.unique()))}
 
@@ -704,7 +709,7 @@ class LabelImage(ANTsImage):
         self.label_image = label_image
         self.template = template
         self.generate_data()
-        
+
         super(LabelImage, self).__init__(pixeltype=label_image.pixeltype, dimension=label_image.dimension,
             components=label_image.components, pointer=label_image.pointer)
 
@@ -714,7 +719,7 @@ class LabelImage(ANTsImage):
         self._keys = {mk:list(self.label_info[mk]) for mk in self._metakeys}
         self._values = list(self.label_info.index)
         self._n_values = len(self._values)
-        
+
         items = {}
         for mk in self._metakeys:
             items[mk] = {}
@@ -808,11 +813,11 @@ class LabelImage(ANTsImage):
 def copy_image_info(reference, target):
     """
     Copy origin, direction, and spacing from one antsImage to another
-    
+
     ANTsR function: `antsCopyImageInfo`
 
     Arguments
-    ---------   
+    ---------
     reference : ANTsImage
         Image to get values from.
     target  : ANTsImAGE
@@ -829,15 +834,15 @@ def copy_image_info(reference, target):
     return target
 
 def set_origin(image, origin):
-    """ 
-    Set origin of ANTsImage 
-    
+    """
+    Set origin of ANTsImage
+
     ANTsR function: `antsSetOrigin`
     """
     image.set_origin(origin)
 
 def get_origin(image):
-    """ 
+    """
     Get origin of ANTsImage
 
     ANTsR function: `antsGetOrigin`
@@ -846,33 +851,33 @@ def get_origin(image):
     return image.origin
 
 def set_direction(image, direction):
-    """ 
-    Set direction of ANTsImage 
+    """
+    Set direction of ANTsImage
 
     ANTsR function: `antsSetDirection`
     """
     image.set_direction(direction)
 
 def get_direction(image):
-    """ 
-    Get direction of ANTsImage 
-    
+    """
+    Get direction of ANTsImage
+
     ANTsR function: `antsGetDirection`
     """
     return image.direction
 
 def set_spacing(image, spacing):
-    """ 
-    Set spacing of ANTsImage 
-    
+    """
+    Set spacing of ANTsImage
+
     ANTsR function: `antsSetSpacing`
     """
     image.set_spacing(spacing)
 
 def get_spacing(image):
-    """ 
-    Get spacing of ANTsImage 
-    
+    """
+    Get spacing of ANTsImage
+
     ANTsR function: `antsGetSpacing`
     """
     return image.spacing
@@ -881,7 +886,7 @@ def get_spacing(image):
 def image_physical_space_consistency(image1, image2, tolerance=1e-2, datatype=False):
     """
     Check if two or more ANTsImage objects occupy the same physical space
-    
+
     ANTsR function: `antsImagePhysicalSpaceConsistency`
 
     Arguments
@@ -941,7 +946,7 @@ def image_type_cast(image_list, pixeltype=None):
     """
     Cast a list of images to the highest pixeltype present in the list
     or all to a specified type
-    
+
     ANTsR function: `antsImageTypeCast`
 
     Arguments

@@ -256,7 +256,7 @@ def transform_from_displacement_field(field):
     )
 
 
-def read_transform(filename, dimension=2, precision="float"):
+def read_transform(filename, dimension=None, precision="float"):
     """
     Read a transform from file
 
@@ -268,7 +268,7 @@ def read_transform(filename, dimension=2, precision="float"):
         filename of transform
 
     dimension : integer
-        spatial dimension of transform
+        spatial dimension of transform, inferred from file if not provided
 
     precision : string
         numerical precision of transform
@@ -289,8 +289,9 @@ def read_transform(filename, dimension=2, precision="float"):
     if not os.path.exists(filename):
         raise ValueError("filename does not exist!")
 
-    libfn1 = utils.get_lib_fn("getTransformDimensionFromFile")
-    dimension = libfn1(filename)
+    if dimension is not None:
+        libfn1 = utils.get_lib_fn("getTransformDimensionFromFile")
+        dimension = libfn1(filename)
 
     libfn2 = utils.get_lib_fn("getTransformNameFromFile")
     transform_type = libfn2(filename)
