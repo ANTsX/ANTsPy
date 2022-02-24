@@ -15,7 +15,7 @@ fi
 
 #cd ./src
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itktag=e21a56d1227c5433066237060368cb4532b8a9d2 # update ITK tag 10/2/2020
+itktag=v5.3rc03 # update ITK tag 10/2/2020
 # if there is a directory but no git, remove it
 if [[ -d itksource ]]; then
     if [[ ! -d itksource/.git ]]; then
