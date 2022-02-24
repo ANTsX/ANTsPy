@@ -57,7 +57,7 @@ if [[ ! -d antscore ]] ; then
     rm -rf antsrepo # remove directory
 
     # lil hack bc of stupid angled import bug in actual files
-    cp ReadWriteData.h antscore/ReadWriteData.h
+    # cp ReadWriteData.h antscore/ReadWriteData.h
     # lil hack bc ANTsVersionConfig.h is only created if you build ANTs...
     cp ANTsVersionConfig.h antscore/ANTsVersionConfig.h
 fi

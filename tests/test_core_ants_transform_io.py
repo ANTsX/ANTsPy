@@ -31,11 +31,11 @@ class TestModule_ants_transform_io(unittest.TestCase):
         self.txs = [tx2d, tx3d]
         self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
 
-        self.matrix_offset_types = {'AffineTransform', 'CenteredAffineTransform', 
-                         'Euler2DTransform', 'Euler3DTransform', 
-                         'Rigid2DTransform', 'QuaternionRigidTransform', 
+        self.matrix_offset_types = {'AffineTransform', 'CenteredAffineTransform',
+                         'Euler2DTransform', 'Euler3DTransform',
+                         'Rigid2DTransform', 'QuaternionRigidTransform',
                          'Similarity2DTransform', 'CenteredSimilarity2DTransform',
-                         'Similarity3DTransform', 'CenteredRigid2DTransform', 
+                         'Similarity3DTransform', 'CenteredRigid2DTransform',
                          'CenteredEuler3DTransform', 'Rigid3DTransform'}
 
     def tearDown(self):
@@ -58,11 +58,11 @@ class TestModule_ants_transform_io(unittest.TestCase):
         tx = ants.create_ants_transform(supported_types=True)
 
         # input params
-        translation = (3,4,5) 
-        tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation ) 
+        translation = (3,4,5)
+        tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation )
 
         translation = np.array([3,4,5])
-        tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation ) 
+        tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation )
 
         # invalid dimension
         with self.assertRaises(Exception):
@@ -74,7 +74,7 @@ class TestModule_ants_transform_io(unittest.TestCase):
 
         # bad param arg
         with self.assertRaises(Exception):
-            ants.create_ants_transform( transform_type='Euler3DTransform', translation=ants.image_read(ants.get_ants_data('r16')) ) 
+            ants.create_ants_transform( transform_type='Euler3DTransform', translation=ants.image_read(ants.get_ants_data('r16')) )
 
         # bad precision
         with self.assertRaises(Exception):
@@ -84,12 +84,12 @@ class TestModule_ants_transform_io(unittest.TestCase):
         for tx in self.txs:
             filename = mktemp(suffix='.mat')
             ants.write_transform(tx, filename)
-            tx2 = ants.read_transform(filename)
+            tx2 = ants.read_transform(filename, precision='float')
 
         # file doesnt exist
         with self.assertRaises(Exception):
             ants.read_transform('blah-blah.mat')
-            
+
 
 
 if __name__ == '__main__':

@@ -18,11 +18,11 @@
 
 namespace py = pybind11;
 
-
+/*
 template< unsigned int ImageDimension >
 int antsReoHelper(
   typename itk::Image< float , ImageDimension >::Pointer image1,
-  std::string txfn, std::vector<int> axis , std::vector<int> axis2, 
+  std::string txfn, std::vector<int> axis , std::vector<int> axis2,
   std::vector<int> doReflection, std::vector<int> doScale )
 {
   typedef double RealType;
@@ -50,7 +50,7 @@ int antsReoHelper(
   ccg1 = calculator1->GetCenterOfGravity();
   cpm1 = calculator1->GetPrincipalMoments();
   cpa1 = calculator1->GetPrincipalAxes();
- 
+
   unsigned int eigind1 = 1;
   unsigned int eigind2 = 1;
   typedef vnl_vector<RealType> EVectorType;
@@ -65,7 +65,7 @@ int antsReoHelper(
   evec2_primary.fill(0);
   for ( unsigned int i = 0; i < ImageDimension; i++ )
     evec2_primary[i] = axis[i];
-  /** Solve Wahba's problem http://en.wikipedia.org/wiki/Wahba%27s_problem */
+  // Solve Wahba's problem http://en.wikipedia.org/wiki/Wahba%27s_problem
   EMatrixType B = outer_product( evec2_primary, evec1_primary );
   if( ImageDimension == 3 )
     {
@@ -134,23 +134,13 @@ int antsReoHelper(
     transformWriter->SetInput( affine1 );
     transformWriter->SetFileName( txfn.c_str() );
     transformWriter->Update();
-    /*
-    typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleFilterType;
-    typename ResampleFilterType::Pointer resample = ResampleFilterType::New();
-    resample->SetTransform( affine1 );
-    resample->SetInput( image1 );
-    resample->SetOutputParametersFromImage(  image1 );
-    resample->SetDefaultPixelValue( 0 );
-    resample->UpdateLargestPossibleRegion();
-    image2 = resample->GetOutput();
-    */
 
   return 0;
 
 }
 
 template <typename ImageType, unsigned int Dimension>
-int reorientImage(  py::capsule in_image, std::string txfn, 
+int reorientImage(  py::capsule in_image, std::string txfn,
                       std::vector<int> axis1, std::vector<int> axis2,
                       std::vector<int> rrfl, std::vector<int> rscl )
 {
@@ -161,7 +151,7 @@ int reorientImage(  py::capsule in_image, std::string txfn,
   return 0;
 }
 
-
+*/
 
 
 template <typename ImageType, unsigned int Dimension>
@@ -169,7 +159,7 @@ std::vector<double> centerOfMass( py::capsule & image  )
 {
   typedef typename ImageType::Pointer ImagePointerType;
   ImagePointerType itkimage = as<ImageType>( image );
-  
+
   typedef typename itk::ImageMomentsCalculator<ImageType> ImageCalculatorType;
   typename ImageCalculatorType::VectorType com( Dimension );
   com.Fill( 0 );
@@ -184,7 +174,7 @@ std::vector<double> centerOfMass( py::capsule & image  )
   for ( unsigned int k = 0; k < Dimension; k++ )
   {
     myCoM[ k ] = com[ k ];
-  } 
+  }
 
   return myCoM;
 }
@@ -192,9 +182,9 @@ std::vector<double> centerOfMass( py::capsule & image  )
 
 PYBIND11_MODULE(reorientImage, m)
 {
-  m.def("reorientImageF2", &reorientImage<itk::Image<float, 2>, 2>);
-  m.def("reorientImageF3", &reorientImage<itk::Image<float, 3>, 3>);
-  m.def("reorientImageF4", &reorientImage<itk::Image<float, 4>, 4>);
+//  m.def("reorientImageF2", &reorientImage<itk::Image<float, 2>, 2>);
+//  m.def("reorientImageF3", &reorientImage<itk::Image<float, 3>, 3>);
+//  m.def("reorientImageF4", &reorientImage<itk::Image<float, 4>, 4>);
 
   m.def("centerOfMassF2", &centerOfMass<itk::Image<float, 2>, 2>);
   m.def("centerOfMassF3", &centerOfMass<itk::Image<float, 3>, 3>);

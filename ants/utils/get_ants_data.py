@@ -61,11 +61,10 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
     if os.path.isdir(antsx_cache_directory) == False:
         antsx_cache_directory = tempfile.TemporaryDirectory()
 
-    if file_id == None:
-        raise ValueError("Missing file id.")
-
     valid_list = ("r16",
                   "r27",
+                  "r30",
+                  "r62",
                   "r64",
                   "r85",
                   "ch2",
@@ -73,10 +72,7 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
                   "surf"
                   "show")
 
-    if not file_id in valid_list:
-        raise ValueError("No data with the id you passed - try \"show\" to get list of valid ids.")
-
-    if file_id == "show":
+    if file_id == "show" or file_id is None:
        return(valid_list)
 
     url = switch_data(file_id)

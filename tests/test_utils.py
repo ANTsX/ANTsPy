@@ -285,7 +285,7 @@ class TestModule_fit_bspline_object_to_scattered_data(unittest.TestCase):
             parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
             parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
             number_of_fitting_levels=5, mesh_size=1)
-    
+
     def test_fit_bspline_object_to_scattered_data_3d_curve_example(self):
         x = np.linspace(-4, 4, num=100)
         y = np.exp(-np.multiply(x, x)) + np.random.uniform(-0.1, 0.1, len(x))
@@ -314,9 +314,9 @@ class TestModule_fit_bspline_object_to_scattered_data(unittest.TestCase):
             parametric_data[i,1] = col_indices[i]
         bspline_img = ants.fit_bspline_object_to_scattered_data(
             scattered_data, parametric_data,
-            parametric_domain_origin=[0.0, 0.0], 
+            parametric_domain_origin=[0.0, 0.0],
             parametric_domain_spacing=[1.0, 1.0],
-            parametric_domain_size = img.shape, 
+            parametric_domain_size = img.shape,
             number_of_fitting_levels=7, mesh_size=1)
 
     def test_fit_bspline_object_to_scattered_data_3d_scalar_field_example(self):
@@ -335,37 +335,37 @@ class TestModule_fit_bspline_object_to_scattered_data(unittest.TestCase):
             parametric_data[i,2] = dep_indices[i]
         bspline_img = ants.fit_bspline_object_to_scattered_data(
             scattered_data, parametric_data,
-            parametric_domain_origin=[0.0, 0.0, 0.0], 
+            parametric_domain_origin=[0.0, 0.0, 0.0],
             parametric_domain_spacing=[1.0, 1.0, 1.0],
-            parametric_domain_size = img.shape, 
+            parametric_domain_size = img.shape,
             number_of_fitting_levels=5, mesh_size=1)
 
     def test_fit_bspline_object_to_scattered_data_2d_displacement_field_example(self):
-            img = ants.image_read( ants.get_ants_data("r16"))        
+            img = ants.image_read( ants.get_ants_data("r16"))
             # smooth a single vector in the middle of the image
             scattered_data = np.reshape(np.asarray((10.0, 10.0)), (1, 2))
             parametric_data = np.reshape(np.asarray(
                 (scattered_data[0, 0]/img.shape[0], scattered_data[0, 1]/img.shape[1])), (1, 2))
             bspline_field = ants.fit_bspline_object_to_scattered_data(
                 scattered_data, parametric_data,
-                parametric_domain_origin=[0.0, 0.0], 
+                parametric_domain_origin=[0.0, 0.0],
                 parametric_domain_spacing=[1.0, 1.0],
-                parametric_domain_size = img.shape, 
+                parametric_domain_size = img.shape,
                 number_of_fitting_levels=7, mesh_size=1)
 
     def test_fit_bspline_object_to_scattered_data_3d_displacement_field_example(self):
-            img = ants.image_read( ants.get_ants_data("mni"))        
+            img = ants.image_read( ants.get_ants_data("mni"))
             # smooth a single vector in the middle of the image
             scattered_data = np.reshape(np.asarray((10.0, 10.0, 10.0)), (1, 3))
             parametric_data = np.reshape(np.asarray(
-                (scattered_data[0, 0]/img.shape[0], 
+                (scattered_data[0, 0]/img.shape[0],
                  scattered_data[0, 1]/img.shape[1],
                  scattered_data[0, 2]/img.shape[2])), (1, 3))
             bspline_field = ants.fit_bspline_object_to_scattered_data(
                 scattered_data, parametric_data,
-                parametric_domain_origin=[0.0, 0.0, 0.0], 
+                parametric_domain_origin=[0.0, 0.0, 0.0],
                 parametric_domain_spacing=[1.0, 1.0, 1.0],
-                parametric_domain_size = img.shape, 
+                parametric_domain_size = img.shape,
                 number_of_fitting_levels=5, mesh_size=1)
 
 
@@ -375,20 +375,20 @@ class TestModule_get_ants_data(unittest.TestCase):
             if dataname.endswith("nii.gz"):
                 img = ants.image_read(dataname)
 
-    def test_get_ants_data_files(self):
-        datanames = ants.get_ants_data(None)
-        self.assertTrue(isinstance(datanames, list))
-        self.assertTrue(len(datanames) > 0)
+#    def test_get_ants_data_files(self):
+#        datanames = ants.get_ants_data(None)
+#        self.assertTrue(isinstance(datanames, list))
+#        self.assertTrue(len(datanames) > 0)
 
     def test_get_ants_data2(self):
         for dataname in ants.get_data(None):
             if dataname.endswith("nii.gz"):
                 img = ants.image_read(dataname)
 
-    def test_get_ants_data_files2(self):
-        datanames = ants.get_data(None)
-        self.assertTrue(isinstance(datanames, list))
-        self.assertTrue(len(datanames) > 0)
+#    def test_get_ants_data_files2(self):
+#        datanames = ants.get_data(None)
+#        self.assertTrue(isinstance(datanames, list))
+#        self.assertTrue(len(datanames) > 0)
 
 
 class TestModule_get_centroids(unittest.TestCase):
@@ -543,26 +543,26 @@ class TestModule_impute(unittest.TestCase):
         # data_imputed = ants.impute(data, method='constant', value=12.)
 
 
-class TestModule_invariant_image_similarity(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_invariate_image_similarity_example(self):
-        img1 = ants.image_read(ants.get_ants_data("r16"))
-        img2 = ants.image_read(ants.get_ants_data("r64"))
-        metric1 = ants.invariant_image_similarity(img1, img2, do_reflection=False)
-
-        img1 = ants.image_read(ants.get_ants_data("r16"))
-        img2 = ants.image_read(ants.get_ants_data("r64"))
-        metric2 = ants.invariant_image_similarity(img1, img2, do_reflection=True)
-
-    def test_convolve_image_example(self):
-        fi = ants.image_read(ants.get_ants_data("r16"))
-        convimg = ants.make_image((3, 3), (1, 0, 1, 0, -4, 0, 1, 0, 1))
-        convout = ants.convolve_image(fi, convimg)
+# class TestModule_invariant_image_similarity(unittest.TestCase):
+#    def setUp(self):
+#        pass
+#
+#    def tearDown(self):
+#        pass
+#
+#    def test_invariate_image_similarity_example(self):
+#        img1 = ants.image_read(ants.get_ants_data("r16"))
+#        img2 = ants.image_read(ants.get_ants_data("r64"))
+#        metric1 = ants.invariant_image_similarity(img1, img2, do_reflection=False)
+#
+#        img1 = ants.image_read(ants.get_ants_data("r16"))
+#        img2 = ants.image_read(ants.get_ants_data("r64"))
+#        metric2 = ants.invariant_image_similarity(img1, img2, do_reflection=True)
+#
+#    def test_convolve_image_example(self):
+#        fi = ants.image_read(ants.get_ants_data("r16"))
+#        convimg = ants.make_image((3, 3), (1, 0, 1, 0, -4, 0, 1, 0, 1))
+#        convout = ants.convolve_image(fi, convimg)
 
 
 class TestModule_label_clusters(unittest.TestCase):

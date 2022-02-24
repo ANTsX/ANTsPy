@@ -15,7 +15,7 @@ namespace py = pybind11;
 using namespace py::literals;
 
 template<class PrecisionType, unsigned int ImageDimension>
-py::capsule labelOverlapMeasures( py::capsule & antsSourceImage,
+py::dict labelOverlapMeasures( py::capsule & antsSourceImage,
                                   py::capsule & antsTargetImage )
 {
   using ImageType = itk::Image<PrecisionType, ImageDimension>;
@@ -49,6 +49,7 @@ py::capsule labelOverlapMeasures( py::capsule & antsSourceImage,
     }
   std::sort( allLabels.begin(), allLabels.end() );
 
+
   // Now put the results in an Rcpp data frame
 
   unsigned int vectorLength = 1 + allLabels.size();
@@ -62,7 +63,7 @@ py::capsule labelOverlapMeasures( py::capsule & antsSourceImage,
   std::vector<double> falsePositiveError( vectorLength );
 
   // We'll replace label '0' with "All" in the R wrapper.
-  labels[0] = itk::NumericTraits<PrecisionType>::Zero;  
+  labels[0] = itk::NumericTraits<PrecisionType>::Zero;
   totalOrTargetOverlap[0] = filter->GetTotalOverlap();
   unionOverlap[0] = filter->GetUnionOverlap();
   meanOverlap[0] = filter->GetMeanOverlap();
@@ -74,7 +75,7 @@ py::capsule labelOverlapMeasures( py::capsule & antsSourceImage,
   typename std::vector<PrecisionType>::const_iterator itL = allLabels.begin();
   for( itL = allLabels.begin(); itL != allLabels.end(); ++itL )
     {
-    labels[i] = *itL;  
+    labels[i] = *itL;
     totalOrTargetOverlap[i] = filter->GetTargetOverlap( *itL );
     unionOverlap[i] = filter->GetUnionOverlap( *itL );
     meanOverlap[i] = filter->GetMeanOverlap( *itL );
@@ -91,6 +92,7 @@ py::capsule labelOverlapMeasures( py::capsule & antsSourceImage,
                                             "VolumeSimilarity"_a=volumeSimilarity,
                                             "FalseNegativeError"_a=falseNegativeError,
                                             "FalsePositiveError"_a=falsePositiveError );
+
   return (labelOverlapMeasures);
 }
 
@@ -100,4 +102,3 @@ PYBIND11_MODULE(labelOverlapMeasures, m)
   m.def("labelOverlapMeasures3D", &labelOverlapMeasures<unsigned int, 3>);
   m.def("labelOverlapMeasures4D", &labelOverlapMeasures<unsigned int, 4>);
 }
-

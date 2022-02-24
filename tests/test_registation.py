@@ -29,7 +29,7 @@ class TestModule_affine_initializer(unittest.TestCase):
         fi = ants.image_read(ants.get_ants_data("r16"))
         mi = ants.image_read(ants.get_ants_data("r27"))
         txfile = ants.affine_initializer(fi, mi)
-        tx = ants.read_transform(txfile, dimension=2)
+        tx = ants.read_transform(txfile)
 
 
 class TestModule_apply_transforms(unittest.TestCase):
@@ -239,20 +239,20 @@ class TestModule_reflect_image(unittest.TestCase):
         asym = asym - fi
 
 
-class TestModule_reorient_image(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_reorient_image(self):
-        image = ants.image_read(ants.get_ants_data("r16"))
-        ants.reorient_image(image, (1, 0))
-
-        image = ants.image_read(ants.get_ants_data("r16"))
-        image = image.clone("unsigned int")
-        ants.reorient_image(image, (1, 0))
+# class TestModule_reorient_image(unittest.TestCase):
+#    def setUp(self):
+#        pass
+#
+#    def tearDown(self):
+#        pass
+#
+#    def test_reorient_image(self):
+#        image = ants.image_read(ants.get_ants_data("r16"))
+#        ants.reorient_image(image, (1, 0))
+#
+#        image = ants.image_read(ants.get_ants_data("r16"))
+#        image = image.clone("unsigned int")
+#        ants.reorient_image(image, (1, 0))
 
     def test_get_center_of_mass(self):
         fi = ants.image_read(ants.get_ants_data("r16"))

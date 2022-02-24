@@ -12,6 +12,7 @@
 #include "itkImageFileWriter.h"
 #include "itkPyBuffer.h"
 #include "itkVectorImage.h"
+#include "itkChangeInformationImageFilter.h"
 
 #include "itkMath.h"
 #include "itkPyVnl.h"
@@ -36,7 +37,7 @@ public:
     unsigned int components;
     //py::tuple shape;
     py::array _ndarr; // needed for creating image from numpy array
-    
+
     // VERY important - holds pointer to itk::Image
     py::capsule pointer;
 
@@ -94,7 +95,7 @@ py::capsule wrap( const typename ImageType::Pointer &image )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType * ptr = new ImagePointerType( image );
-    
+
     std::string ptype;
     std::string dtype;
 
@@ -109,13 +110,13 @@ py::capsule wrap( const typename ImageType::Pointer &image )
     antsimage.dimension     = ndim;
     antsimage.components    = image->GetNumberOfComponentsPerPixel();
     antsimage.pointer       = py::capsule(ptr, "itk::Image::Pointer");
-    
+
     return antsimage;
 }
 */
 
 template <typename ImageType>
-void capsuleDestructor( void * f ) 
+void capsuleDestructor( void * f )
 {
     //std::cout << "calling capsule destructor" << std::endl;
     typename ImageType::Pointer * foo  = reinterpret_cast<typename ImageType::Pointer *>( f );
@@ -232,14 +233,14 @@ void setOrigin( py::capsule & myPointer, std::vector<double> new_origin )
 template <typename ImageType>
 py::array getDirectionHelper( typename ImageType::Pointer image )
 {
-    typedef typename ImageType::DirectionType ImageDirectionType;    
+    typedef typename ImageType::DirectionType ImageDirectionType;
     ImageDirectionType direction = image->GetDirection();
 
     typedef typename ImageDirectionType::InternalMatrixType DirectionInternalMatrixType;
     DirectionInternalMatrixType fixed_matrix = direction.GetVnlMatrix();
 
     vnl_matrix<double> vnlmat1 = fixed_matrix.as_matrix();
-    
+
     const unsigned int ndim = ImageType::SizeType::GetSizeDimension();
 
     vnl_matrix<double> * vnlmat2 = new vnl_matrix<double>;
@@ -256,7 +257,8 @@ py::array getDirectionHelper( typename ImageType::Pointer image )
     typedef itk::PyVnl<double> PyVnlType;
     PyObject * mymatrix = PyVnlType::_GetArrayViewFromVnlMatrix( vnlmat2 );
     py::array myarray = py::reinterpret_borrow<py::object>( mymatrix );
-    py::array myarrayview = myarray.view("float64").reshape({ndim, ndim});
+    std::string viewtype( "float64" );
+    py::array myarrayview = myarray.view( viewtype ).reshape({ndim, ndim});
 
     return myarrayview;
 }
@@ -272,6 +274,11 @@ py::array getDirection( py::capsule & myPointer )
 template <typename ImageType>
 void setDirectionHelper( typename ImageType::Pointer &itkImage, py::array new_direction)
 {
+    // using FilterType = itk::ChangeInformationImageFilter<ImageType>;
+    // typename FilterType::Pointer filter = FilterType::New();
+    // filter->SetInput( itkImage );
+    // filter->ChangeDirectionOn();
+
     PyObject * new_dir_obj = new_direction.ptr();
 
     py::tuple shapetuple = py::make_tuple( new_direction.shape(0), new_direction.shape(1) );
@@ -280,7 +287,12 @@ void setDirectionHelper( typename ImageType::Pointer &itkImage, py::array new_di
     typedef itk::PyVnl<double> PyVnlType;
     vnl_matrix<double> new_matrix = PyVnlType::_GetVnlMatrixViewFromArray( new_dir_obj, new_dir_shape );
 
-    itkImage->SetDirection( new_matrix );
+    typename ImageType::DirectionType new_matrix2 = itkImage->GetDirection( );
+    for ( py::ssize_t i = 0; i < new_direction.shape(0); i++ )
+      for ( py::ssize_t j = 0; j < new_direction.shape(1); j++ ) {
+        new_matrix2(i,j) = new_matrix(i,j);
+      }
+    itkImage->SetDirection( new_matrix2 );
 }
 
 template <typename ImageType>

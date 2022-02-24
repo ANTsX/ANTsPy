@@ -17,7 +17,7 @@
 namespace py = pybind11;
 
 template<unsigned int DataDimension>
-py::capsule fitBsplineCurveHelper(   
+py::array_t<double> fitBsplineCurveHelper(
   py::array_t<double> scatteredData,
   py::array_t<double> parametricData,
   std::vector<double> dataWeights,
@@ -101,7 +101,7 @@ py::capsule fitBsplineCurveHelper(
   //  Only difference between the Curve, Image, and Object function
   //  is the return type.
   //
-  
+
   py::array_t<double> bsplineCurve({ parametricDomainSize[0], DataDimension });
   auto bsplineCurveR = bsplineCurve.mutable_unchecked<2>();
 
@@ -115,14 +115,14 @@ py::capsule fitBsplineCurveHelper(
       {
       bsplineCurveR(count, d) = data[d];
       }
-    count++;  
+    count++;
     }
-  
+
   return bsplineCurve;
 }
 
 template<unsigned int ParametricDimension>
-py::capsule fitBsplineImageHelper(   
+py::capsule fitBsplineImageHelper(
   py::array_t<double> scatteredData,
   py::array_t<double> parametricData,
   std::vector<double> dataWeights,
@@ -211,14 +211,14 @@ py::capsule fitBsplineImageHelper(
   using SelectionFilterType = itk::VectorIndexSelectionCastImageFilter<OutputImageType, ScalarImageType>;
   typename SelectionFilterType::Pointer selectionFilter = SelectionFilterType::New();
   selectionFilter->SetIndex( 0 );
-  selectionFilter->SetInput( bsplineFilter->GetOutput() );  
+  selectionFilter->SetInput( bsplineFilter->GetOutput() );
   selectionFilter->Update();
-    
+
   return wrap< ScalarImageType >( selectionFilter->GetOutput() );
 }
 
 template<unsigned int ParametricDimension, unsigned int DataDimension>
-py::capsule fitBsplineVectorImageHelper(   
+py::capsule fitBsplineVectorImageHelper(
   py::array_t<double> scatteredData,
   py::array_t<double> parametricData,
   std::vector<double> dataWeights,
@@ -328,7 +328,7 @@ py::capsule fitBsplineVectorImageHelper(
       }
     antsField->SetPixel( It.GetIndex(), antsVector );
     }
-    
+
   return wrap< VectorImageType >( antsField );
 }
 
@@ -338,7 +338,7 @@ PYBIND11_MODULE(fitBsplineObjectToScatteredData, m)
   m.def("fitBsplineObjectToScatteredDataP1D2", &fitBsplineCurveHelper<2>);
   m.def("fitBsplineObjectToScatteredDataP1D3", &fitBsplineCurveHelper<3>);
   m.def("fitBsplineObjectToScatteredDataP1D4", &fitBsplineCurveHelper<4>);
-                                                
+
   m.def("fitBsplineObjectToScatteredDataP2D1", &fitBsplineImageHelper<2>);
   m.def("fitBsplineObjectToScatteredDataP3D1", &fitBsplineImageHelper<3>);
   m.def("fitBsplineObjectToScatteredDataP4D1", &fitBsplineImageHelper<4>);
@@ -346,4 +346,3 @@ PYBIND11_MODULE(fitBsplineObjectToScatteredData, m)
   m.def("fitBsplineObjectToScatteredDataP2D2", &fitBsplineVectorImageHelper<2, 2>);
   m.def("fitBsplineObjectToScatteredDataP3D3", &fitBsplineVectorImageHelper<3, 3>);
 }
-
