@@ -24,8 +24,8 @@ from .padImage import *
 from .readImage import *
 from .readTransform import *
 from .reflectionMatrix import *
-# from .reorientImage import *
-# from .reorientImage2 import *
+from .reorientImage import *
+from .reorientImage2 import *
 from .rgbToVector import *
 from .sccaner import *
 from .simulateDisplacementField import *
