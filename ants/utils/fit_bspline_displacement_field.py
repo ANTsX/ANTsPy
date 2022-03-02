@@ -116,6 +116,8 @@ def fit_bspline_displacement_field(displacement_field=None,
         displacement_weight_image = core.make_image(displacement_field.shape, voxval=1,
             spacing=displacement_field.spacing, origin=displacement_field.origin,
             direction=displacement_field.direction, has_components=False, pixeltype='float')
+
+    if displacement_field is not None:
         if origin is None:
             origin = displacement_field.origin
         if spacing is None:
