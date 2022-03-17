@@ -117,6 +117,16 @@ def fit_bspline_displacement_field(displacement_field=None,
             spacing=displacement_field.spacing, origin=displacement_field.origin,
             direction=displacement_field.direction, has_components=False, pixeltype='float')
 
+    if displacement_field is not None:
+        if origin is None:
+            origin = displacement_field.origin
+        if spacing is None:
+            spacing = displacement_field.spacing
+        if direction is None:
+            direction = displacement_field.direction
+        if size is None:
+            size = displacement_field.shape
+
     dimensionality = None
     if displacement_field is not None:
         dimensionality = displacement_field.dimension
@@ -167,10 +177,10 @@ def fit_bspline_displacement_field(displacement_field=None,
     if displacements is None:
         displacements = np.empty((0, 0))
 
-    number_of_control_points = mesh_size + spline_order
+    if displacement_weights is None:
+        displacement_weights = np.empty(0)
 
-    if isinstance(number_of_control_points, int) == True:
-        number_of_control_points = np.repeat(number_of_control_points, dimensionality)
+    number_of_control_points = list(np.array(mesh_size) + np.repeat(spline_order, dimensionality))
 
     bspline_field = None
     if displacement_field is not None:
