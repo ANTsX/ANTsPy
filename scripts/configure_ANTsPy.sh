@@ -23,7 +23,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=6f07ac55569d0d085d2adf7888d1c7a2bd563bfe # M1 and other ITK updates
+antstag=fc16efb8de42aa20955f694c31ea0af491e78d9e # h5 fix
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
