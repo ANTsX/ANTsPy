@@ -1,20 +1,20 @@
 import os
-import shutil
-import re
-import sys
 import platform
+import re
+import shutil
 import subprocess
+import sys
 import time
+from distutils.version import LooseVersion
+from functools import cmp_to_key
 
 import setuptools
-from setuptools import find_packages
-from setuptools import Extension, setup
-from setuptools.command.build_ext import build_ext
-from distutils.version import LooseVersion
 import setuptools.command.build_ext
-import setuptools.command.install
-import setuptools.command.develop
 import setuptools.command.build_py
+import setuptools.command.develop
+import setuptools.command.install
+from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 version = "0.3.2"  # ANTsPy version
@@ -79,12 +79,22 @@ class CMakeBuild(build_ext):
             os.environ["ITK_DIR"] = os.path.join(setup_py_dir, "itkbuild")
         else:
             print("No local ITK installation found... Building ITK now...")
-            subprocess.check_call(["./scripts/configure_ITK.sh"], cwd=setup_py_dir)
+            if platform.system() == "Windows":
+                subprocess.check_call(
+                    [".\\scripts\\configure_ITK.bat"], cwd=setup_py_dir
+                )
+            else:
+                subprocess.check_call(["./scripts/configure_ITK.sh"], cwd=setup_py_dir)
             os.environ["ITK_DIR"] = os.path.join(setup_py_dir, "itkbuild")
 
         ## Find or Configure ANTs ##
         print("Configuring ANTs core")
-        subprocess.check_call(["./scripts/configure_ANTsPy.sh"], cwd=setup_py_dir)
+        if platform.system() == "Windows":
+            subprocess.check_call(
+                [".\\scripts\\configure_ANTsPy.bat"], cwd=setup_py_dir
+            )
+        else:
+            subprocess.check_call(["./scripts/configure_ANTsPy.sh"], cwd=setup_py_dir)
 
         ## Configure ANTsPy library ##
         print("Configuring ANTsPy library")
@@ -107,11 +117,12 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         setup_py_dir = os.path.dirname(os.path.realpath(__file__))
-        extdir = os.path.join(setup_py_dir, "ants/lib/")
+        extdir = os.path.join(setup_py_dir, "ants", "lib")
 
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir,
             "-DPYTHON_EXECUTABLE=" + sys.executable,
+            "-DCMAKE_BUILD_TYPE=Release",
         ]
 
         cfg = "Release"
@@ -119,27 +130,42 @@ class CMakeBuild(build_ext):
 
         if platform.system() == "Windows":
             cmake_args += [
-                "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
+                "-DBUILD_SHARED_LIBS:BOOL=OFF",
+                "-DBUILD_ALL_ANTS_APPS:BOOL=OFF",
+                "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
             ]
-            if sys.maxsize > 2 ** 32:
-                cmake_args += ["-A", "x64"]
-            build_args += ["--", "/m"]
-        else:
-            cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
-            build_args += ["--", "-j2"]
+        #     cmake_args += [
+        #         "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
+        #     ]
+        #     if sys.maxsize > 2 ** 32:
+        #         cmake_args += ["-A", "x64"]
+        #     build_args += ["--", "/m"]
+        # else:
+        #     cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
+        #     build_args += ["--", "-j2"]
 
         env = os.environ.copy()
-        env["CXXFLAGS"] = '{} {} -DVERSION_INFO=\\"{}\\"'.format(
-            "-Wno-inconsistent-missing-override",
-            env.get("CXXFLAGS", ""),
-            self.distribution.get_version(),
-        )
-        env["LINKFLAGS"] = "{}".format("-Wno-inconsistent-missing-override")
+        # if platform.system() != "Windows":
+        #     env["CXXFLAGS"] = '{} {} -DVERSION_INFO=\\"{}\\"'.format(
+        #         "-Wno-inconsistent-missing-override",
+        #         env.get("CXXFLAGS", ""),
+        #         self.distribution.get_version(),
+        #     )
+        #     env["LINKFLAGS"] = "{}".format("-Wno-inconsistent-missing-override")
 
+        print(cmake_args)
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         subprocess.check_call(
-            ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env
+            [
+                "cmake",
+            ]
+            + cmake_args
+            + [
+                ext.sourcedir,
+            ],
+            cwd=self.build_temp,
+            env=env,
         )
         subprocess.check_call(
             ["cmake", "--build", "."] + build_args, cwd=self.build_temp
@@ -176,7 +202,20 @@ setup(
     cmdclass={"build_py": build_py, "build_ext": CMakeBuild, "install": BuildExtFirst},
     zip_safe=False,
     packages=find_packages(),
-    package_data={"ants": ["ants/lib/*.so*", "lib/*.so*", "ants/lib/*.so", "lib/*.so"]},
+    package_data={"ants": [
+        "ants/lib/*.so*",
+        "ants/lib/*.pyd",
+        "ants/lib/*.dll",
+        "lib/*.so*",
+        "lib/*.pyd",
+        "lib/*.dll",
+        "ants/lib/*.so",
+        "ants/lib/*.pyd",
+        "ants/lib/*.dll",
+        "lib/*.so"
+        "lib/*.pyd"
+        "lib/*.dll"
+        ]},
     url="https://github.com/ANTsX/ANTsPy",
     classifiers=["Programming Language :: Python :: 3.6"],
 )
