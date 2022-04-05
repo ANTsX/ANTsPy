@@ -52,7 +52,7 @@ cmake \
     -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
     -DITK_USE_GIT_PROTOCOL:BOOL=OFF \
-    -DBUILD_SHARED_LIBS:BOOL=OFF \
+    -DBUILD_SHARED_LIBS:BOOL=ON \
     -DBUILD_TESTING:BOOL=OFF \
     -DBUILD_EXAMPLES:BOOL=OFF \
     -DCMAKE_INSTALL_PREFIX:PATH=${R_PACKAGE_DIR}/libs/  \
@@ -75,9 +75,7 @@ cmake \
     -DITKGroup_Segmentation=ON \
     -DModule_AdaptiveDenoising:BOOL=ON \
     -DModule_GenericLabelInterpolator:BOOL=ON \
-    -DCMAKE_C_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_CXX_VISIBILITY_PRESET:BOOL=hidden \
-    -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
+    ../itksource/
 make -j ${j:-4}
 #make install
 cd ../

@@ -1,0 +1,7 @@
+[tool.cibuildwheel]
+build = "cp36-manylinux_x86_64 cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
+before-build = "git clean -ffdx"
+test-command = "{project}/tests/run_tests.sh"
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y libpng-devel"
