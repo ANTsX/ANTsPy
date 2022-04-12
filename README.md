@@ -78,11 +78,11 @@ segs1 <- atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 
 <i>ANTsPy</i> code:
 ```python
-import ants
-img   = ants.image_read(ants.get_ants_data("r16"))
-img   = ants.resample_image(img, (64,64), 1, 0 )
-mask  = ants.get_mask(img)
-segs1 = ants.atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
+from ants import atropos, get_ants_data, image_read, resample_image, get_mask
+img   = image_read(get_ants_data("r16"))
+img   = resample_image(img, (64,64), 1, 0 )
+mask  = get_mask(img)
+segs1 = atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 ```
 
 ## Tutorials
