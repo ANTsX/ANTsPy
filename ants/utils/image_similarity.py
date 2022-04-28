@@ -9,7 +9,10 @@ def image_similarity(fixed_image, moving_image, metric_type='MeanSquares',
                     fixed_mask=None, moving_mask=None, 
                     sampling_strategy='regular', sampling_percentage=1.):
     """
-    Measure similarity between two images
+    Measure similarity between two images.
+    NOTE: Similarity is actually returned as distance (i.e. dissimilarity)
+    per ITK/ANTs convention. E.g. using Correlation metric, the similarity
+    of an image with itself returns -1.
     
     ANTsR function: `imageSimilarity`
 
