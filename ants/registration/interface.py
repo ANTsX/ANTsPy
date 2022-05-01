@@ -229,6 +229,9 @@ def registration(
         raise ValueError("fixed image has NaNs - replace these")
     if np.sum(np.isnan(moving.numpy())) > 0:
         raise ValueError("moving image has NaNs - replace these")
+
+    if fixed.dimension != moving.dimension:
+        raise ValueError("Fixed and moving image dimensions are not the same.")
     # ----------------------------
 
     args = [fixed, moving, type_of_transform, outprefix]
