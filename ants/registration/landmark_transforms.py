@@ -196,7 +196,7 @@ def fit_transform_to_paired_points( moving_points,
               number_of_fitting_levels=number_of_fitting_levels,
               mesh_size=mesh_size,
               spline_order=spline_order,
-              enforce_stationary_boundary=enforce_stationary_boundary
+              enforce_stationary_boundary=True
             )
 
             update_field_smooth = smooth_image(update_field * gradient_step, sigma)
