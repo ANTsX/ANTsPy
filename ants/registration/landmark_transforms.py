@@ -5,17 +5,21 @@ import os
 import numpy as np
 from ..core import ants_transform_io as txio
 from ..utils import fit_bspline_displacement_field
+from ..utils import smooth_image
 
 def fit_transform_to_paired_points( moving_points,
                                     fixed_points,
-                                    transform_type="Affine",
+                                    transform_type="affine",
                                     regularization=1e-6,
                                     domain_image = None,
                                     number_of_fitting_levels=4,
                                     mesh_size=1,
                                     spline_order=3,
                                     enforce_stationary_boundary=True,
-                                    displacement_weights=None
+                                    displacement_weights=None,
+                                    number_of_iterations=10,
+                                    gradient_step=0.5,
+                                    sigma=3.0
                                    ):
     """
     Estimate an optimal matrix transformation from paired points, potentially landmarks
@@ -33,7 +37,7 @@ def fit_transform_to_paired_points( moving_points,
         of points and \code{d} is the dimensionality.
 
     transform_type : character
-        'Rigid', 'Similarity', "Affine', or 'BSpline'.
+        'rigid', 'similarity', "affine', 'bspline', or 'diffeo'.
 
     regularization : scalar
         ridge penalty in [0,1] for linear transforms.
@@ -57,9 +61,19 @@ def fit_transform_to_paired_points( moving_points,
         defines the individual weighting of the corresponding scattered data value.  (B-spline
         only).  Default = NULL meaning all displacements are weighted the same.
 
+    number_of_iterations : integer
+        total number of iterations for the diffeomorphic transform.
+
+    gradient_step : scalar
+        scalar multiplication factor for the diffeomorphic transform.
+
+    sigma : scalar
+        gaussian smoothing sigma (in mm) for the diffeomorphic transform.
+
     Returns
     -------
-    object containing ANTs transform, error, and scale (or displacement field)
+
+    ANTs transform
 
     Example
     -------
@@ -67,11 +81,12 @@ def fit_transform_to_paired_points( moving_points,
     >>> import numpy as np
     >>> fixed = np.array([[50,50],[200,50],[50,200]])
     >>> moving = np.array([[75,75],[175,75],[75,175]])
-    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="Affine")
-    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="Rigid")
-    >>> similarity_xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="Similarity")
+    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
+    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="rigid")
+    >>> similarity_xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
     >>> domain_image = ants.image_read(ants.get_ants_data("r16"))
-    >>> bspline_xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="BSpline", domain_image=domain_image, number_of_fitting_levels=5)
+    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="bspline", domain_image=domain_image, number_of_fitting_levels=5)
+    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
     """
 
     def polar_decomposition(X):
@@ -85,7 +100,7 @@ def fit_transform_to_paired_points( moving_points,
              Z = np.matmul(Z, reflection_matrix)
          return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
 
-    allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline']
+    allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline', 'diffeo']
     if not transform_type.lower() in allowed_transforms:
         raise ValueError(transform_type + " transform not supported.")
 
@@ -142,7 +157,7 @@ def fit_transform_to_paired_points( moving_points,
 
         return xfrm
 
-    else:
+    elif transform_type == "diffeo":
 
         bspline_displacement_field = fit_bspline_displacement_field(
             displacement_origins=fixed_points,
@@ -160,4 +175,40 @@ def fit_transform_to_paired_points( moving_points,
         xfrm = txio.transform_from_displacement_field(bspline_displacement_field)
 
         return xfrm
+
+    else:
+
+        updated_fixed_points = fixed_points
+
+        xfrm_list = []
+        total_field_xfrm = None
+
+        for i in range(number_of_iterations):
+
+            update_field = fit_bspline_displacement_field(
+              displacement_origins=updated_fixed_points,
+              displacements=moving_points - updated_fixed_points,
+              displacement_weights=displacement_weights,
+              origin=domain_image.origin,
+              spacing=domain_image.spacing,
+              size=domain_image.shape,
+              direction=domain_image.direction,
+              number_of_fitting_levels=number_of_fitting_levels,
+              mesh_size=mesh_size,
+              spline_order=spline_order,
+              enforce_stationary_boundary=enforce_stationary_boundary
+            )
+
+            update_field_smooth = smooth_image(update_field * gradient_step, sigma)
+            xfrm_list.append(txio.transform_from_displacement_field(update_field_smooth))
+            total_field_xfrm = txio.compose_ants_transform(xfrm_list)
+
+            if i < number_of_iterations - 1:
+                for j in range(updated_fixed_points.shape[0]):
+                    updated_fixed_points[j,:] = total_field_xfrm.apply_ants_transform_to_point(tuple(updated_fixed_points[j,:]))
+
+            return(total_field_xfrm)
+
+
+
 
