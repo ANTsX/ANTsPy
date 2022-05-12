@@ -83,7 +83,7 @@ def fit_transform_to_paired_points( moving_points,
     >>> moving = np.array([[75,75],[175,75],[75,175]])
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="rigid")
-    >>> similarity_xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
+    >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
     >>> domain_image = ants.image_read(ants.get_ants_data("r16"))
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="bspline", domain_image=domain_image, number_of_fitting_levels=5)
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
