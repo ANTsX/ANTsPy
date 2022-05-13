@@ -17,7 +17,7 @@ def fit_transform_to_paired_points( moving_points,
                                     spline_order=3,
                                     enforce_stationary_boundary=True,
                                     displacement_weights=None,
-                                    number_of_iterations=10,
+                                    number_of_compositions=10,
                                     gradient_step=0.5,
                                     sigma=3.0
                                    ):
@@ -61,8 +61,8 @@ def fit_transform_to_paired_points( moving_points,
         defines the individual weighting of the corresponding scattered data value.  (B-spline
         only).  Default = NULL meaning all displacements are weighted the same.
 
-    number_of_iterations : integer
-        total number of iterations for the diffeomorphic transform.
+    number_of_compositions : integer
+        total number of compositions for the diffeomorphic transform.
 
     gradient_step : scalar
         scalar multiplication factor for the diffeomorphic transform.
@@ -183,7 +183,7 @@ def fit_transform_to_paired_points( moving_points,
         xfrm_list = []
         total_field_xfrm = None
 
-        for i in range(number_of_iterations):
+        for i in range(number_of_compositions):
 
             update_field = fit_bspline_displacement_field(
               displacement_origins=updated_fixed_points,
@@ -199,11 +199,14 @@ def fit_transform_to_paired_points( moving_points,
               enforce_stationary_boundary=True
             )
 
-            update_field_smooth = smooth_image(update_field * gradient_step, sigma)
-            xfrm_list.append(txio.transform_from_displacement_field(update_field_smooth))
+            update_field = update_field * gradient_step
+            if sigma > 0:
+                update_field = smooth_image(update_field, sigma)
+
+            xfrm_list.append(txio.transform_from_displacement_field(update_field))
             total_field_xfrm = txio.compose_ants_transform(xfrm_list)
 
-            if i < number_of_iterations - 1:
+            if i < number_of_compositions - 1:
                 for j in range(updated_fixed_points.shape[0]):
                     updated_fixed_points[j,:] = total_field_xfrm.apply_ants_transform_to_point(tuple(updated_fixed_points[j,:]))
 
