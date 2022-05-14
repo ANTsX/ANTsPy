@@ -18,7 +18,7 @@ def fit_transform_to_paired_points( moving_points,
                                     enforce_stationary_boundary=True,
                                     displacement_weights=None,
                                     number_of_compositions=10,
-                                    gradient_step=0.5,
+                                    composition_step_size=0.5,
                                     sigma=3.0
                                    ):
     """
@@ -64,7 +64,7 @@ def fit_transform_to_paired_points( moving_points,
     number_of_compositions : integer
         total number of compositions for the diffeomorphic transform.
 
-    gradient_step : scalar
+    composition_step_size : scalar
         scalar multiplication factor for the diffeomorphic transform.
 
     sigma : scalar
@@ -199,7 +199,7 @@ def fit_transform_to_paired_points( moving_points,
               enforce_stationary_boundary=True
             )
 
-            update_field = update_field * gradient_step
+            update_field = update_field * composition_step_size
             if sigma > 0:
                 update_field = smooth_image(update_field, sigma)
 
