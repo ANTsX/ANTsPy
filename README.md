@@ -61,6 +61,12 @@ NOTE: we are hoping to relatively soon release windows wheels via `pip`.
 If they are not yet available, please check the discussion in the issues
 for how to build from source on windows machines.
 
+
+### Docker images
+
+Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). To build
+ANTsPy docker images, see the (installation tutorial)(https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md#docker-installation).
+
 ------------------------------------------------------------------------------
 
 ## ANTsR Comparison
