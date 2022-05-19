@@ -16,7 +16,7 @@ RUN apt-get update && \
       git \
       gnupg \
       libpng-dev \
-      software-properties-common 
+      software-properties-common
 
 # Install cmake from binary
 # apt install fails because libssl1.0.0 is not available for newer Debian
@@ -28,7 +28,7 @@ RUN curl -OL https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
     curl -OL https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-SHA-256.txt.asc && \
     gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys C6C265324BBEBDC350B513D02D2CEF1034921684 && \
     gpg --verify cmake-${CMAKE_VERSION}-SHA-256.txt.asc cmake-${CMAKE_VERSION}-SHA-256.txt
-    
+
 RUN mkdir /opt/cmake && \
     chmod +x cmake-${CMAKE_VERSION}-linux-x86_64.sh && \
     ./cmake-${CMAKE_VERSION}-linux-x86_64.sh --skip-license --prefix=/opt/cmake
@@ -40,7 +40,7 @@ COPY environment.yml .
 RUN conda env update -n base
 COPY . .
 # number of parallel make jobs
-ARG j=4
+ARG j=2
 RUN pip --no-cache-dir -v install .
 
 # optimize layers

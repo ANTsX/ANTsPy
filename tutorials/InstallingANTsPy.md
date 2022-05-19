@@ -96,3 +96,32 @@ help( ants.sparse_decom2 )
 ```
 
 ------------------------------------------------------------------------------
+
+## Docker Installation
+
+Tested on Ubuntu Linux (arch amd64), a standard docker command will build ANTsPy
+
+```
+cd ANTsPy
+docker build -t antspy:latest .
+```
+
+For cross-platform builds with buildx, the following is suggested by @jennydaman:
+
+```
+# enable QEMU emulation for targeted foreign architectures
+docker run --rm --privileged aptman/qus -s -- -p ppc64le
+# enable advanced buildx features such as multi-platform support
+docker buildx create --name moc_builder --use
+
+# build the container image, using 6 make jobs
+# (2 concurrent builds each using 6 jobs, recommended to have 12 CPU cores)
+# targeting the platforms amd64 and ppc64le
+# updating the base image first
+# and finally pushing the result to a container registry
+docker buildx build --pull --build-arg j=6 -t dockeruser/antspy:latest --platform linux/amd64,linux/ppc64le --push .
+
+# optional clean-up
+docker buildx rm
+docker run --rm --privileged aptman/qus -- -r
+```
