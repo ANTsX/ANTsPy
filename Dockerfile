@@ -29,9 +29,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=x86_64; elif [ "
     sha256sum -c --ignore-missing cmake-${CMAKE_VERSION}-SHA-256.txt && \
     curl -OL https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-SHA-256.txt.asc && \
     gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys C6C265324BBEBDC350B513D02D2CEF1034921684 && \
-    gpg --verify cmake-${CMAKE_VERSION}-SHA-256.txt.asc cmake-${CMAKE_VERSION}-SHA-256.txt
-
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=x86_64; elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then ARCHITECTURE=arm; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=aarch64; elif [ "$TARGETPLATFORM" = "linux/ppc64le" ]; then ARCHITECTURE=x86_64; else ARCHITECTURE=x86_64; fi && \
+    gpg --verify cmake-${CMAKE_VERSION}-SHA-256.txt.asc cmake-${CMAKE_VERSION}-SHA-256.txt && \
     mkdir /opt/cmake && \
     chmod +x cmake-${CMAKE_VERSION}-linux-${ARCHITECTURE}.sh && \
     ./cmake-${CMAKE_VERSION}-linux-${ARCHITECTURE}.sh --skip-license --prefix=/opt/cmake
