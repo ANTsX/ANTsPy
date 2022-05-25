@@ -110,7 +110,7 @@ For cross-platform builds with buildx, the following is suggested by @jennydaman
 
 ```
 # enable QEMU emulation for targeted foreign architectures
-docker run --rm --privileged aptman/qus -s -- -p ppc64le
+docker run --rm --privileged aptman/qus -s -- -p ppc64le aarch64
 # enable advanced buildx features such as multi-platform support
 docker buildx create --name moc_builder --use
 
@@ -119,7 +119,7 @@ docker buildx create --name moc_builder --use
 # targeting the platforms amd64 and ppc64le
 # updating the base image first
 # and finally pushing the result to a container registry
-docker buildx build --pull --build-arg j=6 -t dockeruser/antspy:latest --platform linux/amd64,linux/ppc64le --push .
+docker buildx build --pull --build-arg j=6 -t dockeruser/antspy:latest --platform linux/amd64,linux/ppc64le,linux/arm64 --push .
 
 # optional clean-up
 docker buildx rm
