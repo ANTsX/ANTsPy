@@ -39,7 +39,7 @@ def apply_transforms(fixed, moving, transformlist,
         Choice of interpolator. Supports partial matching.
             linear
             nearestNeighbor
-            multiLabel for label images but genericlabel is preferred
+            multiLabel for label images (deprecated, prefer genericLabel)
             gaussian
             bSpline
             cosineWindowedSinc
