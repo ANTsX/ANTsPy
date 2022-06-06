@@ -1466,6 +1466,7 @@ def motion_correction(
     type_of_transform="BOLDRigid",
     mask=None,
     fdOffset=50,
+    outprefix="",
     verbose=False,
     **kwargs
 ):
@@ -1488,6 +1489,9 @@ def motion_correction(
         mask: mask for image (ND-1).  If not provided, estimated from data.
 
         fdOffset: offset value to use in framewise displacement calculation
+
+        outprefix : string
+            output will be named with this prefix plus a numeric extension.
 
         verbose: boolean
 
@@ -1519,7 +1523,7 @@ def motion_correction(
         fixed = utils.slice_image(image, axis=idim - 1, idx=0) * 0
         for k in range(nTimePoints):
             temp = utils.slice_image(image, axis=idim - 1, idx=k)
-            fixed = fixed + temp * wt
+            fixed = fixed + iMath(temp,"Normalize") * wt
     if mask is None:
         mask = utils.get_mask(fixed)
     FD = np.zeros(nTimePoints)
@@ -1553,11 +1557,18 @@ def motion_correction(
         if verbose and mycount == counter:
             counter = counter + 10
             print(mycount, end="%.", flush=True)
-        temp = utils.slice_image(image, axis=idim - 1, idx=k)
+        temp = utils.slice_image(image, axis=idim - 1, idx=k).iMath("Normalize")
         if temp.numpy().var() > 0:
-            myreg = registration(
-                fixed, temp, type_of_transform=type_of_transform, mask=mask, **kwargs
-            )
+            if outprefix != "":
+                outprefixloc = outprefix + "_" + str.zfill( str(k), 5 )
+                myreg = registration(
+                    fixed, temp, type_of_transform=type_of_transform, mask=mask,
+                    outprefix=outprefixloc, **kwargs
+                )
+            else:
+                myreg = registration(
+                    fixed, temp, type_of_transform=type_of_transform, mask=mask, **kwargs
+                )
             fdptsTxI = apply_transforms_to_points(
                 idim - 1, fdpts, myreg["fwdtransforms"]
             )
@@ -1570,7 +1581,10 @@ def motion_correction(
             # take the absolute value, then the mean across columns, then the sum
             FD[k] = (fdptsTxIminus1 - fdptsTxI).abs().mean().sum()
             motion_parameters.append(myreg["fwdtransforms"])
-            motion_corrected.append(myreg["warpedmovout"])
+            mywarped = apply_transforms( fixed,
+                utils.slice_image(image, axis=idim - 1, idx=k),
+                myreg["fwdtransforms"] )
+            motion_corrected.append(mywarped)
         else:
             motion_parameters.append("NA")
             motion_corrected.append(temp)
