@@ -1565,7 +1565,7 @@ def motion_correction(
         temp = utils.iMath(temp, "Normalize")
         if temp.numpy().var() > 0:
             if outprefix != "":
-                outprefixloc = outprefix + "_" + str.zfill( str(k), 5 )
+                outprefixloc = outprefix + "_" + str.zfill( str(k), 5 ) + "_"
                 myreg = registration(
                     fixed, temp, type_of_transform=type_of_transform, mask=mask,
                     outprefix=outprefixloc, **kwargs
