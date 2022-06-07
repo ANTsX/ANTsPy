@@ -11,6 +11,7 @@ import re
 import pandas as pd
 import itertools
 
+from . import apply_transforms
 from . import apply_transforms_to_points
 from .. import utils
 from ..core import ants_image as iio
