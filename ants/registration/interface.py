@@ -414,6 +414,9 @@ def registration(
     # initx = tempTXfilename
     moving = moving.clone("float")
     fixed = fixed.clone("float")
+    # NOTE: this may be better for general purpose applications: TBD
+#    moving = utils.iMath( moving.clone("float"), "Normalize" )
+#    fixed = utils.iMath( fixed.clone("float"), "Normalize" )
     warpedfixout = moving.clone()
     warpedmovout = fixed.clone()
     f = utils.get_pointer_string(fixed)
@@ -1523,7 +1526,7 @@ def motion_correction(
         fixed = utils.slice_image(image, axis=idim - 1, idx=0) * 0
         for k in range(nTimePoints):
             temp = utils.slice_image(image, axis=idim - 1, idx=k)
-            fixed = fixed + iMath(temp,"Normalize") * wt
+            fixed = fixed + utils.iMath(temp,"Normalize") * wt
     if mask is None:
         mask = utils.get_mask(fixed)
     FD = np.zeros(nTimePoints)
@@ -1557,7 +1560,8 @@ def motion_correction(
         if verbose and mycount == counter:
             counter = counter + 10
             print(mycount, end="%.", flush=True)
-        temp = utils.slice_image(image, axis=idim - 1, idx=k).iMath("Normalize")
+        temp = utils.slice_image(image, axis=idim - 1, idx=k)
+        temp = utils.iMath(temp, "Normalize")
         if temp.numpy().var() > 0:
             if outprefix != "":
                 outprefixloc = outprefix + "_" + str.zfill( str(k), 5 )
