@@ -8,6 +8,7 @@ import itertools
 import os
 import re
 from tempfile import mktemp
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -1381,6 +1382,15 @@ def registration(
     if random_seed is not None:
         args.append("--random-seed")
         args.append(random_seed)
+
+        if os.environ.get("ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS") != 1:
+            warn(
+                (
+                    "You set a random seed with multi-threading enabled."
+                    "Multi-threaded registration is not deterministic. "
+                    "Set ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS to 1 to run in single-threaded mode. "
+                )
+            )
 
     if restrict_transformation is not None:
         args.append("-g")
