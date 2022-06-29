@@ -1,17 +1,23 @@
-
-
-__all__ = ['apply_transforms','apply_transforms_to_points']
+__all__ = ["apply_transforms", "apply_transforms_to_points"]
 
 import os
 
-from .. import core
+from .. import core, utils
 from ..core import ants_image as iio
-from .. import utils
 
-def apply_transforms(fixed, moving, transformlist,
-                     interpolator='linear', imagetype=0,
-                     whichtoinvert=None, compose=None,
-                     defaultvalue=0, verbose=False, **kwargs):
+
+def apply_transforms(
+    fixed,
+    moving,
+    transformlist,
+    interpolator="linear",
+    imagetype=0,
+    whichtoinvert=None,
+    compose=None,
+    defaultvalue=0,
+    verbose=False,
+    **kwargs
+):
     """
     Apply a transform list to map an image from one domain to another.
     In image registration, one computes mappings between (usually) pairs
@@ -93,12 +99,21 @@ def apply_transforms(fixed, moving, transformlist,
     if not isinstance(transformlist, (tuple, list)) and (transformlist is not None):
         transformlist = [transformlist]
 
-    accepted_interpolators = {"linear", "nearestNeighbor", "multiLabel", "gaussian",
-                        "bSpline", "cosineWindowedSinc", "welchWindowedSinc",
-                        "hammingWindowedSinc", "lanczosWindowedSinc", "genericLabel"}
+    accepted_interpolators = {
+        "linear",
+        "nearestNeighbor",
+        "multiLabel",
+        "gaussian",
+        "bSpline",
+        "cosineWindowedSinc",
+        "welchWindowedSinc",
+        "hammingWindowedSinc",
+        "lanczosWindowedSinc",
+        "genericLabel",
+    }
 
     if interpolator not in accepted_interpolators:
-        raise ValueError('interpolator not supported - see %s' % accepted_interpolators)
+        raise ValueError("interpolator not supported - see %s" % accepted_interpolators)
 
     args = [fixed, moving, transformlist, interpolator]
 
@@ -106,54 +121,80 @@ def apply_transforms(fixed, moving, transformlist,
         if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
             for tl_path in transformlist:
                 if not os.path.exists(tl_path):
-                    raise Exception('Transform %s does not exist' % tl_path)
+                    raise Exception("Transform %s does not exist" % tl_path)
 
             inpixeltype = fixed.pixeltype
-            fixed = fixed.clone('float')
-            moving = moving.clone('float')
+            fixed = fixed.clone("float")
+            moving = moving.clone("float")
             warpedmovout = moving.clone()
             f = fixed
             m = moving
             if (moving.dimension == 4) and (fixed.dimension == 3) and (imagetype == 0):
-                raise Exception('Set imagetype 3 to transform time series images.')
+                raise Exception("Set imagetype 3 to transform time series images.")
 
             wmo = warpedmovout
             mytx = []
-            if whichtoinvert is None or (isinstance(whichtoinvert, (tuple,list)) and (sum([w is not None for w in whichtoinvert])==0)):
-                if (len(transformlist) == 2) and ('.mat' in transformlist[0]) and ('.mat' not in transformlist[1]):
+            if whichtoinvert is None or (
+                isinstance(whichtoinvert, (tuple, list))
+                and (sum([w is not None for w in whichtoinvert]) == 0)
+            ):
+                if (
+                    (len(transformlist) == 2)
+                    and (".mat" in transformlist[0])
+                    and (".mat" not in transformlist[1])
+                ):
                     whichtoinvert = (True, False)
                 else:
-                    whichtoinvert = tuple([False]*len(transformlist))
+                    whichtoinvert = tuple([False] * len(transformlist))
 
             if len(whichtoinvert) != len(transformlist):
-                raise ValueError('Transform list and inversion list must be the same length')
+                raise ValueError(
+                    "Transform list and inversion list must be the same length"
+                )
 
             for i in range(len(transformlist)):
                 ismat = False
-                if '.mat' in transformlist[i]:
+                if ".mat" in transformlist[i]:
                     ismat = True
                 if whichtoinvert[i] and (not ismat):
-                    raise ValueError('Cannot invert transform %i (%s) because it is not a matrix' % (i, transformlist[i]))
+                    raise ValueError(
+                        "Cannot invert transform %i (%s) because it is not a matrix"
+                        % (i, transformlist[i])
+                    )
                 if whichtoinvert[i]:
-                    mytx = mytx + ['-t', '[%s,1]' % (transformlist[i])]
+                    mytx = mytx + ["-t", "[%s,1]" % (transformlist[i])]
                 else:
-                    mytx = mytx + ['-t', transformlist[i]]
+                    mytx = mytx + ["-t", transformlist[i]]
 
             if compose is None:
-                args = ['-d', fixed.dimension,
-                        '-i', m,
-                        '-o', wmo,
-                        '-r', f,
-                        '-n', interpolator]
+                args = [
+                    "-d",
+                    fixed.dimension,
+                    "-i",
+                    m,
+                    "-o",
+                    wmo,
+                    "-r",
+                    f,
+                    "-n",
+                    interpolator,
+                ]
                 args = args + mytx
-            tfn = '%scomptx.nii.gz' % compose if compose is not None else 'NA'
+            tfn = "%scomptx.nii.gz" % compose if compose is not None else "NA"
             if compose is not None:
-                mycompo = '[%s,1]' % tfn
-                args = ['-d', fixed.dimension,
-                        '-i', m,
-                        '-o', mycompo,
-                        '-r', f,
-                        '-n', interpolator]
+                mycompo = "[%s,1]" % tfn
+                args = [
+                    "-d",
+                    fixed.dimension,
+                    "-i",
+                    m,
+                    "-o",
+                    mycompo,
+                    "-r",
+                    f,
+                    "-n",
+                    interpolator,
+                ]
                 args = args + mytx
 
             myargs = utils._int_antsProcessArguments(args)
@@ -161,18 +202,31 @@ def apply_transforms(fixed, moving, transformlist,
             # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
             for jj in range(len(myargs)):
                 if myargs[jj] is not None:
-                    if myargs[jj] == '-':
-                        myargs2 = [None]*(len(myargs)-1)
-                        myargs2[:(jj-1)] = myargs[:(jj-1)]
-                        myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
+                    if myargs[jj] == "-":
+                        myargs2 = [None] * (len(myargs) - 1)
+                        myargs2[: (jj - 1)] = myargs[: (jj - 1)]
+                        myargs2[jj : (len(myargs) - 1)] = myargs[
+                            (jj + 1) : (len(myargs))
+                        ]
                         myargs = myargs2
 
             myverb = int(verbose)
             if verbose:
                 print(myargs)
 
-            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype), '-f', str(defaultvalue)]
-            libfn = utils.get_lib_fn('antsApplyTransforms')
+            processed_args = myargs + [
+                "-z",
+                str(1),
+                "-v",
+                str(myverb),
+                "--float",
+                str(1),
+                "-e",
+                str(imagetype),
+                "-f",
+                str(defaultvalue),
+            ]
+            libfn = utils.get_lib_fn("antsApplyTransforms")
             libfn(processed_args)
 
             if compose is None:
@@ -186,18 +240,15 @@ def apply_transforms(fixed, moving, transformlist,
         else:
             return 1
     else:
-        args = args + ['-z', 1, '--float', 1, '-e', imagetype, '-f', defaultvalue]
+        args = args + ["-z", 1, "--float", 1, "-e", imagetype, "-f", defaultvalue]
         processed_args = utils._int_antsProcessArguments(args)
-        libfn = utils.get_lib_fn('antsApplyTransforms')
+        libfn = utils.get_lib_fn("antsApplyTransforms")
         libfn(processed_args)
 
 
-
-
-
-
-def apply_transforms_to_points( dim, points, transformlist,
-                     whichtoinvert=None, verbose=False ):
+def apply_transforms_to_points(
+    dim, points, transformlist, whichtoinvert=None, verbose=False
+):
     """
      Apply a transform list to map a pointset from one domain to
      another. In registration, one computes mappings between pairs of
@@ -258,40 +309,48 @@ def apply_transforms_to_points( dim, points, transformlist,
 
     for tl_path in transformlist:
         if not os.path.exists(tl_path):
-            raise Exception('Transform %s does not exist' % tl_path)
+            raise Exception("Transform %s does not exist" % tl_path)
 
     mytx = []
 
-    if whichtoinvert is None or (isinstance(whichtoinvert, (tuple,list)) and (sum([w is not None for w in whichtoinvert])==0)):
-        if (len(transformlist) == 2) and ('.mat' in transformlist[0]) and ('.mat' not in transformlist[1]):
+    if whichtoinvert is None or (
+        isinstance(whichtoinvert, (tuple, list))
+        and (sum([w is not None for w in whichtoinvert]) == 0)
+    ):
+        if (
+            (len(transformlist) == 2)
+            and (".mat" in transformlist[0])
+            and (".mat" not in transformlist[1])
+        ):
             whichtoinvert = (True, False)
         else:
-            whichtoinvert = tuple([False]*len(transformlist))
+            whichtoinvert = tuple([False] * len(transformlist))
 
     if len(whichtoinvert) != len(transformlist):
-        raise ValueError('Transform list and inversion list must be the same length')
+        raise ValueError("Transform list and inversion list must be the same length")
 
     for i in range(len(transformlist)):
         ismat = False
-        if '.mat' in transformlist[i]:
+        if ".mat" in transformlist[i]:
             ismat = True
         if whichtoinvert[i] and (not ismat):
-            raise ValueError('Cannot invert transform %i (%s) because it is not a matrix' % (i, transformlist[i]))
+            raise ValueError(
+                "Cannot invert transform %i (%s) because it is not a matrix"
+                % (i, transformlist[i])
+            )
         if whichtoinvert[i]:
-            mytx = mytx + ['-t', '[%s,1]' % (transformlist[i])]
+            mytx = mytx + ["-t", "[%s,1]" % (transformlist[i])]
         else:
-            mytx = mytx + ['-t', transformlist[i]]
+            mytx = mytx + ["-t", transformlist[i]]
     if dim == 2:
-        pointsSub = points[['x','y']]
+        pointsSub = points[["x", "y"]]
     if dim == 3:
-        pointsSub = points[['x','y','z']]
+        pointsSub = points[["x", "y", "z"]]
     if dim == 4:
-        pointsSub = points[['x','y','z','t']]
-    pointImage = core.make_image( pointsSub.shape, pointsSub.values.flatten())
+        pointsSub = points[["x", "y", "z", "t"]]
+    pointImage = core.make_image(pointsSub.shape, pointsSub.values.flatten())
     pointsOut = pointImage.clone()
-    args = ['-d', dim,
-            '-i', pointImage,
-            '-o', pointsOut ]
+    args = ["-d", dim, "-i", pointImage, "-o", pointsOut]
     args = args + mytx
     myargs = utils._int_antsProcessArguments(args)
 
@@ -299,16 +358,16 @@ def apply_transforms_to_points( dim, points, transformlist,
     if verbose:
         print(myargs)
 
-    processed_args = myargs + [ '-f', str(1), '--precision', str(0)]
-    libfn = utils.get_lib_fn('antsApplyTransformsToPoints')
+    processed_args = myargs + ["-f", str(1), "--precision", str(0)]
+    libfn = utils.get_lib_fn("antsApplyTransformsToPoints")
     libfn(processed_args)
     mynp = pointsOut.numpy()
     pointsOutDF = points.copy()
-    pointsOutDF['x'] = mynp[:,0]
+    pointsOutDF["x"] = mynp[:, 0]
     if dim >= 2:
-        pointsOutDF['y'] = mynp[:,1]
+        pointsOutDF["y"] = mynp[:, 1]
     if dim >= 3:
-        pointsOutDF['z'] = mynp[:,2]
+        pointsOutDF["z"] = mynp[:, 2]
     if dim >= 4:
-        pointsOutDF['t'] = mynp[:,3]
+        pointsOutDF["t"] = mynp[:, 3]
     return pointsOutDF
