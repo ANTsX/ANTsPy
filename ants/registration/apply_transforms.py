@@ -1,6 +1,9 @@
 __all__ = ["apply_transforms", "apply_transforms_to_points"]
 
 import os
+from warnings import warn
+
+import numpy as np
 
 from .. import core, utils
 from ..core import ants_image as iio
@@ -131,6 +134,18 @@ def apply_transforms(
             m = moving
             if (moving.dimension == 4) and (fixed.dimension == 3) and (imagetype == 0):
                 raise Exception("Set imagetype 3 to transform time series images.")
+
+            # check that the user actually submitted a label image
+            # transforming intensity images with label interpolators can take a very long time
+            if interpolator in ["nearestNeighbor", "multiLabel", "genericLabel"]:
+                # if more than 5% of voxels are unique, moving probably isn't a label image
+                if len(np.unique(moving)) > np.prod(moving.shape) * 0.05:
+                    warn(
+                        (
+                            "moving has a large number of unique values. "
+                            "Did you accidentally pass an intensity image or mean to use a continuous interpolator?"
+                        )
+                    )
 
             wmo = warpedmovout
             mytx = []
