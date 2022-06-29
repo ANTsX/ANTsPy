@@ -3,19 +3,18 @@ ANTsPy Registration
 """
 __all__ = ["registration", "motion_correction"]
 
-import os
-import numpy as np
-from tempfile import mktemp
 import glob
-import re
-import pandas as pd
 import itertools
+import os
+import re
+from tempfile import mktemp
 
-from . import apply_transforms
-from . import apply_transforms_to_points
-from .. import utils
+import numpy as np
+import pandas as pd
+
+from .. import core, utils
 from ..core import ants_image as iio
-from .. import core
+from . import apply_transforms, apply_transforms_to_points
 
 
 def registration(
@@ -42,7 +41,7 @@ def registration(
     verbose=False,
     multivariate_extras=None,
     restrict_transformation=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Register a pair of images either through the full or simplified
@@ -215,7 +214,7 @@ def registration(
         processed_args = utils._int_antsProcessArguments(fixed)
         libfn = utils.get_lib_fn("antsRegistration")
         reg_exit = libfn(processed_args)
-        if (reg_exit != 0):
+        if reg_exit != 0:
             raise RuntimeError(f"Registration failed with error code {reg_exit}")
         else:
             return 0
@@ -262,7 +261,9 @@ def registration(
 
     if restrict_transformation is not None:
         if type(restrict_transformation) is tuple:
-            restrict_transformationchar = "x".join([str(ri) for ri in restrict_transformation])
+            restrict_transformationchar = "x".join(
+                [str(ri) for ri in restrict_transformation]
+            )
 
     if type(aff_shrink_factors) is tuple:
         myf_aff = "x".join([str(ri) for ri in aff_shrink_factors])
@@ -305,7 +306,11 @@ def registration(
 
     mysyn = "SyN[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
     if type_of_transform == "Elastic":
-        mysyn = "GaussianDisplacementField[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
+        mysyn = "GaussianDisplacementField[%f,%f,%f]" % (
+            grad_step,
+            flow_sigma,
+            total_sigma,
+        )
     itlen = len(reg_iterations)  # NEED TO CHECK THIS
     if itlen == 0:
         smoothingsigmas = 0
@@ -315,7 +320,7 @@ def registration(
         smoothingsigmas = np.arange(0, itlen)[::-1].astype(
             "float32"
         )  # NEED TO CHECK THIS
-        shrinkfactors = 2 ** smoothingsigmas
+        shrinkfactors = 2**smoothingsigmas
         shrinkfactors = shrinkfactors.astype("int")
         smoothingsigmas = "x".join([str(ss)[0] for ss in smoothingsigmas])
         shrinkfactors = "x".join([str(ss) for ss in shrinkfactors])
@@ -416,8 +421,8 @@ def registration(
     moving = moving.clone("float")
     fixed = fixed.clone("float")
     # NOTE: this may be better for general purpose applications: TBD
-#    moving = utils.iMath( moving.clone("float"), "Normalize" )
-#    fixed = utils.iMath( fixed.clone("float"), "Normalize" )
+    #    moving = utils.iMath( moving.clone("float"), "Normalize" )
+    #    fixed = utils.iMath( fixed.clone("float"), "Normalize" )
     warpedfixout = moving.clone()
     warpedmovout = fixed.clone()
     f = utils.get_pointer_string(fixed)
@@ -715,12 +720,8 @@ def registration(
             for kk in range(len(multivariate_extras)):
                 metrics.append("-m")
                 metricname = multivariate_extras[kk][0]
-                metricfixed = utils.get_pointer_string(
-                    multivariate_extras[kk][1]
-                )
-                metricmov = utils.get_pointer_string(
-                    multivariate_extras[kk][2]
-                )
+                metricfixed = utils.get_pointer_string(multivariate_extras[kk][1])
+                metricmov = utils.get_pointer_string(multivariate_extras[kk][2])
                 metricWeight = multivariate_extras[kk][3]
                 metricSampling = multivariate_extras[kk][4]
                 metricString = "%s[%s,%s,%s,%s]" % (
@@ -1120,9 +1121,7 @@ def registration(
         if grad_step is None:
             grad_step = 1.0
 
-        tvtx = "TimeVaryingVelocityField[%s, 4, 0.0,0.0, 0.5,0 ]" % str(
-            grad_step
-        )
+        tvtx = "TimeVaryingVelocityField[%s, 4, 0.0,0.0, 0.5,0 ]" % str(grad_step)
         args = [
             "-d",
             str(fixed.dimension),
@@ -1157,9 +1156,7 @@ def registration(
         if grad_step is None:
             grad_step = 2.0
 
-        tvtx = "TimeVaryingVelocityField[%s, 8, 1.0,0.0, 0.05,0 ]" % str(
-            grad_step
-        )
+        tvtx = "TimeVaryingVelocityField[%s, 8, 1.0,0.0, 0.05,0 ]" % str(grad_step)
         args = [
             "-d",
             str(fixed.dimension),
@@ -1233,9 +1230,7 @@ def registration(
     elif "antsRegistrationSyN" in type_of_transform:
         subtype_of_transform = "s"
         if "[" in type_of_transform and "]" in type_of_transform:
-            subtype_of_transform = type_of_transform.split("[")[1].split(
-                "]"
-            )[0]
+            subtype_of_transform = type_of_transform.split("[")[1].split("]")[0]
 
         do_quick = False
         if "Quick" in type_of_transform:
@@ -1259,9 +1254,9 @@ def registration(
         affine_shrink_factors = "8x4x2x1"
         affine_smoothing_sigmas = "3x2x1x0vox"
 
-        linear_metric="MI[%s,%s,1,32,Regular,0.25]"
+        linear_metric = "MI[%s,%s,1,32,Regular,0.25]"
         if do_repro == True:
-            linear_metric="GC[%s,%s,1,1,Regular,0.25]"
+            linear_metric = "GC[%s,%s,1,1,Regular,0.25]"
 
         if do_quick == True:
             syn_convergence = "[100x70x50x0,1e-6,10]"
@@ -1277,7 +1272,7 @@ def registration(
             syn_metric = "CC[%s,%s,1,2]" % (f, m)
 
         if random_seed is None and do_repro == True:
-            random_seed = str( 1 )
+            random_seed = str(1)
 
         tx = "Rigid"
         if subtype_of_transform == "t":
@@ -1377,8 +1372,7 @@ def registration(
 
         args = list(
             itertools.chain.from_iterable(
-                itertools.repeat(x, 1) if isinstance(x, str) else x
-                for x in args
+                itertools.repeat(x, 1) if isinstance(x, str) else x for x in args
             )
         )
 
@@ -1403,9 +1397,9 @@ def registration(
     processed_args = utils._int_antsProcessArguments(args)
     libfn = utils.get_lib_fn("antsRegistration")
     if verbose:
-        print("antsRegistration " + ' '.join(processed_args))
+        print("antsRegistration " + " ".join(processed_args))
     reg_exit = libfn(processed_args)
-    if (reg_exit != 0):
+    if reg_exit != 0:
         raise RuntimeError(f"Registration failed with error code {reg_exit}")
     afffns = glob.glob(outprefix + "*" + "[0-9]GenericAffine.mat")
     fwarpfns = glob.glob(outprefix + "*" + "[0-9]Warp.nii.gz")
@@ -1425,21 +1419,13 @@ def registration(
         set(glob.glob(outprefix + "*" + "[0-9]*"))
         - set(glob.glob(outprefix + "*VelocityField*"))
     )
-    findinv = np.where(
-        [re.search("[0-9]InverseWarp.nii.gz", ff) for ff in alltx]
-    )[0]
-    findfwd = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in alltx])[
-        0
-    ]
+    findinv = np.where([re.search("[0-9]InverseWarp.nii.gz", ff) for ff in alltx])[0]
+    findfwd = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in alltx])[0]
     if len(findinv) > 0:
         fwdtransforms = list(
-            reversed(
-                [ff for idx, ff in enumerate(alltx) if idx != findinv[0]]
-            )
+            reversed([ff for idx, ff in enumerate(alltx) if idx != findinv[0]])
         )
-        invtransforms = [
-            ff for idx, ff in enumerate(alltx) if idx != findfwd[0]
-        ]
+        invtransforms = [ff for idx, ff in enumerate(alltx) if idx != findfwd[0]]
     else:
         fwdtransforms = list(reversed(alltx))
         invtransforms = alltx
@@ -1464,6 +1450,7 @@ def registration(
             "velocityfield": vfieldfns,
         }
 
+
 def motion_correction(
     image,
     fixed=None,
@@ -1472,7 +1459,7 @@ def motion_correction(
     fdOffset=50,
     outprefix="",
     verbose=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Correct time-series data for motion.
@@ -1527,7 +1514,7 @@ def motion_correction(
         fixed = utils.slice_image(image, axis=idim - 1, idx=0) * 0
         for k in range(nTimePoints):
             temp = utils.slice_image(image, axis=idim - 1, idx=k)
-            fixed = fixed + utils.iMath(temp,"Normalize") * wt
+            fixed = fixed + utils.iMath(temp, "Normalize") * wt
     if mask is None:
         mask = utils.get_mask(fixed)
     FD = np.zeros(nTimePoints)
@@ -1565,14 +1552,22 @@ def motion_correction(
         temp = utils.iMath(temp, "Normalize")
         if temp.numpy().var() > 0:
             if outprefix != "":
-                outprefixloc = outprefix + "_" + str.zfill( str(k), 5 ) + "_"
+                outprefixloc = outprefix + "_" + str.zfill(str(k), 5) + "_"
                 myreg = registration(
-                    fixed, temp, type_of_transform=type_of_transform, mask=mask,
-                    outprefix=outprefixloc, **kwargs
+                    fixed,
+                    temp,
+                    type_of_transform=type_of_transform,
+                    mask=mask,
+                    outprefix=outprefixloc,
+                    **kwargs,
                 )
             else:
                 myreg = registration(
-                    fixed, temp, type_of_transform=type_of_transform, mask=mask, **kwargs
+                    fixed,
+                    temp,
+                    type_of_transform=type_of_transform,
+                    mask=mask,
+                    **kwargs,
                 )
             fdptsTxI = apply_transforms_to_points(
                 idim - 1, fdpts, myreg["fwdtransforms"]
@@ -1586,9 +1581,11 @@ def motion_correction(
             # take the absolute value, then the mean across columns, then the sum
             FD[k] = (fdptsTxIminus1 - fdptsTxI).abs().mean().sum()
             motion_parameters.append(myreg["fwdtransforms"])
-            mywarped = apply_transforms( fixed,
+            mywarped = apply_transforms(
+                fixed,
                 utils.slice_image(image, axis=idim - 1, idx=k),
-                myreg["fwdtransforms"] )
+                myreg["fwdtransforms"],
+            )
             motion_corrected.append(mywarped)
         else:
             motion_parameters.append("NA")
