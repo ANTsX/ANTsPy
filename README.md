@@ -57,7 +57,7 @@ if you want more detailed instructions on compiling <i>ANTsPy</i> from source, y
 read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
 NOTE: we are hoping to relatively soon release windows wheels via `pip`.
-If they are not yet available, please check the discussion in the issues
+If they are not yet available, please [check the discussion in the issues](https://github.com/ANTsX/ANTsPy/issues/301)
 for how to build from source on windows machines.
 
 
