@@ -63,7 +63,7 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, **kwargs):
                 's': s,
                 'g': g,
                 'w': w,
-                'c': its,
+                'c': "[{}]".format(its),
                 'r': r,
                 'm': m,
                 'o': outimg}
