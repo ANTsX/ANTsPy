@@ -242,7 +242,6 @@ def registration(
     # ----------------------------
 
     args = [fixed, moving, type_of_transform, outprefix]
-    myl = 0
     myf_aff = "6x4x2x1"  # old fixed params
     mys_aff = "3x2x1x0"  # old fixed params
     if (
@@ -289,7 +288,6 @@ def registration(
         myf_aff = "2x1"
         mys_aff = "1x0"
         myiterations = "100x20"
-        myl = 1
     if type_of_transform == "QuickRigid":
         type_of_transform = "Rigid"
         myiterations = "20x20x0x0"
@@ -301,7 +299,6 @@ def registration(
         myf_aff = "2x1"
         mys_aff = "1x0"
         myiterations = "100x20"
-        myl = 1
 
     mysyn = "SyN[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
     if type_of_transform == "Elastic":
@@ -467,8 +464,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -525,8 +520,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -570,8 +563,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -615,8 +606,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -673,8 +662,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -705,8 +692,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -752,8 +737,6 @@ def registration(
                 "1",
                 "-z",
                 "1",
-                "-l",
-                myl,
                 "-o",
                 "[%s,%s,%s]" % (outprefix, wmo, wfo),
             ]
@@ -801,8 +784,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -866,8 +847,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -958,8 +937,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -1014,8 +991,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -1059,8 +1034,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -1105,8 +1078,6 @@ def registration(
             "1",
             "-z",
             "0",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -1141,8 +1112,6 @@ def registration(
             "1",
             "-z",
             "0",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -1180,8 +1149,6 @@ def registration(
             "1",
             "-z",
             "0",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
@@ -1218,8 +1185,6 @@ def registration(
             "1",
             "-z",
             "1",
-            "-l",
-            myl,
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
