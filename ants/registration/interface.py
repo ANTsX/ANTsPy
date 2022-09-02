@@ -126,7 +126,7 @@ def registration(
         "nameOfMetric2", img, img, weight, metricParam ) ). Another
         example would be  ( ( "MeanSquares", f2, m2, 0.5, 0
           ), ( "CC", f2, m2, 0.5, 2 ) ) .  This is only compatible
-        with the SyNOnly transformation.
+        with the SyNOnly or antsRegistrationSyN* transformations.
 
     restrict_transformation : This option allows the user to restrict the
           optimization of the displacement field, translation, rigid or
@@ -1285,13 +1285,35 @@ def registration(
         syn_stage = [
             "--metric",
             syn_metric,
-            "--convergence",
-            syn_convergence,
-            "--shrink-factors",
-            syn_shrink_factors,
-            "--smoothing-sigmas",
-            syn_smoothing_sigmas,
         ]
+
+        if multivariate_extras is not None:
+            for kk in range(len(multivariate_extras)):
+                syn_stage.append("--metric")
+                metricname = multivariate_extras[kk][0]
+                metricfixed = utils.get_pointer_string(
+                    multivariate_extras[kk][1]
+                )
+                metricmov = utils.get_pointer_string(
+                    multivariate_extras[kk][2]
+                )
+                metricWeight = multivariate_extras[kk][3]
+                metricSampling = multivariate_extras[kk][4]
+                metricString = "%s[%s,%s,%s,%s]" % (
+                    metricname,
+                    metricfixed,
+                    metricmov,
+                    metricWeight,
+                    metricSampling,
+                )
+                syn_stage.append(metricString)
+
+        syn_stage.append("--convergence")
+        syn_stage.append(syn_convergence)
+        syn_stage.append("--shrink-factors")
+        syn_stage.append(syn_shrink_factors)
+        syn_stage.append("--smoothing-sigmas")
+        syn_stage.append(syn_smoothing_sigmas)
 
         if (
             subtype_of_transform == "b"
