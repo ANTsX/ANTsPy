@@ -126,7 +126,7 @@ def registration(
         "nameOfMetric2", img, img, weight, metricParam ) ). Another
         example would be  ( ( "MeanSquares", f2, m2, 0.5, 0
           ), ( "CC", f2, m2, 0.5, 2 ) ) .  This is only compatible
-        with the SyNOnly transformation.
+        with the SyNOnly or antsRegistrationSyN* transformations.
 
     restrict_transformation : This option allows the user to restrict the
           optimization of the displacement field, translation, rigid or
