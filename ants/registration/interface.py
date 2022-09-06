@@ -1197,10 +1197,17 @@ def registration(
     # ------------------------------------------------------------
     elif "antsRegistrationSyN" in type_of_transform:
         subtype_of_transform = "s"
+        spline_distance = 26
         if "[" in type_of_transform and "]" in type_of_transform:
             subtype_of_transform = type_of_transform.split("[")[1].split(
                 "]"
             )[0]
+            if "," in subtype_of_transform:
+                subtype_of_transform_args = subtype_of_transform.split(",")
+                subtype_of_transform = subtype_of_transform_args[0]
+                if subtype_of_transform != 'b':
+                   raise ValueError("Extra parameters are only valid for B-spline SyN transform.")
+                spline_distance = subtype_of_transform_args[1]
 
         do_quick = False
         if "Quick" in type_of_transform:
@@ -1320,7 +1327,7 @@ def registration(
             or subtype_of_transform == "br"
             or subtype_of_transform == "bo"
         ):
-            syn_stage.insert(0, "BSplineSyN[0.1,26,0,3]")
+            syn_stage.insert(0, "BSplineSyN[0.1," + str(spline_distance) + ",0,3]")
             syn_stage.insert(0, "--transform")
 
         if (
