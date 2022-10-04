@@ -60,11 +60,6 @@ NOTE: we are hoping to relatively soon release windows wheels via `pip`.
 If they are not yet available, please [check the discussion in the issues](https://github.com/ANTsX/ANTsPy/issues/301)
 for how to build from source on windows machines.
 
-### Old wheels
-
-Look under the "Actions" tab.  Then click on the commit for the software version you want.
-Wheels for some of these commits will be available by downloading its "artifacts".
-
 ### Docker images
 
 Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). To build
