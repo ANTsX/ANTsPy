@@ -88,7 +88,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     if isinstance(i, (list,tuple)) and (len(i) > 1):
         while ct < len(i):
             probchar = str(ct+1)
-            if ct < 10:
+            if ct < 9:
                 probchar = '0%s' % probchar
             tempfn = probs.replace('%02d', probchar)
             iio2.image_write(i[ct], tempfn)

@@ -60,6 +60,10 @@ NOTE: we are hoping to relatively soon release windows wheels via `pip`.
 If they are not yet available, please [check the discussion in the issues](https://github.com/ANTsX/ANTsPy/issues/301)
 for how to build from source on windows machines.
 
+### Recent wheels
+
+Look under the "Actions" tab.  Then click on the commit for the software version you want.
+Wheels for some of these commits will be available by downloading its "artifacts".
 
 ### Docker images
 
@@ -102,7 +106,7 @@ We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tr
 
 ## other notes on compilation
 
-in some cases, you may need some other libraries if they are not already installed eg if cmake says something about 
+in some cases, you may need some other libraries if they are not already installed eg if cmake says something about
 a missing png library or a missing `Python.h` file.
 
 ```
