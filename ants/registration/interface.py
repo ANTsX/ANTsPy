@@ -329,7 +329,6 @@ def registration(
         "TV[7]",
         "TV[8]",
     ]
-    ttexists = False
     allowable_tx = {
         "SyNBold",
         "SyNBoldAff",
@@ -361,46 +360,12 @@ def registration(
         "BOLDAffine",
         "QuickRigid",
         "DenseRigid",
-        "BOLDRigid",
-        "antsRegistrationSyN[r]",
-        "antsRegistrationSyN[t]",
-        "antsRegistrationSyN[a]",
-        "antsRegistrationSyN[b]",
-        "antsRegistrationSyN[s]",
-        "antsRegistrationSyN[br]",
-        "antsRegistrationSyN[sr]",
-        "antsRegistrationSyN[bo]",
-        "antsRegistrationSyN[so]",
-        "antsRegistrationSyNQuick[r]",
-        "antsRegistrationSyNQuick[t]",
-        "antsRegistrationSyNQuick[a]",
-        "antsRegistrationSyNQuick[b]",
-        "antsRegistrationSyNQuick[s]",
-        "antsRegistrationSyNQuick[br]",
-        "antsRegistrationSyNQuick[sr]",
-        "antsRegistrationSyNQuick[bo]",
-        "antsRegistrationSyNQuick[so]",
-        "antsRegistrationSyNRepro[r]",
-        "antsRegistrationSyNRepro[t]",
-        "antsRegistrationSyNRepro[a]",
-        "antsRegistrationSyNRepro[b]",
-        "antsRegistrationSyNRepro[s]",
-        "antsRegistrationSyNRepro[br]",
-        "antsRegistrationSyNRepro[sr]",
-        "antsRegistrationSyNRepro[bo]",
-        "antsRegistrationSyNRepro[so]",
-        "antsRegistrationSyNQuickRepro[r]",
-        "antsRegistrationSyNQuickRepro[t]",
-        "antsRegistrationSyNQuickRepro[a]",
-        "antsRegistrationSyNQuickRepro[b]",
-        "antsRegistrationSyNQuickRepro[s]",
-        "antsRegistrationSyNQuickRepro[br]",
-        "antsRegistrationSyNQuickRepro[sr]",
-        "antsRegistrationSyNQuickRepro[bo]",
-        "antsRegistrationSyNQuickRepro[so]",
+        "BOLDRigid"
     }
     ttexists = type_of_transform in allowable_tx
-    if not ttexists:
+
+    # Perform checking of antsRegistrationSyN transforms later
+    if not "antsRegistrationSyN" in type_of_transform and not ttexists:
         raise ValueError("`type_of_transform` does not exist")
 
     initx = initial_transform
