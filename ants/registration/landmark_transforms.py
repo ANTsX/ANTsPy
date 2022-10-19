@@ -157,7 +157,7 @@ def fit_transform_to_paired_points( moving_points,
 
         return xfrm
 
-    elif transform_type == "diffeo":
+    elif transform_type == "bspline":
 
         bspline_displacement_field = fit_bspline_displacement_field(
             displacement_origins=fixed_points,
