@@ -1170,8 +1170,10 @@ def registration(
             if "," in subtype_of_transform:
                 subtype_of_transform_args = subtype_of_transform.split(",")
                 subtype_of_transform = subtype_of_transform_args[0]
-                if subtype_of_transform != 'b':
-                   raise ValueError("Extra parameters are only valid for B-spline SyN transform.")
+                if not ( subtype_of_transform == "b"
+                         or subtype_of_transform == "br"
+                         or subtype_of_transform == "bo" ):
+                    raise ValueError("Extra parameters are only valid for B-spline SyN transform.")
                 spline_distance = subtype_of_transform_args[1]
 
         do_quick = False
