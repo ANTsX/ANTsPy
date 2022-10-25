@@ -360,7 +360,8 @@ def registration(
         "BOLDAffine",
         "QuickRigid",
         "DenseRigid",
-        "BOLDRigid"
+        "BOLDRigid",
+        "brats"
     }
     ttexists = type_of_transform in allowable_tx
 
@@ -1152,6 +1153,54 @@ def registration(
             "1",
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
+        ]
+        if maskopt is not None:
+            args.append("-x")
+            args.append(maskopt)
+        else:
+            args.append("-x")
+            args.append("[NA,NA]")
+    # ------------------------------------------------------------
+    elif type_of_transform == "brats":
+        args = [
+            "-d",
+            str(fixed.dimension),
+            "-n",
+            "NearestNeighbor",
+            "-r",
+            "[%s,%s,1]" % (f, m),
+            "-t",
+            "Rigid[0.1]",
+            "-m",
+            "MI[%s,%s,1,32,Random,0.25]" % (f, m),
+            "-c",
+            "[1500x200,1e-8,10]",
+            "-f",
+            "2x1",
+            "-s",
+            "1x0vox",
+            "-t",
+            "Affine[0.1]",
+            "-m",
+            "MI[%s,%s,1,32,Random,0.25]" % (f, m),
+            "-c",
+            "[1500x200,1e-8,10]",
+            "-f",
+            "2x1",
+            "-s",
+            "1x0vox",
+            "-t",
+            "SyN[1.0,3.0,0.0]",
+            "-m",
+            "Demons[%s,%s,2,1,Random,0.25]" % (f, m),
+            "-c",
+            "[100x50x30,1e-9,10]",
+            "-f",
+            "3x2x1",
+            "-s",
+            "2x1x0vox",
+            "-o",
+            "[%s,%s,%s]" % (outprefix, wmo, wfo)
         ]
         if maskopt is not None:
             args.append("-x")
