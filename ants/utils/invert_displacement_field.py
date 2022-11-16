@@ -5,7 +5,12 @@ from ..core import ants_image as iio
 from .. import utils
 
 
-def invert_displacement_field(displacement_field, inverse_field_initial_estimate, maximum_number_of_iterations=20, mean_error_tolerance_threshold=0.001, max_error_tolerance_threshold=0.1):
+def invert_displacement_field(displacement_field, 
+                              inverse_field_initial_estimate, 
+                              maximum_number_of_iterations=20, 
+                              mean_error_tolerance_threshold=0.001, 
+                              max_error_tolerance_threshold=0.1,
+                              enforce_boundary_condition=True):
     """
     Invert displacement field.
 
@@ -26,6 +31,10 @@ def invert_displacement_field(displacement_field, inverse_field_initial_estimate
     max_error_tolerance_threshold : float
         max error tolerance threshold
 
+    enforce_boundary_condition : bool
+        enforce stationary boundary condition
+        
+
     Example
     -------
     >>> import ants
@@ -34,7 +43,7 @@ def invert_displacement_field(displacement_field, inverse_field_initial_estimate
     libfn = utils.get_lib_fn('invertDisplacementFieldF%i' % displacement_field.dimension)
     inverse_field = libfn(displacement_field.pointer, inverse_field_initial_estimate.pointer, 
         maximum_number_of_iterations, mean_error_tolerance_threshold, 
-        max_error_tolerance_threshold)
+        max_error_tolerance_threshold, enforce_boundary_condition)
 
     new_image = iio.ANTsImage(pixeltype='float', dimension=displacement_field.dimension, 
                          components=displacement_field.dimension, pointer=inverse_field).clone('float')
