@@ -17,6 +17,7 @@ from .image_to_cluster_images import *
 from .iMath import *
 from .impute import *
 from .invariant_image_similarity import *
+from .invert_displacement_field import *
 from .label_clusters import *
 from .label_image_centroids import *
 from .label_overlap_measures import *

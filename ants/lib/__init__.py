@@ -16,6 +16,7 @@ from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
 from .hausdorffDistance import *
 from .histogramMatchImage import *
+from .invertDisplacementField import *
 # from .invariantImageSimilarity import *
 from .labelOverlapMeasures import *
 from .labelStats import *
