@@ -100,7 +100,7 @@ def fit_bspline_displacement_field(displacement_field=None,
     >>>
     >>> bspline_field = ants.fit_bspline_displacement_field(
     >>>   displacement_origins=points, displacements=deltas,
-    >>>   origin=[0.0], spacing=[spacing], size=[100, 100],
+    >>>   origin=[0.0, 0.0], spacing=[1.0, 1.0], size=[100, 100],
     >>>   direction=numpy.array([[-1, 0], [0, -1]]),
     >>>   number_of_fitting_levels=4, mesh_size=(1, 1))
     """

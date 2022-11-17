@@ -1,6 +1,7 @@
 from .add_noise_to_image import *
 from .bias_correction import *
 from .channels import *
+from .compose_displacement_fields import *
 from .convert_nibabel import *
 from .crop_image import *
 from .denoise_image import *
