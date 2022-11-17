@@ -37,7 +37,7 @@ py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
   ITKFieldPointerType itkDisplacementField = as< ITKFieldType >( antsDisplacementField );
   ITKFieldPointerType itkInverseFieldInitialEstimate = as< ITKFieldType >( antsInverseFieldInitialEstimate );
 
-  typedef itk::InvertDisplacementFieldImageFilter<ITKFieldType> InverterType;
+  using InverterType = itk::InvertDisplacementFieldImageFilter<ITKFieldType>;
   typename InverterType::Pointer inverter = InverterType::New();
 
   inverter->SetInput( itkDisplacementField );
@@ -46,6 +46,7 @@ py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
   inverter->SetMeanErrorToleranceThreshold( meanErrorToleranceThreshold );
   inverter->SetMaxErrorToleranceThreshold( maxErrorToleranceThreshold );
   inverter->SetEnforceBoundaryCondition( enforceBoundaryCondition );
+  inverter->Update();
 
   //////////////////////////
   //
