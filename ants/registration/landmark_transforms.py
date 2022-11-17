@@ -212,7 +212,7 @@ def fit_transform_to_paired_points( moving_points,
                 for j in range(updated_fixed_points.shape[0]):
                     updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(updated_fixed_points[j,:]))
 
-            return(total_field_xfrm)
+        return(total_field_xfrm)
 
     else:
         raise ValueError("Unrecognized transform_type.")  
