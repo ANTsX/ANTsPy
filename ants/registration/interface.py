@@ -1161,8 +1161,17 @@ def registration(
             args.append("[NA,NA]")
     # ------------------------------------------------------------
     elif "antsRegistrationSyN" in type_of_transform:
+
+        do_quick = False
+        if "Quick" in type_of_transform:
+            do_quick = True
+
         subtype_of_transform = "s"
         spline_distance = 26
+        metric_parameter = 4
+        if do_quick:
+            metric_parameter = 32
+
         if "[" in type_of_transform and "]" in type_of_transform:
             subtype_of_transform = type_of_transform.split("[")[1].split(
                 "]"
@@ -1172,13 +1181,14 @@ def registration(
                 subtype_of_transform = subtype_of_transform_args[0]
                 if not ( subtype_of_transform == "b"
                          or subtype_of_transform == "br"
-                         or subtype_of_transform == "bo" ):
-                    raise ValueError("Extra parameters are only valid for B-spline SyN transform.")
-                spline_distance = subtype_of_transform_args[1]
-
-        do_quick = False
-        if "Quick" in type_of_transform:
-            do_quick = True
+                         or subtype_of_transform == "bo" 
+                         or subtype_of_transform == "s"
+                         or subtype_of_transform == "sr"
+                         or subtype_of_transform == "so" ):
+                    raise ValueError("Extra parameters are only valid for 's' or 'b' SyN transforms.")
+                metric_parameter = subtype_of_transform_args[1]
+                if len(subtype_of_transform_args) > 2:
+                    spline_distance = subtype_of_transform_args[2]
 
         do_repro = False
         if "Repro" in type_of_transform:
@@ -1204,16 +1214,16 @@ def registration(
 
         if do_quick == True:
             syn_convergence = "[100x70x50x0,1e-6,10]"
-            syn_metric = "MI[%s,%s,1,32]" % (f, m)
+            syn_metric = "MI[%s,%s,1,%s]" % (f, m, metric_parameter)
         else:
             syn_convergence = "[100x70x50x20,1e-6,10]"
-            syn_metric = "CC[%s,%s,1,4]" % (f, m)
+            syn_metric = "CC[%s,%s,1,%s]" % (f, m, metric_parameter)
         syn_shrink_factors = "8x4x2x1"
         syn_smoothing_sigmas = "3x2x1x0vox"
 
         if do_quick == True and do_repro == True:
             syn_convergence = "[100x70x50x0,1e-6,10]"
-            syn_metric = "CC[%s,%s,1,2]" % (f, m)
+            syn_metric = "CC[%s,%s,1,%s]" % (f, m, metric_parameter)
 
         if random_seed is None and do_repro == True:
             random_seed = str( 1 )
