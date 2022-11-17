@@ -4,6 +4,8 @@ import os
 
 import numpy as np
 from ..core import ants_transform_io as txio
+from ..core import ants_transform as tx
+
 from ..utils import fit_bspline_displacement_field
 from ..utils import smooth_image
 
@@ -204,11 +206,11 @@ def fit_transform_to_paired_points( moving_points,
                 update_field = smooth_image(update_field, sigma)
 
             xfrm_list.append(txio.transform_from_displacement_field(update_field))
-            total_field_xfrm = txio.compose_ants_transform(xfrm_list)
+            total_field_xfrm = tx.compose_ants_transforms(xfrm_list)
 
             if i < number_of_compositions - 1:
                 for j in range(updated_fixed_points.shape[0]):
-                    updated_fixed_points[j,:] = total_field_xfrm.apply_ants_transform_to_point(tuple(updated_fixed_points[j,:]))
+                    updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(updated_fixed_points[j,:]))
 
             return(total_field_xfrm)
 
