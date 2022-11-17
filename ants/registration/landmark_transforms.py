@@ -21,7 +21,7 @@ def fit_transform_to_paired_points( moving_points,
                                     displacement_weights=None,
                                     number_of_compositions=10,
                                     composition_step_size=0.5,
-                                    sigma=3.0
+                                    sigma=0.0
                                    ):
     """
     Estimate an optimal matrix transformation from paired points, potentially landmarks
@@ -178,7 +178,7 @@ def fit_transform_to_paired_points( moving_points,
 
         return xfrm
 
-    else:
+    elif transform_type == "diffeo":
 
         updated_fixed_points = fixed_points
 
@@ -213,6 +213,9 @@ def fit_transform_to_paired_points( moving_points,
                     updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(updated_fixed_points[j,:]))
 
             return(total_field_xfrm)
+
+    else:
+        raise ValueError("Unrecognized transform_type.")  
 
 
 
