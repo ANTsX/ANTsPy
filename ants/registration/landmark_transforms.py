@@ -180,7 +180,8 @@ def fit_transform_to_paired_points( moving_points,
 
     elif transform_type == "diffeo":
 
-        updated_fixed_points = fixed_points
+        updated_fixed_points = np.empty_like(fixed_points)
+        updated_fixed_points[:] = fixed_points
 
         xfrm_list = []
         total_field_xfrm = None
