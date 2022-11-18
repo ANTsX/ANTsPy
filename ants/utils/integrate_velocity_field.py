@@ -21,7 +21,7 @@ def integrate_velocity_field(velocity_field,
         Lower time bound for integration in [0, 1]
 
     upper_integration_bound: float
-        Upper time bound in [0, 1]
+        Upper time bound for integration in [0, 1]
 
     number_of_integation_steps: integer
         Number of integration steps used in the Runge-Kutta solution
@@ -32,6 +32,7 @@ def integrate_velocity_field(velocity_field,
     >>> fi = ants.image_read( ants.get_data( "r16" ) )
     >>> mi = ants.image_read( ants.get_data( "r27" ) )
     >>> reg = ants.registration(fi, mi, "TV[2]")
+    >>> velocity_field = ants.image_read(reg['velocityfield'][0])
     >>> field = ants.integrate_velocity_field(velocity_field, 0.0, 1.0, 10) 
     """
 
