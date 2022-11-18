@@ -5,9 +5,11 @@ import os
 import numpy as np
 from ..core import ants_transform_io as txio
 from ..core import ants_transform as tx
-
+from ..core import ants_image_io as iio2
 from ..utils import fit_bspline_displacement_field
 from ..utils import smooth_image
+from ..utils import compose_displacement_fields
+from ..utils import invert_displacement_field
 
 def fit_transform_to_paired_points( moving_points,
                                     fixed_points,
@@ -39,7 +41,7 @@ def fit_transform_to_paired_points( moving_points,
         of points and \code{d} is the dimensionality.
 
     transform_type : character
-        'rigid', 'similarity', "affine', 'bspline', or 'diffeo'.
+        'rigid', 'similarity', "affine', 'bspline', 'diffeo', or 'syn'.
 
     regularization : scalar
         ridge penalty in [0,1] for linear transforms.
@@ -81,8 +83,8 @@ def fit_transform_to_paired_points( moving_points,
     -------
     >>> import ants
     >>> import numpy as np
-    >>> fixed = np.array([[50,50],[200,50],[50,200]])
-    >>> moving = np.array([[75,75],[175,75],[75,175]])
+    >>> fixed = np.array([[50.0,50.0],[200.0,50.0],[200.0,200.0]])
+    >>> moving = np.array([[50.0,50.0],[50.0,200.0],[200.0,200.0]])
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="rigid")
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
@@ -102,7 +104,14 @@ def fit_transform_to_paired_points( moving_points,
              Z = np.matmul(Z, reflection_matrix)
          return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
 
-    allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline', 'diffeo']
+    def create_zero_displacement_field(domain_image):
+         field_array = np.zeros((*domain_image.shape, domain_image.dimension))
+         field = iio2.from_numpy(field_array, origin=domain_image.origin,
+                 spacing=domain_image.spacing, direction=domain_image.direction,
+                 has_components=True)
+         return(field)
+
+    allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline', 'diffeo', 'syn']
     if not transform_type.lower() in allowed_transforms:
         raise ValueError(transform_type + " transform not supported.")
 
@@ -211,9 +220,90 @@ def fit_transform_to_paired_points( moving_points,
 
             if i < number_of_compositions - 1:
                 for j in range(updated_fixed_points.shape[0]):
-                    updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(updated_fixed_points[j,:]))
+                    updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(fixed_points[j,:]))
 
         return(total_field_xfrm)
+
+    elif transform_type == "syn":
+
+        updated_fixed_points = np.empty_like(fixed_points)
+        updated_fixed_points[:] = fixed_points
+        updated_moving_points = np.empty_like(moving_points)
+        updated_moving_points[:] = moving_points
+
+        total_field_fixed_to_middle = create_zero_displacement_field(domain_image)
+        total_inverse_field_fixed_to_middle = create_zero_displacement_field(domain_image)
+
+        total_field_moving_to_middle = create_zero_displacement_field(domain_image)
+        total_inverse_field_moving_to_middle = create_zero_displacement_field(domain_image)
+
+        for i in range(number_of_compositions):
+
+            update_field_fixed_to_middle = fit_bspline_displacement_field(
+              displacement_origins=updated_fixed_points,
+              displacements=updated_moving_points - updated_fixed_points,
+              displacement_weights=displacement_weights,
+              origin=domain_image.origin,
+              spacing=domain_image.spacing,
+              size=domain_image.shape,
+              direction=domain_image.direction,
+              number_of_fitting_levels=number_of_fitting_levels,
+              mesh_size=mesh_size,
+              spline_order=spline_order,
+              enforce_stationary_boundary=True
+            )
+
+            update_field_moving_to_middle = fit_bspline_displacement_field(
+              displacement_origins=updated_moving_points,
+              displacements=updated_fixed_points - updated_moving_points,
+              displacement_weights=displacement_weights,
+              origin=domain_image.origin,
+              spacing=domain_image.spacing,
+              size=domain_image.shape,
+              direction=domain_image.direction,
+              number_of_fitting_levels=number_of_fitting_levels,
+              mesh_size=mesh_size,
+              spline_order=spline_order,
+              enforce_stationary_boundary=True
+            )
+
+            update_field_fixed_to_middle = update_field_fixed_to_middle * composition_step_size
+            update_field_moving_to_middle = update_field_moving_to_middle * composition_step_size
+            if sigma > 0:
+                update_field_fixed_to_middle = smooth_image(update_field_fixed_to_middle, sigma)
+                update_field_moving_to_middle = smooth_image(update_field_moving_to_middle, sigma)
+
+            # Add the update field to both forward displacement fields.
+
+            total_field_fixed_to_middle = compose_displacement_fields(update_field_fixed_to_middle, total_field_fixed_to_middle)
+            total_field_moving_to_middle = compose_displacement_fields(update_field_moving_to_middle, total_field_moving_to_middle)
+
+            # Iteratively estimate the inverse fields.  
+
+            total_inverse_field_fixed_to_middle = invert_displacement_field(total_field_fixed_to_middle, total_inverse_field_fixed_to_middle)
+            total_inverse_field_moving_to_middle = invert_displacement_field(total_field_moving_to_middle, total_inverse_field_moving_to_middle)
+
+            total_field_fixed_to_middle = invert_displacement_field(total_inverse_field_fixed_to_middle, total_field_fixed_to_middle)
+            total_field_moving_to_middle = invert_displacement_field(total_inverse_field_moving_to_middle, total_field_moving_to_middle)
+
+            total_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_field_fixed_to_middle)
+            total_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_field_moving_to_middle)
+
+            if i < number_of_compositions - 1:
+                for j in range(updated_fixed_points.shape[0]):
+                    updated_fixed_points[j,:] = total_field_fixed_to_middle_xfrm.apply_to_point(tuple(fixed_points[j,:]))
+                    updated_moving_points[j,:] = total_field_moving_to_middle_xfrm.apply_to_point(tuple(moving_points[j,:]))
+
+            else:
+                total_inverse_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_fixed_to_middle)
+                total_inverse_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_moving_to_middle)
+ 
+        xfrm_forward_list = [total_field_fixed_to_middle_xfrm, total_inverse_field_moving_to_middle_xfrm] 
+        total_forward_xfrm = tx.compose_ants_transforms(xfrm_forward_list)    
+        xfrm_inverse_list = [total_field_moving_to_middle_xfrm, total_inverse_field_fixed_to_middle_xfrm] 
+        total_inverse_xfrm = tx.compose_ants_transforms(xfrm_inverse_list)
+
+        return([total_forward_xfrm, total_inverse_xfrm])
 
     else:
         raise ValueError("Unrecognized transform_type.")  
