@@ -17,6 +17,7 @@ from .image_similarity import *
 from .image_to_cluster_images import *
 from .iMath import *
 from .impute import *
+from .integrate_velocity_field import *
 from .invariant_image_similarity import *
 from .invert_displacement_field import *
 from .label_clusters import *
@@ -37,5 +38,4 @@ from .simulate_displacement_field import *
 from .slice_image import *
 from .smooth_image import *
 from .threshold_image import *
-from .ants_integrate_velocity_field import *
 from .weingarten_image_curvature import *
