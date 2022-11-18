@@ -83,8 +83,8 @@ def fit_transform_to_paired_points( moving_points,
     -------
     >>> import ants
     >>> import numpy as np
-    >>> fixed = np.array([[50,50],[200,50],[50,200]])
-    >>> moving = np.array([[75,75],[175,75],[75,175]])
+    >>> fixed = np.array([[50.0,50.0],[200.0,50.0],[200.0,200.0]])
+    >>> moving = np.array([[50.0,50.0],[50.0,200.0],[200.0,200.0]])
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="rigid")
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
@@ -290,13 +290,9 @@ def fit_transform_to_paired_points( moving_points,
             total_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_field_moving_to_middle)
 
             if i < number_of_compositions - 1:
-                error = 0.0
                 for j in range(updated_fixed_points.shape[0]):
                     updated_fixed_points[j,:] = total_field_fixed_to_middle_xfrm.apply_to_point(tuple(fixed_points[j,:]))
                     updated_moving_points[j,:] = total_field_moving_to_middle_xfrm.apply_to_point(tuple(moving_points[j,:]))
-                    error += np.sqrt(np.sum((updated_fixed_points[j,:] - updated_moving_points[j,:])**2))
-                error /= updated_fixed_points.shape[0]  
-                print(str(i) + ": ", str(error))
 
             else:
                 total_inverse_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_fixed_to_middle)
