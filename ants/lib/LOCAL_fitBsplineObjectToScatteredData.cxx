@@ -345,4 +345,7 @@ PYBIND11_MODULE(fitBsplineObjectToScatteredData, m)
 
   m.def("fitBsplineObjectToScatteredDataP2D2", &fitBsplineVectorImageHelper<2, 2>);
   m.def("fitBsplineObjectToScatteredDataP3D3", &fitBsplineVectorImageHelper<3, 3>);
+
+  m.def("fitBsplineObjectToScatteredDataP3D2", &fitBsplineVectorImageHelper<3, 2>);
+  m.def("fitBsplineObjectToScatteredDataP4D3", &fitBsplineVectorImageHelper<4, 3>);
 }
