@@ -34,6 +34,8 @@ def integrate_velocity_field(velocity_field,
     >>> reg = ants.registration(fi, mi, "TV[2]")
     >>> velocity_field = ants.image_read(reg['velocityfield'][0])
     >>> field = ants.integrate_velocity_field(velocity_field, 0.0, 1.0, 10) 
+    >>> temp=ants.apply_ants_transform_to_image( 
+	    ants.transform_from_displacement_field( field ), mi, fi )
     """
 
     if lower_integration_bound < 0.0:
