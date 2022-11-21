@@ -33,7 +33,9 @@ def integrate_velocity_field(velocity_field,
     >>> mi = ants.image_read( ants.get_data( "r27" ) )
     >>> reg = ants.registration(fi, mi, "TV[2]")
     >>> velocity_field = ants.image_read(reg['velocityfield'][0])
-    >>> field = ants.integrate_velocity_field(velocity_field, 0.0, 1.0, 10)
+    >>> field = ants.integrate_velocity_field(velocity_field, 0.0, 1.0, 10) 
+    >>> temp=ants.apply_ants_transform_to_image( 
+	    ants.transform_from_displacement_field( field ), mi, fi )
     """
 
     libfn = utils.get_lib_fn('integrateVelocityFieldD%i' % (velocity_field.dimension-1))
