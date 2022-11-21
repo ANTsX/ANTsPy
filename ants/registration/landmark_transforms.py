@@ -376,7 +376,7 @@ def fit_transform_to_paired_points( moving_points,
 
                     t = n * dt
 
-                    if t > 0.0:
+                    if n > 0:
                         integrated_forward_field = integrate_velocity_field(velocity_field, 0.0, t, 100)
                         integrated_forward_field_xfrm = txio.transform_from_displacement_field(integrated_forward_field)
                         for j in range(updated_fixed_points.shape[0]):
@@ -384,7 +384,7 @@ def fit_transform_to_paired_points( moving_points,
                     else:
                         updated_fixed_points[:] = fixed_points
 
-                    if t < 1.0:
+                    if n < number_of_integration_points - 1:
                         integrated_inverse_field = integrate_velocity_field(velocity_field, 1.0, t, 100)
                         integrated_inverse_field_xfrm = txio.transform_from_displacement_field(integrated_inverse_field)
                         for j in range(updated_moving_points.shape[0]):
