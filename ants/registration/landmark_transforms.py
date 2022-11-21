@@ -116,8 +116,8 @@ def fit_transform_to_paired_points( moving_points,
                  has_components=True)
          return(field)
 
-    def create_zero_velocity_field(domain_image, number_of_integration_points=2):
-         field_array = np.zeros((*domain_image.shape, number_of_integration_points, domain_image.dimension))
+    def create_zero_velocity_field(domain_image, number_of_time_points=2):
+         field_array = np.zeros((*domain_image.shape, number_of_time_points, domain_image.dimension))
          origin = (*domain_image.origin, 0.0)
          spacing = (*domain_image.spacing, 1.0)
          direction = np.eye(domain_image.dimension + 1)
@@ -328,20 +328,36 @@ def fit_transform_to_paired_points( moving_points,
         updated_moving_points = np.empty_like(moving_points)
         updated_moving_points[:] = moving_points
 
-        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points=number_of_integration_points)
+        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
         velocity_field_array = velocity_field.numpy()
 
-        last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points=number_of_integration_points)
+        last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
         last_update_derivative_field_array = last_update_derivative_field.numpy()
-
-        dt = (1.0 - 0.0) / (number_of_integration_points - 1)
 
         for i in range(number_of_compositions):
 
-            update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points=number_of_integration_points)
+            update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
             update_derivative_field_array = update_derivative_field.numpy()
 
-            if i == 0:
+            for n in range(number_of_integration_points):
+
+                t = n / (number_of_integration_points - 1.0)
+
+                if n > 0:
+                    integrated_forward_field = integrate_velocity_field(velocity_field, 0.0, t, 100)
+                    integrated_forward_field_xfrm = txio.transform_from_displacement_field(integrated_forward_field)
+                    for j in range(updated_fixed_points.shape[0]):
+                        updated_fixed_points[j,:] = integrated_forward_field_xfrm.apply_to_point(tuple(fixed_points[j,:]))
+                else:
+                    updated_fixed_points[:] = fixed_points
+
+                if n < number_of_integration_points - 1:
+                    integrated_inverse_field = integrate_velocity_field(velocity_field, 1.0, t, 100)
+                    integrated_inverse_field_xfrm = txio.transform_from_displacement_field(integrated_inverse_field)
+                    for j in range(updated_moving_points.shape[0]):
+                        updated_moving_points[j,:] = integrated_inverse_field_xfrm.apply_to_point(tuple(moving_points[j,:]))
+                else:
+                    updated_moving_points[:] = moving_points
 
                 update_derivative_field_at_timepoint = fit_bspline_displacement_field(
                   displacement_origins=updated_fixed_points,
@@ -356,66 +372,17 @@ def fit_transform_to_paired_points( moving_points,
                   spline_order=spline_order,
                   enforce_stationary_boundary=True
                   )
+
                 if sigma > 0:
                     update_derivative_field_at_timepoint = smooth_image(update_derivative_field_at_timepoint, sigma)
 
                 update_derivative_field_at_timepoint_array = update_derivative_field_at_timepoint.numpy()
                 max_norm = np.sqrt(np.amax(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False)))
                 update_derivative_field_at_timepoint_array /= max_norm
-
-                for n in range(number_of_integration_points):
-                    if domain_image.dimension == 2:
-                        update_derivative_field_array[:,:,n,:] = update_derivative_field_at_timepoint_array
-                    elif domain_image.dimension == 3:
-                        update_derivative_field_array[:,:,:,n,:] = update_derivative_field_at_timepoint_array
-
-            else:
-
-                t = 0.0
-                for n in range(number_of_integration_points):
-
-                    t = n * dt
-
-                    if n > 0:
-                        integrated_forward_field = integrate_velocity_field(velocity_field, 0.0, t, 100)
-                        integrated_forward_field_xfrm = txio.transform_from_displacement_field(integrated_forward_field)
-                        for j in range(updated_fixed_points.shape[0]):
-                            updated_fixed_points[j,:] = integrated_forward_field_xfrm.apply_to_point(tuple(fixed_points[j,:]))
-                    else:
-                        updated_fixed_points[:] = fixed_points
-
-                    if n < number_of_integration_points - 1:
-                        integrated_inverse_field = integrate_velocity_field(velocity_field, 1.0, t, 100)
-                        integrated_inverse_field_xfrm = txio.transform_from_displacement_field(integrated_inverse_field)
-                        for j in range(updated_moving_points.shape[0]):
-                            updated_moving_points[j,:] = integrated_inverse_field_xfrm.apply_to_point(tuple(moving_points[j,:]))
-                    else:
-                        updated_moving_points[:] = moving_points
-
-                    update_derivative_field_at_timepoint = fit_bspline_displacement_field(
-                      displacement_origins=updated_fixed_points,
-                      displacements=updated_moving_points - updated_fixed_points,
-                      displacement_weights=displacement_weights,
-                      origin=domain_image.origin,
-                      spacing=domain_image.spacing,
-                      size=domain_image.shape,
-                      direction=domain_image.direction,
-                      number_of_fitting_levels=number_of_fitting_levels,
-                      mesh_size=mesh_size,
-                      spline_order=spline_order,
-                      enforce_stationary_boundary=True
-                      )
-
-                    if sigma > 0:
-                        update_derivative_field_at_timepoint = smooth_image(update_derivative_field_at_timepoint, sigma)
-
-                    update_derivative_field_at_timepoint_array = update_derivative_field_at_timepoint.numpy()
-                    max_norm = np.sqrt(np.amax(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False)))
-                    update_derivative_field_at_timepoint_array /= max_norm
-                    if domain_image.dimension == 2:
-                        update_derivative_field_array[:,:,n,:] = update_derivative_field_at_timepoint_array
-                    elif domain_image.dimension == 3:
-                        update_derivative_field_array[:,:,:,n,:] = update_derivative_field_at_timepoint_array
+                if domain_image.dimension == 2:
+                    update_derivative_field_array[:,:,n,:] = update_derivative_field_at_timepoint_array
+                elif domain_image.dimension == 3:
+                    update_derivative_field_array[:,:,:,n,:] = update_derivative_field_at_timepoint_array
 
             update_derivative_field_array = (update_derivative_field_array + last_update_derivative_field_array) * 0.5
             last_update_derivative_field = update_derivative_field_array
