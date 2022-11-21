@@ -7,6 +7,7 @@
 #include <string>
 
 #include "itkImage.h"
+#include "itkImageFileWriter.h"
 #include "itkVector.h"
 #include "itkTimeVaryingVelocityFieldIntegrationImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
@@ -41,30 +42,12 @@ py::capsule integrateVelocityField( py::capsule & antsVelocityField,
 
   ANTsVelocityFieldPointerType inputVelocityField = as<ANTsVelocityFieldType>( antsVelocityField );
 
-  typename ITKVelocityFieldType::PointType fieldOrigin;
-  typename ITKVelocityFieldType::SpacingType fieldSpacing;
-  typename ITKVelocityFieldType::SizeType fieldSize;
-  typename ITKVelocityFieldType::DirectionType fieldDirection;
-
-  for( unsigned int d = 0; d < Dimension + 1; d++ )
-    {
-    fieldOrigin[d] = inputVelocityField->GetOrigin()[d];
-    fieldSpacing[d] = inputVelocityField->GetSpacing()[d];
-    fieldSize[d] = inputVelocityField->GetRequestedRegion().GetSize()[d];
-    for( unsigned int e = 0; e < Dimension + 1; e++ )
-      {
-      fieldDirection(d, e) = inputVelocityField->GetDirection()(d, e);
-      }
-    }
-
   ITKVelocityFieldPointerType inputITKVelocityField = ITKVelocityFieldType::New();
-  inputITKVelocityField->SetOrigin( fieldOrigin );
-  inputITKVelocityField->SetRegions( fieldSize );
-  inputITKVelocityField->SetSpacing( fieldSpacing );
-  inputITKVelocityField->SetDirection( fieldDirection );
+  inputITKVelocityField->CopyInformation( inputVelocityField );
+  inputITKVelocityField->SetRegions( inputVelocityField->GetRequestedRegion() );
   inputITKVelocityField->Allocate();
 
-  IteratorType It( inputITKVelocityField, 
+  IteratorType It( inputITKVelocityField,
                    inputITKVelocityField->GetRequestedRegion() );
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {

@@ -17,7 +17,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=7ea9f7441bf2415478814fa0ff4e47941e68fd03 # N4 bug
+antstag=8cb575a08aaab579934ca181134db97cd069fe74 #
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
