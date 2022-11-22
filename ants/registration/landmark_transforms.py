@@ -43,7 +43,7 @@ def fit_transform_to_paired_points( moving_points,
         of points and \code{d} is the dimensionality.
 
     transform_type : character
-        'rigid', 'similarity', "affine', 'bspline', 'diffeo', or 'syn'.
+        'rigid', 'similarity', "affine', 'bspline', 'diffeo', 'syn', or 'time-varying (tv)'.
 
     regularization : scalar
         ridge penalty in [0,1] for linear transforms.
