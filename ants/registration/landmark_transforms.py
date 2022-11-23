@@ -80,6 +80,9 @@ def fit_transform_to_paired_points( moving_points,
     number_of_integration_points : integer
         Time-varying velocity field parameter.
 
+    verbose : bool
+        Print progress to the screen.
+
     Returns
     -------
 
