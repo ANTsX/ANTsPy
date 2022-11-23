@@ -25,7 +25,8 @@ def fit_transform_to_paired_points( moving_points,
                                     number_of_compositions=10,
                                     composition_step_size=0.5,
                                     sigma=0.0,
-                                    number_of_integration_points=2
+                                    number_of_integration_points=2,
+                                    verbose=False
                                    ):
     """
     Estimate an optimal matrix transformation from paired points, potentially landmarks
@@ -238,6 +239,10 @@ def fit_transform_to_paired_points( moving_points,
                 for j in range(updated_fixed_points.shape[0]):
                     updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(fixed_points[j,:]))
 
+            if verbose:
+                error = np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - moving_points), axis=1, keepdims=True)))
+                print("Composition " + str(i) + ": error = " + str(error))
+
         return(total_field_xfrm)
 
     elif transform_type == "syn":
@@ -314,12 +319,23 @@ def fit_transform_to_paired_points( moving_points,
                 total_inverse_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_fixed_to_middle)
                 total_inverse_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_moving_to_middle)
 
+            if verbose:
+                error = np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True)))
+                print("Composition " + str(i) + ": error = " + str(error))
+
         xfrm_forward_list = [total_field_fixed_to_middle_xfrm, total_inverse_field_moving_to_middle_xfrm]
         total_forward_xfrm = tx.compose_ants_transforms(xfrm_forward_list)
         xfrm_inverse_list = [total_field_moving_to_middle_xfrm, total_inverse_field_fixed_to_middle_xfrm]
         total_inverse_xfrm = tx.compose_ants_transforms(xfrm_inverse_list)
 
-        return([total_forward_xfrm, total_inverse_xfrm])
+        return_dict = {'forward_transform' : total_forward_xfrm,
+                       'inverse_transform' : total_inverse_xfrm,
+                       'fixed_to_middle_transform' : total_field_fixed_to_middle_xfrm,
+                       'middle_to_fixed_transform' : total_inverse_field_fixed_to_middle_xfrm,
+                       'moving_to_middle_transform' : total_field_moving_to_middle_xfrm,
+                       'middle_to_moving_transform' : total_inverse_field_moving_to_middle_xfrm
+                       }
+        return(return_dict)
 
     elif transform_type == "tv" or transform_type == "time-varying":
 
@@ -338,6 +354,9 @@ def fit_transform_to_paired_points( moving_points,
 
             update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
             update_derivative_field_array = update_derivative_field.numpy()
+
+            if verbose:
+                print("Composition " + str(i))
 
             for n in range(number_of_integration_points):
 
@@ -358,6 +377,10 @@ def fit_transform_to_paired_points( moving_points,
                         updated_moving_points[j,:] = integrated_inverse_field_xfrm.apply_to_point(tuple(moving_points[j,:]))
                 else:
                     updated_moving_points[:] = moving_points
+
+                if verbose:
+                    error = np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True)))
+                    print("  Integration t = " + str(t) + ": error = " + str(error))
 
                 update_derivative_field_at_timepoint = fit_bspline_displacement_field(
                   displacement_origins=updated_fixed_points,
@@ -392,7 +415,13 @@ def fit_transform_to_paired_points( moving_points,
                                              spacing=velocity_field.spacing, direction=velocity_field.direction,
                                              has_components=True)
 
-        return(velocity_field)
+        forward_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 0.0, 1.0, 100))
+        inverse_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 1.0, 0.0, 100))
+
+        return_dict = {'forward_transform': forward_xfrm,
+                       'inverse_transform': inverse_xfrm,
+                       'velocity_field': velocity_field}
+        return(return_dict)
 
     else:
         raise ValueError("Unrecognized transform_type.")
