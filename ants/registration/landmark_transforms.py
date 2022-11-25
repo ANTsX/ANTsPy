@@ -79,6 +79,10 @@ def fit_transform_to_paired_points( moving_points,
     sigma : scalar
         Gaussian smoothing sigma (in mm) for the diffeomorphic transforms.
 
+    convergence_threshold : scalar
+        Composition-based convergence parameter for the diff. transforms using a
+        window size of 10 values.
+
     number_of_integration_points : integer
         Time-varying velocity field parameter.
 
