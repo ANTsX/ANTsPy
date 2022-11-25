@@ -7,6 +7,7 @@ from ..core import ants_transform_io as txio
 from ..core import ants_transform as tx
 from ..core import ants_image_io as iio2
 from ..utils import fit_bspline_displacement_field
+from ..utils import fit_bspline_object_to_scattered_data
 from ..utils import integrate_velocity_field
 from ..utils import smooth_image
 from ..utils import compose_displacement_fields
@@ -25,6 +26,7 @@ def fit_transform_to_paired_points( moving_points,
                                     number_of_compositions=10,
                                     composition_step_size=0.5,
                                     sigma=0.0,
+                                    convergence_threshold=0.0,
                                     number_of_integration_points=2,
                                     verbose=False
                                    ):
@@ -130,6 +132,20 @@ def fit_transform_to_paired_points( moving_points,
                  has_components=True)
          return(field)
 
+    def convergence_monitoring(values, window_size=10):
+         if len(values) >= window_size:
+             u = np.linspace(0.0, 1.0, num=window_size)
+             scattered_data = np.expand_dims(values[-window_size:], axis=-1)
+             parametric_data = np.expand_dims(u, axis=-1)
+             spacing = 1 / (window_size-1)
+             bspline_line = fit_bspline_object_to_scattered_data(scattered_data, parametric_data,
+                 parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
+                 parametric_domain_size=[window_size], number_of_fitting_levels=1, mesh_size=1,
+                 spline_order=1)
+             bspline_slope = -(bspline_line[1][0] - bspline_line[0][0]) / spacing
+             return(bspline_slope)
+         else:
+             return None
 
     allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline', 'diffeo', 'syn', 'tv', 'time-varying']
     if not transform_type.lower() in allowed_transforms:
@@ -215,6 +231,7 @@ def fit_transform_to_paired_points( moving_points,
         xfrm_list = []
         total_field_xfrm = None
 
+        error_values = []
         for i in range(number_of_compositions):
 
             update_field = fit_bspline_displacement_field(
@@ -242,9 +259,12 @@ def fit_transform_to_paired_points( moving_points,
                 for j in range(updated_fixed_points.shape[0]):
                     updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(fixed_points[j,:]))
 
+            error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - moving_points), axis=1, keepdims=True))))
+            convergence_value = convergence_monitoring(error_values)
             if verbose:
-                error = np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - moving_points), axis=1, keepdims=True)))
-                print("Composition " + str(i) + ": error = " + str(error))
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + " (convergence = " + str(convergence_value) + ")")
+            if not convergence_value is None and convergence_value < convergence_threshold:
+                break
 
         return(total_field_xfrm)
 
@@ -261,6 +281,7 @@ def fit_transform_to_paired_points( moving_points,
         total_field_moving_to_middle = create_zero_displacement_field(domain_image)
         total_inverse_field_moving_to_middle = create_zero_displacement_field(domain_image)
 
+        error_values = []
         for i in range(number_of_compositions):
 
             update_field_fixed_to_middle = fit_bspline_displacement_field(
@@ -313,18 +334,20 @@ def fit_transform_to_paired_points( moving_points,
             total_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_field_fixed_to_middle)
             total_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_field_moving_to_middle)
 
+            total_inverse_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_fixed_to_middle)
+            total_inverse_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_moving_to_middle)
+
             if i < number_of_compositions - 1:
                 for j in range(updated_fixed_points.shape[0]):
                     updated_fixed_points[j,:] = total_field_fixed_to_middle_xfrm.apply_to_point(tuple(fixed_points[j,:]))
                     updated_moving_points[j,:] = total_field_moving_to_middle_xfrm.apply_to_point(tuple(moving_points[j,:]))
 
-            else:
-                total_inverse_field_fixed_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_fixed_to_middle)
-                total_inverse_field_moving_to_middle_xfrm = txio.transform_from_displacement_field(total_inverse_field_moving_to_middle)
-
+            error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True))))
+            convergence_value = convergence_monitoring(error_values)
             if verbose:
-                error = np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True)))
-                print("Composition " + str(i) + ": error = " + str(error))
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + " (convergence = " + str(convergence_value) + ")")
+            if not convergence_value is None and convergence_value < convergence_threshold:
+                break
 
         xfrm_forward_list = [total_field_fixed_to_middle_xfrm, total_inverse_field_moving_to_middle_xfrm]
         total_forward_xfrm = tx.compose_ants_transforms(xfrm_forward_list)
@@ -353,6 +376,7 @@ def fit_transform_to_paired_points( moving_points,
         last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
         last_update_derivative_field_array = last_update_derivative_field.numpy()
 
+        error_values = []
         for i in range(number_of_compositions):
 
             update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
@@ -380,10 +404,6 @@ def fit_transform_to_paired_points( moving_points,
                         updated_moving_points[j,:] = integrated_inverse_field_xfrm.apply_to_point(tuple(moving_points[j,:]))
                 else:
                     updated_moving_points[:] = moving_points
-
-                if verbose:
-                    error = np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True)))
-                    print("  Integration t = " + str(t) + ": error = " + str(error))
 
                 update_derivative_field_at_timepoint = fit_bspline_displacement_field(
                   displacement_origins=updated_fixed_points,
@@ -417,6 +437,14 @@ def fit_transform_to_paired_points( moving_points,
             velocity_field = iio2.from_numpy(velocity_field_array, origin=velocity_field.origin,
                                              spacing=velocity_field.spacing, direction=velocity_field.direction,
                                              has_components=True)
+
+            error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True))))
+            convergence_value = convergence_monitoring(error_values)
+            if verbose:
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + " (convergence = " + str(convergence_value) + ")")
+            if not convergence_value is None and convergence_value < convergence_threshold:
+                break
+
 
         forward_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 0.0, 1.0, 100))
         inverse_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 1.0, 0.0, 100))
