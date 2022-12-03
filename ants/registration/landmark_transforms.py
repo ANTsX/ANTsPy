@@ -232,8 +232,8 @@ def fit_transform_to_paired_points( moving_points,
         updated_fixed_points = np.empty_like(fixed_points)
         updated_fixed_points[:] = fixed_points
 
-        xfrm_list = []
-        total_field_xfrm = None
+        total_field = create_zero_displacement_field(domain_image)
+        total_field_xfrm = None 
 
         error_values = []
         for i in range(number_of_compositions):
@@ -256,8 +256,8 @@ def fit_transform_to_paired_points( moving_points,
             if sigma > 0:
                 update_field = smooth_image(update_field, sigma)
 
-            xfrm_list.append(txio.transform_from_displacement_field(update_field))
-            total_field_xfrm = tx.compose_ants_transforms(xfrm_list)
+            total_field = compose_displacement_fields(update_field, total_field)
+            total_field_xfrm = txio.transform_from_displacement_field(total_field)
 
             if i < number_of_compositions - 1:
                 for j in range(updated_fixed_points.shape[0]):
@@ -353,10 +353,15 @@ def fit_transform_to_paired_points( moving_points,
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 
-        xfrm_forward_list = [total_field_fixed_to_middle_xfrm, total_inverse_field_moving_to_middle_xfrm]
-        total_forward_xfrm = tx.compose_ants_transforms(xfrm_forward_list)
-        xfrm_inverse_list = [total_field_moving_to_middle_xfrm, total_inverse_field_fixed_to_middle_xfrm]
-        total_inverse_xfrm = tx.compose_ants_transforms(xfrm_inverse_list)
+        # xfrm_forward_list = [total_field_fixed_to_middle_xfrm, total_inverse_field_moving_to_middle_xfrm]
+        # total_forward_xfrm = tx.compose_ants_transforms(xfrm_forward_list)
+        # xfrm_inverse_list = [total_field_moving_to_middle_xfrm, total_inverse_field_fixed_to_middle_xfrm]
+        # total_inverse_xfrm = tx.compose_ants_transforms(xfrm_inverse_list)
+
+        total_forward_field = compose_displacement_fields(total_inverse_field_moving_to_middle, total_field_fixed_to_middle)
+        total_forward_xfrm = txio.transform_from_displacement_field(total_forward_field)
+        total_inverse_field = compose_displacement_fields(total_inverse_field_fixed_to_middle, total_field_moving_to_middle)
+        total_inverse_xfrm = txio.transform_from_displacement_field(total_inverse_field)
 
         return_dict = {'forward_transform' : total_forward_xfrm,
                        'inverse_transform' : total_inverse_xfrm,
