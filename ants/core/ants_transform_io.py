@@ -4,6 +4,7 @@ __all__ = [
     "read_transform",
     "write_transform",
     "transform_from_displacement_field",
+    "transform_to_displacement_field"
 ]
 
 import os
@@ -255,6 +256,44 @@ def transform_from_displacement_field(field):
         pointer=txptr,
     )
 
+def transform_to_displacement_field(xfrm, ref):
+    """
+    Convert displacement field ANTsTransform to displacement field
+
+    ANTsR function: `antsrTransformToDisplacementField`
+
+    Arguments
+    ---------
+    xfrm : displacement field ANTsTransform
+        displacement field ANTsTransform
+
+    ref : ANTs Image
+         
+    Returns
+    -------
+    ANTsVectorImage
+
+    Example
+    -------
+    >>> import ants
+    >>> fi = ants.image_read(ants.get_ants_data('r16') )
+    >>> mi = ants.image_read(ants.get_ants_data('r64') )
+    >>> fi = ants.resample_image(fi,(60,60),1,0)
+    >>> mi = ants.resample_image(mi,(60,60),1,0) # speed up
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
+    >>> vec = ants.image_read( mytx['fwdtransforms'][0] )
+    >>> atx = ants.transform_from_displacement_field( vec )
+    >>> field = ants.transform_to_displacement_field( atx, fi )
+    """
+    
+    if not xfrm.type == 'DisplacementFieldTransform':
+        raise ValueError("Transform must be of DisplacementFieldTransform type")
+    libfn = utils.get_lib_fn("antsTransformToDisplacementFieldF%i" % xfrm.dimension)
+    field_ptr = libfn(xfrm.pointer, ref.pointer)
+    return iio.ANTsImage( pixeltype=xfrm.precision,
+                          dimension=xfrm.dimension,
+                          components=xfrm.dimension,
+                          pointer=field_ptr)
 
 def read_transform(filename, precision="float"):
     """

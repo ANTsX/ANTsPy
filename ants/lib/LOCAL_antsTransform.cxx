@@ -121,6 +121,48 @@ py::capsule antsTransformFromDisplacementField( py::capsule field )
   return wrap_transform< TransformType >( displacementTransform.GetPointer() );
 }
 
+template <typename TransformType, typename VectorImageType, typename PrecisionType, unsigned int Dimension>
+py::capsule antsTransformToDisplacementField( py::capsule xfrm, py::capsule ref )
+{
+  //typedef itk::Transform<PrecisionType,Dimension,Dimension>                  TransformType;
+  using ImageType = typename itk::Image<PrecisionType, Dimension>;
+  using ImagePointerType = typename ImageType::Pointer;
+  using TransformPointerType = typename TransformType::Pointer;
+  using DisplacementFieldTransformType = typename itk::DisplacementFieldTransform<PrecisionType, VectorImageType::ImageDimension>;
+  using DisplacementFieldTransformPointerType = typename DisplacementFieldTransformType::Pointer;
+  using DisplacementFieldType = typename DisplacementFieldTransformType::DisplacementFieldType;
+  using VectorType = typename DisplacementFieldType::PixelType;
+
+  TransformPointerType itkTransform = as_transform<TransformType>( xfrm );
+  DisplacementFieldTransformPointerType warp = dynamic_cast<DisplacementFieldTransformType *>( itkTransform.GetPointer() ) ;
+
+  ImagePointerType domainImage = as<ImageType>( ref );
+
+  typedef typename VectorImageType::Pointer VectorImagePointerType;
+  VectorImagePointerType antsrField = VectorImageType::New();
+  antsrField->CopyInformation( domainImage );
+  antsrField->SetRegions( domainImage->GetLargestPossibleRegion() );
+  antsrField->SetNumberOfComponentsPerPixel( Dimension );
+  antsrField->Allocate();
+
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
+  IteratorType it( domainImage, domainImage->GetLargestPossibleRegion() );
+  while ( !it.IsAtEnd() )
+    {
+    VectorType vec = warp->GetDisplacementField()->GetPixel( it.GetIndex() );
+    typename VectorImageType::PixelType dvec;
+    dvec.SetSize( Dimension );
+    for( unsigned int i = 0; i < Dimension; i++ )
+      {
+      dvec[i] = vec[i];
+      }
+    antsrField->SetPixel( it.GetIndex(), dvec );
+    ++it;
+    }
+
+  return wrap< VectorImageType >( antsrField );
+}
+
 PYBIND11_MODULE(antsTransform, m) {
 
     m.def("getTransformParametersF2", &getTransformParameters<itk::Transform<float, 2, 2>>);
@@ -230,6 +272,9 @@ PYBIND11_MODULE(antsTransform, m) {
 
     m.def("antsTransformFromDisplacementFieldF2", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
     m.def("antsTransformFromDisplacementFieldF3", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
+    m.def("antsTransformToDisplacementFieldF2", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
+    m.def("antsTransformToDisplacementFieldF3", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
+
 }
 
 
