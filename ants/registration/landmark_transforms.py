@@ -353,11 +353,6 @@ def fit_transform_to_paired_points( moving_points,
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 
-        # xfrm_forward_list = [total_field_fixed_to_middle_xfrm, total_inverse_field_moving_to_middle_xfrm]
-        # total_forward_xfrm = tx.compose_ants_transforms(xfrm_forward_list)
-        # xfrm_inverse_list = [total_field_moving_to_middle_xfrm, total_inverse_field_fixed_to_middle_xfrm]
-        # total_inverse_xfrm = tx.compose_ants_transforms(xfrm_inverse_list)
-
         total_forward_field = compose_displacement_fields(total_inverse_field_moving_to_middle, total_field_fixed_to_middle)
         total_forward_xfrm = txio.transform_from_displacement_field(total_forward_field)
         total_inverse_field = compose_displacement_fields(total_inverse_field_fixed_to_middle, total_field_moving_to_middle)
