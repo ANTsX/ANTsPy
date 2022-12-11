@@ -1,10 +1,9 @@
 __all__ = ["fit_transform_to_paired_points"]
 
-import os
-
 import numpy as np
+import time
+
 from ..core import ants_transform_io as txio
-from ..core import ants_transform as tx
 from ..core import ants_image_io as iio2
 from ..utils import fit_bspline_displacement_field
 from ..utils import fit_bspline_object_to_scattered_data
@@ -28,6 +27,7 @@ def fit_transform_to_paired_points( moving_points,
                                     sigma=0.0,
                                     convergence_threshold=0.0,
                                     number_of_integration_points=2,
+                                    rasterize_points=False,
                                     verbose=False
                                    ):
     """
@@ -85,6 +85,10 @@ def fit_transform_to_paired_points( moving_points,
 
     number_of_integration_points : integer
         Time-varying velocity field parameter.
+
+    rasterize_points : boolean
+       Use nearest neighbor rasterization of points for estimating the update
+       field (potential speed-up).  Default = False.
 
     verbose : bool
         Print progress to the screen.
@@ -221,7 +225,8 @@ def fit_transform_to_paired_points( moving_points,
             number_of_fitting_levels=number_of_fitting_levels,
             mesh_size=mesh_size,
             spline_order=spline_order,
-            enforce_stationary_boundary=enforce_stationary_boundary)
+            enforce_stationary_boundary=enforce_stationary_boundary,
+            rasterize_points=rasterize_points)
 
         xfrm = txio.transform_from_displacement_field(bspline_displacement_field)
 
@@ -238,6 +243,9 @@ def fit_transform_to_paired_points( moving_points,
         error_values = []
         for i in range(number_of_compositions):
 
+            if verbose:
+                start_time = time.time()
+
             update_field = fit_bspline_displacement_field(
               displacement_origins=updated_fixed_points,
               displacements=moving_points - updated_fixed_points,
@@ -249,7 +257,8 @@ def fit_transform_to_paired_points( moving_points,
               number_of_fitting_levels=number_of_fitting_levels,
               mesh_size=mesh_size,
               spline_order=spline_order,
-              enforce_stationary_boundary=True
+              enforce_stationary_boundary=True,
+              rasterize_points=rasterize_points
             )
 
             update_field = update_field * composition_step_size
@@ -266,7 +275,10 @@ def fit_transform_to_paired_points( moving_points,
             error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - moving_points), axis=1, keepdims=True))))
             convergence_value = convergence_monitoring(error_values)
             if verbose:
-                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + " (convergence = " + str(convergence_value) + ")")
+                end_time = time.time()
+                diff_time = end_time - start_time
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + 
+                      " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 
@@ -288,6 +300,9 @@ def fit_transform_to_paired_points( moving_points,
         error_values = []
         for i in range(number_of_compositions):
 
+            if verbose:
+                start_time = time.time()
+
             update_field_fixed_to_middle = fit_bspline_displacement_field(
               displacement_origins=updated_fixed_points,
               displacements=updated_moving_points - updated_fixed_points,
@@ -299,7 +314,8 @@ def fit_transform_to_paired_points( moving_points,
               number_of_fitting_levels=number_of_fitting_levels,
               mesh_size=mesh_size,
               spline_order=spline_order,
-              enforce_stationary_boundary=True
+              enforce_stationary_boundary=True,
+              rasterize_points=rasterize_points
             )
 
             update_field_moving_to_middle = fit_bspline_displacement_field(
@@ -313,7 +329,8 @@ def fit_transform_to_paired_points( moving_points,
               number_of_fitting_levels=number_of_fitting_levels,
               mesh_size=mesh_size,
               spline_order=spline_order,
-              enforce_stationary_boundary=True
+              enforce_stationary_boundary=True,
+              rasterize_points=rasterize_points
             )
 
             update_field_fixed_to_middle = update_field_fixed_to_middle * composition_step_size
@@ -349,7 +366,10 @@ def fit_transform_to_paired_points( moving_points,
             error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True))))
             convergence_value = convergence_monitoring(error_values)
             if verbose:
-                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + " (convergence = " + str(convergence_value) + ")")
+                end_time = time.time()
+                diff_time = end_time - start_time
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + 
+                      " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 
@@ -383,11 +403,11 @@ def fit_transform_to_paired_points( moving_points,
         error_values = []
         for i in range(number_of_compositions):
 
+            if verbose:
+                start_time = time.time()
+
             update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
             update_derivative_field_array = update_derivative_field.numpy()
-
-            if verbose:
-                print("Composition " + str(i))
 
             for n in range(number_of_integration_points):
 
@@ -420,7 +440,8 @@ def fit_transform_to_paired_points( moving_points,
                   number_of_fitting_levels=number_of_fitting_levels,
                   mesh_size=mesh_size,
                   spline_order=spline_order,
-                  enforce_stationary_boundary=True
+                  enforce_stationary_boundary=True,
+                  rasterize_points=rasterize_points
                   )
 
                 if sigma > 0:
@@ -445,7 +466,10 @@ def fit_transform_to_paired_points( moving_points,
             error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True))))
             convergence_value = convergence_monitoring(error_values)
             if verbose:
-                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + " (convergence = " + str(convergence_value) + ")")
+                end_time = time.time()
+                diff_time = end_time - start_time
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + 
+                      " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 

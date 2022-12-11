@@ -20,7 +20,8 @@ def fit_bspline_displacement_field(displacement_field=None,
                                    mesh_size=1,
                                    spline_order=3,
                                    enforce_stationary_boundary=True,
-                                   estimate_inverse=False):
+                                   estimate_inverse=False,
+                                   rasterize_points=False):
 
     """
     Fit a b-spline object to a dense displacement field image and/or a set of points
@@ -84,6 +85,10 @@ def fit_bspline_displacement_field(displacement_field=None,
 
     estimate_inverse : boolean
        Estimate the inverse displacement field.  Default = False.
+
+    rasterize_points : boolean
+       Use nearest neighbor rasterization of points for estimating the 
+       field (potential speed-up).  Default = False.
 
     Returns
     -------
@@ -195,7 +200,7 @@ def fit_bspline_displacement_field(displacement_field=None,
         bspline_field = libfn(displacement_origins, displacements, displacement_weights,
                               origin, spacing, size, direction,
                               number_of_fitting_levels, number_of_control_points, spline_order,
-                              enforce_stationary_boundary, estimate_inverse)
+                              enforce_stationary_boundary, estimate_inverse, rasterize_points)
 
 
     bspline_displacement_field = iio.ANTsImage(pixeltype='float',
