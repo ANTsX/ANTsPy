@@ -42,6 +42,7 @@ def registration(
     verbose=False,
     multivariate_extras=None,
     restrict_transformation=None,
+    smoothing_in_mm=False,
     **kwargs
 ):
     """
@@ -137,6 +138,8 @@ def registration(
           ‘(1,1,0,1,1,0)’ for a rigid transformation. Restriction
           currently only works if there are no preceding
           transformations.
+
+    smoothing_in_mm : boolean ; currently only impacts low dimensional registration
 
     kwargs : keyword args
         extra arguments
@@ -241,6 +244,7 @@ def registration(
         raise ValueError("Fixed and moving image dimensions are not the same.")
     # ----------------------------
 
+    myiterations = aff_iterations
     args = [fixed, moving, type_of_transform, outprefix]
     myf_aff = "6x4x2x1"  # old fixed params
     mys_aff = "3x2x1x0"  # old fixed params
@@ -299,6 +303,9 @@ def registration(
         myf_aff = "2x1"
         mys_aff = "1x0"
         myiterations = "100x20"
+
+    if smoothing_in_mm:
+        mys_aff = mys_aff + 'mm'
 
     mysyn = "SyN[%f,%f,%f]" % (grad_step, flow_sigma, total_sigma)
     if type_of_transform == "Elastic":
@@ -1181,7 +1188,7 @@ def registration(
                 subtype_of_transform = subtype_of_transform_args[0]
                 if not ( subtype_of_transform == "b"
                          or subtype_of_transform == "br"
-                         or subtype_of_transform == "bo" 
+                         or subtype_of_transform == "bo"
                          or subtype_of_transform == "s"
                          or subtype_of_transform == "sr"
                          or subtype_of_transform == "so" ):
