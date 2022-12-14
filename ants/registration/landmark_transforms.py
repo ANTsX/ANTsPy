@@ -234,11 +234,14 @@ def fit_transform_to_paired_points( moving_points,
 
     elif transform_type == "diffeo":
 
+        if verbose:
+            start_total_time = time.time()
+
         updated_fixed_points = np.empty_like(fixed_points)
         updated_fixed_points[:] = fixed_points
 
         total_field = create_zero_displacement_field(domain_image)
-        total_field_xfrm = None 
+        total_field_xfrm = None
 
         error_values = []
         for i in range(number_of_compositions):
@@ -277,14 +280,22 @@ def fit_transform_to_paired_points( moving_points,
             if verbose:
                 end_time = time.time()
                 diff_time = end_time - start_time
-                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + 
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                       " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 
+        if verbose:
+            end_total_time = time.time()
+            diff_total_time = end_total_time - start_total_time
+            print("Total elapsed time = " + str(diff_total_time) + ".")
+
         return(total_field_xfrm)
 
     elif transform_type == "syn":
+
+        if verbose:
+            start_total_time = time.time()
 
         updated_fixed_points = np.empty_like(fixed_points)
         updated_fixed_points[:] = fixed_points
@@ -368,7 +379,7 @@ def fit_transform_to_paired_points( moving_points,
             if verbose:
                 end_time = time.time()
                 diff_time = end_time - start_time
-                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + 
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                       " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
@@ -377,6 +388,11 @@ def fit_transform_to_paired_points( moving_points,
         total_forward_xfrm = txio.transform_from_displacement_field(total_forward_field)
         total_inverse_field = compose_displacement_fields(total_inverse_field_fixed_to_middle, total_field_moving_to_middle)
         total_inverse_xfrm = txio.transform_from_displacement_field(total_inverse_field)
+
+        if verbose:
+            end_total_time = time.time()
+            diff_total_time = end_total_time - start_total_time
+            print("Total elapsed time = " + str(diff_total_time) + ".")
 
         return_dict = {'forward_transform' : total_forward_xfrm,
                        'inverse_transform' : total_inverse_xfrm,
@@ -388,6 +404,9 @@ def fit_transform_to_paired_points( moving_points,
         return(return_dict)
 
     elif transform_type == "tv" or transform_type == "time-varying":
+
+        if verbose:
+            start_total_time = time.time()
 
         updated_fixed_points = np.empty_like(fixed_points)
         updated_fixed_points[:] = fixed_points
@@ -468,14 +487,18 @@ def fit_transform_to_paired_points( moving_points,
             if verbose:
                 end_time = time.time()
                 diff_time = end_time - start_time
-                print("Composition " + str(i) + ": error = " + str(error_values[-1]) + 
+                print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                       " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
             if not convergence_value is None and convergence_value < convergence_threshold:
                 break
 
-
         forward_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 0.0, 1.0, 100))
         inverse_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 1.0, 0.0, 100))
+
+        if verbose:
+            end_total_time = time.time()
+            diff_total_time = end_total_time - start_total_time
+            print("Total elapsed time = " + str(diff_total_time) + ".")
 
         return_dict = {'forward_transform': forward_xfrm,
                        'inverse_transform': inverse_xfrm,
