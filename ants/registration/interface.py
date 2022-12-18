@@ -1221,8 +1221,10 @@ def registration(
 
         if do_quick == True:
             syn_convergence = "[100x70x50x0,1e-6,10]"
+            metric_parameter = 32
             syn_metric = "MI[%s,%s,1,%s]" % (f, m, metric_parameter)
         else:
+            metric_parameter = 2
             syn_convergence = "[100x70x50x20,1e-6,10]"
             syn_metric = "CC[%s,%s,1,%s]" % (f, m, metric_parameter)
         syn_shrink_factors = "8x4x2x1"
