@@ -1230,6 +1230,7 @@ def registration(
 
         if do_quick == True and do_repro == True:
             syn_convergence = "[100x70x50x0,1e-6,10]"
+            metric_parameter = 2
             syn_metric = "CC[%s,%s,1,%s]" % (f, m, metric_parameter)
 
         if random_seed is None and do_repro == True:
