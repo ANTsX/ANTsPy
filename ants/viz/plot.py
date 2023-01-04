@@ -2407,6 +2407,14 @@ def plot(
                 nonzero = np.where(img_arr.sum(axis=(1, 2)) > 0.01)[0]
                 min_idx = nonzero[0] + slice_buffer[0]
                 max_idx = nonzero[-1] - slice_buffer[1]
+                if min_idx > max_idx:
+                    temp = min_idx
+                    min_idx = max_idx
+                    max_idx = temp
+                if max_idx > nonzero.max():
+                    max_idx = nonzero.max()
+                if min_idx < 0:
+                    min_idx = 0
                 slice_idxs = np.linspace(min_idx, max_idx, nslices).astype("int")
                 if reverse:
                     slice_idxs = np.array(list(reversed(slice_idxs)))
