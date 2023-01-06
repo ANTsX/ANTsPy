@@ -34,7 +34,7 @@ def slice_image(image, axis=None, idx=None, collapse_strategy=0):
     if image.dimension < 3:
         raise ValueError('image must have at least 3 dimensions')
 
-    if collapse_strategy != 0 or collapse_strategy != 1 or collapse_strategy != 2:
+    if collapse_strategy != 0 and collapse_strategy != 1 and collapse_strategy != 2:
         raise ValueError('collapse_strategy must be 0, 1, or 2.') 
 
     inpixeltype = image.pixeltype
