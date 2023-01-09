@@ -9,6 +9,7 @@ from .antsImageToImageMetric import *
 from .antsImageUtils import *
 from .antsTransform import *
 from .cropImage import *
+from .composeDisplacementFields import *
 from .fitBsplineObjectToScatteredData import *
 from .fitBsplineDisplacementField import *
 from .fitBsplineDisplacementFieldToScatteredData import *
@@ -16,6 +17,7 @@ from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
 from .hausdorffDistance import *
 from .histogramMatchImage import *
+from .invertDisplacementField import *
 # from .invariantImageSimilarity import *
 from .labelOverlapMeasures import *
 from .labelStats import *

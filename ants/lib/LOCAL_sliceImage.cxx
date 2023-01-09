@@ -10,7 +10,7 @@
 namespace py = pybind11;
 
 template < typename ImageType, typename PixelType, unsigned int NewDimension >
-py::capsule sliceImage( py::capsule antsImage, int plane, int slice)
+py::capsule sliceImage( py::capsule antsImage, int plane, int slice, int collapseStrategy)
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType itkImage = as< ImageType >( antsImage );
@@ -33,7 +33,19 @@ py::capsule sliceImage( py::capsule antsImage, int plane, int slice)
 
     filter->SetExtractionRegion( desiredRegion );
     filter->SetInput( itkImage );
-    filter->SetDirectionCollapseToSubmatrix();
+    if( collapseStrategy == 0 )
+      { 
+      filter->SetDirectionCollapseToSubmatrix();
+      } 
+    else if( collapseStrategy == 1 )
+      {
+      filter->SetDirectionCollapseToIdentity();
+      } 
+    else // if( collapseStrategy == 2 ) 
+      {
+      filter->SetDirectionCollapseToGuess();
+      } 
+  
     filter->Update();
 
     return wrap<SliceImageType>( filter->GetOutput() );
