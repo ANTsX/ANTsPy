@@ -60,8 +60,8 @@ jobs:
       - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          # CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014_aarch64
+          # CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}
           # CIBW_TEST_SKIP: *_arm64 *_universal2:arm64
 
