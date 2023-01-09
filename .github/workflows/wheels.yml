@@ -30,12 +30,11 @@ jobs:
           # macOS on Intel 64-bit and Apple M1 ARM64
           - os: macos-11
             python: 39
-            platform_id: macosx
+            platform_id: macosx_x86_64
 
           # macOS on 
           - os: macos-11
             python: 39
-            arch: 
             platform_id: macosx_arm64
 
     steps:
@@ -58,15 +57,15 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014_x86_64
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014_i686
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014_aarch64
           CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}
           # CIBW_TEST_SKIP: *_arm64 *_universal2:arm64
 
           # Include latest Python beta
           CIBW_PRERELEASE_PYTHONS: False
-
+          
           CIBW_BEFORE_ALL_LINUX: |
             yum install -y gcc-c++ libpng-devel libpng
             pip install cmake ninja
