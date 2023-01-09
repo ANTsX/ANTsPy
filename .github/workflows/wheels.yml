@@ -68,7 +68,7 @@ jobs:
           # Include latest Python beta
           CIBW_PRERELEASE_PYTHONS: False
           
-          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_ARCHS_LINUX: auto
           CIBW_BEFORE_ALL_LINUX: |
             yum install -y gcc-c++ libpng-devel libpng
             pip install cmake ninja
