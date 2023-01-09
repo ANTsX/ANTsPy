@@ -67,18 +67,18 @@ jobs:
             platform_id: macosx_x86_64
 
           # macOS on Apple M1 64-bit
-          # - os: macos-latest
-          #   python: 38
-          #   arch: arm64
-          #   platform_id: macosx_arm64
-          # - os: macos-latest
-          #   python: 39
-          #   arch: arm64
-          #   platform_id: macosx_arm64
-          # - os: macos-latest
-          #   python: 310
-          #   arch: arm64
-          #   platform_id: macosx_arm64
+          - os: macos-latest
+            python: 38
+            arch: arm64
+            platform_id: macosx_arm64
+          - os: macos-latest
+            python: 39
+            arch: arm64
+            platform_id: macosx_arm64
+          - os: macos-latest
+            python: 310
+            arch: arm64
+            platform_id: macosx_arm64
 
     steps:
       - uses: actions/checkout@v2
