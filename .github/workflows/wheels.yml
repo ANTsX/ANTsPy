@@ -27,7 +27,7 @@ jobs:
             arch: aarch64
             platform_id: manylinux_aarch64
 
-          # macOS on Intel 64-bit and Apple M1 ARM64
+          # macOS on Intel 64-bit
           - os: macos-11
             python: 39
             arch: x86_64
@@ -68,6 +68,7 @@ jobs:
           # Include latest Python beta
           CIBW_PRERELEASE_PYTHONS: False
           
+          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
           CIBW_BEFORE_ALL_LINUX: |
             yum install -y gcc-c++ libpng-devel libpng
             pip install cmake ninja
