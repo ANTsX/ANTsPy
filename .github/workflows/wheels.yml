@@ -27,16 +27,15 @@ jobs:
             arch: aarch64
             platform_id: manylinux_aarch64
 
-          # macOS on Intel 64-bit
+          # macOS on Intel 64-bit and Apple M1 ARM64
           - os: macos-11
             python: 39
-            arch: x86_64
-            platform_id: macosx_x86_64
+            platform_id: macosx
 
-          # macOS on Apple M1 ARM64
+          # macOS on 
           - os: macos-11
             python: 39
-            arch: universal2, arm64
+            arch: 
             platform_id: macosx_arm64
 
     steps:
@@ -61,7 +60,7 @@ jobs:
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014"
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}
           # CIBW_TEST_SKIP: *_arm64 *_universal2:arm64
 
@@ -75,12 +74,12 @@ jobs:
           CIBW_BEFORE_ALL_WINDOWS: |
             pip install cmake ninja
 
-          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
+          CIBW_ARCHS_MACOS: universal2 x86_64 arm64
           CIBW_BEFORE_ALL_MACOS: |
             pip install cmake ninja
 
           CIBW_ENVIRONMENT_MACOS: |
-            CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
+            CMAKE_OSX_ARCHITECTURES=$CIBW_ARCHS_MACOS
 
         run: python -m cibuildwheel --output-dir wheelhouse
 
