@@ -10,7 +10,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_x86_task:
   name: Build Linux x86 wheels.
   container:
-    image: continuumio/miniconda3:4.12.0
+    image: continuumio/miniconda3:4.11.0
     cpu: 4
     memory: 8G
 
@@ -24,7 +24,7 @@ linux_x86_task:
 linux_aarch64_task:
   name: Build Linux aarch64 wheels.
   arm_container:
-    image: continuumio/miniconda3:4.12.0
+    image: continuumio/miniconda3:4.11.0
     cpu: 4
     memory: 8G
 
