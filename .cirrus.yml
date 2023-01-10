@@ -9,12 +9,10 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 
 linux_x86_task:
   name: Build Linux x86 wheels.
-  compute_engine_instance:
-    image_project: cirrus-images
+  container:
     image: continuumio/miniconda3:4.12.0
-    platform: linux
     cpu: 4
-    memory: 4G
+    memory: 8G
 
   install_pre_requirements_script:
     - apt-get update
@@ -25,13 +23,10 @@ linux_x86_task:
 
 linux_aarch64_task:
   name: Build Linux aarch64 wheels.
-  compute_engine_instance:
-    image_project: cirrus-images
+  arm_container:
     image: continuumio/miniconda3:4.12.0
-    architecture: arm64
-    platform: linux
     cpu: 4
-    memory: 4G
+    memory: 8G
 
   install_pre_requirements_script:
     - apt-get update
@@ -45,7 +40,7 @@ windows_x86_task:
   windows_container:
     image: cirrusci/windowsservercore:visualstudio2022
     cpu: 4
-    memory: 4G
+    memory: 8G
 
   install_pre_requirements_script:
     - choco install -y --no-progress python3 --version 3.10.6
