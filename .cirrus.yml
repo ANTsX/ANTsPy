@@ -11,31 +11,33 @@ linux_x86_task:
   name: Build Linux x86 wheels.
   compute_engine_instance:
     image_project: cirrus-images
-    image: family/docker-builder
+    image: continuumio/miniconda3:4.12.0
     platform: linux
     cpu: 4
     memory: 4G
 
   install_pre_requirements_script:
-    - apt install -y python3-venv python-is-python3
-    - apt install -y build-essential libpng-devel
-    - pip install cmake ninja
+    - apt-get update
+    - apt-get install -y python3-venv python-is-python3
+    - apt-get install -y build-essential libpng-devel
+    - conda install -y -c conda-forge cmake ninja
   <<: *BUILD_AND_STORE_WHEELS
 
 linux_aarch64_task:
   name: Build Linux aarch64 wheels.
   compute_engine_instance:
     image_project: cirrus-images
-    image: family/docker-builder-arm64
+    image: continuumio/miniconda3:4.12.0
     architecture: arm64
     platform: linux
     cpu: 4
     memory: 4G
 
   install_pre_requirements_script:
-    - apt install -y python3-venv python-is-python3
-    - apt install -y build-essential libpng-devel
-    - pip install cmake ninja
+    - apt-get update
+    - apt-get install -y python3-venv python-is-python3
+    - apt-get install -y build-essential libpng-devel
+    - conda install -y -c conda-forge cmake ninja
   <<: *BUILD_AND_STORE_WHEELS
 
 windows_x86_task:
