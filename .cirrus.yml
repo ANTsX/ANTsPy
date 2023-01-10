@@ -10,29 +10,27 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_x86_task:
   name: Build Linux x86 wheels.
   container:
-    image: continuumio/miniconda3:4.11.0
+    image: continuumio/miniconda3:4.12.0
     cpu: 4
     memory: 8G
 
   install_pre_requirements_script:
     - apt-get update
-    - apt-get install -y python3-venv python-is-python3
-    - apt-get install -y build-essential libpng-devel
-    - conda install -y -c conda-forge cmake ninja
+    - apt-get install -y build-essential
+    - conda install -y -c conda-forge cmake ninja libpng-devel-cos7-x86_64
   <<: *BUILD_AND_STORE_WHEELS
 
 linux_aarch64_task:
   name: Build Linux aarch64 wheels.
   arm_container:
-    image: continuumio/miniconda3:4.11.0
+    image: continuumio/miniconda3:4.12.0
     cpu: 4
     memory: 8G
 
   install_pre_requirements_script:
     - apt-get update
-    - apt-get install -y python3-venv python-is-python3
-    - apt-get install -y build-essential libpng-devel
-    - conda install -y -c conda-forge cmake ninja
+    - apt-get install -y build-essential
+    - conda install -y -c conda-forge cmake ninja libpng-devel-cos7-aarch64
   <<: *BUILD_AND_STORE_WHEELS
 
 windows_x86_task:
