@@ -3,6 +3,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     - export PATH=/opt/conda/bin:$PATH
     - python -m pip install cibuildwheel==2.11.4
   run_cibuildwheel_script:
+    - export PATH=/opt/conda/bin:$PATH
     - cibuildwheel
   wheels_artifacts:
     path: "wheelhouse/*"
