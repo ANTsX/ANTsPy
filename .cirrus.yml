@@ -17,7 +17,7 @@ apt-install:
 
 linux_x86_task:
   name: Build Linux x86 wheels
-  docker:
+  container:
     image: continuumio/miniconda3:4.12.0
   resource_class: medium
 
@@ -35,7 +35,7 @@ linux_x86_task:
 
 linux_aarch64_task:
   name: Build Linux aarch64 wheels
-  docker:
+  arm_container:
     image: continuumio/miniconda3:4.12.0
   resource_class: arm.medium
 
