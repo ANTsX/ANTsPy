@@ -23,7 +23,7 @@ linux_x86_task:
    - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh   
    - export PATH=/opt/conda/bin:$PATH
    - conda update conda
-   - conda install --yes cmake ninja && conda clean -ya
+   - conda install --yes cmake ninja pip && conda clean -ya
   <<: *BUILD_AND_STORE_WHEELS
 
 
@@ -43,7 +43,7 @@ linux_aarch64_task:
    - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh
    - export PATH=/opt/conda/bin:$PATH
    - conda update conda
-   - conda install --yes cmake ninja && conda clean -ya
+   - conda install --yes cmake ninja pip && conda clean -ya
   <<: *BUILD_AND_STORE_WHEELS
 
 # windows_x86_task:
