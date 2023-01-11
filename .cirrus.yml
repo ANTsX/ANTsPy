@@ -6,49 +6,47 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   wheels_artifacts:
     path: "wheelhouse/*"
 
-apt-install:
-  steps:
-    - run:
-        name: Install apt packages
-        command: |
-          apt-get update
-          apt-get install -y --no-install-recommends apt-transport-https build-essential ca-certificates curl git gnupg libpng-dev software-properties-common
-
 
 linux_x86_task:
   name: Build Linux x86 wheels
   container:
     image: continuumio/miniconda3:4.12.0
-  resource_class: medium
+    cpu: 4
+    memory: 8G
 
-  steps:
-    - apt-install
-    
-    - run:
-        name: update/install python modules
-        command: |
-          conda install -y -c conda-forge cmake ninja
-          conda env update -n base --file ./environment.yml --prune
-
+  install_pre_requirements_script:
+    - apt-get update
+    - apt-get install -y build-essential
+    - conda install -y -c conda-forge cmake ninja libpng-devel-cos7-x86_64
   <<: *BUILD_AND_STORE_WHEELS
-
 
 linux_aarch64_task:
   name: Build Linux aarch64 wheels
   arm_container:
     image: continuumio/miniconda3:4.12.0
-  resource_class: arm.medium
+    cpu: 4
+    memory: 8G
 
-  steps:
-    - apt-install
-    
-    - run:
-        name: update/install python modules
-        command: |
-          conda install -y -c conda-forge cmake ninja
-          conda env update -n base --file ./environment.yml --prune
+  install_pre_requirements_script:
+    - apt-get update
+    - apt-get install -y build-essential
+    - conda install -y -c conda-forge cmake ninja libpng-devel-cos7-aarch64
   <<: *BUILD_AND_STORE_WHEELS
 
+# windows_x86_task:
+#   name: Build Windows x86 wheels.
+#   windows_container:
+#     image: cirrusci/windowsservercore:visualstudio2022
+#     cpu: 4
+#     memory: 8G
+
+#   install_pre_requirements_script:
+#     - choco install -y --no-progress python3 --version 3.10.6
+#     - choco install -y --no-progress cmake
+#     - choco install -y --no-progress ninja
+#     - refreshenv
+#     - echo PATH=%PATH% >> "%CIRRUS_ENV%"
+#   <<: *BUILD_AND_STORE_WHEELS
 
 # macos_arm64_task:
 #   name: Build macOS arm64 wheels.
