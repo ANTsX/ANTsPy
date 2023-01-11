@@ -10,27 +10,37 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_x86_task:
   name: Build Linux x86 wheels
   container:
-    image: continuumio/miniconda3:4.12.0
+    image: ubuntu:20.04
     cpu: 4
     memory: 8G
-
-  install_pre_requirements_script:
-    - apt-get update
-    - apt-get install -y build-essential
-    - conda install -y -c conda-forge cmake ninja libpng-devel-cos7-x86_64
+    commands:
+     - export DEBIAN_FRONTEND=noninteractive
+     - apt-get update
+     - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg software-properties-common
+     - apt-get install -y build-essential gfortran libpng-dev libblas-dev liblapack-dev
+     - wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_22.11.1-1-Linux-x86_64.sh && /bin/bash Miniconda3-py39_22.11.1-1-Linux-x86_64.sh -b -p /opt/conda
+     - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh   
+     - export PATH=/opt/conda/bin:$PATH
+     - conda update conda
+     - conda install --yes cmake ninja && conda clean -ya
   <<: *BUILD_AND_STORE_WHEELS
 
 linux_aarch64_task:
   name: Build Linux aarch64 wheels
   arm_container:
-    image: continuumio/miniconda3:4.12.0
+    image: ubuntu:20.04
     cpu: 4
     memory: 8G
-
-  install_pre_requirements_script:
-    - apt-get update
-    - apt-get install -y build-essential
-    - conda install -y -c conda-forge cmake ninja libpng-devel-cos7-aarch64
+    commands:
+     - export DEBIAN_FRONTEND=noninteractive
+     - apt-get update
+     - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg software-properties-common
+     - apt-get install -y build-essential gfortran libpng-dev libblas-dev liblapack-dev
+     - wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_22.11.1-1-Linux-x86_64.sh && /bin/bash Miniconda3-py39_22.11.1-1-Linux-x86_64.sh -b -p /opt/conda
+     - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh
+     - export PATH=/opt/conda/bin:$PATH
+     - conda update conda
+     - conda install --yes cmake ninja && conda clean -ya
   <<: *BUILD_AND_STORE_WHEELS
 
 # windows_x86_task:
