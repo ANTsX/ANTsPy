@@ -17,7 +17,7 @@ linux_x86_task:
   install_pre_requirements_script:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update
-   - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg python3.9 python-is-python3 software-properties-common wget
+   - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg wget
    - apt-get install -y build-essential gfortran libpng-dev libblas-dev liblapack-dev
    - wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_22.11.1-1-Linux-x86_64.sh && /bin/bash Miniconda3-py39_22.11.1-1-Linux-x86_64.sh -b -p /opt/conda
    - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh   
@@ -37,7 +37,7 @@ linux_aarch64_task:
   install_pre_requirements_script:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update
-   - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg python3.9 python-is-python3 software-properties-common wget
+   - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg wget
    - apt-get install -y build-essential gfortran libpng-dev libblas-dev liblapack-dev
    - wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_22.11.1-1-Linux-x86_64.sh && /bin/bash Miniconda3-py39_22.11.1-1-Linux-x86_64.sh -b -p /opt/conda
    - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh
