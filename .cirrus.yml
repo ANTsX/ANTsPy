@@ -10,7 +10,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_x86_task:
   name: Build Linux x86 wheels
   container:
-    image: cimg/python:3.9
+    image: python:3.9-slim-bullseye
     cpu: 4
     memory: 8G
     
