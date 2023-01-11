@@ -1,9 +1,7 @@
 build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   install_cibuildwheel_script:
-    - export PATH=/opt/conda/bin:$PATH
     - python -m pip install cibuildwheel==2.11.4
   run_cibuildwheel_script:
-    - export PATH=/opt/conda/bin:$PATH
     - cibuildwheel
   wheels_artifacts:
     path: "wheelhouse/*"
@@ -12,7 +10,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_x86_task:
   name: Build Linux x86 wheels
   container:
-    image: ubuntu:20.04
+    image: cimg/python:3.9
     cpu: 4
     memory: 8G
     
@@ -21,11 +19,6 @@ linux_x86_task:
    - apt-get update
    - apt-get install -y --no-install-recommends apt-transport-https bash ca-certificates curl git gnupg wget
    - apt-get install -y build-essential gfortran libpng-dev libblas-dev liblapack-dev
-   - wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py39_22.11.1-1-Linux-x86_64.sh && /bin/bash Miniconda3-py39_22.11.1-1-Linux-x86_64.sh -b -p /opt/conda
-   - rm -f Miniconda3-py39_22.11.1-1-Linux-x86_64.sh   
-   - export PATH=/opt/conda/bin:$PATH
-   - conda update conda
-   - conda install --yes cmake ninja pip && conda clean -ya
    - which python
   <<: *BUILD_AND_STORE_WHEELS
 
