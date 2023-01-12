@@ -10,6 +10,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_x86_task:
   name: Build Linux x86 wheels
   env:
+    CIBW_BUILD: "cp3[6,7,8,9,10,11]-manylinux*"
     CIBW_MANYLINUX_X86_64_IMAGE: dockcross/manylinux_2_28-x64:latest
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
