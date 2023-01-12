@@ -11,7 +11,7 @@ linux_x86_task:
   name: Build Linux x86 wheels
   timeout_in: 120m
   env:
-    CIBW_BUILD: "cp3[6,7,8,9,10,11]-manylinux*"
+    CIBW_BUILD: "cp3[9,10]-manylinux*"
     CIBW_MANYLINUX_X86_64_IMAGE: dockcross/manylinux_2_28-x64:latest
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
@@ -34,7 +34,7 @@ linux_aarch64_task:
   name: Build Linux aarch64 wheels
   timeout_in: 120m
   env:
-    CIBW_BUILD: "cp3[6,7,8,9,10,11]-manylinux*"
+    CIBW_BUILD: "cp3[9,10]-manylinux*"
     CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux_2_28_aarch64:latest
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
