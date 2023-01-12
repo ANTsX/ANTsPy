@@ -27,3 +27,26 @@ linux_x86_task:
    - apt-get update
    - apt-get install -y python3-dev python-is-python3
   <<: *BUILD_AND_STORE_WHEELS
+
+
+linux_aarch64_task:
+  name: Build Linux aarch64 wheels
+  env:
+    CIBW_BUILD: "cp3[6,7,8,9,10,11]-manylinux*"
+    CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux_2_28_aarch64:latest
+    CIBW_BEFORE_ALL_LINUX: |
+      yum install -y gcc-c++ libpng-devel libpng
+      pip install cmake ninja
+    CIBW_BUILD_VERBOSITY: 3
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-builder-arm64
+    architecture: arm64
+    platform: linux
+    cpu: 4
+    memory: 8G
+  install_pre_requirements_script:
+   - export DEBIAN_FRONTEND=noninteractive
+   - apt-get update
+   - apt-get install -y python3-dev python-is-python3
+  <<: *BUILD_AND_STORE_WHEELS
