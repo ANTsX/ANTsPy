@@ -17,7 +17,7 @@ linux_x86_task:
       yum install -y gcc-c++ libpng-devel libpng
       pip install cmake ninja
     CIBW_BUILD_VERBOSITY: 3
-    CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+    # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
     image_project: cirrus-images
     image: family/docker-builder
@@ -41,7 +41,7 @@ linux_aarch64_task:
       yum install -y gcc-c++ libpng-devel libpng
       pip install cmake ninja
     CIBW_BUILD_VERBOSITY: 3
-    CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+    # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
     image_project: cirrus-images
     image: family/docker-builder-arm64
@@ -58,6 +58,7 @@ linux_aarch64_task:
 
 docker_builder:
   name: Build x86 docker images
+  timeout_in: 120m
   env:
     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
     DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
@@ -72,6 +73,7 @@ docker_builder:
 
 docker_builder:
   name: Build aarch64 docker images
+  timeout_in: 120m
   env:
     CIRRUS_ARCH: arm64
     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
