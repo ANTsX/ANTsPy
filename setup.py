@@ -177,7 +177,6 @@ long_description = open("README.md").read()
 setup(
     name="antspyx",
     version=version,
-    setup_requires=["setuptools;python_version>'3.10'"],
     install_requires=[
         "pandas",
         "numpy",
