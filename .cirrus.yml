@@ -12,8 +12,12 @@ linux_x86_task:
   timeout_in: 120m
   env:
     matrix:
+      - CIBW_BUILD: "cp36-manylinux*"
+      - CIBW_BUILD: "cp37-manylinux*"
+      - CIBW_BUILD: "cp38-manylinux*"
       - CIBW_BUILD: "cp39-manylinux*"
       - CIBW_BUILD: "cp310-manylinux*"
+      - CIBW_BUILD: "cp311-manylinux*"
     CIBW_MANYLINUX_X86_64_IMAGE: dockcross/manylinux_2_28-x64:latest
     CIBW_ARCHS_LINUX: "auto64"
     CIBW_BEFORE_ALL_LINUX: |
@@ -39,8 +43,12 @@ linux_aarch64_task:
   timeout_in: 120m
   env:
     matrix:
+      - CIBW_BUILD: "cp36-manylinux*"
+      - CIBW_BUILD: "cp37-manylinux*"
+      - CIBW_BUILD: "cp38-manylinux*"
       - CIBW_BUILD: "cp39-manylinux*"
       - CIBW_BUILD: "cp310-manylinux*"
+      - CIBW_BUILD: "cp311-manylinux*"
     CIBW_ARCHS_LINUX: "auto"
     CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux_2_28_aarch64:latest
     CIBW_BEFORE_ALL_LINUX: |
