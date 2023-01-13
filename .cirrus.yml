@@ -29,7 +29,7 @@ linux_x86_task:
     image_project: cirrus-images
     image: family/docker-builder
     platform: linux
-    cpu: 4
+    cpu: 2
     memory: 4G
   install_pre_requirements_script:
    - export DEBIAN_FRONTEND=noninteractive
@@ -61,7 +61,7 @@ linux_aarch64_task:
     image: family/docker-builder-arm64
     architecture: arm64
     platform: linux
-    cpu: 4
+    cpu: 2
     memory: 4G
   install_pre_requirements_script:
    - export DEBIAN_FRONTEND=noninteractive
