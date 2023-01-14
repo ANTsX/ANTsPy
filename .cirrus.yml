@@ -58,7 +58,7 @@ linux_aarch64_task:
     CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
-    CIBW_TEST_COMMAND: ./tests/run_tests.sh
+    CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
     image_project: cirrus-images
