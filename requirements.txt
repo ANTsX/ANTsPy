@@ -1,6 +1,5 @@
 pandas
 pyyaml
-sklearn
 numpy
 scikit-image
 scikit-learn
