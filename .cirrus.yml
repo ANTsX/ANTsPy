@@ -7,7 +7,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     path: "wheelhouse/*"
 
 
-linux_x86_wheels:
+linux_x86_64_task:
   name: Build Linux x86_64 wheels
   timeout_in: 120m
   env:
@@ -40,7 +40,7 @@ linux_x86_wheels:
   <<: *BUILD_AND_STORE_WHEELS
 
 
-linux_aarch64_wheels:
+linux_aarch64_task:
   name: Build Linux aarch64 wheels
   timeout_in: 120m
   env:
