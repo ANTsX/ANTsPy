@@ -7,22 +7,46 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     path: "wheelhouse/*"
 
 
-linux_x86_task:
+# linux_x86_task:
+#   name: Build Linux x86 wheels
+#   timeout_in: 120m
+#   env:
+#     matrix:
+#       - CIBW_BUILD: "cp36-manylinux*"
+#       - CIBW_BUILD: "cp37-manylinux*"
+#       - CIBW_BUILD: "cp38-manylinux*"
+#       - CIBW_BUILD: "cp39-manylinux*"
+#       - CIBW_BUILD: "cp310-manylinux*"
+#     CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+#     CIBW_ARCHS_LINUX: "auto64"
+#     CIBW_BEFORE_ALL_LINUX: |
+#       yum install -y gcc-c++ libpng-devel libpng
+#       python -m pip install cmake ninja
+#     CIBW_BUILD_VERBOSITY: 3
+#     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+#   compute_engine_instance:
+#     image_project: cirrus-images
+#     image: family/docker-builder
+#     platform: linux
+#     cpu: 2
+#     memory: 2G
+#   install_pre_requirements_script:
+#    - export DEBIAN_FRONTEND=noninteractive
+#    - apt-get update
+#    - apt-get install -y python3-dev python-is-python3
+#   <<: *BUILD_AND_STORE_WHEELS
+
+
+linux_x86_cp311_task:
   name: Build Linux x86 wheels
   timeout_in: 120m
   env:
-    matrix:
-      # - CIBW_BUILD: "cp36-manylinux*"
-      # - CIBW_BUILD: "cp37-manylinux*"
-      # - CIBW_BUILD: "cp38-manylinux*"
-      # - CIBW_BUILD: "cp39-manylinux*"
-      # - CIBW_BUILD: "cp310-manylinux*"
-      - CIBW_BUILD: "cp311-manylinux*"
-    CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+    CIBW_BUILD: "cp311-manylinux*"
+    CIBW_MANYLINUX_X86_64_IMAGE: dockcross/manylinux_2_28-x64:latest
     CIBW_ARCHS_LINUX: "auto64"
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
-      python -m pip install cmake ninja setuptools
+      python -m pip install cmake ninja
     CIBW_BUILD_VERBOSITY: 3
     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
@@ -30,7 +54,7 @@ linux_x86_task:
     image: family/docker-builder
     platform: linux
     cpu: 2
-    memory: 4G
+    memory: 2G
   install_pre_requirements_script:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update
@@ -38,22 +62,48 @@ linux_x86_task:
   <<: *BUILD_AND_STORE_WHEELS
 
 
-linux_aarch64_task:
+# linux_aarch64_task:
+#   name: Build Linux aarch64 wheels
+#   timeout_in: 120m
+#   env:
+#     matrix:
+#       - CIBW_BUILD: "cp36-manylinux*"
+#       - CIBW_BUILD: "cp37-manylinux*"
+#       - CIBW_BUILD: "cp38-manylinux*"
+#       - CIBW_BUILD: "cp39-manylinux*"
+#       - CIBW_BUILD: "cp310-manylinux*"
+#       - CIBW_BUILD: "cp311-manylinux*"
+#     CIBW_ARCHS_LINUX: "auto"
+#     CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+#     CIBW_BEFORE_ALL_LINUX: |
+#       yum install -y gcc-c++ libpng-devel libpng
+#       python -m pip install cmake ninja
+#     CIBW_BUILD_VERBOSITY: 3
+#     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+#   compute_engine_instance:
+#     image_project: cirrus-images
+#     image: family/docker-builder-arm64
+#     architecture: arm64
+#     platform: linux
+#     cpu: 2
+#     memory: 2G
+#   install_pre_requirements_script:
+#    - export DEBIAN_FRONTEND=noninteractive
+#    - apt-get update
+#    - apt-get install -y python3-dev python-is-python3
+#   <<: *BUILD_AND_STORE_WHEELS
+
+
+linux_aarch64_cp311_task:
   name: Build Linux aarch64 wheels
   timeout_in: 120m
   env:
-    matrix:
-      # - CIBW_BUILD: "cp36-manylinux*"
-      # - CIBW_BUILD: "cp37-manylinux*"
-      # - CIBW_BUILD: "cp38-manylinux*"
-      # - CIBW_BUILD: "cp39-manylinux*"
-      # - CIBW_BUILD: "cp310-manylinux*"
-      - CIBW_BUILD: "cp311-manylinux*"
+    CIBW_BUILD: "cp311-manylinux*"
     CIBW_ARCHS_LINUX: "auto"
-    CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+    CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux_2_28_aarch64:latest
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
-      python -m pip install cmake ninja setuptools
+      python -m pip install cmake ninja
     CIBW_BUILD_VERBOSITY: 3
     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
@@ -62,7 +112,7 @@ linux_aarch64_task:
     architecture: arm64
     platform: linux
     cpu: 2
-    memory: 4G
+    memory: 2G
   install_pre_requirements_script:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update
