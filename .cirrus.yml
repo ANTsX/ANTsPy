@@ -144,6 +144,6 @@ macos_arm64_wheel_task:
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     PATH: /opt/homebrew/opt/python@3.10/bin:$PATH
   python_script:
-    - brew install python@3.10
+    - brew install python@3.10 libpng
     - ln -s python3 /opt/homebrew/opt/python@3.10/bin/python
   <<: *BUILD_AND_STORE_WHEELS
