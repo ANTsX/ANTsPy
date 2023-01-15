@@ -135,7 +135,9 @@ macos_arm64_wheel_task:
     - CIBW_BUILD: cp310-macosx_arm64
     - CIBW_BUILD: cp311-macosx_arm64
     CIBW_ARCHS_MACOS: "arm64"
-    CIBW_BEFORE_ALL_MACOS: python -m pip install cmake ninja
+    CIBW_BEFORE_ALL_MACOS: |
+      python -m pip install --upgrade pip setuptools
+      python -m pip install cmake ninja
     CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
