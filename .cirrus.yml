@@ -7,119 +7,142 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     path: "wheelhouse/*"
 
 
-linux_x86_64_task:
-  name: Build Linux x86_64 wheels
-  timeout_in: 120m
+# linux_x86_64_task:
+#   name: Build Linux x86_64 wheels
+#   timeout_in: 120m
+#   env:
+#     matrix:
+#       # - CIBW_BUILD: "cp36-manylinux*"
+#       # - CIBW_BUILD: "cp37-manylinux*"
+#       # - CIBW_BUILD: "cp38-manylinux*"
+#       - CIBW_BUILD: "cp39-manylinux*"
+#       - CIBW_BUILD: "cp310-manylinux*"
+#     CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+#     CIBW_ARCHS_LINUX: "auto64"
+#     CIBW_BEFORE_ALL_LINUX: |
+#       yum install -y gcc-c++ libpng-devel libpng
+#       python -m pip install cmake ninja
+#     CIBW_BUILD_VERBOSITY: 3
+#     CIBW_BEFORE_TEST: >
+#       python -m pip install --find-links=wheelhouse/ -r requirements.txt
+#     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
+#     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+#   compute_engine_instance:
+#     image_project: cirrus-images
+#     image: family/docker-builder
+#     platform: linux
+#     cpu: 2
+#     memory: 2G
+#   install_pre_requirements_script:
+#    - export DEBIAN_FRONTEND=noninteractive
+#    - apt-get update
+#    - apt-get install -y python3-dev python-is-python3
+#   <<: *BUILD_AND_STORE_WHEELS
+
+
+# linux_aarch64_task:
+#   name: Build Linux aarch64 wheels
+#   timeout_in: 120m
+#   env:
+#     matrix:
+#       # - CIBW_BUILD: "cp36-manylinux*"
+#       # - CIBW_BUILD: "cp37-manylinux*"
+#       # - CIBW_BUILD: "cp38-manylinux*"
+#       - CIBW_BUILD: "cp39-manylinux*"
+#       - CIBW_BUILD: "cp310-manylinux*"
+#     CIBW_ARCHS_LINUX: "auto"
+#     CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+#     CIBW_BEFORE_ALL_LINUX: |
+#       yum install -y gcc-c++ libpng-devel libpng
+#       python -m pip install cmake ninja
+#     CIBW_BUILD_VERBOSITY: 3
+#     CIBW_BEFORE_TEST: >
+#       python -m pip install --find-links=wheelhouse/ -r requirements.txt
+#     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
+#     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+#   compute_engine_instance:
+#     image_project: cirrus-images
+#     image: family/docker-builder-arm64
+#     architecture: arm64
+#     platform: linux
+#     cpu: 2
+#     memory: 2G
+#   install_pre_requirements_script:
+#    - export DEBIAN_FRONTEND=noninteractive
+#    - apt-get update
+#    - apt-get install -y python3-dev python-is-python3
+#   <<: *BUILD_AND_STORE_WHEELS
+
+
+# docker_builder:
+#   name: build_x86_64
+#   timeout_in: 120m
+#   env:
+#     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+#     DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+#     TAG: cirrus-ci
+#     CIBW_BUILD_VERBOSITY: 3
+#   setup_script:
+#     - docker --version
+#   build_script: docker build --tag noelmni/antspy:$TAG .
+#   login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+#   push_script: docker push noelmni/antspy:$TAG
+
+
+# docker_builder:
+#   name: build_aarch64
+#   timeout_in: 120m
+#   env:
+#     CIRRUS_ARCH: arm64
+#     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+#     DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+#     TAG: cirrus-ci
+#     CIBW_BUILD_VERBOSITY: 3
+#   setup_script:
+#     - docker --version
+#   build_script: docker build --tag noelmni/antspy:$TAG-$CIRRUS_ARCH .
+#   login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+#   push_script: docker push noelmni/antspy:$TAG-$CIRRUS_ARCH
+
+
+# docker_builder:
+#   name: multiarch_build
+#   timeout_in: 120m
+#   depends_on:
+#     - build_x86_64
+#     - build_aarch64
+#   env:
+#     DOCKER_CLI_EXPERIMENTAL: enabled
+#     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+#     DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+#     TAG_MULTIARCH: multiarch
+#     TAG_AARCH64: cirrus-ci-arm64
+#     TAG_X86_64: cirrus-ci
+#   script: |
+#     docker info
+#     docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD 
+#     docker manifest create noelmni/antspy:$TAG_MULTIARCH --amend noelmni/antspy:$TAG_X86_64 noelmni/antspy:$TAG_AARCH64
+#     docker manifest push noelmni/antspy:$TAG_MULTIARCH
+
+
+macos_arm64_wheel_task:
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-monterey-xcode
   env:
     matrix:
-      # - CIBW_BUILD: "cp36-manylinux*"
-      # - CIBW_BUILD: "cp37-manylinux*"
-      # - CIBW_BUILD: "cp38-manylinux*"
-      - CIBW_BUILD: "cp39-manylinux*"
-      - CIBW_BUILD: "cp310-manylinux*"
-    CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-    CIBW_ARCHS_LINUX: "auto64"
-    CIBW_BEFORE_ALL_LINUX: |
-      yum install -y gcc-c++ libpng-devel libpng
-      python -m pip install cmake ninja
+    - CIBW_BUILD: cp38-macosx_arm64
+    - CIBW_BUILD: cp39-macosx_arm64
+    - CIBW_BUILD: cp310-macosx_arm64
+    - CIBW_BUILD: cp311-macosx_arm64
+    CIBW_ARCHS_MACOS: "arm64"
+    CIBW_BEFORE_ALL_MACOS: python -m pip install cmake ninja
     CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
-    # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
-  compute_engine_instance:
-    image_project: cirrus-images
-    image: family/docker-builder
-    platform: linux
-    cpu: 2
-    memory: 2G
-  install_pre_requirements_script:
-   - export DEBIAN_FRONTEND=noninteractive
-   - apt-get update
-   - apt-get install -y python3-dev python-is-python3
+    PATH: $HOME/mambaforge/bin/:$PATH
+    CONDA_HOME: $HOME/mambaforge
+  conda_script:
+    - curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
+    - bash ~/mambaforge.sh -b -p ~/mambaforge
   <<: *BUILD_AND_STORE_WHEELS
-
-
-linux_aarch64_task:
-  name: Build Linux aarch64 wheels
-  timeout_in: 120m
-  env:
-    matrix:
-      # - CIBW_BUILD: "cp36-manylinux*"
-      # - CIBW_BUILD: "cp37-manylinux*"
-      # - CIBW_BUILD: "cp38-manylinux*"
-      - CIBW_BUILD: "cp39-manylinux*"
-      - CIBW_BUILD: "cp310-manylinux*"
-    CIBW_ARCHS_LINUX: "auto"
-    CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
-    CIBW_BEFORE_ALL_LINUX: |
-      yum install -y gcc-c++ libpng-devel libpng
-      python -m pip install cmake ninja
-    CIBW_BUILD_VERBOSITY: 3
-    CIBW_BEFORE_TEST: >
-      python -m pip install --find-links=wheelhouse/ -r requirements.txt
-    CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
-    # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
-  compute_engine_instance:
-    image_project: cirrus-images
-    image: family/docker-builder-arm64
-    architecture: arm64
-    platform: linux
-    cpu: 2
-    memory: 2G
-  install_pre_requirements_script:
-   - export DEBIAN_FRONTEND=noninteractive
-   - apt-get update
-   - apt-get install -y python3-dev python-is-python3
-  <<: *BUILD_AND_STORE_WHEELS
-
-
-docker_builder:
-  name: build_x86_64
-  timeout_in: 120m
-  env:
-    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-    TAG: cirrus-ci
-    CIBW_BUILD_VERBOSITY: 3
-  setup_script:
-    - docker --version
-  build_script: docker build --tag noelmni/antspy:$TAG .
-  login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-  push_script: docker push noelmni/antspy:$TAG
-
-
-docker_builder:
-  name: build_aarch64
-  timeout_in: 120m
-  env:
-    CIRRUS_ARCH: arm64
-    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-    TAG: cirrus-ci
-    CIBW_BUILD_VERBOSITY: 3
-  setup_script:
-    - docker --version
-  build_script: docker build --tag noelmni/antspy:$TAG-$CIRRUS_ARCH .
-  login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-  push_script: docker push noelmni/antspy:$TAG-$CIRRUS_ARCH
-
-
-docker_builder:
-  name: multiarch_build
-  timeout_in: 120m
-  depends_on:
-    - build_x86_64
-    - build_aarch64
-  env:
-    DOCKER_CLI_EXPERIMENTAL: enabled
-    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-    TAG_MULTIARCH: multiarch
-    TAG_AARCH64: cirrus-ci-arm64
-    TAG_X86_64: cirrus-ci
-  script: |
-    docker info
-    docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD 
-    docker manifest create noelmni/antspy:$TAG_MULTIARCH --amend noelmni/antspy:$TAG_X86_64 noelmni/antspy:$TAG_AARCH64
-    docker manifest push noelmni/antspy:$TAG_MULTIARCH
