@@ -91,6 +91,7 @@ docker_builder:
 
 docker_builder:
   name: build_aarch64
+  timeout_in: 120m
   env:
     CIRRUS_ARCH: arm64
     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
