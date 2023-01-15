@@ -134,8 +134,8 @@ macos_arm64_wheel_task:
     matrix:
     # - CIBW_BUILD: cp38-macosx_arm64
     - CIBW_BUILD: cp39-macosx_arm64
-    # - CIBW_BUILD: cp310-macosx_arm64
-    # - CIBW_BUILD: cp311-macosx_arm64
+    - CIBW_BUILD: cp310-macosx_arm64
+    - CIBW_BUILD: cp311-macosx_arm64
     CIBW_ARCHS_MACOS: "arm64"
     CIBW_BEFORE_ALL_MACOS: |
       python -m ensurepip --upgrade
