@@ -127,7 +127,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 
 macos_arm64_wheel_task:
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-monterey-xcode
+    image: ghcr.io/cirruslabs/macos-ventura-xcode
   env:
     matrix:
     - CIBW_BUILD: cp38-macosx_arm64
