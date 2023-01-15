@@ -139,8 +139,7 @@ macos_arm64_wheel_task:
     CIBW_ARCHS_MACOS: "arm64"
     CIBW_BEFORE_ALL_MACOS: |
       python -m ensurepip --upgrade
-      python -m pip install cmake ninja
-      brew install libpng
+      conda install cmake ninja libpng
     CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
