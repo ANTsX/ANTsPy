@@ -145,8 +145,9 @@ macos_arm64_wheel_task:
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
-    PATH: /opt/homebrew/opt/python@3.10/bin:$PATH
-  python_script:
-    - brew install python@3.10
-    - ln -s python3 /opt/homebrew/opt/python@3.10/bin/python
+    PATH: $HOME/mambaforge/bin/:$PATH
+    CONDA_HOME: $HOME/mambaforge
+  conda_script:
+    - curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
+    - bash ~/mambaforge.sh -b -p ~/mambaforge
   <<: *BUILD_AND_STORE_WHEELS
