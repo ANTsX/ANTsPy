@@ -74,32 +74,51 @@ linux_aarch64_task:
   <<: *BUILD_AND_STORE_WHEELS
 
 
-# docker_builder:
-#   name: Build x86 docker images
-#   timeout_in: 120m
-#   env:
-#     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-#     DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-#     TAG: cirrus-ci
-#     CIBW_BUILD_VERBOSITY: 3
-#   setup_script:
-#     - docker --version
-#   build_script: docker build --tag noelmni/antspy:$TAG .
-#   login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-#   push_script: docker push noelmni/antspy:$TAG
+docker_builder:
+  name: build_x86_64
+  timeout_in: 120m
+  env:
+    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+    TAG: cirrus-ci
+    CIBW_BUILD_VERBOSITY: 3
+  setup_script:
+    - docker --version
+  build_script: docker build --tag noelmni/antspy:$TAG .
+  login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  push_script: docker push noelmni/antspy:$TAG
 
 
-# docker_builder:
-#   name: Build aarch64 docker images
-#   timeout_in: 120m
-#   env:
-#     CIRRUS_ARCH: arm64
-#     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-#     DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-#     TAG: cirrus-ci
-#     CIBW_BUILD_VERBOSITY: 3
-#   setup_script:
-#     - docker --version
-#   build_script: docker build --tag noelmni/antspy:$TAG-$CIRRUS_ARCH .
-#   login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-#   push_script: docker push noelmni/antspy:$TAG-$CIRRUS_ARCH
+docker_builder:
+  name: build_aarch64
+  env:
+    CIRRUS_ARCH: arm64
+    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+    TAG: cirrus-ci
+    CIBW_BUILD_VERBOSITY: 3
+  setup_script:
+    - docker --version
+  build_script: docker build --tag noelmni/antspy:$TAG-$CIRRUS_ARCH .
+  login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  push_script: docker push noelmni/antspy:$TAG-$CIRRUS_ARCH
+
+
+docker_builder:
+  name: multiarch_build
+  timeout_in: 120m
+  depends_on:
+    - build_x86_64
+    - build_aarch64
+  env:
+    DOCKER_CLI_EXPERIMENTAL: enabled
+    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+    TAG_MULTIARCH: multiarch
+    TAG_AARCH64: cirrus-ci-arm64
+    TAG_X86_64: cirrus-ci
+  script: |
+    docker info
+    docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD 
+    docker manifest create noelmni/antspy:$TAG_MULTIARCH --amend noelmni/antspy:$TAG_X86_64 noelmni/antspy:$TAG_AARCH64
+    docker manifest push noelmni/antspy:$TAG_MULTIARCH
