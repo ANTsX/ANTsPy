@@ -8,7 +8,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 
 
 linux_aarch64_task:
-  name: Build Linux aarch64 wheels
+  name: build_linux_aarch64_wheels
   timeout_in: 120m
   env:
     matrix:
@@ -42,6 +42,7 @@ linux_aarch64_task:
 
 
 macos_arm64_wheel_task:
+  name: build_macos_arm64_wheels
   macos_instance:
     image: ghcr.io/cirruslabs/macos-monterey-xcode
   env:
@@ -68,7 +69,7 @@ macos_arm64_wheel_task:
 
 
 docker_builder:
-  name: build_x86_64
+  name: build_linux_x86_64_image
   timeout_in: 120m
   env:
     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
@@ -83,7 +84,7 @@ docker_builder:
 
 
 docker_builder:
-  name: build_aarch64
+  name: build_linux_aarch64_image
   timeout_in: 120m
   env:
     CIRRUS_ARCH: arm64
@@ -99,7 +100,7 @@ docker_builder:
 
 
 docker_builder:
-  name: unified_build
+  name: build_unified_multiarch_image
   timeout_in: 120m
   depends_on:
     - build_x86_64
