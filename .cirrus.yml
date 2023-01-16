@@ -96,7 +96,7 @@ docker_builder:
     - docker --version
   build_script: docker build --tag noelmni/antspy:${TAG_AARCH64} .
   login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-  push_script: docker push noelmni/antspy:$TAG-${TAG_AARCH64}
+  push_script: docker push noelmni/antspy:${TAG_AARCH64}
 
 
 docker_builder:
