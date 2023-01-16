@@ -142,8 +142,7 @@ macos_arm64_wheel_task:
       conda install cmake ninja libpng
     CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
-      conda env update -n base -f environment.yml &&
-      python -m pip install --no-deps --find-links=wheelhouse/
+      python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     PATH: $HOME/mambaforge/bin/:$PATH
     CONDA_HOME: $HOME/mambaforge
