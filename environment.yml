@@ -1,5 +1,8 @@
 # TODO: pin dependency versions
 name: antspy
+channels:
+  - default
+  - conda-forge
 dependencies:
 - pandas
 - pyyaml
