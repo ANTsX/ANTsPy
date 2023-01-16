@@ -9,6 +9,7 @@ FROM continuumio/miniconda3:22.11.1 as builder
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       apt-transport-https \
+      bash \
       build-essential \
       ca-certificates \
       curl \
@@ -28,6 +29,8 @@ COPY . .
 # number of parallel make jobs
 ARG j=2
 RUN pip --no-cache-dir -v install .
+# run tests
+RUN bash tests/run_tests.sh
 
 # optimize layers
 FROM debian:bullseye-slim
