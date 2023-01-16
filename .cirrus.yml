@@ -103,8 +103,8 @@ docker_builder:
   name: build_unified_multiarch_image
   timeout_in: 120m
   depends_on:
-    - build_x86_64
-    - build_aarch64
+    - build_linux_x86_64_image
+    - build_linux_aarch64_image
   env:
     DOCKER_CLI_EXPERIMENTAL: enabled
     DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
