@@ -2,7 +2,7 @@
 # Note: QEMU emulated ppc64le build might take ~6 hours
 
 # Use conda to resolve dependencies cross-platform
-FROM continuumio/miniconda3:4.11.0 as builder
+FROM continuumio/miniconda3:22.11.1 as builder
 
 # install libpng to system for cross-architecture support
 # https://github.com/ANTsX/ANTs/issues/1069#issuecomment-681131938
