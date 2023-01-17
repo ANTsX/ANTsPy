@@ -26,8 +26,8 @@ WORKDIR /usr/local/src
 COPY environment.yml .
 RUN conda env update -n base
 COPY . .
-# number of parallel make jobs
-ARG j=2
+# parallelize make jobs
+ARG MAKEFLAGS="-j$(nproc)"
 RUN pip --no-cache-dir -v install .
 # run tests
 RUN bash tests/run_tests.sh
