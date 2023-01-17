@@ -39,6 +39,9 @@ linux_aarch64_task:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update
    - apt-get install -y python3-dev python-is-python3
+   get_version_script:
+   - echo "$(python setup.py --version)" >> ${ANTSPY_VERSION}
+   - echo ${ANTSPY_VERSION}
   <<: *BUILD_AND_STORE_WHEELS
 
 
@@ -120,10 +123,13 @@ docker_builder:
     docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD 
     docker manifest create noelmni/antspy:${TAG_MULTIARCH} --amend noelmni/antspy:${TAG_x86_64} noelmni/antspy:${TAG_AARCH64}
     docker manifest push noelmni/antspy:${TAG_MULTIARCH}
-    docker pull noelmni/antspy:${TAG_MULTIARCH}
-    docker tag noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}
-    docker tag noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:latest
-    docker push noelmni/antspy
+    curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > regctl
+    chmod 755 regctl
+    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}
+    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}-latest
+    if [[ "$ANTSPY_VERSION" != "" ]]; then
+      ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
+    fi
 
 
 # linux_x86_64_task:
