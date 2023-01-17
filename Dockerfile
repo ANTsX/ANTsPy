@@ -11,12 +11,8 @@ RUN apt-get update && \
       apt-transport-https \
       bash \
       build-essential \
-      ca-certificates \
-      curl \
       git \
-      gnupg \
-      libpng-dev \
-      software-properties-common
+      libpng-dev
 
 # install cmake binary using conda for multi-arch support
 # apt install fails because libssl1.0.0 is not available for newer Debian
@@ -26,9 +22,11 @@ WORKDIR /usr/local/src
 COPY environment.yml .
 RUN conda env update -n base
 COPY . .
+
 # parallelize make jobs
 ARG MAKEFLAGS="-j$(nproc)"
 RUN pip --no-cache-dir -v install .
+
 # run tests
 RUN bash tests/run_tests.sh
 
