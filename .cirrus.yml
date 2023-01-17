@@ -40,8 +40,10 @@ linux_aarch64_task:
    - apt-get update
    - apt-get install -y python3-dev python-is-python3
   get_version_script:
-   - echo "$(python setup.py --version)" >> ${ANTSPY_VERSION}
-   - echo ${ANTSPY_VERSION}
+   - ENVFILE=tmp.env
+   - echo "ANTSPY_VERSION=$(python setup.py --version)" >> ${ENVFILE}
+   # https://cirrus-ci.org/guide/writing-tasks/#http-cache
+   - curl -s -X POST --data-binary @${ENVFILE} http://$CIRRUS_HTTP_CACHE_HOST/${ENVFILE}
   <<: *BUILD_AND_STORE_WHEELS
 
 
@@ -127,6 +129,8 @@ docker_builder:
     chmod 755 regctl
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}-latest
+    curl -O http://$CIRRUS_HTTP_CACHE_HOST/tmp.env
+    export $(cat tmp.env)
     if [[ "$ANTSPY_VERSION" != "" ]]; then
       ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
     fi
