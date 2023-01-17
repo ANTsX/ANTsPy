@@ -9,6 +9,7 @@ dependencies:
 - statsmodels
 - matplotlib
 - Pillow
-pip:
-- nibabel
-- webcolors
+- pip
+- pip:
+  - nibabel
+  - webcolors
