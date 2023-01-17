@@ -1,3 +1,11 @@
+env:
+  CIBW_BUILD_VERBOSITY: 3
+  DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+  DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+  TAG_x86_64: ci-x86_64-tmp
+  TAG_AARCH64: ci-aarch64-tmp
+
+
 build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   install_cibuildwheel_script:
     - python -m pip install cibuildwheel==2.12.0
@@ -23,7 +31,6 @@ linux_aarch64_task:
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
       python -m pip install cmake ninja
-    CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
@@ -43,7 +50,7 @@ linux_aarch64_task:
    - ENVFILE=tmp.env
    - echo "ANTSPY_VERSION=$(python setup.py --version)" >> ${ENVFILE}
    # https://cirrus-ci.org/guide/writing-tasks/#http-cache
-   - curl -s -X POST --data-binary @${ENVFILE} http://$CIRRUS_HTTP_CACHE_HOST/${ENVFILE}
+   - curl -s -X POST --data-binary @${ENVFILE} http://${CIRRUS_HTTP_CACHE_HOST}/${ENVFILE}
   <<: *BUILD_AND_STORE_WHEELS
 
 
@@ -61,12 +68,11 @@ macos_arm64_task:
     CIBW_BEFORE_ALL_MACOS: |
       python -m ensurepip --upgrade
       conda install cmake ninja libpng
-    CIBW_BUILD_VERBOSITY: 3
     CIBW_BEFORE_TEST: >
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     CIBW_TEST_SKIP: cp38-macosx_*:arm64
-    PATH: $HOME/mambaforge/bin/:$PATH
+    PATH: $HOME/mambaforge/bin/:${PATH}
     CONDA_HOME: $HOME/mambaforge
   conda_script:
     - curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
@@ -77,15 +83,10 @@ macos_arm64_task:
 docker_builder:
   name: build_linux_x86_64_image
   timeout_in: 120m
-  env:
-    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-    TAG_x86_64: ci-x86_64-tmp
-    CIBW_BUILD_VERBOSITY: 3
   setup_script:
     - docker --version
   build_script: docker build --tag noelmni/antspy:${TAG_x86_64} .
-  login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  login_script: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
   push_script: docker push noelmni/antspy:${TAG_x86_64}
 
 
@@ -94,14 +95,10 @@ docker_builder:
   timeout_in: 120m
   env:
     CIRRUS_ARCH: arm64
-    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-    TAG_AARCH64: ci-aarch64-tmp
-    CIBW_BUILD_VERBOSITY: 3
   setup_script:
     - docker --version
   build_script: docker build --tag noelmni/antspy:${TAG_AARCH64} .
-  login_script: docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+  login_script: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
   push_script: docker push noelmni/antspy:${TAG_AARCH64}
 
 
@@ -113,23 +110,19 @@ docker_builder:
     - build_linux_aarch64_image
   env:
     DOCKER_CLI_EXPERIMENTAL: enabled
-    DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-    DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
     BRANCH_TAG: ${CIRRUS_BRANCH}
     SHORT_SHA_TAG: ${CIRRUS_CHANGE_IN_REPO:0:7}
     TAG_MULTIARCH: ${BRANCH_TAG}-{SHORT_SHA_TAG}
-    TAG_AARCH64: ci-aarch64-tmp
-    TAG_x86_64: ci-x86_64-tmp
   script: |
     docker info
-    docker login --username=$DOCKER_USERNAME --password=$DOCKER_PASSWORD 
+    docker login --username=${DOCKER_USERNAME} --password=${DOCKER_PASSWORD}
     docker manifest create noelmni/antspy:${TAG_MULTIARCH} --amend noelmni/antspy:${TAG_x86_64} noelmni/antspy:${TAG_AARCH64}
     docker manifest push noelmni/antspy:${TAG_MULTIARCH}
     curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > regctl
     chmod 755 regctl
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}-latest
-    curl -O http://$CIRRUS_HTTP_CACHE_HOST/tmp.env
+    curl -O http://${CIRRUS_HTTP_CACHE_HOST}/tmp.env
     export $(cat tmp.env)
     if [[ "$ANTSPY_VERSION" != "" ]]; then
       ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
@@ -151,7 +144,6 @@ docker_builder:
 #     CIBW_BEFORE_ALL_LINUX: |
 #       yum install -y gcc-c++ libpng-devel libpng
 #       python -m pip install cmake ninja
-#     CIBW_BUILD_VERBOSITY: 3
 #     CIBW_BEFORE_TEST: >
 #       python -m pip install --find-links=wheelhouse/ -r requirements.txt
 #     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
