@@ -39,7 +39,7 @@ linux_aarch64_task:
    - export DEBIAN_FRONTEND=noninteractive
    - apt-get update
    - apt-get install -y python3-dev python-is-python3
-   get_version_script:
+  get_version_script:
    - echo "$(python setup.py --version)" >> ${ANTSPY_VERSION}
    - echo ${ANTSPY_VERSION}
   <<: *BUILD_AND_STORE_WHEELS
