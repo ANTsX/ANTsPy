@@ -47,7 +47,7 @@ linux_aarch64_task:
   <<: *BUILD_AND_STORE_WHEELS
 
 
-macos_arm64_wheel_task:
+macos_arm64_task:
   name: build_macos_arm64_wheels
   macos_instance:
     image: ghcr.io/cirruslabs/macos-monterey-xcode
