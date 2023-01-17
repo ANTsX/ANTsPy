@@ -23,8 +23,8 @@ COPY environment.yml .
 RUN conda env update -n base
 COPY . .
 
-# parallelize make jobs
-ARG MAKEFLAGS="-j$(nproc)"
+# number of parallel make jobs
+ARG j=2
 RUN pip --no-cache-dir -v install .
 
 # run tests
