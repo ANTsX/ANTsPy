@@ -110,10 +110,16 @@ docker_builder:
     - build_linux_aarch64_image
   env:
     DOCKER_CLI_EXPERIMENTAL: enabled
-    BRANCH_TAG: ${CIRRUS_BRANCH}
-    SHORT_SHA_TAG: ${CIRRUS_CHANGE_IN_REPO:0:7}
-    TAG_MULTIARCH: ${BRANCH_TAG}-${SHORT_SHA_TAG}
   script: |
+    # define docker tags
+    SHORT_SHA_TAG=$(git rev-parse --short ${CIRRUS_CHANGE_IN_REPO})
+    TAG_MULTIARCH=${CIRRUS_BRANCH}-${SHORT_SHA_TAG}
+    if [[ "${CIRRUS_BRANCH}" == "master" ]]; then
+      TAG_LATEST=latest
+    else
+      TAG_LATEST=${CIRRUS_BRANCH}-latest
+    fi
+
     # combine docker images into one
     docker info
     docker login --username=${DOCKER_USERNAME} --password=${DOCKER_PASSWORD}
@@ -123,8 +129,8 @@ docker_builder:
     # install regctl to streamline docker tagging
     curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > regctl
     chmod 755 regctl
-    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}
-    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}-latest
+    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${CIRRUS_BRANCH}
+    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${TAG_LATEST}
 
     # retrieve and export environment variable(s)
     curl -O http://${CIRRUS_HTTP_CACHE_HOST}/tmp.env
