@@ -112,7 +112,7 @@ docker_builder:
     DOCKER_CLI_EXPERIMENTAL: enabled
     BRANCH_TAG: ${CIRRUS_BRANCH}
     SHORT_SHA_TAG: ${CIRRUS_CHANGE_IN_REPO:0:7}
-    TAG_MULTIARCH: ${BRANCH_TAG}-{SHORT_SHA_TAG}
+    TAG_MULTIARCH: ${BRANCH_TAG}-${SHORT_SHA_TAG}
   script: |
     docker info
     docker login --username=${DOCKER_USERNAME} --password=${DOCKER_PASSWORD}
