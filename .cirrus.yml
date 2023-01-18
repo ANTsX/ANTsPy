@@ -114,16 +114,23 @@ docker_builder:
     SHORT_SHA_TAG: ${CIRRUS_CHANGE_IN_REPO:0:7}
     TAG_MULTIARCH: ${BRANCH_TAG}-${SHORT_SHA_TAG}
   script: |
+    # combine docker images into one
     docker info
     docker login --username=${DOCKER_USERNAME} --password=${DOCKER_PASSWORD}
     docker manifest create noelmni/antspy:${TAG_MULTIARCH} --amend noelmni/antspy:${TAG_x86_64} noelmni/antspy:${TAG_AARCH64}
     docker manifest push noelmni/antspy:${TAG_MULTIARCH}
+
+    # install regctl to streamline docker tagging
     curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > regctl
     chmod 755 regctl
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}-latest
+
+    # retrieve and export environment variable(s)
     curl -O http://${CIRRUS_HTTP_CACHE_HOST}/tmp.env
     export $(cat tmp.env)
+
+    # tag the image with version information on release
     if [ "${ANTSPY_VERSION}" != "" ] && [ "${CIRRUS_RELEASE}" != "" ]; then
       ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
     fi
