@@ -131,9 +131,9 @@ docker_builder:
     export $(cat tmp.env)
 
     # tag the image with version information on release
-    if [ "${ANTSPY_VERSION}" != "" ] && [ "${CIRRUS_RELEASE}" != "" ]; then
-      ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
-    fi
+    # if [ "${ANTSPY_VERSION}" != "" ] && [ "${CIRRUS_RELEASE}" != "" ]; then
+    ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
+    # fi
 
 
 # linux_x86_64_task:
