@@ -124,7 +124,7 @@ docker_builder:
     ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:${BRANCH_TAG}-latest
     curl -O http://${CIRRUS_HTTP_CACHE_HOST}/tmp.env
     export $(cat tmp.env)
-    if [[ "$ANTSPY_VERSION" != "" ]]; then
+    if [ "${ANTSPY_VERSION}" != "" ] && [ "${CIRRUS_RELEASE}" != "" ]; then
       ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
     fi
 
