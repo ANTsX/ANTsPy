@@ -43,9 +43,9 @@ jobs:
           - os: ubuntu-latest
             python: 310
             platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: 311
-            platform_id: manylinux_x86_64
+          # - os: ubuntu-latest
+          #  python: 311
+          #  platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-latest
