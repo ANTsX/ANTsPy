@@ -62,10 +62,10 @@ macos_arm64_task:
     image: ghcr.io/cirruslabs/macos-monterey-xcode
   env:
     matrix:
-    - CIBW_BUILD: cp38-macosx_arm64
-    - CIBW_BUILD: cp39-macosx_arm64
-    - CIBW_BUILD: cp310-macosx_arm64
-    - CIBW_BUILD: cp311-macosx_arm64
+      - CIBW_BUILD: cp38-macosx_arm64
+      - CIBW_BUILD: cp39-macosx_arm64
+      - CIBW_BUILD: cp310-macosx_arm64
+      - CIBW_BUILD: cp311-macosx_arm64
     CIBW_ARCHS_MACOS: arm64
     CIBW_BEFORE_ALL_MACOS: |
       python -m ensurepip --upgrade
@@ -151,7 +151,7 @@ docker_builder:
     curl -O http://${CIRRUS_HTTP_CACHE_HOST}/tmp.env
     export $(cat tmp.env)
 
-    # tag the image with version information on release
+    # tag the image with version information only on release
     if [ "${ANTSPY_VERSION}" != "" ] && [ "${CIRRUS_RELEASE}" != "" ]; then
       ./regctl image copy noelmni/antspy:${TAG_MULTIARCH} noelmni/antspy:v${ANTSPY_VERSION}
     fi
