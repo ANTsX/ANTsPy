@@ -18,6 +18,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_aarch64_task:
   name: build_linux_aarch64_wheels
   timeout_in: 120m
+  only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_BRANCH} =~ 'pull/.*'
   env:
     matrix:
       - CIBW_BUILD: "cp36-manylinux*"
@@ -56,6 +57,7 @@ linux_aarch64_task:
 
 macos_arm64_task:
   name: build_macos_arm64_wheels
+  only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_BRANCH} =~ 'pull/.*'
   macos_instance:
     image: ghcr.io/cirruslabs/macos-monterey-xcode
   env:
@@ -83,6 +85,12 @@ macos_arm64_task:
 docker_builder:
   name: build_linux_x86_64_image
   timeout_in: 120m
+  only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_BRANCH} =~ 'pull/.*'
+  required_pr_labels: 
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
   setup_script:
     - docker --version
   build_script: docker build --tag noelmni/antspy:${TAG_x86_64} .
@@ -93,6 +101,12 @@ docker_builder:
 docker_builder:
   name: build_linux_aarch64_image
   timeout_in: 120m
+  only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} == 'v*' || ${CIRRUS_BRANCH} =~ 'pull/.*'
+  required_pr_labels: 
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
   env:
     CIRRUS_ARCH: arm64
   setup_script:
@@ -105,6 +119,7 @@ docker_builder:
 docker_builder:
   name: build_unified_multiarch_image
   timeout_in: 120m
+  only_if: ${CIRRUS_BRANCH} !=~ 'pull/.*'
   depends_on:
     - build_linux_x86_64_image
     - build_linux_aarch64_image
@@ -144,6 +159,7 @@ docker_builder:
 
 # linux_x86_64_task:
 #   name: Build Linux x86_64 wheels
+#   only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_BRANCH} =~ 'pull/.*'
 #   timeout_in: 120m
 #   env:
 #     matrix:
