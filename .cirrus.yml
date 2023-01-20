@@ -135,7 +135,10 @@ docker_builder:
   setup_script:
     - docker --version
   build_script: docker build --tag ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_x86_64} .
-  login_script: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+  login_script: |
+    if [[ "${CIRRUS_PR}" == "" ]]; then
+      docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+    fi
   push_script: docker push ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_x86_64}
 
 
@@ -153,7 +156,10 @@ docker_builder:
   setup_script:
     - docker --version
   build_script: docker build --tag ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_AARCH64} .
-  login_script: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+  login_script: |
+    if [[ "${CIRRUS_PR}" == "" ]]; then
+      docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+    fi
   push_script: docker push ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_AARCH64}
 
 
