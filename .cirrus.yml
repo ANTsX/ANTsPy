@@ -22,6 +22,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     - pipx run build --sdist # make a source distribution
   upload_releases_script: |
     #!/usr/bin/env bash
+
     if [[ "${CIRRUS_RELEASE}" == "" ]]; then
       CIRRUS_RELEASE=$(curl -sL https://api.github.com/repos/${CIRRUS_REPO_FULL_NAME}/releases/tags/${CIRRUS_TAG} | jq -r '.id')
       if [[ "${CIRRUS_RELEASE}" == "null" ]]; then
@@ -29,10 +30,12 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
         exit 0
       fi
     fi
+
     if [[ "${GITHUB_TOKEN}" == "" ]]; then
       echo "Please provide GitHub access token via GITHUB_TOKEN environment variable!"
       exit 1
     fi
+
      # deploy wheels to GitHub
     for WHEELS in wheelhouse/*
     do
@@ -46,8 +49,10 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
         --header "Content-Type: application/octet-stream" \
         ${URL_TO_UPLOAD}
     done
+
     # deploy source distribution to PyPI using 'twine'
     pipx run twine upload -r pypi dist/*
+
     # deploy wheels to PyPI
     pipx run twine upload -r pypi wheelhouse/*
   sdist_artifacts:
@@ -173,9 +178,12 @@ docker_builder:
   env:
     DOCKER_CLI_EXPERIMENTAL: enabled
   script: |
+    #!/usr/bin/env bash
+
     # define docker tags
     SHORT_SHA_TAG=$(git rev-parse --short ${CIRRUS_CHANGE_IN_REPO})
     TAG_MULTIARCH=${CIRRUS_BRANCH}-${SHORT_SHA_TAG}
+    
     if [[ "${CIRRUS_BRANCH}" == "master" ]]; then
       TAG_LATEST=latest
     else
