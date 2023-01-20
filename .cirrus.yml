@@ -2,6 +2,7 @@ env:
   CIBW_BUILD_VERBOSITY: 3
   DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
   DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+  GITHUB_TOKEN: ENCRYPTED[!PLACEHOLDER_FOR_GITHUB_TOKEN!]
   TAG_x86_64: ci-x86_64-tmp
   TAG_AARCH64: ci-aarch64-tmp
 
@@ -11,6 +12,31 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     - python -m pip install cibuildwheel==2.12.0
   run_cibuildwheel_script:
     - cibuildwheel
+  upload_releases_script: |
+    #!/usr/bin/env bash
+    if [[ "${CIRRUS_RELEASE}" == "" ]]; then
+      CIRRUS_RELEASE=$(curl -sL https://api.github.com/repos/${CIRRUS_REPO_FULL_NAME}/releases/tags/${CIRRUS_TAG} | jq -r '.id')
+      if [[ "${CIRRUS_RELEASE}" == "null" ]]; then
+        echo "Failed to find a release associated with this tag!"
+        exit 0
+      fi
+    fi
+    if [[ "${GITHUB_TOKEN}" == "" ]]; then
+      echo "Please provide GitHub access token via GITHUB_TOKEN environment variable!"
+      exit 1
+    fi
+    for WHEELS in wheelhouse/*
+    do
+      echo "Uploading ${WHEELS}..."
+      NAME=$(basename "${WHEELS}")
+      URL_TO_UPLOAD="https://uploads.github.com/repos/${CIRRUS_REPO_FULL_NAME}/releases/${CIRRUS_RELEASE}/assets?name=${NAME}"
+      echo "Uploading to ${URL_TO_UPLOAD}"
+      curl -X POST \
+        --data-binary @${WHEELS} \
+        --header "Authorization: token ${GITHUB_TOKEN}" \
+        --header "Content-Type: application/octet-stream" \
+        ${URL_TO_UPLOAD}
+    done
   wheels_artifacts:
     path: "wheelhouse/*"
 
