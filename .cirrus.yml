@@ -150,7 +150,7 @@ docker_builder:
 docker_builder:
   name: build_linux_aarch64_image
   timeout_in: 120m
-  only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} == 'v*' || ${CIRRUS_BRANCH} =~ 'pull/.*'
+  only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_BRANCH} =~ 'pull/.*'
   required_pr_labels: 
     - opened
     - reopened
@@ -183,7 +183,7 @@ docker_builder:
     # define docker tags
     SHORT_SHA_TAG=$(git rev-parse --short ${CIRRUS_CHANGE_IN_REPO})
     TAG_MULTIARCH=${CIRRUS_BRANCH}-${SHORT_SHA_TAG}
-    
+
     if [[ "${CIRRUS_BRANCH}" == "master" ]]; then
       TAG_LATEST=latest
     else
