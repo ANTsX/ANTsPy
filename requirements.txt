@@ -8,4 +8,4 @@ webcolors
 matplotlib
 Pillow
 nibabel
-Cython>=0.23.4 --install-option='--no-cython-compile'; python_version < "3.7"
+Cython>=0.23.4; python_version < "3.7"
