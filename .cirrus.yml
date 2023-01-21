@@ -75,11 +75,11 @@ linux_aarch64_task:
       - CIBW_BUILD: "cp311-manylinux*"
     CIBW_ARCHS_LINUX: "auto"
     CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
-    CIBW_BEFORE_ALL_LINUX: |
-      yum install -y gcc-c++ libpng-devel libpng
+    CIBW_BEFORE_ALL_LINUX: >
+      yum install -y gcc-c++ libpng-devel libpng &&
       python -m pip install cmake ninja
-    CIBW_BEFORE_TEST: |
-      python -m pip install --find-links=wheelhouse/ antspyx
+    CIBW_BEFORE_TEST: >
+      python -m pip install --find-links=wheelhouse/ antspyx &&
       python -m pip install -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
@@ -114,11 +114,11 @@ macos_arm64_task:
       - CIBW_BUILD: cp310-macosx_arm64
       - CIBW_BUILD: cp311-macosx_arm64
     CIBW_ARCHS_MACOS: arm64
-    CIBW_BEFORE_ALL_MACOS: |
-      python -m ensurepip --upgrade
+    CIBW_BEFORE_ALL_MACOS: >
+      python -m ensurepip --upgrade &&
       conda install cmake ninja libpng
     CIBW_BEFORE_TEST: >
-      python -m pip install --find-links=wheelhouse/ antspyx
+      python -m pip install --find-links=wheelhouse/ antspyx &&
       python -m pip install -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     CIBW_TEST_SKIP: cp38-macosx_*:arm64
