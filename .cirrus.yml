@@ -78,8 +78,9 @@ linux_aarch64_task:
     CIBW_BEFORE_ALL_LINUX: |
       yum install -y gcc-c++ libpng-devel libpng
       python -m pip install cmake ninja
-    CIBW_BEFORE_TEST: >
-      python -m pip install --find-links=wheelhouse/ -r requirements.txt
+    CIBW_BEFORE_TEST: |
+      python -m pip install --find-links=wheelhouse/ antspyx
+      python -m pip install -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
@@ -117,7 +118,8 @@ macos_arm64_task:
       python -m ensurepip --upgrade
       conda install cmake ninja libpng
     CIBW_BEFORE_TEST: >
-      python -m pip install --find-links=wheelhouse/ -r requirements.txt
+      python -m pip install --find-links=wheelhouse/ antspyx
+      python -m pip install -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     CIBW_TEST_SKIP: cp38-macosx_*:arm64
     PATH: $HOME/mambaforge/bin/:${PATH}
