@@ -64,7 +64,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
 linux_aarch64_task:
   name: build_linux_aarch64_wheels
   timeout_in: 120m
-  only_if: ${CIRRUS_PR} != ''
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
   env:
     matrix:
       - CIBW_BUILD: "cp36-manylinux*"
@@ -103,7 +103,7 @@ linux_aarch64_task:
 
 macos_arm64_task:
   name: build_macos_arm64_wheels
-  only_if: ${CIRRUS_PR} != ''
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
   macos_instance:
     image: ghcr.io/cirruslabs/macos-monterey-xcode
   env:
@@ -131,7 +131,7 @@ macos_arm64_task:
 docker_builder:
   name: build_linux_x86_64_image
   timeout_in: 120m
-  only_if: ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
   required_pr_labels: 
     - opened
     - reopened
@@ -150,7 +150,7 @@ docker_builder:
 docker_builder:
   name: build_linux_aarch64_image
   timeout_in: 120m
-  only_if: ${CIRRUS_PR} != ''
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
   required_pr_labels: 
     - opened
     - reopened
@@ -171,7 +171,7 @@ docker_builder:
 docker_builder:
   name: build_unified_multiarch_image
   timeout_in: 120m
-  only_if: ${CIRRUS_PR} != ''
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
   depends_on:
     - build_linux_x86_64_image
     - build_linux_aarch64_image
