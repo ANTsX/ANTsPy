@@ -24,11 +24,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     #!/usr/bin/env bash
 
     if [[ "${CIRRUS_RELEASE}" == "" ]]; then
-      CIRRUS_RELEASE=$(curl -sL https://api.github.com/repos/${CIRRUS_REPO_FULL_NAME}/releases/tags/${CIRRUS_TAG} | jq -r '.id')
-      if [[ "${CIRRUS_RELEASE}" == "null" ]]; then
-        echo "Failed to find a release associated with this tag!"
         exit 0
-      fi
     fi
 
     if [[ "${GITHUB_TOKEN}" == "" ]]; then
@@ -49,6 +45,12 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
         --header "Content-Type: application/octet-stream" \
         ${URL_TO_UPLOAD}
     done
+  upload_pypi_script: |
+    #!/usr/bin/env bash
+
+    if [[ "${CIRRUS_RELEASE}" == "" ]]; then
+        exit 0
+    fi
 
     # deploy source distribution to PyPI using 'twine'
     pipx run twine upload -r pypi dist/*
@@ -75,12 +77,11 @@ linux_aarch64_task:
       - CIBW_BUILD: "cp311-manylinux*"
     CIBW_ARCHS_LINUX: "auto"
     CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
-    CIBW_BEFORE_ALL_LINUX: |
-      yum install -y gcc-c++ libpng-devel libpng
+    CIBW_BEFORE_ALL_LINUX: >
+      yum install -y gcc-c++ libpng-devel libpng &&
       python -m pip install cmake ninja
     CIBW_BEFORE_TEST: |
-      python -m pip install --find-links=wheelhouse/ antspyx
-      python -m pip install -r requirements.txt
+      python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
   compute_engine_instance:
@@ -114,12 +115,11 @@ macos_arm64_task:
       - CIBW_BUILD: cp310-macosx_arm64
       - CIBW_BUILD: cp311-macosx_arm64
     CIBW_ARCHS_MACOS: arm64
-    CIBW_BEFORE_ALL_MACOS: |
-      python -m ensurepip --upgrade
+    CIBW_BEFORE_ALL_MACOS: >
+      python -m ensurepip --upgrade &&
       conda install cmake ninja libpng
-    CIBW_BEFORE_TEST: >
-      python -m pip install --find-links=wheelhouse/ antspyx
-      python -m pip install -r requirements.txt
+    CIBW_BEFORE_TEST: |
+      python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
     CIBW_TEST_SKIP: cp38-macosx_*:arm64
     PATH: $HOME/mambaforge/bin/:${PATH}
