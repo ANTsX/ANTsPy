@@ -24,11 +24,7 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
     #!/usr/bin/env bash
 
     if [[ "${CIRRUS_RELEASE}" == "" ]]; then
-      CIRRUS_RELEASE=$(curl -sL https://api.github.com/repos/${CIRRUS_REPO_FULL_NAME}/releases/tags/${CIRRUS_TAG} | jq -r '.id')
-      if [[ "${CIRRUS_RELEASE}" == "null" ]]; then
-        echo "Failed to find a release associated with this tag!"
         exit 0
-      fi
     fi
 
     if [[ "${GITHUB_TOKEN}" == "" ]]; then
@@ -49,6 +45,12 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
         --header "Content-Type: application/octet-stream" \
         ${URL_TO_UPLOAD}
     done
+  upload_pypi_script: |
+    #!/usr/bin/env bash
+
+    if [[ "${CIRRUS_RELEASE}" == "" ]]; then
+        exit 0
+    fi
 
     # deploy source distribution to PyPI using 'twine'
     pipx run twine upload -r pypi dist/*
