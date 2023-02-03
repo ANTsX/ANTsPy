@@ -595,25 +595,25 @@ if HAS_PY3:
     # Set partial class methods for any functions which take an ANTsImage as the first argument
     for k, v in utils.__dict__.items():
         if callable(v):
-            args = inspect.getargspec(getattr(utils,k)).args
+            args = inspect.getfullargspec(getattr(utils,k)).args
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 
     for k, v in registration.__dict__.items():
         if callable(v):
-            args = inspect.getargspec(getattr(registration,k)).args
+            args = inspect.getfullargspec(getattr(registration,k)).args
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 
     for k, v in segmentation.__dict__.items():
         if callable(v):
-            args = inspect.getargspec(getattr(segmentation,k)).args
+            args = inspect.getfullargspec(getattr(segmentation,k)).args
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 
     for k, v in viz.__dict__.items():
         if callable(v):
-            args = inspect.getargspec(getattr(viz,k)).args
+            args = inspect.getfullargspec(getattr(viz,k)).args
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 

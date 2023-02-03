@@ -1,0 +1,247 @@
+env:
+  CIBW_BUILD_VERBOSITY: 3
+  DOCKERHUB_ORG: noelmni
+  DOCKERHUB_REPO: antspy
+  DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
+  DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
+  GITHUB_TOKEN: ENCRYPTED[!PLACEHOLDER_FOR_GITHUB_TOKEN!]
+  TWINE_USERNAME: ENCRYPTED[!PLACEHOLDER_FOR_TWINE_USERNAME!] # username for pypi
+  TWINE_PASSWORD: ENCRYPTED[!PLACEHOLDER_FOR_TWINE_PASSWORD!] # password for pypi
+  TAG_x86_64: ci-x86_64-tmp
+  TAG_AARCH64: ci-aarch64-tmp
+
+
+build_and_store_wheels: &BUILD_AND_STORE_WHEELS
+  install_cibuildwheel_pipx_script:
+    - python -m pip install cibuildwheel==2.12.0 pipx jq
+    - python -m pipx ensurepath
+  run_cibuildwheel_script:
+    - cibuildwheel
+  make_sdist_script:
+    - rm -rf dist # clear out your 'dist' folder 
+    - pipx run build --sdist # make a source distribution
+  upload_releases_script: |
+    #!/usr/bin/env bash
+
+    if [[ "${CIRRUS_RELEASE}" == "" ]]; then
+        exit 0
+    fi
+
+    if [[ "${GITHUB_TOKEN}" == "" ]]; then
+      echo "Please provide GitHub access token via GITHUB_TOKEN environment variable!"
+      exit 1
+    fi
+
+     # deploy wheels to GitHub
+    for WHEELS in wheelhouse/*
+    do
+      echo "Uploading ${WHEELS}..."
+      NAME=$(basename "${WHEELS}")
+      URL_TO_UPLOAD="https://uploads.github.com/repos/${CIRRUS_REPO_FULL_NAME}/releases/${CIRRUS_RELEASE}/assets?name=${NAME}"
+      echo "Uploading to ${URL_TO_UPLOAD}"
+      curl -X POST \
+        --data-binary @${WHEELS} \
+        --header "Authorization: token ${GITHUB_TOKEN}" \
+        --header "Content-Type: application/octet-stream" \
+        ${URL_TO_UPLOAD}
+    done
+  upload_pypi_script: |
+    #!/usr/bin/env bash
+
+    if [[ "${CIRRUS_RELEASE}" == "" ]]; then
+        exit 0
+    fi
+
+    # deploy source distribution to PyPI using 'twine'
+    pipx run twine upload -r pypi dist/*
+
+    # deploy wheels to PyPI
+    pipx run twine upload -r pypi wheelhouse/*
+  sdist_artifacts:
+    path: "dist/*.tar.gz"
+  wheels_artifacts:
+    path: "wheelhouse/*"
+
+
+linux_aarch64_task:
+  name: build_linux_aarch64_wheels
+  timeout_in: 120m
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
+  env:
+    matrix:
+      - CIBW_BUILD: "cp36-manylinux*"
+      - CIBW_BUILD: "cp37-manylinux*"
+      - CIBW_BUILD: "cp38-manylinux*"
+      - CIBW_BUILD: "cp39-manylinux*"
+      - CIBW_BUILD: "cp310-manylinux*"
+      - CIBW_BUILD: "cp311-manylinux*"
+    CIBW_ARCHS_LINUX: "auto"
+    CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+    CIBW_BEFORE_ALL_LINUX: >
+      yum install -y gcc-c++ libpng-devel libpng &&
+      python -m pip install cmake ninja
+    CIBW_BEFORE_TEST: |
+      python -m pip install --find-links=wheelhouse/ -r requirements.txt
+    CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
+    # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-builder-arm64
+    architecture: arm64
+    platform: linux
+    cpu: 2
+    memory: 2G
+  install_pre_requirements_script:
+   - export DEBIAN_FRONTEND=noninteractive
+   - apt-get update
+   - apt-get install -y python3-dev python-is-python3
+  get_version_script:
+   - ENVFILE=tmp.env
+   - echo "ANTSPY_VERSION=$(python setup.py --version)" >> ${ENVFILE}
+   # https://cirrus-ci.org/guide/writing-tasks/#http-cache
+   - curl -s -X POST --data-binary @${ENVFILE} http://${CIRRUS_HTTP_CACHE_HOST}/${ENVFILE}
+  <<: *BUILD_AND_STORE_WHEELS
+
+
+macos_arm64_task:
+  name: build_macos_arm64_wheels
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-monterey-xcode
+  env:
+    matrix:
+      - CIBW_BUILD: cp38-macosx_arm64
+      - CIBW_BUILD: cp39-macosx_arm64
+      - CIBW_BUILD: cp310-macosx_arm64
+      - CIBW_BUILD: cp311-macosx_arm64
+    CIBW_ARCHS_MACOS: arm64
+    CIBW_BEFORE_ALL_MACOS: >
+      python -m ensurepip --upgrade &&
+      conda install cmake ninja libpng
+    CIBW_BEFORE_TEST: |
+      python -m pip install --find-links=wheelhouse/ -r requirements.txt
+    CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
+    CIBW_TEST_SKIP: cp38-macosx_*:arm64
+    PATH: $HOME/mambaforge/bin/:${PATH}
+    CONDA_HOME: $HOME/mambaforge
+  conda_script:
+    - curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
+    - bash ~/mambaforge.sh -b -p ~/mambaforge
+  <<: *BUILD_AND_STORE_WHEELS
+
+
+docker_builder:
+  name: build_linux_x86_64_image
+  timeout_in: 120m
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
+  required_pr_labels: 
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
+  setup_script:
+    - docker --version
+  build_script: docker build --tag ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_x86_64} .
+  login_script: |
+    if [[ "${CIRRUS_PR}" == '' ]]; then
+      docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+    fi
+  push_script: docker push ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_x86_64}
+
+
+docker_builder:
+  name: build_linux_aarch64_image
+  timeout_in: 120m
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
+  required_pr_labels: 
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
+  env:
+    CIRRUS_ARCH: arm64
+  setup_script:
+    - docker --version
+  build_script: docker build --tag ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_AARCH64} .
+  login_script: |
+    if [[ "${CIRRUS_PR}" == '' ]]; then
+      docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+    fi
+  push_script: docker push ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_AARCH64}
+
+
+docker_builder:
+  name: build_unified_multiarch_image
+  timeout_in: 120m
+  # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_TAG} =~ 'v*' || ${CIRRUS_PR} != ''
+  depends_on:
+    - build_linux_x86_64_image
+    - build_linux_aarch64_image
+  env:
+    DOCKER_CLI_EXPERIMENTAL: enabled
+  script: |
+    #!/usr/bin/env bash
+
+    # define docker tags
+    SHORT_SHA_TAG=$(git rev-parse --short ${CIRRUS_CHANGE_IN_REPO})
+    TAG_MULTIARCH=${CIRRUS_BRANCH}-${SHORT_SHA_TAG}
+
+    if [[ "${CIRRUS_BRANCH}" == "master" ]]; then
+      TAG_LATEST=latest
+    else
+      TAG_LATEST=${CIRRUS_BRANCH}-latest
+    fi
+
+    # combine docker images into one
+    docker info
+    docker login --username=${DOCKER_USERNAME} --password=${DOCKER_PASSWORD}
+    docker manifest create ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_MULTIARCH} --amend ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_x86_64} ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_AARCH64}
+    docker manifest push ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_MULTIARCH}
+
+    # install regctl to streamline docker tagging
+    curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > regctl
+    chmod 755 regctl
+    ./regctl image copy ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_MULTIARCH} ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${CIRRUS_BRANCH}
+    ./regctl image copy ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_MULTIARCH} ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_LATEST}
+
+    # retrieve and export environment variable(s)
+    curl -O http://${CIRRUS_HTTP_CACHE_HOST}/tmp.env
+    export $(cat tmp.env)
+
+    # tag the image with version information only on release
+    if [ "${ANTSPY_VERSION}" != "" ] && [ "${CIRRUS_RELEASE}" != "" ]; then
+      ./regctl image copy ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:${TAG_MULTIARCH} ${DOCKERHUB_ORG}/${DOCKERHUB_REPO}:v${ANTSPY_VERSION}
+    fi
+
+
+# linux_x86_64_task:
+#   name: Build Linux x86_64 wheels
+#   only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_BRANCH} =~ 'pull/.*'
+#   timeout_in: 120m
+#   env:
+#     matrix:
+#       - CIBW_BUILD: "cp36-manylinux*"
+#       - CIBW_BUILD: "cp37-manylinux*"
+#       - CIBW_BUILD: "cp38-manylinux*"
+#       - CIBW_BUILD: "cp39-manylinux*"
+#       - CIBW_BUILD: "cp310-manylinux*"
+#     CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+#     CIBW_ARCHS_LINUX: "auto64"
+#     CIBW_BEFORE_ALL_LINUX: |
+#       yum install -y gcc-c++ libpng-devel libpng
+#       python -m pip install cmake ninja
+#     CIBW_BEFORE_TEST: >
+#       python -m pip install --find-links=wheelhouse/ -r requirements.txt
+#     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
+#     # CIBW_ENVIRONMENT: PIP_GLOBAL_OPTION="build_ext -j4"
+#   compute_engine_instance:
+#     image_project: cirrus-images
+#     image: family/docker-builder
+#     platform: linux
+#     cpu: 2
+#     memory: 2G
+#   install_pre_requirements_script:
+#    - export DEBIAN_FRONTEND=noninteractive
+#    - apt-get update
+#    - apt-get install -y python3-dev python-is-python3
+#   <<: *BUILD_AND_STORE_WHEELS

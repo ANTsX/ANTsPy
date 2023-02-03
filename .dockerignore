@@ -1,3 +1,4 @@
+.cirrus.yml
 .circleci/
 .github/
 appveyor/
