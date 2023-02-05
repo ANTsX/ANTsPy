@@ -1472,6 +1472,11 @@ def motion_correction(
             See ants registration for details.
 
         mask: mask for image (ND-1).  If not provided, estimated from data.
+            2023-02-05: a performance change - previously, we estimated a mask
+            when None is provided and would pass this to the registration.  this
+            impairs performance if the mask estimate is bad.  in such a case, we
+            prefer no mask at all.  As such, we no longer pass the mask to the
+            registration when None is provided.
 
         fdOffset: offset value to use in framewise displacement calculation
 
@@ -1511,6 +1516,9 @@ def motion_correction(
             fixed = fixed + utils.iMath(temp,"Normalize") * wt
     if mask is None:
         mask = utils.get_mask(fixed)
+        useMask=None
+    else:
+        useMask=mask
     FD = np.zeros(nTimePoints)
     motion_parameters = list()
     motion_corrected = list()
@@ -1548,12 +1556,12 @@ def motion_correction(
             if outprefix != "":
                 outprefixloc = outprefix + "_" + str.zfill( str(k), 5 ) + "_"
                 myreg = registration(
-                    fixed, temp, type_of_transform=type_of_transform, mask=mask,
+                    fixed, temp, type_of_transform=type_of_transform, mask=useMask,
                     outprefix=outprefixloc, **kwargs
                 )
             else:
                 myreg = registration(
-                    fixed, temp, type_of_transform=type_of_transform, mask=mask, **kwargs
+                    fixed, temp, type_of_transform=type_of_transform, mask=useMask, **kwargs
                 )
             fdptsTxI = apply_transforms_to_points(
                 idim - 1, fdpts, myreg["fwdtransforms"]
