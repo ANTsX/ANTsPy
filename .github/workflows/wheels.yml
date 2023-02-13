@@ -12,9 +12,6 @@ jobs:
         include:
           # Windows 64-bit
           - os: windows-latest
-            python: 36
-            platform_id: win_amd64
-          - os: windows-latest
             python: 37
             platform_id: win_amd64
           - os: windows-latest
@@ -29,9 +26,6 @@ jobs:
 
           # Linux 64-bit
           - os: ubuntu-latest
-            python: 36
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
             python: 37
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
@@ -43,15 +37,11 @@ jobs:
           - os: ubuntu-latest
             python: 310
             platform_id: manylinux_x86_64
-          # - os: ubuntu-latest
-          #  python: 311
-          #  platform_id: manylinux_x86_64
+          - os: ubuntu-latest
+            python: 311
+            platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
-          - os: macos-latest
-            python: 36
-            arch: x86_64
-            platform_id: macosx_x86_64
           - os: macos-latest
             python: 37
             arch: x86_64
@@ -84,11 +74,11 @@ jobs:
           #   platform_id: macosx_arm64
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python host for cibuildwheel
         with:
           python-version: '3.9'
@@ -126,6 +116,6 @@ jobs:
 
         run: python -m cibuildwheel --output-dir wheelhouse
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
