@@ -694,7 +694,7 @@ def plot_ortho_stack(
         basey = 0.93
         basex = 0.5
         fig.suptitle(
-            title, fontsize=titlefontsize, x=basex + title_dx, y=basey + title_dy
+            title, fontsize=titlefontsize, color=textfontcolor, x=basex + title_dx, y=basey + title_dy
         )
 
     if (colpad > 0) and (rowpad > 0):
@@ -1231,7 +1231,7 @@ def plot_ortho_double(
             basey = 0.88 if not flat else 0.66
             basex = 0.5
             fig.suptitle(
-                title, fontsize=titlefontsize, x=basex + title_dx, y=basey + title_dy
+                title, fontsize=titlefontsize, color=textfontcolor, x=basex + title_dx, y=basey + title_dy
             )
 
         gs = gridspec.GridSpec(
@@ -1790,7 +1790,7 @@ def plot_ortho(
             basey = 0.88 if not flat else 0.66
             basex = 0.5
             fig.suptitle(
-                title, fontsize=titlefontsize, x=basex + title_dx, y=basey + title_dy
+                title, fontsize=titlefontsize, color=textfontcolor, x=basex + title_dx, y=basey + title_dy
             )
 
         gs = gridspec.GridSpec(
