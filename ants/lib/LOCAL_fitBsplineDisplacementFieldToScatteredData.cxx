@@ -139,7 +139,7 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
       typename ITKFieldType::IndexType imageIndex =
         weightImage->TransformPhysicalPointToIndex( imagePoint );
       weightImage->SetPixel( imageIndex, displacementWeights[n] + weightImage->GetPixel( imageIndex ) );
-      rasterizedField->SetPixel( imageIndex, imageDisplacement + rasterizedField->GetPixel( imageIndex ) );
+      rasterizedField->SetPixel( imageIndex, imageDisplacement * displacementWeights[n] + rasterizedField->GetPixel( imageIndex ) );
       countImage->SetPixel( imageIndex, 1.0 + countImage->GetPixel( imageIndex ) );
       }
 
@@ -158,8 +158,9 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
         typename PointSetType::PointType point;
         point.CastFrom( imagePoint );
         pointSet->SetPoint( count, point );
-        VectorType imageDisplacement = rasterizedField->GetPixel( ItC.GetIndex() ) / ItC.Get();
-        RealType weight = weightImage->GetPixel( ItC.GetIndex() ) / ItC.Get();
+        RealType sumWeight = weightImage->GetPixel( ItC.GetIndex() );
+        RealType weight = sumWeight / ItC.Get();
+        VectorType imageDisplacement = rasterizedField->GetPixel( ItC.GetIndex() ) / sumWeight;
         pointSet->SetPointData( count, imageDisplacement );
         weights->InsertElement( count, weight );
         count++;
