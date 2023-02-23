@@ -1536,6 +1536,7 @@ def plot_ortho(
     figsize=1.0,
     flat=False,
     transparent=True,
+    resample=False,
 ):
     """
     Plot an orthographic view of a 3D image
@@ -1633,6 +1634,8 @@ def plot_ortho(
         result in higher resolution images, but at a cost of having a
         larger file size
 
+    resample : resample image in case of unbalanced spacing
+
     Example
     -------
     >>> import ants
@@ -1709,7 +1712,7 @@ def plot_ortho(
 
     # resample image if spacing is very unbalanced
     spacing = [s for i, s in enumerate(image.spacing)]
-    if (max(spacing) / min(spacing)) > 3.0:
+    if (max(spacing) / min(spacing)) > 3.0 and resample:
         new_spacing = (1, 1, 1)
         image = image.resample_image(tuple(new_spacing))
         if overlay is not None:
