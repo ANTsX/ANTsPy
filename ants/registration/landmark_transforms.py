@@ -54,46 +54,49 @@ def fit_transform_to_paired_points( moving_points,
     Arguments
     ---------
     moving_points : array
-        moving points specified in physical space as a n x d matrix where n is the number
-        of points and \code{d} is the dimensionality.
+        Moving points specified in physical space as a n x d matrix where n is the number
+        of points and d is the dimensionality.
 
     fixed_points : array
-        fixed points specified in physical space as a n x d matrix where n is the number
-        of points and \code{d} is the dimensionality.
+        Fixed points specified in physical space as a n x d matrix where n is the number
+        of points and d is the dimensionality.
 
     transform_type : character
         'rigid', 'similarity', "affine', 'bspline', 'diffeo', 'syn', or 'time-varying (tv)'.
 
     regularization : scalar
-        ridge penalty in [0,1] for linear transforms.
+        Ridge penalty in [0,1] for linear transforms.
 
     domain_image : ANTs image
-        defines physical domain of the nonlinear transforms.
+        Defines physical domain of the nonlinear transform.  Must be defined for nonlinear
+        transforms.
 
     number_of_fitting_levels : integer
-        integer specifying the number of fitting levels.
+        Integer specifying the number of fitting levels for the B-spline interpolation of the
+        displacement field.
 
     mesh_size : integer or array
-        defining the mesh size at the initial fitting level.
+        Defines the mesh size at the initial fitting level for the B-spline interpolation of the
+        displacement field.
 
     spline_order : integer
-        spline order of the B-spline object.
+        Spline order of the B-spline displacement field.
 
     enforce_stationary_boundary : boolean
-        ensure no displacements on the image boundary (B-spline only).
+        Ensure no displacements on the image boundary (B-spline only).
 
     displacement_weights : array
-        defines the individual weighting of the corresponding scattered data value.
-        Default = NULL meaning all displacements are weighted the same.
+        Defines the individual weighting of the corresponding scattered data value.  Default = NULL
+        meaning all displacements are weighted the same.
 
     number_of_compositions : integer
-        total number of compositions for the diffeomorphic transforms.
+        Total number of compositions for the diffeomorphic transforms.
 
     composition_step_size : scalar
-        scalar multiplication factor for the diffeomorphic transforms.
+        Scalar multiplication factor of the weighting of the update field for the diffeomorphic transforms.
 
     sigma : scalar
-        Gaussian smoothing sigma (in mm) for the diffeomorphic transforms.
+        Gaussian smoothing standard deviation of the update field (in mm).
 
     convergence_threshold : scalar
         Composition-based convergence parameter for the diff. transforms using a
@@ -161,6 +164,9 @@ def fit_transform_to_paired_points( moving_points,
         raise ValueError(transform_type + " transform not supported.")
 
     transform_type = transform_type.lower()
+
+    if domain_image is None and transform_type in ['bspline', 'diffeo', 'syn', 'tv', 'time-varying']:
+        raise ValueError("Domain image needs to be specified.")
 
     if not fixed_points.shape == moving_points.shape:
         raise ValueError("Mismatch in the size of the point sets.")
@@ -528,18 +534,18 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                                             ):
     """
 
-    Estimate a transform from corresponding point sets (> 2).
+    Estimate a time-varying transform from corresponding point sets (> 2).
 
-    ANTsR function: fitTimeVaryingTransform
+    ANTsR function: fitTimeVaryingTransformToPointSets
 
     Arguments
     ---------
     point_sets : list of arrays
         Corresponding points across sets specified in physical space as a n x d matrix where n
-        is the number of points and \code{d} is the dimensionality.
+        is the number of points and d is the dimensionality.
 
     time_points : array of ordered scalars between 0 and 1
-        Set of scalar values, one for each point-set designating its time position in the velocity
+        Set of scalar values, one for each point-set, designating its time position in the velocity
         flow.  If not set, it defaults to equal spacing between 0 and 1.
 
     number_of_integration_points : integer
@@ -547,36 +553,38 @@ def fit_time_varying_transform_to_point_sets(point_sets,
         point sets.  If not specified, it defaults to the number of point sets.
 
     domain_image : ANTs image
-        defines physical domain of the nonlinear transform.
+        Defines physical domain of the nonlinear transform.  Must be defined.
 
     number_of_fitting_levels : integer
-        integer specifying the number of fitting levels.
+        Integer specifying the number of fitting levels for the B-spline interpolation of the
+        displacement field.
 
     mesh_size : integer or array
-        defining the mesh size at the initial fitting level.
+        Defines the mesh size at the initial fitting level for the B-spline interpolation of the
+        displacement field..
 
     spline_order : integer
-        spline order of the B-spline object.
+        Spline order of the B-spline displacement field.
 
     displacement_weights : array
-        defines the individual weighting of the corresponding scattered data value.  Default = NULL
+        Defines the individual weighting of the corresponding scattered data value.  Default = NULL
         meaning all displacements are weighted the same.
 
     number_of_compositions : integer
-        total number of compositions.
+        Total number of compositions.
 
     composition_step_size : scalar
-        scalar multiplication factor.
+        Scalar multiplication factor of the weighting of the update field.
 
     sigma : scalar
-        Gaussian smoothing sigma (in mm).
+        Gaussian smoothing standard deviation of the update field (in mm).
 
     convergence_threshold : scalar
         Composition-based convergence parameter using a window size of 10 values.
 
     rasterize_points : boolean
-       Use nearest neighbor rasterization of points for estimating the update
-       field (potential speed-up).  Default = False.
+        Use nearest neighbor rasterization of points for estimating the update field (potential
+        speed-up).  Default = False.
 
     verbose : bool
         Print progress to the screen.
@@ -625,6 +633,9 @@ def fit_time_varying_transform_to_point_sets(point_sets,
 
     if number_of_point_sets < 3:
         raise ValueError("Expecting three or greater point sets.")
+
+    if domain_image is None:
+        raise ValueError("Domain image needs to be specified.")
 
     number_of_points = point_sets[0].shape[0]
     dimensionality = point_sets[0].shape[1]
