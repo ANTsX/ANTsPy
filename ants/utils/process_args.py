@@ -6,11 +6,14 @@ __all__ = [
     "ANTsSerializer",
     "short_ptype",
     "get_lib_fn",
+    "get_pointer_string",
+    "_int_antsProcessArguments"
 ]
 
 import platform
 import os
 import atexit
+import warnings
 from ..core import ants_image as iio
 from .. import lib
 
@@ -128,3 +131,26 @@ class ANTsSerializer(object):
         return p_args
     
 
+# Be backward compatible in case users are using these functions
+# in their own code
+def get_pointer_string(image):
+    '''
+    get_pointer_string is pending deprecation. Please use the followings instead:
+    
+    with ANTsSerializer() as serializer:
+        serializer.get_pointer_string(image)
+    '''
+    warnings.warn('get_pointer_string is pending deprecation. Please use the followings instead:\nwith ANTsSerializer() as serializer:\n  serializer.get_pointer_string(image)', PendingDeprecationWarning)
+    serializer = ANTsSerializer()
+    return serializer.get_pointer_string(image)
+
+def _int_antsProcessArguments(args):
+    '''
+    _int_antsProcessArguments is pending deprecation. Please use the followings instead:
+    
+    with ANTsSerializer() as serializer:
+        serializer.int_antsProcessArguments(args)
+    '''
+    warnings.warn('_int_antsProcessArguments is pending deprecation. Please use the followings instead:\nwith ANTsSerializer() as serializer:\n  serializer.int_antsProcessArguments(args)', PendingDeprecationWarning)
+    serializer = ANTsSerializer()
+    return serializer.int_antsProcessArguments(args)

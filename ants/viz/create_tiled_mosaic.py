@@ -126,11 +126,10 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
         'd': direction
     }
 
-    processed_args = utils.int_antsProcessArguments(args)
-
-    libfn = utils.get_lib_fn('CreateTiledMosaic')
-
-    libfn(processed_args)
+    with utils.ANTsSerializer() as serializer:
+        processed_args = serializer._int_antsProcessArguments(args)
+        libfn = utils.get_lib_fn('CreateTiledMosaic')
+        libfn(processed_args)
 
     outimage = Image.open(output)
     if output_is_temp:
