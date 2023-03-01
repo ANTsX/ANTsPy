@@ -35,9 +35,11 @@ def n3_bias_field_correction(image, downsample_factor=3):
     """
     outimage = image.clone()
     args = [image.dimension, image, outimage, downsample_factor]
-    processed_args = pargs._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn("N3BiasFieldCorrection")
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        processed_args = serializer.int_antsProcessArguments(args)
+        libfn = utils.get_lib_fn("N3BiasFieldCorrection")
+        libfn(processed_args)
     return outimage
 
 def n3_bias_field_correction2(
@@ -133,26 +135,29 @@ def n3_bias_field_correction2(
 
     outimage = image.clone("float")
     outbiasfield = image.clone("float")
-    i = utils.get_pointer_string(outimage)
-    b = utils.get_pointer_string(outbiasfield)
-    output = "[%s,%s]" % (i, b)
-
-    kwargs = {
-        "d": outimage.dimension,
-        "i": image,
-        "w": weight_mask,
-        "s": N3_SHRINK_FACTOR_1,
-        "c": N3_CONVERGENCE_1,
-        "b": N3_BSPLINE_PARAMS,
-        "x": mask,
-        "r": int(rescale_intensities),
-        "o": output,
-        "v": int(verbose),
-    }
-
-    processed_args = pargs._int_antsProcessArguments(kwargs)
-    libfn = utils.get_lib_fn("N3BiasFieldCorrection")
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        i = serializer.get_pointer_string(outimage)
+        b = serializer.get_pointer_string(outbiasfield)
+        output = "[%s,%s]" % (i, b)
+        
+        kwargs = {
+            "d": outimage.dimension,
+            "i": image,
+            "w": weight_mask,
+            "s": N3_SHRINK_FACTOR_1,
+            "c": N3_CONVERGENCE_1,
+            "b": N3_BSPLINE_PARAMS,
+            "x": mask,
+            "r": int(rescale_intensities),
+            "o": output,
+            "v": int(verbose),
+        }
+        
+        with utils.ANTsSerializer() as serializer:
+            processed_args = serializer.int_antsProcessArguments(kwargs)
+            libfn = utils.get_lib_fn("N3BiasFieldCorrection")
+            libfn(processed_args)
     if return_bias_field == True:
         return outbiasfield
     else:
@@ -247,26 +252,29 @@ def n4_bias_field_correction(
 
     outimage = image.clone("float")
     outbiasfield = image.clone("float")
-    i = utils.get_pointer_string(outimage)
-    b = utils.get_pointer_string(outbiasfield)
-    output = "[%s,%s]" % (i, b)
-
-    kwargs = {
-        "d": outimage.dimension,
-        "i": image,
-        "w": weight_mask,
-        "s": N4_SHRINK_FACTOR_1,
-        "c": N4_CONVERGENCE_1,
-        "b": N4_BSPLINE_PARAMS,
-        "x": mask,
-        "r": int(rescale_intensities),
-        "o": output,
-        "v": int(verbose),
-    }
-
-    processed_args = pargs._int_antsProcessArguments(kwargs)
-    libfn = utils.get_lib_fn("N4BiasFieldCorrection")
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        i = serializer.get_pointer_string(outimage)
+        b = serializer.get_pointer_string(outbiasfield)
+        output = "[%s,%s]" % (i, b)
+        
+        kwargs = {
+            "d": outimage.dimension,
+            "i": image,
+            "w": weight_mask,
+            "s": N4_SHRINK_FACTOR_1,
+            "c": N4_CONVERGENCE_1,
+            "b": N4_BSPLINE_PARAMS,
+            "x": mask,
+            "r": int(rescale_intensities),
+            "o": output,
+            "v": int(verbose),
+        }
+        
+        with utils.ANTsSerializer() as serializer:
+            processed_args = serializer.int_antsProcessArguments(kwargs)
+            libfn = utils.get_lib_fn("N4BiasFieldCorrection")
+            libfn(processed_args)
     if return_bias_field == True:
         return outbiasfield
     else:

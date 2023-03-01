@@ -101,42 +101,44 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         outimg = a.clone('unsigned int')
 
     mydim = outimg.dimension
-    outs = '[%s,%s]' % (utils._ptrstr(outimg.pointer), probs)
-    mymask = x.clone('unsigned int')
-
-    if (not isinstance(a, (list,tuple))) or (len(a) == 1):
-        myargs = {
-            'd': mydim,
-            'a': a,
-            'm-MULTINAME-0': m,
-            'o': outs,
-            'c': c,
-            'm-MULTINAME-1': m,
-            'i': i,
-            'x': mymask
-        }
-        for k, v in kwargs.items():
-            myargs[k] = v
-
-    elif isinstance(a, (list, tuple)):
-        if len(a) > 6:
-            print('more than 6 input images not really supported, using first 6')
-            a = a[:6]
-        myargs = {
-            'd': mydim,
-            'm-MULTINAME-0': m,
-            'o': outs,
-            'c': c,
-            'm-MULTINAME-1': m,
-            'i': i,
-            'x': mymask
-        }
-        for aa_idx, aa in enumerate(a):
-            myargs['a-MULTINAME-%i'%aa_idx] = aa
-
-    processed_args = utils._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn('Atropos')
-    retval = libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        outs = '[%s,%s]' % (serializer.get_pointer_string(outimg), probs)
+        mymask = x.clone('unsigned int')
+    
+        if (not isinstance(a, (list,tuple))) or (len(a) == 1):
+            myargs = {
+                'd': mydim,
+                'a': a,
+                'm-MULTINAME-0': m,
+                'o': outs,
+                'c': c,
+                'm-MULTINAME-1': m,
+                'i': i,
+                'x': mymask
+            }
+            for k, v in kwargs.items():
+                myargs[k] = v
+    
+        elif isinstance(a, (list, tuple)):
+            if len(a) > 6:
+                print('more than 6 input images not really supported, using first 6')
+                a = a[:6]
+            myargs = {
+                'd': mydim,
+                'm-MULTINAME-0': m,
+                'o': outs,
+                'c': c,
+                'm-MULTINAME-1': m,
+                'i': i,
+                'x': mymask
+            }
+            for aa_idx, aa in enumerate(a):
+                myargs['a-MULTINAME-%i'%aa_idx] = aa
+    
+        processed_args = serializer.int_antsProcessArguments(myargs)
+        libfn = utils.get_lib_fn('Atropos')
+        retval = libfn(processed_args)
 
     if retval != 0:
         warnings.warn('ERROR: Non-zero exit status!')

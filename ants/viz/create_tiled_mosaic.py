@@ -126,7 +126,7 @@ def create_tiled_mosaic(image, rgb=None, mask=None, overlay=None,
         'd': direction
     }
 
-    processed_args = utils._int_antsProcessArguments(args)
+    processed_args = utils.int_antsProcessArguments(args)
 
     libfn = utils.get_lib_fn('CreateTiledMosaic')
 

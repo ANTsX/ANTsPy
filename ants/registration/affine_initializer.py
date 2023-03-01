@@ -58,10 +58,11 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
                 local_search_iterations]
     if mask is not None:
         veccer.append(mask)
-
-    xxx = utils._int_antsProcessArguments(veccer)
-    libfn = utils.get_lib_fn('antsAffineInitializer')
-    retval = libfn(xxx)
+    
+    with utils.ANTsSerializer() as serializer:
+        xxx = serializer.int_antsProcessArguments(veccer)
+        libfn = utils.get_lib_fn('antsAffineInitializer')
+        retval = libfn(xxx)
 
     if retval != 0:
         warnings.warn('ERROR: Non-zero exit status!')

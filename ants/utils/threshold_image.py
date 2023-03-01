@@ -3,7 +3,6 @@
 
 __all__ = ['threshold_image']
 
-from .process_args import _int_antsProcessArguments
 from .. import utils
 
 
@@ -51,9 +50,11 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0,
     dim = image.dimension
     outimage = image.clone()
     args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
-    processed_args = _int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn('ThresholdImage')
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        processed_args = utils.int_antsProcessArguments(args)
+        libfn = utils.get_lib_fn('ThresholdImage')
+        libfn(processed_args)
     if binary:
         return outimage
     else:

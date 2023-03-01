@@ -54,9 +54,11 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     #args = [dim, txuse, do_log]
     dimage = domain_image.clone('double')
     args2 = [dim, txuse, dimage, int(do_log), int(geom)]
-    processed_args = utils._int_antsProcessArguments(args2)
-    libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        processed_args = serializer.int_antsProcessArguments(args2)
+        libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
+        libfn(processed_args)
     jimage = args2[2].clone('float')
     
     return jimage

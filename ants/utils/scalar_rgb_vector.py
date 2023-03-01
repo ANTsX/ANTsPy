@@ -60,9 +60,10 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
         vtk_lookup_table = mktemp(suffix='.csv')
         args.append('vtkLookupTable=%s' % vtk_lookup_table)
     
-    processed_args = utils._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
-    libfn(processed_args)
+    with utils.ANTsSerializer() as serializer:
+        processed_args = serializer.int_antsProcessArguments(args)
+        libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
+        libfn(processed_args)
 
     if file_is_temp:
         outimg = iio2.image_read(filename, pixeltype=None)

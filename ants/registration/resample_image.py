@@ -47,9 +47,11 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
         rsampar = 'x'.join([str(rp) for rp in resample_params])
 
         args = [image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
-        processed_args = utils._int_antsProcessArguments(args)
-        libfn = utils.get_lib_fn('ResampleImage')
-        libfn(processed_args)
+        
+        with utils.ANTsSerializer() as serializer:
+            processed_args = serializer.int_antsProcessArguments(args)
+            libfn = utils.get_lib_fn('ResampleImage')
+            libfn(processed_args)
         outimage = outimage.clone(image.pixeltype)
         return outimage
     else:
@@ -142,23 +144,24 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             if compose is not None:
                 mycompo = '[%s,1]' % tfn
                 args = ['-d', fixed.dimension, '-i', m, '-o', mycompo, '-r', f, '-n', interpolator] + mytx
-
-            myargs = utils._int_antsProcessArguments(args)
-
-            # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
-            for jj in range(len(myargs)):
-                if myargs[jj] is not None:
-                    if myargs[jj] == '-':
-                        myargs2 = [None]*(len(myargs)-1)
-                        myargs2[:(jj-1)] = myargs[:(jj-1)]
-                        myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
-                        myargs = myargs2
-
-            myverb = int(verbose)
-
-            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
-            libfn = utils.get_lib_fn('antsApplyTransforms')
-            libfn(processed_args)
+            
+            with utils.ANTsSerializer() as serializer:
+                myargs = serializer.int_antsProcessArguments(args)
+    
+                # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
+                for jj in range(len(myargs)):
+                    if myargs[jj] is not None:
+                        if myargs[jj] == '-':
+                            myargs2 = [None]*(len(myargs)-1)
+                            myargs2[:(jj-1)] = myargs[:(jj-1)]
+                            myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
+                            myargs = myargs2
+    
+                myverb = int(verbose)
+    
+                processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
+                libfn = utils.get_lib_fn('antsApplyTransforms')
+                libfn(processed_args)
 
             if compose is None:
                 return warpedmovout.clone(inpixeltype)

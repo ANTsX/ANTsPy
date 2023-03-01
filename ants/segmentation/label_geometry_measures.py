@@ -38,9 +38,11 @@ def label_geometry_measures(label_image, intensity_image=None):
     outcsv = mktemp(suffix='.csv')
 
     veccer = [label_image.dimension, label_image, intensity_image, outcsv]
-    veccer_processed = utils._int_antsProcessArguments(veccer)
-    libfn = utils.get_lib_fn('LabelGeometryMeasures')
-    pp = libfn(veccer_processed)
+    
+    with utils.ANTsSerializer() as serializer:
+        veccer_processed = serializer.int_antsProcessArguments(veccer)
+        libfn = utils.get_lib_fn('LabelGeometryMeasures')
+        pp = libfn(veccer_processed)
     pp = pd.read_csv(outcsv)
     pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')
     pp_cols = pp.columns.values

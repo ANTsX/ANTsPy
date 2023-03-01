@@ -70,10 +70,10 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, **kwargs):
     for k, v in kwargs.items():
         kellargs[k] = v
 
-    processed_kellargs = utils._int_antsProcessArguments(kellargs)
-
-    libfn = utils.get_lib_fn('KellyKapowski')
-    libfn(processed_kellargs)
+    with utils.ANTsSerializer() as serializer:
+        processed_kellargs = serializer.int_antsProcessArguments(kellargs)
+        libfn = utils.get_lib_fn('KellyKapowski')
+        libfn(processed_kellargs)
     return outimg
 
 

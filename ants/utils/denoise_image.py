@@ -77,8 +77,9 @@ def denoise_image(
             "o": outimage,
             "v": v,
         }
-
-    processed_args = pargs._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn("DenoiseImage")
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        processed_args = serializer.int_antsProcessArguments(myargs)
+        libfn = utils.get_lib_fn("DenoiseImage")
+        libfn(processed_args)
     return outimage.clone(inpixeltype)

@@ -341,9 +341,11 @@ def convert_scalar_image_to_rgb(dimension, img, outimg, mask, colormap='red', cu
 
     args = [dimension, img, outimg, mask, colormap, custom_colormap_file,
             min_input, max_input, min_rgb_output, max_rgb_output, vtk_lookup_table]
-    processed_args = utils._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        processed_args = serializer.int_antsProcessArguments(args)
+        libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
+        libfn(processed_args)
 
 
 def _vol_single(image, outfile, magnification, dilation, inflation, alpha, overlay, overlay_mask, 

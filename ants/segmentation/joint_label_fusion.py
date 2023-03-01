@@ -201,61 +201,66 @@ def joint_label_fusion(
         searchpattern = probsbase.replace("%02d", "*")
 
     mydim = target_image_mask.dimension
-    if not doJif:
-        # not sure if these should be allocated or what their size should be
-        outimg = label_list[1].clone(segpixtype)
-        outimgi = target_image * 0
-
-        outimg_ptr = utils.get_pointer_string(outimg)
-        outimgi_ptr = utils.get_pointer_string(outimgi)
-        outs = "[%s,%s,%s]" % (outimg_ptr, outimgi_ptr, probs)
-    else:
-        outimgi = target_image * 0
-        outs = utils.get_pointer_string(outimgi)
-
-    mymask = mymask.clone(segpixtype)
-    if (not isinstance(rad, (tuple, list))) or (len(rad) == 1):
-        myrad = [rad] * mydim
-    else:
-        myrad = rad
-
-    if len(myrad) != mydim:
-        raise ValueError("path radius dimensionality must equal image dimensionality")
-
-    myrad = "x".join([str(mr) for mr in myrad])
-    vnum = 1 if verbose else 0
-    nnum = 1 if nonnegative else 0
-    mypc = "MSQ"
-    if usecor:
-        mypc = "PC"
-
-    myargs = {
-        "d": mydim,
-        "t": target_image,
-        "a": rho,
-        "b": beta,
-        "c": nnum,
-        "p": myrad,
-        "m": mypc,
-        "s": r_search,
-        "x": mymask,
-        "o": outs,
-        "v": vnum,
-    }
-
-    kct = len(myargs.keys())
-    for k in range(len(atlas_list)):
-        kct += 1
-        myargs["g-MULTINAME-%i" % kct] = atlas_list[k]
+    
+    with utils.ANTsSerializer() as serializer:
         if not doJif:
+            # not sure if these should be allocated or what their size should be
+            outimg = label_list[1].clone(segpixtype)
+            outimgi = target_image * 0
+    
+            outimg_ptr = serializer.get_pointer_string(outimg)
+            outimgi_ptr = serializer.get_pointer_string(outimgi)
+            outs = "[%s,%s,%s]" % (outimg_ptr, outimgi_ptr, probs)
+        else:
+            outimgi = target_image * 0
+            outs = serializer.get_pointer_string(outimgi)
+    
+        mymask = mymask.clone(segpixtype)
+        if (not isinstance(rad, (tuple, list))) or (len(rad) == 1):
+            myrad = [rad] * mydim
+        else:
+            myrad = rad
+    
+        if len(myrad) != mydim:
+            raise ValueError("path radius dimensionality must equal image dimensionality")
+    
+        myrad = "x".join([str(mr) for mr in myrad])
+        vnum = 1 if verbose else 0
+        nnum = 1 if nonnegative else 0
+        mypc = "MSQ"
+        if usecor:
+            mypc = "PC"
+    
+        myargs = {
+            "d": mydim,
+            "t": target_image,
+            "a": rho,
+            "b": beta,
+            "c": nnum,
+            "p": myrad,
+            "m": mypc,
+            "s": r_search,
+            "x": mymask,
+            "o": outs,
+            "v": vnum,
+        }
+    
+        kct = len(myargs.keys())
+        for k in range(len(atlas_list)):
             kct += 1
-            castseg = label_list[k].clone(segpixtype)
-            myargs["l-MULTINAME-%i" % kct] = castseg
-
-    myprocessedargs = utils._int_antsProcessArguments(myargs)
-
-    libfn = utils.get_lib_fn("antsJointFusion")
-    rval = libfn(myprocessedargs)
+            myargs["g-MULTINAME-%i" % kct] = atlas_list[k]
+            if not doJif:
+                kct += 1
+                castseg = label_list[k].clone(segpixtype)
+                myargs["l-MULTINAME-%i" % kct] = castseg
+    
+        myprocessedargs = serializer.int_antsProcessArguments(myargs)
+    
+        libfn = utils.get_lib_fn("antsJointFusion")
+        rval = libfn(myprocessedargs)
+        
+    
+    
     if rval != 0:
         print("Warning: Non-zero return from antsJointFusion")
 

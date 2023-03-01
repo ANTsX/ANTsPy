@@ -155,26 +155,27 @@ def apply_transforms(fixed, moving, transformlist,
                         '-r', f,
                         '-n', interpolator]
                 args = args + mytx
-
-            myargs = utils._int_antsProcessArguments(args)
-
-            # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
-            for jj in range(len(myargs)):
-                if myargs[jj] is not None:
-                    if myargs[jj] == '-':
-                        myargs2 = [None]*(len(myargs)-1)
-                        myargs2[:(jj-1)] = myargs[:(jj-1)]
-                        myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
-                        myargs = myargs2
-
-            myverb = int(verbose)
-            if verbose:
-                print(myargs)
-
-            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype), '-f', str(defaultvalue)]
-            libfn = utils.get_lib_fn('antsApplyTransforms')
-            libfn(processed_args)
-
+            
+            with utils.ANTsSerializer() as serializer:
+                myargs = serializer.int_antsProcessArguments(args)
+                
+                # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
+                for jj in range(len(myargs)):
+                    if myargs[jj] is not None:
+                        if myargs[jj] == '-':
+                            myargs2 = [None]*(len(myargs)-1)
+                            myargs2[:(jj-1)] = myargs[:(jj-1)]
+                            myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
+                            myargs = myargs2
+                
+                myverb = int(verbose)
+                if verbose:
+                    print(myargs)
+                
+                processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype), '-f', str(defaultvalue)]
+                libfn = utils.get_lib_fn('antsApplyTransforms')
+                libfn(processed_args)
+            
             if compose is None:
                 return warpedmovout.clone(inpixeltype)
             else:
@@ -187,9 +188,10 @@ def apply_transforms(fixed, moving, transformlist,
             return 1
     else:
         args = args + ['-z', 1, '--float', 1, '-e', imagetype, '-f', defaultvalue]
-        processed_args = utils._int_antsProcessArguments(args)
-        libfn = utils.get_lib_fn('antsApplyTransforms')
-        libfn(processed_args)
+        with utils.ANTsSerializer() as serializer:
+            processed_args = serializer.int_antsProcessArguments(args)
+            libfn = utils.get_lib_fn('antsApplyTransforms')
+            libfn(processed_args)
 
 
 
@@ -293,15 +295,17 @@ def apply_transforms_to_points( dim, points, transformlist,
             '-i', pointImage,
             '-o', pointsOut ]
     args = args + mytx
-    myargs = utils._int_antsProcessArguments(args)
-
-    myverb = int(verbose)
-    if verbose:
-        print(myargs)
-
-    processed_args = myargs + [ '-f', str(1), '--precision', str(0)]
-    libfn = utils.get_lib_fn('antsApplyTransformsToPoints')
-    libfn(processed_args)
+    
+    with utils.ANTsSerializer() as serializer:
+        myargs = serializer.int_antsProcessArguments(args)
+        
+        myverb = int(verbose)
+        if verbose:
+            print(myargs)
+        
+        processed_args = myargs + [ '-f', str(1), '--precision', str(0)]
+        libfn = utils.get_lib_fn('antsApplyTransformsToPoints')
+        libfn(processed_args)
     mynp = pointsOut.numpy()
     pointsOutDF = points.copy()
     pointsOutDF['x'] = mynp[:,0]
