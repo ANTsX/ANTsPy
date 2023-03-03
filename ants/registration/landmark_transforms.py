@@ -759,6 +759,8 @@ def fit_time_varying_transform_to_point_sets(point_sets,
 
             update_derivative_field_at_timepoint_array = update_derivative_field_at_timepoint.numpy()
             max_norm = np.sqrt(np.amax(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False)))
+            if verbose:
+                print("  integration point " + str(t) + ": max_norm = " + str(max_norm))
             update_derivative_field_at_timepoint_array /= max_norm
             if domain_image.dimension == 2:
                 update_derivative_field_array[:,:,n,:] = update_derivative_field_at_timepoint_array
