@@ -87,7 +87,7 @@ def fit_bspline_displacement_field(displacement_field=None,
        Estimate the inverse displacement field.  Default = False.
 
     rasterize_points : boolean
-       Use nearest neighbor rasterization of points for estimating the 
+       Use nearest neighbor rasterization of points for estimating the
        field (potential speed-up).  Default = False.
 
     Returns
@@ -178,12 +178,10 @@ def fit_bspline_displacement_field(displacement_field=None,
 
     if displacement_origins is None:
         displacement_origins = np.empty((0, 0))
-
-    if displacements is None:
-        displacements = np.empty((0, 0))
-
-    if displacement_weights is None:
         displacement_weights = np.empty(0)
+    else:
+        if displacement_weights is None:
+            displacement_weights = np.repeat(1.0, displacement_origins.shape[0])
 
     number_of_control_points = list(np.array(mesh_size) + np.repeat(spline_order, dimensionality))
 
