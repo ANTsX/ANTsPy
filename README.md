@@ -2,6 +2,8 @@
 
 # Advanced Normalization Tools in Python
 
+This is a test
+
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif)
 <br>
 
