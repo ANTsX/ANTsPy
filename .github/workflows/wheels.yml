@@ -94,8 +94,8 @@ jobs:
       - name: Get package name and version (Linux / Mac)
         if: ${{ ! startsWith(matrix.config.name, 'windows-') }}
         run: |
-          echo PACKAGE_NAME=\"$( python setup.py --name )\" >> $GITHUB_ENV
-          echo PACKAGE_VERSION=\"$( python setup.py --version )\" >> $GITHUB_ENV
+          echo PACKAGE_NAME=$( python setup.py --name ) >> $GITHUB_ENV
+          echo PACKAGE_VERSION=$( python setup.py --version ) >> $GITHUB_ENV
 
       - name: Get package name and version (Windows)
         if: startsWith(matrix.config.name, 'windows-')
