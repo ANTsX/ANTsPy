@@ -17,64 +17,66 @@ jobs:
       matrix:
         include:
           # Have to specify python version twice so that the same python is used to build and test
+          # Need to quote decimal versions as string to avoid the "Norway problem"
+
           # Windows 64-bit
           - os: windows-latest
-            python: 3.7
+            python: '3.7'
             cibw_python: 37
             platform_id: win_amd64
           - os: windows-latest
-            python: 3.8
+            python: '3.8'
             cibw_python: 38
             platform_id: win_amd64
           - os: windows-latest
-            python: 3.9
+            python: '3.9'
             cibw_python: 39
             platform_id: win_amd64
           - os: windows-latest
-            python: 3.10
+            python: '3.10'
             cibw_python: 310
             platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
-            python: 3.7
+            python: '3.7'
             cibw_python: 37
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 3.8
+            python: '3.8'
             cibw_python: 38
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 3.9
+            python: '3.9'
             cibw_python: 39
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 3.10
+            python: '3.10'
             cibw_python: 310
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 3.11
+            python: '3.11'
             cibw_python: 311
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-latest
-            python: 3.7
+            python: '3.7'
             cibw_python: 37
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: 3.8
+            python: '3.8'
             cibw_python: 38
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: 3.9
+            python: '3.9'
             cibw_python: 39
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: 3.10
+            python: '3.10'
             cibw_python: 310
             arch: x86_64
             platform_id: macosx_x86_64
