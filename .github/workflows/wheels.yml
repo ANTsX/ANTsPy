@@ -16,52 +16,67 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Have to specify python version twice so that the same python is used to build and test
+          # Could potentially get around this with a script
           # Windows 64-bit
           - os: windows-latest
-            python: 37
+            python: 3.7
+            cibw_python: 37
             platform_id: win_amd64
           - os: windows-latest
-            python: 38
+            python: 3.8
+            cibw_python: 38
             platform_id: win_amd64
           - os: windows-latest
-            python: 39
+            python: 3.9
+            cibw_python: 39
             platform_id: win_amd64
           - os: windows-latest
-            python: 310
+            python: 3.10
+            cibw_python: 310
             platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
-            python: 37
+            python: 3.7
+            cibw_python: 37
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 38
+            python: 3.8
+            cibw_python: 38
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 39
+            python: 3.9
+            cibw_python: 39
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 310
+            python: 3.10
+            cibw_python: 310
             platform_id: manylinux_x86_64
           - os: ubuntu-latest
-            python: 311
+            python: 3.11
+            cibw_python: 311
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-latest
-            python: 37
+            python: 3.7
+            cibw_python: 37
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: 38
+            python: 3.8
+            cibw_python: 38
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: 39
+            python: 3.9
+            cibw_python: 39
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: 310
+            python: 3.10
+            cibw_python: 310
             arch: x86_64
             platform_id: macosx_x86_64
 
@@ -87,7 +102,7 @@ jobs:
       - uses: actions/setup-python@v4
         name: Install Python host for cibuildwheel
         with:
-          python-version: '3.9'
+          python-version: matrix.python
 
         # Visual Studio
       - name: Set up MSVC x64
@@ -116,7 +131,7 @@ jobs:
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}
+          CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
 
           # Include latest Python beta
           CIBW_PRERELEASE_PYTHONS: True
@@ -135,21 +150,21 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
 
-        run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.python }}-${{matrix.platform_id }}
+        run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
 
       - name: Install and test (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
         run: |
-          pip install wheelhouse/cp${{ matrix.python }}-${{matrix.platform_id }}/*.whl
+          pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
           tests/run_tests.sh
 
       - name: Install and test (Windows)
         if: startsWith(matrix.os, 'windows-')
         run: |
-          pip install wheelhouse\cp${{ matrix.python }}-${{matrix.platform_id }}\*.whl
+          python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
           tests\run_tests.bat
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.python }}-${{ matrix.platform_id }}
-          path: ./wheelhouse/cp${{ matrix.python }}-${{ matrix.platform_id }}/*.whl
+          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+          path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
