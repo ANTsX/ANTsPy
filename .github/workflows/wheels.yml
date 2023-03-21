@@ -91,6 +91,21 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.12.0
 
+      - name: Get package name and version (Linux / Mac)
+        if: ${{ ! startsWith(matrix.os, 'windows-') }}
+        run: |
+          echo PACKAGE_NAME=$( python setup.py --name ) >> $GITHUB_ENV
+          echo PACKAGE_VERSION=$( python setup.py --version ) >> $GITHUB_ENV
+
+      # Some shells require "-Encoding utf8" to append to GITHUB_ENV
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions?tool=powershell#environment-files
+      - name: Get package name and version (Windows)
+        if: startsWith(matrix.os, 'windows-')
+        run: |
+          echo "PACKAGE_NAME=$( python setup.py --name )" | Out-File -FilePath $env:GITHUB_ENV `
+          -Append
+          echo "PACKAGE_VERSION=$( python setup.py --version )" | Out-File -FilePath $env:GITHUB_ENV `
+          -Append
       - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
@@ -114,8 +129,9 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
 
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.python }}-${{ matrix.platform_id }}
 
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.python }}-${{ matrix.platform_id }}
+          path: ./wheelhouse/cp${{ matrix.python }}-${{ matrix.platform_id }}/*.whl
