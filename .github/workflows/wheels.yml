@@ -10,14 +10,13 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheel for cp${{ matrix.python }}-${{ matrix.platform_id }}
+    name: Build wheel for cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           # Have to specify python version twice so that the same python is used to build and test
-          # Could potentially get around this with a script
           # Windows 64-bit
           - os: windows-latest
             python: 3.7
@@ -102,7 +101,7 @@ jobs:
       - uses: actions/setup-python@v4
         name: Install Python host for cibuildwheel
         with:
-          python-version: matrix.python
+          python-version: ${{ matrix.python }}
 
         # Visual Studio
       - name: Set up MSVC x64
