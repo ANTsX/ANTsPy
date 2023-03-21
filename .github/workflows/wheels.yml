@@ -100,8 +100,8 @@ jobs:
       - name: Get package name and version (Windows)
         if: startsWith(matrix.config.name, 'windows-')
         run: |
-          echo PACKAGE_NAME=\"$( python setup.py --name )\" >> $GITHUB_ENV | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo PACKAGE_VERSION=\"$( python setup.py --version )\" >> $GITHUB_ENV | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo PACKAGE_NAME=( python setup.py --name ) >> $GITHUB_ENV | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo PACKAGE_VERSION=( python setup.py --version ) >> $GITHUB_ENV | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
