@@ -135,7 +135,19 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
 
-        run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.python }}-${{ matrix.platform_id }}
+        run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.python }}-${{matrix.platform_id }}
+
+      - name: Install and test (Linux / Mac)
+        if: ${{ ! startsWith(matrix.os, 'windows-') }}
+        run: |
+          pip install wheelhouse/cp${{ matrix.python }}-${{matrix.platform_id }}/*.whl
+          tests/run_tests.sh
+
+      - name: Install and test (Windows)
+        if: startsWith(matrix.os, 'windows-')
+        run: |
+          pip install wheelhouse\cp${{ matrix.python }}-${{matrix.platform_id }}\*.whl
+          tests\run_tests.bat
 
       - uses: actions/upload-artifact@v3
         with:
