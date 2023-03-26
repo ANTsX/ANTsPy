@@ -36,6 +36,10 @@ jobs:
             python: '3.10'
             cibw_python: 310
             platform_id: win_amd64
+          - os: windows-latest
+            python: '3.11'
+            cibw_python: 311
+            platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
@@ -80,18 +84,31 @@ jobs:
             cibw_python: 310
             arch: x86_64
             platform_id: macosx_x86_64
+          - os: macos-latest
+            python: '3.11'
+            cibw_python: 311
+            arch: x86_64
+            platform_id: macosx_x86_64
 
           # macOS on Apple M1 64-bit
           # - os: macos-latest
-          #   python: 38
+          #   python: '3.8'
+          #   cibw_python: 38
           #   arch: arm64
           #   platform_id: macosx_arm64
           # - os: macos-latest
-          #   python: 39
+          #   python: '3.9'
+          #   cibw_python: 39
           #   arch: arm64
           #   platform_id: macosx_arm64
           # - os: macos-latest
-          #   python: 310
+          #   python: '3.10'
+          #   cibw_python: 310
+          #   arch: arm64
+          #   platform_id: macosx_arm64
+          # - os: macos-latest
+          #   python: '3.11'
+          #   cibw_python: 311
           #   arch: arm64
           #   platform_id: macosx_arm64
 
@@ -111,7 +128,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.12.0
+        run: python -m pip install cibuildwheel==2.12.1
 
       - name: Get package name and version (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
