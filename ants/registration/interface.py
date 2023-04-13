@@ -406,7 +406,7 @@ def registration(
         mask_scale = mask_scale / mask_scale.max() * 255.0
         charmask = mask_scale.clone("unsigned char")
         f_mask_str = utils.get_pointer_string(charmask)
-    else
+    else:
         f_mask_str = "NA"
     
     if moving_mask is not None:
@@ -414,7 +414,7 @@ def registration(
         moving_mask_scale = moving_mask_scale / moving_mask_scale.max() * 255.0
         moving_charmask = moving_mask_scale.clone("unsigned char")
         m_mask_str = utils.get_pointer_string(moving_charmask)
-    else
+    else:
         m_mask_str = "NA"
     
     maskopt = "[%s,%s]" % (f_mask_str, m_mask_str)
