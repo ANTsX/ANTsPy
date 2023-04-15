@@ -22,8 +22,6 @@ cohort.apply_to_images(fn=n4, modality='T1w', subjects='*',
 
 import ants
 
-from bids.grabbids import BIDSLayout
-
 
 class Cohort(object):
     """
