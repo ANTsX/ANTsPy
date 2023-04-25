@@ -402,14 +402,14 @@ def registration(
     wfo = utils.get_pointer_string(warpedfixout)
     wmo = utils.get_pointer_string(warpedmovout)
     if mask is not None:
-        mask_scale = mask > 0
-        f_mask_str = utils.get_pointer_string(mask_scale)
+        mask_binary = mask != 0
+        f_mask_str = utils.get_pointer_string(mask_binary)
     else:
         f_mask_str = "NA"
 
     if moving_mask is not None:
-        moving_mask_scale = moving_mask > 0
-        m_mask_str = utils.get_pointer_string(moving_mask_scale)
+        moving_mask_binary = moving_mask != 0
+        m_mask_str = utils.get_pointer_string(moving_mask_binary)
     else:
         m_mask_str = "NA"
 
