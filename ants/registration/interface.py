@@ -72,14 +72,14 @@ def registration(
         output will be named with this prefix.
 
     mask : ANTsImage (optional)
-        mask the fixed image.
+        Registration metric mask in the fixed image space.
 
     moving_mask : ANTsImage (optional)
-        mask the moving image.
-    
+        Registration metric mask in the moving image space.
+
     mask_all_stages : boolean
-        apply mask(s) to all registration stages rather than to the last stage only
-        
+        If true, apply metric mask(s) to all registration stages, instead of just the final stage.
+
     grad_step : scalar
         gradient step size (not for all tx)
 
@@ -402,27 +402,23 @@ def registration(
     wfo = utils.get_pointer_string(warpedfixout)
     wmo = utils.get_pointer_string(warpedmovout)
     if mask is not None:
-        mask_scale = mask - mask.min()
-        mask_scale = mask_scale / mask_scale.max() * 255.0
-        charmask = mask_scale.clone("unsigned char")
-        f_mask_str = utils.get_pointer_string(charmask)
+        mask_scale = mask > 0
+        f_mask_str = utils.get_pointer_string(mask_scale)
     else:
         f_mask_str = "NA"
-    
+
     if moving_mask is not None:
-        moving_mask_scale = moving_mask - moving_mask.min()
-        moving_mask_scale = moving_mask_scale / moving_mask_scale.max() * 255.0
-        moving_charmask = moving_mask_scale.clone("unsigned char")
-        m_mask_str = utils.get_pointer_string(moving_charmask)
+        moving_mask_scale = moving_mask > 0
+        m_mask_str = utils.get_pointer_string(moving_mask_scale)
     else:
         m_mask_str = "NA"
-    
+
     maskopt = "[%s,%s]" % (f_mask_str, m_mask_str)
-    
+
     if mask_all_stages:
         earlymaskopt = maskopt;
     else:
-        earlymaskopt = "[NA,NA]"        
+        earlymaskopt = "[NA,NA]"
 
     if initx is None:
         initx = "[%s,%s,1]" % (f, m)
