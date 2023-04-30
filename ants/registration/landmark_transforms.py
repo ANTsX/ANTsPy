@@ -719,8 +719,8 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                   rasterize_points=rasterize_points
                   )
 
-                update_derivative_field_at_timepoint <- ( update_derivative_field_at_timepoint_forward +
-                                                          update_derivative_field_at_timepoint_back ) / 2.0
+                update_derivative_field_at_timepoint = (update_derivative_field_at_timepoint_forward +
+                                                        update_derivative_field_at_timepoint_back) / 2.0
 
             else:
                 if t == 0.0 and time_points[t_index-1] == 0.0:
