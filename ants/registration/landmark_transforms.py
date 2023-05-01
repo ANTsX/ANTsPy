@@ -28,24 +28,24 @@ def convergence_monitoring(values, window_size=10):
          return None
 
 
-def fit_transform_to_paired_points( moving_points,
-                                    fixed_points,
-                                    transform_type="affine",
-                                    regularization=1e-6,
-                                    domain_image=None,
-                                    number_of_fitting_levels=4,
-                                    mesh_size=1,
-                                    spline_order=3,
-                                    enforce_stationary_boundary=True,
-                                    displacement_weights=None,
-                                    number_of_compositions=10,
-                                    composition_step_size=0.5,
-                                    sigma=0.0,
-                                    convergence_threshold=0.0,
-                                    number_of_integration_points=2,
-                                    rasterize_points=False,
-                                    verbose=False
-                                   ):
+def fit_transform_to_paired_points(moving_points,
+                                   fixed_points,
+                                   transform_type="affine",
+                                   regularization=1e-6,
+                                   domain_image=None,
+                                   number_of_fitting_levels=4,
+                                   mesh_size=1,
+                                   spline_order=3,
+                                   enforce_stationary_boundary=True,
+                                   displacement_weights=None,
+                                   number_of_compositions=10,
+                                   composition_step_size=0.5,
+                                   sigma=0.0,
+                                   convergence_threshold=0.0,
+                                   number_of_integration_points=2,
+                                   rasterize_points=False,
+                                   verbose=False
+                                  ):
     """
     Estimate a transform from corresponding fixed and moving landmarks.
 
