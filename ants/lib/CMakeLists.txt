@@ -94,6 +94,9 @@ pybind11_add_module(ResampleImage antscore/ResampleImage.cxx WRAP_ResampleImage.
 pybind11_add_module(ThresholdImage antscore/ThresholdImage.cxx WRAP_ThresholdImage.cxx)
 pybind11_add_module(TileImages antscore/TileImages.cxx WRAP_TileImages.cxx)
 
+pybind11_add_module(AverageAffineTransform antscore/AverageAffineTransform.cxx WRAP_AverageAffineTransform.cxx)
+pybind11_add_module(AverageAffineTransformNoRigid antscore/AverageAffineTransformNoRigid.cxx WRAP_AverageAffineTransformNoRigid.cxx)
+
 ## CONTRIB ##
 pybind11_add_module(antsImageAugment CONTRIB_antsImageAugment.cxx)
 
@@ -167,6 +170,8 @@ target_link_libraries(N4BiasFieldCorrection PRIVATE ${ITK_LIBRARIES} antsUtiliti
 target_link_libraries(ResampleImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(ThresholdImage PRIVATE ${ITK_LIBRARIES} antsUtilities)
 target_link_libraries(TileImages PRIVATE ${ITK_LIBRARIES} antsUtilities)
+target_link_libraries(AverageAffineTransform PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities)
+target_link_libraries(AverageAffineTransformNoRigid PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities)
 
 ## CONTRIB ##
 target_link_libraries(antsImageAugment PRIVATE ${ITK_LIBRARIES})

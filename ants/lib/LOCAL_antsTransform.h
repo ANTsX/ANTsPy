@@ -49,6 +49,7 @@
 #include "itkWindowedSincInterpolateImageFunction.h"
 #include "itkLabelImageGaussianInterpolateImageFunction.h"
 #include "itkTransformFileWriter.h"
+#include "itkTransformFactory.h"
 
 #include "itkMacro.h"
 #include "itkImage.h"
@@ -62,6 +63,7 @@
 #include "antscore/antsUtilities.h"
 #include "itkAffineTransform.h"
 #include "LOCAL_antsImage.h"
+#include "register_transforms.h"
 
 namespace py = pybind11;
 
@@ -377,6 +379,8 @@ py::capsule composeTransforms( std::vector<void *> tformlist,
 template <typename TransformBaseType, class PrecisionType, unsigned int Dimension>
 py::capsule readTransform( std::string filename, unsigned int dimension, std::string precision )
 {
+    register_transforms();
+    
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     typedef typename itk::CompositeTransform<PrecisionType, Dimension> CompositeTransformType;
 
