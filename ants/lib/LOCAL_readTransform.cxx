@@ -54,11 +54,13 @@
 
 #include "LOCAL_readTransform.h"
 
-namespace py = pybind11;
+#include "register_transforms.h"
 
+namespace py = pybind11;
 
 unsigned int getTransformDimensionFromFile( std::string filename )
 {
+    register_transforms();
     typedef itk::TransformFileReader TransformReaderType1;
     typedef typename TransformReaderType1::Pointer TransformReaderType;
     TransformReaderType reader = itk::TransformFileReader::New();
@@ -71,6 +73,7 @@ unsigned int getTransformDimensionFromFile( std::string filename )
 
 std::string getTransformNameFromFile( std::string filename )
 {
+    register_transforms();
     typedef itk::TransformFileReader TransformReaderType1;
     typedef typename TransformReaderType1::Pointer TransformReaderType;
     TransformReaderType reader = itk::TransformFileReader::New();

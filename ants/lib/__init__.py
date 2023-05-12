@@ -55,7 +55,8 @@ from .ResampleImage import *
 from .ThresholdImage import *
 from .integrateVelocityField import *
 from .TileImages import *
-
+from .AverageAffineTransform import *
+from .AverageAffineTransformNoRigid import *
 
 ## CONTRIB ##
 # NOTE: contrib contains code which is experimental
