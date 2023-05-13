@@ -7,6 +7,7 @@ from ..core import ants_transform_io as txio
 from ..core import ants_image_io as iio2
 from ..utils import fit_bspline_displacement_field
 from ..utils import fit_bspline_object_to_scattered_data
+from ..utils import fit_thin_plate_spline_displacement_field
 from ..utils import integrate_velocity_field
 from ..utils import smooth_image
 from ..utils import compose_displacement_fields
@@ -62,7 +63,7 @@ def fit_transform_to_paired_points(moving_points,
         of points and d is the dimensionality.
 
     transform_type : character
-        'rigid', 'similarity', "affine', 'bspline', 'diffeo', 'syn', or 'time-varying (tv)'.
+        'rigid', 'similarity', "affine', 'bspline', 'tps', 'diffeo', 'syn', or 'time-varying (tv)'.
 
     regularization : scalar
         Ridge penalty in [0,1] for linear transforms.
@@ -159,13 +160,13 @@ def fit_transform_to_paired_points(moving_points,
                  has_components=True)
          return(field)
 
-    allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline', 'diffeo', 'syn', 'tv', 'time-varying']
+    allowed_transforms = ['rigid', 'affine', 'similarity', 'bspline', 'tps', 'diffeo', 'syn', 'tv', 'time-varying']
     if not transform_type.lower() in allowed_transforms:
         raise ValueError(transform_type + " transform not supported.")
 
     transform_type = transform_type.lower()
 
-    if domain_image is None and transform_type in ['bspline', 'diffeo', 'syn', 'tv', 'time-varying']:
+    if domain_image is None and transform_type in ['bspline', 'tps', 'diffeo', 'syn', 'tv', 'time-varying']:
         raise ValueError("Domain image needs to be specified.")
 
     if not fixed_points.shape == moving_points.shape:
@@ -236,6 +237,20 @@ def fit_transform_to_paired_points(moving_points,
             rasterize_points=rasterize_points)
 
         xfrm = txio.transform_from_displacement_field(bspline_displacement_field)
+
+        return xfrm
+
+    elif transform_type == "tps":
+
+        tps_displacement_field = fit_thin_plate_spline_displacement_field(
+            displacement_origins=fixed_points,
+            displacements=moving_points - fixed_points,
+            origin=domain_image.origin,
+            spacing=domain_image.spacing,
+            size=domain_image.shape,
+            direction=domain_image.direction)
+
+        xfrm = txio.transform_from_displacement_field(tps_displacement_field)
 
         return xfrm
 
