@@ -13,6 +13,7 @@ from .composeDisplacementFields import *
 from .fitBsplineObjectToScatteredData import *
 from .fitBsplineDisplacementField import *
 from .fitBsplineDisplacementFieldToScatteredData import *
+from .fitThinPlateSplineDisplacementFieldToScatteredData import *
 from .fsl2antstransform import *
 from .getNeighborhoodMatrix import *
 from .hausdorffDistance import *
