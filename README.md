@@ -63,6 +63,20 @@ NOTE: we are hoping to relatively soon release windows wheels via `pip`.
 If they are not yet available, please [check the discussion in the issues](https://github.com/ANTsX/ANTsPy/issues/301)
 for how to build from source on windows machines.
 
+### installing older versions
+
+we cannot store the entire history of releases because storage space on `pip` is limited.
+
+if you need an older release, try something like:
+
+```bash
+pip install 'antspyx @ git+https://github.com/ANTsX/ANTsPy@v0.3.2'
+```
+
+which will attempt to build from source (wont work unless you have a build environment setup).  
+
+otherwise, use the most recent version.
+
 ### Recent wheels
 
 Look under the "Actions" tab.  Then click on the commit for the software version you want.
