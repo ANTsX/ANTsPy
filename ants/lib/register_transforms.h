@@ -16,7 +16,7 @@ void register_transforms()
     itk::TransformFactory<MatrixOffsetTransformTypeC>::RegisterTransform();
 
     using MatrixOffsetTransformTypeD = itk::MatrixOffsetTransformBase<float, 2, 2>;
-    itk::TransformFactory<MatrixOffsetTransformTypeC>::RegisterTransform();
+    itk::TransformFactory<MatrixOffsetTransformTypeD>::RegisterTransform();
 }
 
 #endif
