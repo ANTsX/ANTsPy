@@ -49,38 +49,41 @@ For MacOS and Linux:
 pip install antspyx
 ```
 
-If we do not have releases for your platform, then use:
+Because of limited storage space, pip binaries are not available for every combination of python
+version and platform. If we do not have releases for your platform, you can check the
+[Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or build from source with:
 
 ```
 git clone https://github.com/ANTsX/ANTsPy
 cd ANTsPy
 python3 setup.py install
 ```
-if you want more detailed instructions on compiling <i>ANTsPy</i> from source, you can
-read the [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
+or see below for an alternative strategy using `pip`. If you want more detailed instructions
+on compiling <i>ANTsPy</i> from source, you can read the
+[installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
-NOTE: we are hoping to relatively soon release windows wheels via `pip`.
-If they are not yet available, please [check the discussion in the issues](https://github.com/ANTsX/ANTsPy/issues/301)
-for how to build from source on windows machines.
 
-### installing older versions
+### Installing older versions
 
-we cannot store the entire history of releases because storage space on `pip` is limited.
+We cannot store the entire history of releases because storage space on `pip` is limited.
 
-if you need an older release, try something like:
+if you need an older release, you can check the [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or
+build from source. 
+
+Try something like:
 
 ```bash
 pip install 'antspyx @ git+https://github.com/ANTsX/ANTsPy@v0.3.2'
 ```
+which will attempt to build from source (requires a machine with developer tools).  
 
-which will attempt to build from source (wont work unless you have a build environment setup).  
 
-otherwise, use the most recent version.
 
 ### Recent wheels
 
-Look under the "Actions" tab.  Then click on the commit for the software version you want.
-Wheels for some of these commits will be available by downloading its "artifacts".
+Non-release commits have wheels built automatically, which are available for download for a limited period.
+Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions).  Then click on the commit for the software version you want.
+Recent commits will have wheels stored as "artifacts".
 
 ### Docker images
 
