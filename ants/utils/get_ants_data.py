@@ -29,6 +29,7 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
             - 'ch2'
             - 'mni'
             - 'surf'
+            - 'pcasl'
     Returns
     -------
     string
@@ -50,7 +51,8 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
             "r85": "https://ndownloader.figshare.com/files/28726527",
             "ch2": "https://ndownloader.figshare.com/files/28726494",
             "mni": "https://ndownloader.figshare.com/files/28726500",
-            "surf": "https://ndownloader.figshare.com/files/28726530"
+            "surf": "https://ndownloader.figshare.com/files/28726530",
+            "pcasl": "http://files.figshare.com/1862041/101_pcasl.nii.gz",
         }
         return(switcher.get(argument, "Invalid argument."))
 
@@ -69,7 +71,8 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
                   "r85",
                   "ch2",
                   "mni",
-                  "surf"
+                  "surf",
+                  "pcasl",
                   "show")
 
     if file_id == "show" or file_id is None:
@@ -78,13 +81,16 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
     url = switch_data(file_id)
 
     if target_file_name == None:
-        extension = ".jpg"
-        if file_id == "ch2" or file_id == "mni" or file_id == "surf":
-            extension = ".nii.gz"
-        if extension == ".jpg":
-            target_file_name = antsx_cache_directory + file_id + "slice" + extension
+        if file_id == "pcasl":
+            target_file_name = antsx_cache_directory + "pcasl.nii.gz"
         else:
-            target_file_name = antsx_cache_directory + file_id + extension
+            extension = ".jpg"
+            if file_id == "ch2" or file_id == "mni" or file_id == "surf":
+                extension = ".nii.gz"
+            if extension == ".jpg":
+                target_file_name = antsx_cache_directory + file_id + "slice" + extension
+            else:
+                target_file_name = antsx_cache_directory + file_id + extension
 
     target_file_name_path = target_file_name
     if target_file_name == None:
