@@ -51,7 +51,9 @@ def make_points_image(pts, mask, radius=5):
     for r in range(npts):
         pt = pts[r,:]
         idx = tio.transform_physical_point_to_index(mask, pt.tolist() ).astype(int)
-        in_image = (np.prod(idx <= mask.shape)==1) and (len(np.where(idx<0)[0])==0)
+        in_image=True
+        for kk in range(mask.dimension):
+            in_image = in_image and idx[kk] >= 0 and idx[kk] < mask.shape[kk]
         if ( in_image == True ):
             if (dim == 3):
                 powers_lblimg[idx[0],idx[1],idx[2]] = r + 1
