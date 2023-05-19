@@ -19,7 +19,7 @@ def build_template(
     gradient_step=0.2,
     blending_weight=0.75,
     weights=None,
-    useNoRigid=False,
+    useNoRigid=True,
     **kwargs
 ):
     """
