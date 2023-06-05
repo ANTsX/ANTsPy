@@ -15,9 +15,11 @@ $PYTHON_SCRIPTS = @(
 
 $scriptFailed = $false
 
+Set-Location -Path ".\tests"
+
 foreach ($script in $PYTHON_SCRIPTS) {
     Write-Host "Running Python script $script"
-    & $PYCMD $script
+    & $PYCMD $script %@%
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Python script $script failed with exit code $LASTEXITCODE"
