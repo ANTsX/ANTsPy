@@ -19,7 +19,7 @@ Set-Location -Path ".\tests"
 
 foreach ($script in $PYTHON_SCRIPTS) {
     Write-Host "Running Python script $script"
-    & $PYCMD $script %@%
+    & $PYCMD $script $args
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Python script $script failed with exit code $LASTEXITCODE"
@@ -29,4 +29,4 @@ foreach ($script in $PYTHON_SCRIPTS) {
 
 if ($scriptFailed) {
     exit 1
-}
+}%
