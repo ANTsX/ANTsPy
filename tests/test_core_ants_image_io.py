@@ -21,6 +21,10 @@ import ants
 
 class TestModule_ants_image_io(unittest.TestCase):
 
+    def runTest(self):
+        print("Running", self._testMethodName)
+        super().runTest()
+
     def setUp(self):
         img2d = ants.image_read(ants.get_ants_data('r16')).clone('float')
         img3d = ants.image_read(ants.get_ants_data('mni')).clone('float')
