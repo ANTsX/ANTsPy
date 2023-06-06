@@ -29,4 +29,4 @@ foreach ($script in $PYTHON_SCRIPTS) {
 
 if ($scriptFailed) {
     exit 1
-}%
+}
