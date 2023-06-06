@@ -1,4 +1,4 @@
-$PYCMD = "python -v"
+$PYCMD = "python -m unittest -v"
 
 $PYTHON_SCRIPTS = @(
     "test_core_ants_image.py",
