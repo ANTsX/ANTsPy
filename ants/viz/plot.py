@@ -1511,6 +1511,10 @@ def plot_ortho(
     # overlay arguments
     overlay_cmap="jet",
     overlay_alpha=0.9,
+    cbar=False,
+    cbar_length=0.8,
+    cbar_dx=0.0,
+    cbar_vertical=True,
     # background arguments
     black_bg=True,
     bg_thresh_quant=0.01,
@@ -1543,9 +1547,6 @@ def plot_ortho(
 
     Use mask_image and/or threshold_image to preprocess images to be be
     overlaid and display the overlays in a given range. See the wiki examples.
-
-    TODO:
-        - add colorbar option
 
     ANTsR function: N/A
 
@@ -1581,6 +1582,19 @@ def plot_ortho(
     overlay_alpha : float
         level of transparency for any overlays. Smaller value means
         the overlay is more transparent. See matplotlib.
+
+    cbar: boolean
+        if true, a colorbar will be added to the plot
+
+    cbar_length: float
+        length of the colorbar relative to the image
+
+    cbar_dx: float
+        horizontal shift of the colorbar relative to the image
+
+    cbar_vertical: boolean
+        if true, the colorbar will be vertical, if false, it will be
+        horizontal underneath the image
 
     axis : integer
         which axis to plot along if image is 3D
@@ -1887,6 +1901,7 @@ def plot_ortho(
         if overlay is not None:
             xz_overlay = reorient_slice(overlay[:, xyz[1], :], 1)
             ax.imshow(xz_overlay, alpha=overlay_alpha, cmap=overlay_cmap, vmin=vminol, vmax=vmaxol )
+
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -1953,10 +1968,11 @@ def plot_ortho(
             ax = plt.subplot(gs[1, 1])
         else:
             ax = plt.subplot(gs[0, 2])
-        ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
+        im = ax.imshow(xy_slice, cmap=cmap, vmin=vmin, vmax=vmax)
         if overlay is not None:
             xy_overlay = reorient_slice(overlay[:, :, xyz[2]], 2)
-            ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap, vmin=vminol, vmax=vmaxol )
+            im = ax.imshow(xy_overlay, alpha=overlay_alpha, cmap=overlay_cmap, vmin=vminol, vmax=vmaxol)
+
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
@@ -2038,8 +2054,18 @@ def plot_ortho(
                     transform=ax.transAxes,
                 )
             # ax.text(0.5, 0.5)
-            ax.imshow(np.zeros(image.shape[:-1]), cmap="Greys_r")
+            im = ax.imshow(np.zeros(image.shape[:-1]), cmap="Greys_r")
             ax.axis("off")
+
+        if cbar:
+            cbar_start = (1 - cbar_length) / 2
+            if cbar_vertical:
+                cax = fig.add_axes([0.9 + cbar_dx, cbar_start, 0.03, cbar_length])
+                cbar_orient = "vertical"
+            else:
+                cax = fig.add_axes([cbar_start, 0.08 + cbar_dx, cbar_length, 0.03])
+                cbar_orient = "horizontal"
+            fig.colorbar(im, cax=cax, orientation=cbar_orient)
 
     ## multi-channel images ##
     elif image.components > 1:
