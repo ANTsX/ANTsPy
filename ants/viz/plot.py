@@ -2054,7 +2054,7 @@ def plot_ortho(
                     transform=ax.transAxes,
                 )
             # ax.text(0.5, 0.5)
-            im = ax.imshow(np.zeros(image.shape[:-1]), cmap="Greys_r")
+            ax.imshow(np.zeros(image.shape[:-1]), cmap="Greys_r")
             ax.axis("off")
 
         if cbar:
