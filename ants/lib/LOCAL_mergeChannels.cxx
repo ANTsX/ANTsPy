@@ -197,6 +197,9 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("mergeChannelsF2", &mergeChannels<itk::Image<float, 2>, itk::VectorImage<float, 2> >);
   m.def("mergeChannelsF3", &mergeChannels<itk::Image<float, 3>, itk::VectorImage<float, 3> >);
   m.def("mergeChannelsF4", &mergeChannels<itk::Image<float, 4>, itk::VectorImage<float, 4> >);
+  m.def("mergeChannelsD2", &mergeChannels<itk::Image<double, 2>, itk::VectorImage<double, 2> >);
+  m.def("mergeChannelsD3", &mergeChannels<itk::Image<double, 3>, itk::VectorImage<double, 3> >);
+  m.def("mergeChannelsD4", &mergeChannels<itk::Image<double, 4>, itk::VectorImage<double, 4> >);
 
   m.def("splitChannelsVUC2", &splitChannels<itk::VectorImage<unsigned char, 2>, itk::Image<unsigned char, 2> >);
   m.def("splitChannelsVUC3", &splitChannels<itk::VectorImage<unsigned char, 3>, itk::Image<unsigned char, 3> >);
@@ -207,6 +210,9 @@ PYBIND11_MODULE(mergeChannels, m)
   m.def("splitChannelsVF2", &splitChannels<itk::VectorImage<float, 2>, itk::Image<float, 2> >);
   m.def("splitChannelsVF3", &splitChannels<itk::VectorImage<float, 3>, itk::Image<float, 3> >);
   m.def("splitChannelsVF4", &splitChannels<itk::VectorImage<float, 4>, itk::Image<float, 4> >);
+  m.def("splitChannelsVD2", &splitChannels<itk::VectorImage<double, 2>, itk::Image<double, 2> >);
+  m.def("splitChannelsVD3", &splitChannels<itk::VectorImage<double, 3>, itk::Image<double, 3> >);
+  m.def("splitChannelsVD4", &splitChannels<itk::VectorImage<double, 4>, itk::Image<double, 4> >);
   m.def("splitChannelsRGBUC2", &splitChannels<  itk::Image<itk::RGBPixel<unsigned char>, 2>, itk::Image<unsigned char, 2> >);
 
 
