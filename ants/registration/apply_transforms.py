@@ -146,7 +146,10 @@ def apply_transforms(fixed, moving, transformlist,
                         '-r', f,
                         '-n', interpolator]
                 args = args + mytx
-            tfn = '%scomptx.nii.gz' % compose if compose is not None else 'NA'
+            if compose:
+                tfn = '%scomptx.nii.gz' % compose if not compose.endswith('.h5') else compose
+            else:
+                tfn = 'NA'
             if compose is not None:
                 mycompo = '[%s,1]' % tfn
                 args = ['-d', fixed.dimension,
