@@ -534,6 +534,7 @@ def fit_transform_to_paired_points(moving_points,
 
 def fit_time_varying_transform_to_point_sets(point_sets,
                                              time_points=None,
+                                             initial_velocity_field=None,
                                              number_of_integration_points=None,
                                              domain_image=None,
                                              number_of_fitting_levels=4,
@@ -562,6 +563,10 @@ def fit_time_varying_transform_to_point_sets(point_sets,
     time_points : array of ordered scalars between 0 and 1
         Set of scalar values, one for each point-set, designating its time position in the velocity
         flow.  If not set, it defaults to equal spacing between 0 and 1.
+
+    initial_velocity_field : initial ANTs velocity field
+        Optional velocity field for initializing optimization.  Overrides the number of integration
+        points.
 
     number_of_integration_points : integer
         Time-varying velocity field parameter.  Needs to be equal to or greater than the number of
@@ -640,12 +645,6 @@ def fit_time_varying_transform_to_point_sets(point_sets,
     if np.any(time_points < 0.0) or np.any(time_points > 1.0):
         raise ValueError("time point values should be between 0 and 1.")
 
-    if number_of_integration_points is None:
-        number_of_integration_points = len(time_points)
-
-    if number_of_integration_points < number_of_point_sets:
-        raise ValueError("The number of integration points should be at least as great as the number of point sets.")
-
     if number_of_point_sets < 3:
         raise ValueError("Expecting three or greater point sets.")
 
@@ -666,7 +665,16 @@ def fit_time_varying_transform_to_point_sets(point_sets,
     updated_fixed_points = np.zeros(point_sets[0].shape)
     updated_moving_points = np.zeros(point_sets[0].shape)
 
-    velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+    velocity_field = None
+    if initial_velocity_field is None:
+        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+        if number_of_integration_points is None:
+            number_of_integration_points = len(time_points)
+        if number_of_integration_points < number_of_point_sets:
+            raise ValueError("The number of integration points should be at least as great as the number of point sets.")
+    else:
+        velocity_field = iio2.image_clone(initial_velocity_field)
+        number_of_integration_points = initial_velocity_field.shape[-1]    
     velocity_field_array = velocity_field.numpy()
 
     last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
