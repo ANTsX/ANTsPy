@@ -108,8 +108,8 @@ def fit_transform_to_paired_points(moving_points,
         Time-varying velocity field parameter.
 
     number_of_integration_steps : scalar
-        Number of steps used for integrating the velocity field.    
-        
+        Number of steps used for integrating the velocity field.
+
     rasterize_points : boolean
        Use nearest neighbor rasterization of points for estimating the update
        field (potential speed-up).  Default = False.
@@ -602,8 +602,8 @@ def fit_time_varying_transform_to_point_sets(point_sets,
         Scalar multiplication factor of the weighting of the update field.
 
     number_of_integration_steps : scalar
-        Number of steps used for integrating the velocity field.    
-        
+        Number of steps used for integrating the velocity field.
+
     sigma : scalar
         Gaussian smoothing standard deviation of the update field (in mm).
 
@@ -675,14 +675,14 @@ def fit_time_varying_transform_to_point_sets(point_sets,
 
     velocity_field = None
     if initial_velocity_field is None:
-        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
         if number_of_integration_points is None:
             number_of_integration_points = len(time_points)
         if number_of_integration_points < number_of_point_sets:
             raise ValueError("The number of integration points should be at least as great as the number of point sets.")
+        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
     else:
         velocity_field = iio2.image_clone(initial_velocity_field)
-        number_of_integration_points = initial_velocity_field.shape[-1]    
+        number_of_integration_points = initial_velocity_field.shape[-1]
     velocity_field_array = velocity_field.numpy()
 
     last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
