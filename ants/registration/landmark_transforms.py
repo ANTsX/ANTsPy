@@ -454,6 +454,7 @@ def fit_transform_to_paired_points(moving_points,
             update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
             update_derivative_field_array = update_derivative_field.numpy()
 
+            average_error = 0.0
             for n in range(number_of_integration_points):
 
                 t = n / (number_of_integration_points - 1.0)
@@ -500,6 +501,9 @@ def fit_transform_to_paired_points(moving_points,
                 elif domain_image.dimension == 3:
                     update_derivative_field_array[:,:,:,n,:] = update_derivative_field_at_timepoint_array
 
+                rmse = np.mean(np.sqrt(np.sum(np.square(updated_moving_points - updated_fixed_points), axis=1, keepdims=True)))
+                average_error = (average_error * n + rmse) / (n + 1)
+
             update_derivative_field_array = (update_derivative_field_array + last_update_derivative_field_array) * 0.5
             last_update_derivative_field_array = np.empty_like(update_derivative_field_array)
             last_update_derivative_field_array[:] = update_derivative_field_array
@@ -509,7 +513,7 @@ def fit_transform_to_paired_points(moving_points,
                                              spacing=velocity_field.spacing, direction=velocity_field.direction,
                                              has_components=True)
 
-            error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True))))
+            error_values.append(average_error)
             convergence_value = convergence_monitoring(error_values)
             if verbose:
                 end_time = time.time()
@@ -697,6 +701,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
         update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
         update_derivative_field_array = update_derivative_field.numpy()
 
+        average_error = 0.0
         for n in range(number_of_integration_points):
 
             t = n / (number_of_integration_points - 1.0)
@@ -798,6 +803,9 @@ def fit_time_varying_transform_to_point_sets(point_sets,
             elif domain_image.dimension == 3:
                 update_derivative_field_array[:,:,:,n,:] = update_derivative_field_at_timepoint_array
 
+            rmse = np.mean(np.sqrt(np.sum(np.square(updated_moving_points - updated_fixed_points), axis=1, keepdims=True)))
+            average_error = (average_error * n + rmse) / (n + 1)
+
         update_derivative_field_array = (update_derivative_field_array + last_update_derivative_field_array) * 0.5
         last_update_derivative_field_array = np.empty_like(update_derivative_field_array)
         last_update_derivative_field_array[:] = update_derivative_field_array
@@ -807,7 +815,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                                          spacing=velocity_field.spacing, direction=velocity_field.direction,
                                          has_components=True)
 
-        error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_moving_points - updated_fixed_points), axis=1, keepdims=True))))
+        error_values.append(average_error)
         convergence_value = convergence_monitoring(error_values)
         if verbose:
             end_time = time.time()
