@@ -43,7 +43,7 @@ def fit_transform_to_paired_points(moving_points,
                                    composition_step_size=0.5,
                                    sigma=0.0,
                                    convergence_threshold=0.0,
-                                   number_of_integration_points=2,
+                                   number_of_time_steps=2,
                                    number_of_integration_steps=100,
                                    rasterize_points=False,
                                    verbose=False
@@ -104,7 +104,7 @@ def fit_transform_to_paired_points(moving_points,
         Composition-based convergence parameter for the diff. transforms using a
         window size of 10 values.
 
-    number_of_integration_points : integer
+    number_of_time_steps : integer
         Time-varying velocity field parameter.
 
     number_of_integration_steps : scalar
@@ -439,10 +439,10 @@ def fit_transform_to_paired_points(moving_points,
         updated_moving_points = np.empty_like(moving_points)
         updated_moving_points[:] = moving_points
 
-        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+        velocity_field = create_zero_velocity_field(domain_image, number_of_time_steps)
         velocity_field_array = velocity_field.numpy()
 
-        last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+        last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_time_steps)
         last_update_derivative_field_array = last_update_derivative_field.numpy()
 
         error_values = []
@@ -451,13 +451,13 @@ def fit_transform_to_paired_points(moving_points,
             if verbose:
                 start_time = time.time()
 
-            update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+            update_derivative_field = create_zero_velocity_field(domain_image, number_of_time_steps)
             update_derivative_field_array = update_derivative_field.numpy()
 
             average_error = 0.0
-            for n in range(number_of_integration_points):
+            for n in range(number_of_time_steps):
 
-                t = n / (number_of_integration_points - 1.0)
+                t = n / (number_of_time_steps - 1.0)
 
                 if n > 0:
                     integrated_forward_field = integrate_velocity_field(velocity_field, 0.0, t, number_of_integration_steps)
@@ -467,7 +467,7 @@ def fit_transform_to_paired_points(moving_points,
                 else:
                     updated_fixed_points[:] = fixed_points
 
-                if n < number_of_integration_points - 1:
+                if n < number_of_time_steps - 1:
                     integrated_inverse_field = integrate_velocity_field(velocity_field, 1.0, t, number_of_integration_steps)
                     integrated_inverse_field_xfrm = txio.transform_from_displacement_field(integrated_inverse_field)
                     for j in range(updated_moving_points.shape[0]):
@@ -543,7 +543,7 @@ def fit_transform_to_paired_points(moving_points,
 def fit_time_varying_transform_to_point_sets(point_sets,
                                              time_points=None,
                                              initial_velocity_field=None,
-                                             number_of_integration_points=None,
+                                             number_of_time_steps=None,
                                              domain_image=None,
                                              number_of_fitting_levels=4,
                                              mesh_size=1,
@@ -577,7 +577,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
         Optional velocity field for initializing optimization.  Overrides the number of integration
         points.
 
-    number_of_integration_points : integer
+    number_of_time_steps : integer
         Time-varying velocity field parameter.  Needs to be equal to or greater than the number of
         point sets.  If not specified, it defaults to the number of point sets.
 
@@ -679,17 +679,17 @@ def fit_time_varying_transform_to_point_sets(point_sets,
 
     velocity_field = None
     if initial_velocity_field is None:
-        if number_of_integration_points is None:
-            number_of_integration_points = len(time_points)
-        if number_of_integration_points < number_of_point_sets:
+        if number_of_time_steps is None:
+            number_of_time_steps = len(time_points)
+        if number_of_time_steps < number_of_point_sets:
             raise ValueError("The number of integration points should be at least as great as the number of point sets.")
-        velocity_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+        velocity_field = create_zero_velocity_field(domain_image, number_of_time_steps)
     else:
         velocity_field = iio2.image_clone(initial_velocity_field)
-        number_of_integration_points = initial_velocity_field.shape[-1]
+        number_of_time_steps = initial_velocity_field.shape[-1]
     velocity_field_array = velocity_field.numpy()
 
-    last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+    last_update_derivative_field = create_zero_velocity_field(domain_image, number_of_time_steps)
     last_update_derivative_field_array = last_update_derivative_field.numpy()
 
     error_values = []
@@ -698,13 +698,13 @@ def fit_time_varying_transform_to_point_sets(point_sets,
         if verbose:
             start_time = time.time()
 
-        update_derivative_field = create_zero_velocity_field(domain_image, number_of_integration_points)
+        update_derivative_field = create_zero_velocity_field(domain_image, number_of_time_steps)
         update_derivative_field_array = update_derivative_field.numpy()
 
         average_error = 0.0
-        for n in range(number_of_integration_points):
+        for n in range(number_of_time_steps):
 
-            t = n / (number_of_integration_points - 1.0)
+            t = n / (number_of_time_steps - 1.0)
 
             t_index = 0
             for j in range(1, number_of_point_sets):
@@ -712,7 +712,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                     t_index = j
                     break
 
-            if n > 0 and n < number_of_integration_points - 1 and time_points[t_index-1] == t:
+            if n > 0 and n < number_of_time_steps - 1 and time_points[t_index-1] == t:
                 updated_fixed_points[:] = point_sets[t_index-1]
                 integrated_inverse_field = integrate_velocity_field(velocity_field, time_points[t_index], t, number_of_integration_steps)
                 integrated_inverse_field_xfrm = txio.transform_from_displacement_field(integrated_inverse_field)
