@@ -494,7 +494,11 @@ def fit_transform_to_paired_points(moving_points,
                     update_derivative_field_at_timepoint = smooth_image(update_derivative_field_at_timepoint, sigma)
 
                 update_derivative_field_at_timepoint_array = update_derivative_field_at_timepoint.numpy()
-                max_norm = np.sqrt(np.amax(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False)))
+                grad_norms = np.sqrt(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False))
+                max_norm = np.amax(grad_norms)
+                median_norm = np.median(grad_norms)
+                if verbose:
+                    print("  integration point " + str(t) + ": max_norm = " + str(max_norm) + ", median_norm = " + str(median_norm))
                 update_derivative_field_at_timepoint_array /= max_norm
                 if domain_image.dimension == 2:
                     update_derivative_field_array[:,:,n,:] = update_derivative_field_at_timepoint_array
@@ -794,9 +798,11 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                 update_derivative_field_at_timepoint = smooth_image(update_derivative_field_at_timepoint, sigma)
 
             update_derivative_field_at_timepoint_array = update_derivative_field_at_timepoint.numpy()
-            max_norm = np.sqrt(np.amax(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False)))
+            grad_norms = np.sqrt(np.sum(np.square(update_derivative_field_at_timepoint_array), axis=-1, keepdims=False))
+            max_norm = np.amax(grad_norms)
+            median_norm = np.median(grad_norms)
             if verbose:
-                print("  integration point " + str(t) + ": max_norm = " + str(max_norm))
+                print("  integration point " + str(t) + ": max_norm = " + str(max_norm) + ", median_norm = " + str(median_norm))
             update_derivative_field_at_timepoint_array /= max_norm
             if domain_image.dimension == 2:
                 update_derivative_field_array[:,:,n,:] = update_derivative_field_at_timepoint_array
