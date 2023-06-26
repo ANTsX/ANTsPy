@@ -335,7 +335,7 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
     MetricBasePointerType baseMetric = dynamic_cast<MetricBaseType *>( metric.GetPointer() );
     return( wrap_metric< MetricBaseType >( baseMetric ) );
   }
-  else if ( metrictype == "ANTsNeighborhoodCorrelation" ) {
+  else if ( metrictype == "ANTSNeighborhoodCorrelation" ) {
     typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<ImageType,ImageType> MetricType;
     typename MetricType::Pointer metric = MetricType::New();
     metric->SetFixedImage( fixed );

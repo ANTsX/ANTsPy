@@ -15,7 +15,7 @@ from . import ants_metric as mio
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
-                    'ANTsNeighborhoodCorrelation',
+                    'ANTSNeighborhoodCorrelation',
                     'Correlation',
                     'Demons',
                     'JointHistogramMutualInformation'}
@@ -50,7 +50,7 @@ def create_ants_metric(fixed,
         options:
             MeanSquares
             MattesMutualInformation
-            ANTsNeighborhoodCorrelation
+            ANTSNeighborhoodCorrelation
             Correlation
             Demons
             JointHistogramMutualInformation
