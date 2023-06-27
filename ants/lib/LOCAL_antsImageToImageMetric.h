@@ -318,7 +318,6 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
 
     typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 
-  //supportedTypes = c("MeanSquares", "MattesMutualInformation", "ANTSNeighborhoodCorrelation", "Correlation", "Demons", "JointHistogramMutualInformation")
   if ( metrictype == "MeanSquares" ) {
     typedef itk::MeanSquaresImageToImageMetricv4<ImageType,ImageType> MetricType;
     typename MetricType::Pointer metric = MetricType::New();
@@ -388,8 +387,15 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
     return( wrap_metric< MetricBaseType >( baseMetric ) );
   }
 
+  // python code should prevent us getting here by checking for known metric types
+  std::cerr << "Unsupported metric type requested: " << metrictype << std::endl;
+  std::cerr << "Returning JointHistogramMutualInformation metric" << std::endl;
+
   typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType,ImageType> MetricType;
   typename MetricType::Pointer metric = MetricType::New();
+  metric->SetFixedImage( fixed );
+  metric->SetMovingImage( moving );
   MetricBasePointerType baseMetric = dynamic_cast<MetricBaseType *>( metric.GetPointer() );
   return( wrap_metric< MetricBaseType >( baseMetric ) );
+
 }

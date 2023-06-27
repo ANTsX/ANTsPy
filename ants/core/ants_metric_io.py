@@ -15,7 +15,7 @@ from . import ants_metric as mio
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
-                    'ANTsNeighborhoodCorrelation',
+                    'ANTSNeighborhoodCorrelation',
                     'Correlation',
                     'Demons',
                     'JointHistogramMutualInformation'}
@@ -35,7 +35,7 @@ def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     return ants_metric
 
 
-def create_ants_metric(fixed, 
+def create_ants_metric(fixed,
                         moving,
                         metric_type='MeanSquares',
                         fixed_mask=None,
@@ -50,7 +50,7 @@ def create_ants_metric(fixed,
         options:
             MeanSquares
             MattesMutualInformation
-            ANTsNeighborhoodCorrelation
+            ANTSNeighborhoodCorrelation
             Correlation
             Demons
             JointHistogramMutualInformation
@@ -69,13 +69,13 @@ def create_ants_metric(fixed,
 
     if metric_type not in _supported_metrics:
         raise ValueError('metric_type must be one of %s' % _supported_metrics)
-    
+
     if (dimension < 2) or (dimension > 4):
         raise ValueError('unsupported dimension %i' % dimension)
 
     if not isinstance(moving, iio.ANTsImage):
         raise ValueError('invalid moving image')
-    
+
     if moving.dimension != dimension:
         raise ValueError('Fixed and Moving images must have same dimension')
 
@@ -83,7 +83,7 @@ def create_ants_metric(fixed,
         raise ValueError('invalid fixed image')
 
     fixed = fixed.clone('float')
-    moving = moving.clone('float') 
+    moving = moving.clone('float')
 
     libfn = utils.get_lib_fn('create_ants_metricF%i' % dimension)
     metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
