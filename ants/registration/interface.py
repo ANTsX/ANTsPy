@@ -384,6 +384,8 @@ def registration(
         raise ValueError("`type_of_transform` does not exist")
 
     initx = initial_transform
+    if isinstance(initx, str):
+        initx = [initx]
     # if isinstance(initx, ANTsTransform):
     # tempTXfilename = tempfile( fileext = '.mat' )
     # initx = invertAntsrTransform( initialTransform )
@@ -421,14 +423,14 @@ def registration(
         earlymaskopt = "[NA,NA]"
 
     if initx is None:
-        initx = "[%s,%s,1]" % (f, m)
+        initx = ["[%s,%s,1]" % (f, m)]
     # ------------------------------------------------------------
     if type_of_transform == "SyNBold":
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -466,8 +468,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -518,8 +520,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -557,8 +559,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -596,8 +598,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -648,8 +650,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s]" % (syn_metric, f, m, syn_sampling),
             "-t",
@@ -691,8 +693,8 @@ def registration(
             args = [
                 "-d",
                 str(fixed.dimension),
-                "-r",
-                initx,
+                "-r"
+            ] + initx + [
                 "-m",
                 "%s[%s,%s,1,%s]" % (syn_metric, f, m, syn_sampling),
             ]
@@ -723,8 +725,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -769,8 +771,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -828,8 +830,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -907,8 +909,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "mattes[%s,%s,1,32,regular,0.25]" % (f, m),
             "-t",
@@ -957,8 +959,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -1010,8 +1012,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s]" % (syn_metric, f, m, syn_sampling),
             "-t",
@@ -1104,8 +1106,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s,regular,%s]"
             % (aff_metric, f, m, aff_sampling, aff_random_sampling_rate),
@@ -1288,8 +1290,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            "-r",
-            initx,
+            "-r"
+        ] + initx + [
             "-o",
             "[%s,%s,%s]" % (outprefix, wmo, wfo),
         ]
