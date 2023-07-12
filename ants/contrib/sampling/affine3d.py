@@ -29,7 +29,7 @@ class Translate3D(object):
 
     def __init__(self, translation, reference=None, lazy=False):
         """
-        Initialize a Shear3D object
+        Initialize a Translate3D object
 
         Arguments
         ---------
@@ -304,7 +304,7 @@ class RandomShear3D(object):
 
     def __init__(self, shear_range, reference=None, lazy=False):
         """
-        Initialize a RandomRotate3D object
+        Initialize a RandomShear3D object
 
         Arguments
         ---------
@@ -482,7 +482,7 @@ class Rotate3D(object):
 
 class RandomRotate3D(object):
     """
-    Apply a Rotated3D transform to an image, but with the zoom
+    Apply a Rotate3D transform to an image, but with the zoom
     parameters randomly generated from a user-specified range.
     The range is determined by a mean (first parameter) and standard deviation
     (second parameter) via calls to random.gauss.

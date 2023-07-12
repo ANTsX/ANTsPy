@@ -29,7 +29,7 @@ class Translate2D(object):
 
     def __init__(self, translation, reference=None, lazy=False):
         """
-        Initialize a Shear2D object
+        Initialize a Translate2D object
 
         Arguments
         ---------
@@ -283,7 +283,7 @@ class RandomShear2D(object):
 
     def __init__(self, shear_range, reference=None, lazy=False):
         """
-        Initialize a RandomRotate2D object
+        Initialize a RandomShear2D object
 
         Arguments
         ---------
