@@ -54,6 +54,8 @@ def deformation_gradient( warp_image ):
     libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
     libfn(processed_args)
     jimage = iio2.image_read(writtenimage) 
+    import os
+    os.remove( writtenimage )
     return jimage
     import numpy as np
     if not isinstance(warp_image, iio.ANTsImage):
