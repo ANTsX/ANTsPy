@@ -2,7 +2,8 @@
 
 from .affine_initializer import *
 from .apply_transforms import *
-from .create_jacobian_determinant_image import *
+from .create_jacobian_determinant_image import create_jacobian_determinant_image
+from .create_jacobian_determinant_image import deformation_gradient
 from .create_warped_grid import *
 from .fsl2antstransform import *
 from .make_points_image import *
