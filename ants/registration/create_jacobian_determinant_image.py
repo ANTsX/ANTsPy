@@ -39,19 +39,21 @@ def deformation_gradient( warp_image ):
     """
     if isinstance(warp_image, iio.ANTsImage):
         txuse = mktemp(suffix='.nii.gz')
-        iio2.image_write(tx, txuse)
+        iio2.image_write(warp_image, txuse)
     else:
         txuse = warp_image
         warp_image=ants.image_read(txuse)
     if not isinstance(warp_image, iio.ANTsImage):
         raise RuntimeError("antsimage is required")
+    writtenimage = mktemp(suffix='.nrrd')
     dimage = warp_image.split_channels()[0].clone('double')
-    dim = dimage.dim
-    args2 = [dim, txuse, dimage, int(0), int(0), int(1)]
+    dim = dimage.dimension
+    args2 = [dim, txuse, writtenimage, int(0), int(0), int(1)]
+    # print(args2)
     processed_args = utils._int_antsProcessArguments(args2)
     libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
     libfn(processed_args)
-    jimage = args2[2].clone('float')    
+    jimage = iio2.image_read(writtenimage) 
     return jimage
     import numpy as np
     if not isinstance(warp_image, iio.ANTsImage):
@@ -131,5 +133,4 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     jimage = args2[2].clone('float')
     
     return jimage
-
 
