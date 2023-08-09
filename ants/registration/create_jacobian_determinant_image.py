@@ -11,7 +11,6 @@ from ..core import ants_image_io as iio2
 from .. import utils
 
 
-
 def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
     """
     Compute the deformation gradient from an image containing a warp (deformation)
@@ -63,7 +62,7 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
             iio2.image_write(warp_image, txuse)
         else:
             txuse = warp_image
-            warp_image=ants.image_read(txuse)
+            warp_image=iio2.image_read(txuse)
         if not isinstance(warp_image, iio.ANTsImage):
             raise RuntimeError("antsimage is required")
         writtenimage = mktemp(suffix='.nrrd')
