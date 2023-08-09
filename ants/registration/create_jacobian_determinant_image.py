@@ -11,7 +11,8 @@ from ..core import ants_image_io as iio2
 from .. import utils
 
 
-def deformation_gradient( warp_image ):
+
+def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
     """
     Compute the deformation gradient from an image containing a warp (deformation)
    
@@ -19,13 +20,21 @@ def deformation_gradient( warp_image ):
 
     Arguments
     ---------
-    warp_image : ANTsImage
+    warp_image : ANTsImage (or filename if not py_based)
         image that defines the deformation field (vector pixels)
+
+    to_rotation : boolean maps deformation gradient to a rotation matrix
+
+    py_based: boolean uses pure python implementation (maybe slow)
 
     Returns
     -------
     ANTsImage with dimension*dimension components indexed in order U_xyz, V_xyz, W_xyz 
         where U is the x-component of deformation and xyz are spatial.
+
+    Note
+    -------
+    the to_rotation option is still experimental. use with caution.
 
     Example
     -------
@@ -37,51 +46,81 @@ def deformation_gradient( warp_image ):
     >>> mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
     >>> dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
     """
-    if isinstance(warp_image, iio.ANTsImage):
-        txuse = mktemp(suffix='.nii.gz')
-        iio2.image_write(warp_image, txuse)
-    else:
-        txuse = warp_image
-        warp_image=ants.image_read(txuse)
-    if not isinstance(warp_image, iio.ANTsImage):
-        raise RuntimeError("antsimage is required")
-    writtenimage = mktemp(suffix='.nrrd')
-    dimage = warp_image.split_channels()[0].clone('double')
-    dim = dimage.dimension
-    args2 = [dim, txuse, writtenimage, int(0), int(0), int(1)]
-    # print(args2)
-    processed_args = utils._int_antsProcessArguments(args2)
-    libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
-    libfn(processed_args)
-    jimage = iio2.image_read(writtenimage) 
-    import os
-    os.remove( writtenimage )
-    return jimage
     import numpy as np
-    if not isinstance(warp_image, iio.ANTsImage):
-        raise RuntimeError("antsimage is required")
-    dim = warp_image.dimension
-    warpnp=warp_image.numpy()
-    tshp=warp_image.shape
-    tdir=warp_image.direction
-    spc = warp_image.spacing
-    it=np.ndindex(tshp)
-    # print("first we need to rotate the warp by the direction cosines")
-    for i in it:
-        warpnp[i]=np.dot( tdir,warpnp[i])
-    # print("second get deformation gradient")
-    dg = []
-    for k in range(dim):
-        if dim == 2:
-            temp=np.stack( np.gradient( warpnp[...,k], spc[0], spc[1], axis=range(dim) ), axis=dim)
-        if dim == 3:
-            temp=np.stack( np.gradient( warpnp[...,k], spc[0], spc[1], spc[2], axis=range(dim) ), axis=dim)
-        dg.append(temp)
-    return dg
-    dg = np.stack(dg,axis=dim+1)
-    dg = np.reshape( dg, warp_image.shape + (dim*dim,))
-    dg = iio2.from_numpy( dg, has_components=True )
-    iio.copy_image_info( warp_image, dg )
+    def polar_decomposition(X):
+         U, d, V = np.linalg.svd(X, full_matrices=False)
+         P = np.matmul(U, np.matmul(np.diag(d), np.transpose(U)))
+         Z = np.matmul(U, V)
+         if np.linalg.det(Z) < 0:
+             n = X.shape[0]
+             reflection_matrix = np.identity(n)
+             reflection_matrix[0,0] = -1.0
+             Z = np.matmul(Z, reflection_matrix)
+         return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
+    if not py_based:
+        if isinstance(warp_image, iio.ANTsImage):
+            txuse = mktemp(suffix='.nii.gz')
+            iio2.image_write(warp_image, txuse)
+        else:
+            txuse = warp_image
+            warp_image=ants.image_read(txuse)
+        if not isinstance(warp_image, iio.ANTsImage):
+            raise RuntimeError("antsimage is required")
+        writtenimage = mktemp(suffix='.nrrd')
+        dimage = warp_image.split_channels()[0].clone('double')
+        dim = dimage.dimension
+        tshp = dimage.shape
+        args2 = [dim, txuse, writtenimage, int(0), int(0), int(1)]
+        processed_args = utils._int_antsProcessArguments(args2)
+        libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
+        libfn(processed_args)
+        dg = iio2.image_read(writtenimage) 
+        if to_rotation:
+            newshape = tshp + (dim,dim)
+            dg = np.reshape( dg.numpy(), newshape )
+            it=np.ndindex(tshp)
+            for i in it:
+                dg[i]=polar_decomposition( dg[i] )['Z']
+            newshape = tshp + (dim*dim,)
+            dg = np.reshape( dg, newshape )
+            dg = iio2.from_numpy( dg, has_components=True )
+            dg = iio.copy_image_info( dimage, dg )
+        import os
+        os.remove( writtenimage )
+        return dg
+    if py_based:
+        if not isinstance(warp_image, iio.ANTsImage):
+            raise RuntimeError("antsimage is required")
+        dim = warp_image.dimension
+        warpnp=warp_image.numpy()
+        tshp=warp_image.shape
+        tdir=warp_image.direction
+        spc = warp_image.spacing
+        it=np.ndindex(tshp)
+        # print("first we need to rotate the warp by the direction cosines")
+        for i in it:
+            warpnp[i]=np.dot( tdir,warpnp[i])
+        # print("second get deformation gradient")
+        dg = []
+        for k in range(dim):
+            if dim == 2:
+                temp=np.stack( np.gradient( warpnp[...,k], spc[0], spc[1], axis=range(dim) ), axis=dim)
+            if dim == 3:
+                temp=np.stack( np.gradient( warpnp[...,k], spc[0], spc[1], spc[2], axis=range(dim) ), axis=dim)
+            dg.append(temp)
+        dg = np.stack(dg,axis=dim+1)
+        it=np.ndindex(tshp)
+        ident = np.eye( dim )
+        for i in it:
+            dg[i]=dg[i]+ident
+        if to_rotation:
+            it=np.ndindex(tshp)
+            for i in it:
+                dg[i]=polar_decomposition( dg[i] )['Z']
+        newshape = tshp + (dim*dim,)
+        dg = np.reshape( dg, newshape )
+        dg = iio2.from_numpy( dg, has_components=True )
+        dg = iio.copy_image_info( warp_image, dg )
     return dg
 
 
