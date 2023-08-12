@@ -563,6 +563,8 @@ def plot_ortho_stack(
                 overlays[i] = iio2.image_read(overlays[i])
             if not isinstance(overlays[i], iio.ANTsImage):
                 raise ValueError("overlay argument must be an ANTsImage")
+            if overlays[i].components > 1:
+                raise ValueError("overlays[i] cannot have more than one voxel component")
             if overlays[i].dimension != 3:
                 raise ValueError("Overlay image must have 3 dimensions!")
 
@@ -1059,6 +1061,8 @@ def plot_ortho_double(
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
             raise ValueError("overlay argument must be an ANTsImage")
+        if overlay.components > 1:
+            raise ValueError("overlay cannot have more than one voxel component")
         if overlay.dimension != 3:
             raise ValueError("Overlay image must have 3 dimensions!")
 
@@ -1070,6 +1074,8 @@ def plot_ortho_double(
             overlay2 = iio2.image_read(overlay2)
         if not isinstance(overlay2, iio.ANTsImage):
             raise ValueError("overlay2 argument must be an ANTsImage")
+        if overlay2.components > 1:
+            raise ValueError("overlay2 cannot have more than one voxel component")
         if overlay2.dimension != 3:
             raise ValueError("Overlay2 image must have 3 dimensions!")
 
@@ -1693,6 +1699,8 @@ def plot_ortho(
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
             raise ValueError("overlay argument must be an ANTsImage")
+        if overlay.components > 1:
+            raise ValueError("overlay cannot have more than one voxel component")
         if overlay.dimension != 3:
             raise ValueError("Overlay image must have 3 dimensions!")
 
@@ -2295,6 +2303,8 @@ def plot(
             overlay = iio2.image_read(overlay)
         if not isinstance(overlay, iio.ANTsImage):
             raise ValueError("overlay argument must be an ANTsImage")
+        if overlay.components > 1:
+            raise ValueError("overlay cannot have more than one voxel component")
 
         if not iio.image_physical_space_consistency(image, overlay):
             overlay = reg.resample_image_to_target(overlay, image, interp_type="nearestNeighbor")
