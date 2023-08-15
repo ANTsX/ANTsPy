@@ -29,7 +29,7 @@ from . import ants_image as iio
 from .. import utils
 from .. import registration as reg
 
-_supported_pclasses = {"scalar", "vector", "rgb", "rgba"}
+_supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
 _supported_ptypes = {"unsigned char", "unsigned int", "float", "double"}
 _supported_ntypes = {"uint8", "uint32", "float32", "float64"}
 _unsupported_ptypes = {"char", "unsigned short", "short", "int"}
@@ -39,7 +39,7 @@ _unsupported_ptype_map = {
     "short": "float",
     "int": "float",
 }
-_image_type_map = {"scalar": "", "vector": "V", "rgb": "RGB", "rgba": "RGBA"}
+_image_type_map = {"scalar": "", "vector": "V", "rgb": "RGB", "rgba": "RGBA", "symmetric_second_rank_tensor": "SSRT" }
 _ptype_type_map = {
     "unsigned char": "UC",
     "unsigned int": "UI",
@@ -56,7 +56,7 @@ _npy_to_itk_map = {
 }
 
 _image_read_dict = {}
-for itype in {"scalar", "vector", "rgb", "rgba"}:
+for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}:
     _image_read_dict[itype] = {}
     for p in _supported_ptypes:
         _image_read_dict[itype][p] = {}
@@ -523,6 +523,8 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         if pclass == "rgb":
             pclass = "vector"
         if pclass == "rgba":
+            pclass = "vector"
+        if pclass == "symmetric_second_rank_tensor":
             pclass = "vector"
 #        is_rgb = True if pclass == "rgb" else False
         if dimension is not None:
