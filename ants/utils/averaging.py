@@ -9,7 +9,7 @@ from ..core import ants_image_io as iio2
 from .. import registration as reg
 
 ########################
-def average_images( x, normalize=True, mask=None, imagetype=0 ):
+def average_images( x, normalize=True, mask=None, imagetype=0, verbose=False ):
     """
     average a list of images
 
