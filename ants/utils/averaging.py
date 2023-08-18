@@ -9,7 +9,7 @@ from ..core import ants_image_io as iio2
 from .. import registration as reg
 
 ########################
-def average_images( x, normalize=True, mask=None, imagetype=0, verbose=False ):
+def average_images( x, normalize=True, mask=None, imagetype=0, sum_image_threshold=3, return_sum_image=False, verbose=False ):
     """
     average a list of images
 
@@ -21,11 +21,18 @@ def average_images( x, normalize=True, mask=None, imagetype=0, verbose=False ):
 
     normalize : boolean
 
-    mask : None or Otsu (string); this will perform a masked averaging which can 
-        be useful when images have only partial coverage
+    mask : None or integer; this will perform a masked averaging which can 
+        be useful when images have only partial coverage. integer greater 
+        than zero will perform morphological closing.
 
     imagetype : integer
         choose 0/1/2/3 mapping to scalar/vector/tensor/time-series
+
+    sum_image_threshold : integer
+        only average regions with overlap greater than or equal to this value
+
+    return_sum_image : boolean
+        returns the average and the image that show ROI overlap; primarily for debugging
 
     verbose : boolean
         will print progress
@@ -43,8 +50,8 @@ def average_images( x, normalize=True, mask=None, imagetype=0, verbose=False ):
     >>>     x1.append( ants.image_read( x0[k] ) )
     >>> avg=ants.average_images(x0)
     >>> avg1=ants.average_images(x1)
-    >>> avg2=ants.average_images(x1,mask=True)
-	>>> avg3=ants.average_images(x1,mask=True,normalize=True)
+    >>> avg2=ants.average_images(x1,mask=0)
+	>>> avg3=ants.average_images(x1,mask=1,normalize=True)
     """
     import numpy as np
 
@@ -71,17 +78,24 @@ def average_images( x, normalize=True, mask=None, imagetype=0, verbose=False ):
 
     for k in range( len( x ) ):
         if verbose and k % 20 == 0:
-            print( str(k), sep='...', end='',flush=True)
+            print( str(k)+'...', end='',flush=True)
         locimg = gli( x[k], normalize )
         temp = reg.resample_image_to_target( locimg, avg, interp_type='linear', imagetype=imagetype )
         avg = avg + temp
         if mask is not None:
-            sumimg = sumimg + utils.threshold_image(temp,'Otsu',1)
+            fgmask = utils.threshold_image(temp,'Otsu',1)
+            if mask > 0:
+                fgmask = utils.morphology(fgmask,"close",mask)
+            sumimg = sumimg + fgmask
 
+    if return_sum_image:
+        return avg * scl, sumimg
     if mask is None:
         avg = avg * scl
     else:
-        nonzero = sumimg > 0
+        nonzero = sumimg > sum_image_threshold
+        tozero = sumimg <= sum_image_threshold
         avg[nonzero] = avg[nonzero] / sumimg[nonzero]
+        avg[tozero] = 0
     return avg        
 
