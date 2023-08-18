@@ -41,3 +41,5 @@ from .smooth_image import *
 from .threshold_image import *
 from .weingarten_image_curvature import *
 from .average_transform import *
+from .averaging import average_images
+
