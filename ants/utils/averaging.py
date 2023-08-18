@@ -27,6 +27,9 @@ def average_images( x, normalize=True, mask=None, imagetype=0 ):
     imagetype : integer
         choose 0/1/2/3 mapping to scalar/vector/tensor/time-series
 
+    verbose : boolean
+        will print progress
+
     Returns
     -------
     ANTsImage
@@ -67,6 +70,8 @@ def average_images( x, normalize=True, mask=None, imagetype=0 ):
         sumimg = gli( x[biggestind], False ) * 0
 
     for k in range( len( x ) ):
+        if verbose and k % 20 == 0:
+            print( str(k), sep='...', end='',flush=True)
         locimg = gli( x[k], normalize )
         temp = reg.resample_image_to_target( locimg, avg, interp_type='linear', imagetype=imagetype )
         avg = avg + temp
