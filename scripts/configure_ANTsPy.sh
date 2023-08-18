@@ -23,7 +23,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=5b392f5f793a25769193586ec4954cfe3df77248 # deformation gradient
+antstag=dfd9e6664f2fc5f0dbd05c6c23d5e4895e82abee
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd ants/lib # go to lib dir
