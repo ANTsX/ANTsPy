@@ -194,7 +194,7 @@ setup(
     author="Brian B. Avants and Nicholas Cullen",
     author_email="stnava@gmail.com",
     description="Advanced Normalization Tools in Python",
-    long_description=long_description,
+    long_description="Advanced Normalization Tools in Python wraps core C++-based ANTs tools for registration, segmentation and other basic processing.",
     long_description_content_type="text/markdown; charset=UTF-8; variant=GFM",
     ext_modules=[
         CMakeExtension("ants", sourcedir=os.path.join(setup_py_dir, "ants/lib/"))
@@ -217,5 +217,5 @@ setup(
         "lib/*.dll"
         ]},
     url="https://github.com/ANTsX/ANTsPy",
-    classifiers=["Programming Language :: Python :: 3.6"],
+    classifiers=["Programming Language :: Python :: 3.9"],
 )
