@@ -203,10 +203,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish distribution 📦 to PyPI
         if: ${{ github.event_name == 'push' }}
+          run: |
+            mv wheelhouse/*/*.whl wheelhouse/
+            mv wheelhouse/*/*.tar.gz wheelhouse/
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages-dir: ./wheelhouse/*/*
+          packages-dir: ./wheelhouse/
           verify-metadata: false
           skip-existing: true
           verbose: true
