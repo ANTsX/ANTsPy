@@ -213,7 +213,7 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages_dir: /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+          packages_dir: /home/runner/work/ANTsPy/ANTsPy/wheelhouse/*
           verify_metadata: false
           skip_existing: true
           verbose: true          
