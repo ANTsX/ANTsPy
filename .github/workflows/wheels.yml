@@ -205,4 +205,15 @@ jobs:
       - name: Publish prep
         if: ${{ github.event_name == 'push' }}
         run: |
-          find / -name "*whl"
+          mv /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*/antspyx*.whl /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+          mv /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*/antspyx*.tar.gz /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages_dir: /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+          verify_metadata: false
+          skip_existing: true
+          verbose: true          
