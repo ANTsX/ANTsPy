@@ -207,3 +207,13 @@ jobs:
         run: |
           mv wheelhouse/*/*.whl wheelhouse/
           mv wheelhouse/*/*.tar.gz wheelhouse/
+
+      - name: Publish distribution 📦 to PyPI
+        if: ${{ github.event_name == 'push' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+          with:
+            password: ${{ secrets.PYPI_API_TOKEN }}
+            packages-dir: ./wheelhouse/
+            verify-metadata: false
+            skip-existing: true
+            verbose: true          
