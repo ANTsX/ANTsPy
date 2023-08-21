@@ -42,6 +42,10 @@ If you have any questions or feature requests, feel free to open an issue or ema
 
 ## Installation
 
+### NOTE: old pip wheels will be deleted!!!
+
+we dont have the quota on pypi to support more than one or two prior releases.  if you care about this:  (1) open a pypi issue requesting more quota for this project;  (2) propose another alternative.
+
 We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. Note
 that <i>ANTsPy</i> is not currently tested for Python 2.7 support.
 Copy the following command and paste it into your bash terminal:
