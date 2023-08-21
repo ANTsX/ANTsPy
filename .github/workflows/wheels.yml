@@ -201,17 +201,9 @@ jobs:
           omitNameDuringUpdate: true
           artifacts: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
           token: ${{ secrets.GITHUB_TOKEN }}
-        - name: Publish prep
+
+      - name: Publish prep
         if: ${{ github.event_name == 'push' }}
         run: |
-            mv wheelhouse/*/*.whl wheelhouse/
-            mv wheelhouse/*/*.tar.gz wheelhouse/
-        - name: Publish distribution 📦 to PyPI
-        if: ${{ github.event_name == 'push' }}
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          packages-dir: ./wheelhouse/
-          verify-metadata: false
-          skip-existing: true
-          verbose: true
+          mv wheelhouse/*/*.whl wheelhouse/
+          mv wheelhouse/*/*.tar.gz wheelhouse/
