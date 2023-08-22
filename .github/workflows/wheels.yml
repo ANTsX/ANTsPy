@@ -87,27 +87,27 @@ jobs:
           - os: macos-latest
             python: '3.7'
             cibw_python: 37
-            arch: arm64
+            arch: x86_64
             platform_id: universal2
           - os: macos-latest
             python: '3.8'
             cibw_python: 38
-            arch: arm64
+            arch: x86_64
             platform_id: universal2
           - os: macos-latest
             python: '3.9'
             cibw_python: 39
-            arch: arm64
+            arch: x86_64
             platform_id: universal2
           - os: macos-latest
             python: '3.10'
             cibw_python: 310
-            arch: arm64
+            arch: x86_64
             platform_id: universal2
           - os: macos-latest
             python: '3.11'
             cibw_python: 311
-            arch: arm64
+            arch: x86_64
             platform_id: universal2
 
           # macOS on Apple M1 64-bit
