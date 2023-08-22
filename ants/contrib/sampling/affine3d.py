@@ -81,16 +81,8 @@ class Affine3D(object):
         --------
         >>> import ants
         >>> img = ants.image_read(ants.get_data('ch2'))
-        >>> tx = ants.contrib.Translate3D(translation=(10,0,0))
-        >>> img2_x = tx.transform(img)# x axis stays same
-        >>> tx = ants.contrib.Translate3D(translation=(-10,0,0)) # other direction
-        >>> img2_x = tx.transform(img)# x axis stays same
-        >>> tx = ants.contrib.Translate3D(translation=(0,10,0))
-        >>> img2_y = tx.transform(img) # y axis stays same
-        >>> tx = ants.contrib.Translate3D(translation=(0,0,10))
-        >>> img2_z = tx.transform(img) # z axis stays same
-        >>> tx = ants.contrib.Translate3D(translation=(10,10,10))
-        >>> img2 = tx.transform(img)
+        >>> tx = ants.contrib.Affine3D(transformation=np.array([[1, 0, 0, dx], [0, 1, 0, dy],[0, 0, 1, dz]])
+        >>> img2_x = tx.transform(img)# image translated by (dx, dy, dz)
         """
         # unpack
 
@@ -108,6 +100,7 @@ class Affine3D(object):
                     self.tx.apply_to_image(X, reference=self.reference),
                     self.tx.apply_to_image(y, reference=self.reference),
                 )
+
 
 class Translate3D(object):
     """
