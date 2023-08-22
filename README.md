@@ -91,6 +91,13 @@ Non-release commits have wheels built automatically, which are available for dow
 Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions).  Then click on the commit for the software version you want.
 Recent commits will have wheels stored as "artifacts".
 
+we build wheels locally like this:
+```
+rm -r -f build/ antspymm.egg-info/ dist/
+python3 setup.py sdist bdist_wheel
+pipx run twine upload dist/*
+```
+
 ### Docker images
 
 Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). To build
