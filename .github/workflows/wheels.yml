@@ -205,9 +205,11 @@ jobs:
       - name: Publish prep
         if: ${{ github.event_name == 'push' }}
         run: |
-          find /home/runner/work/ANTsPy/ -name "*.whl"
-          mv /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*/antspyx*.whl /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
-          rm -r -f /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*
+          find / -name "antspyx*.whl"
+          mywhl=`find / -name "antspyx*.whl"`
+          mv $mywhl /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+          DIR="$(dirname "${mywhl}")"
+          rm -r -f $DIR
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
