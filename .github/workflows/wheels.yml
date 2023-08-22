@@ -12,23 +12,6 @@ on:
   workflow_dispatch:
 
 jobs:
-
-  make_sdist:
-    name: Make SDist
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # Optional, use if you use setuptools_scm
-        submodules: true  # Optional, use if you have submodules
-
-    - name: Build SDist
-      run: pipx run build --sdist
-
-    - uses: actions/upload-artifact@v3
-      with:
-        path: dist/*.tar.gz
-
   build_wheels:
     name: Build wheel for cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
     runs-on: ${{ matrix.os }}
@@ -83,7 +66,6 @@ jobs:
             cibw_python: 311
             platform_id: manylinux_x86_64
 
-          # macOS universal
           # macOS on Intel 64-bit
           - os: macos-latest
             python: '3.7'
@@ -101,11 +83,6 @@ jobs:
             arch: x86_64
             platform_id: macosx_x86_64
           - os: macos-latest
-            python: '3.9'
-            cibw_python: 39
-            arch: arm64
-            platform_id: macosx_arm64
-          - os: macos-latest
             python: '3.10'
             cibw_python: 310
             arch: x86_64
@@ -115,7 +92,7 @@ jobs:
             cibw_python: 311
             arch: x86_64
             platform_id: macosx_x86_64
-            
+
           # macOS on Apple M1 64-bit
           # - os: macos-latest
           #   python: '3.8'
@@ -213,7 +190,7 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
 
-        - name: Upload release asset
+      - name: Upload release asset
         # Previously was using actions/upload-release-asset@v1 , but this had some
         # errors with large files
         uses: ncipollo/release-action@v1.11.1
@@ -225,3 +202,21 @@ jobs:
           artifacts: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Publish prep
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          find / -name "*.whl"
+          find /home/runner/work/ANTsPy/ -name "*.whl"
+          mv /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*/antspyx*.whl /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+          rm -r -f /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: ${{ github.event_name == 'push' }}
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages_dir: /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
+          verify_metadata: false
+          skip_existing: true
+          verbose: true
