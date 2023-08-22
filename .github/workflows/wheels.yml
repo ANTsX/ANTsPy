@@ -213,16 +213,6 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
-          path: ./dist/*.whl
-            
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
-          path: ./dist/*.tar.gz
-          
         - name: Upload release asset
         # Previously was using actions/upload-release-asset@v1 , but this had some
         # errors with large files
