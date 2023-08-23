@@ -206,7 +206,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           uname
-          mywhl=`find ~/ -name "antspyx*.whl"
+          mywhl=`find ~/ -name "antspyx*.whl"`
           extrawheeldir=`dirname $mywhl`
           wheeldirx=`dirname $extrawheeldir`
           wheeldir=`dirname $wheeldirx`
