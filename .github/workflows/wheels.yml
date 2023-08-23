@@ -205,7 +205,7 @@ jobs:
       - name: Publish prep
         if: ${{ github.event_name == 'push' }}
         run: |
-          find / -name "*.whl"
+          find ~/ -name "*.whl"
           find /home/runner/work/ANTsPy/ -name "*.whl"
           mv /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*/antspyx*.whl /home/runner/work/ANTsPy/ANTsPy/wheelhouse/
           rm -r -f /home/runner/work/ANTsPy/ANTsPy/wheelhouse/cp*
