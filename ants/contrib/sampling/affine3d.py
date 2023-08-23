@@ -13,6 +13,7 @@ __all__ = [
     "RandomShear3D",
     "Translate3D",
     "RandomTranslate3D",
+    "Affine3D",
 ]
 
 import random
@@ -20,6 +21,85 @@ import math
 import numpy as np
 
 from ...core import ants_transform as tio
+
+class Affine3D(object):
+    """
+    Create a specified ANTs Affine Transform
+    """
+
+    def __init__(self, transformation, reference=None, lazy=False):
+        """
+        Initialize a Affine object
+
+        Arguments
+        ---------
+        transformation : array
+            affine transformation array (3x4)
+
+        reference : ANTsImage (optional but recommended)
+            image providing the reference space for the transform.
+            this will also set the transform fixed parameters.
+
+        lazy : boolean (default = False)
+            if True, calling the `transform` method only returns
+            the randomly generated transform and does not actually
+            transform the image
+        """
+        if (not isinstance(transformation, np.ndarray) or transformation.shape != (3,4)):
+            raise ValueError(
+                "transformation argument must be 3x4 Numpy array!"
+            )
+
+        self.transformation = transformation
+        self.lazy = lazy
+        self.reference = reference
+
+        self.tx = tio.ANTsTransform(
+            precision="float", dimension=3, transform_type="AffineTransform"
+        )
+        if self.reference is not None:
+            self.tx.set_fixed_parameters(self.reference.get_center_of_mass())
+
+    def transform(self, X=None, y=None):
+        """
+        Transform an image using an Affine transform with the given
+        translation parameters.  Return the transform if X=None.
+
+        Arguments
+        ---------
+        X : ANTsImage
+            Image to transform
+
+        y : ANTsImage (optional)
+            Another image to transform
+
+        Returns
+        -------
+        ANTsImage if y is None, else a tuple of ANTsImage types
+
+        Examples
+        --------
+        >>> import ants
+        >>> img = ants.image_read(ants.get_data('ch2'))
+        >>> tx = ants.contrib.Affine3D(transformation=np.array([[1, 0, 0, dx], [0, 1, 0, dy],[0, 0, 1, dz]])
+        >>> img2_x = tx.transform(img)# image translated by (dx, dy, dz)
+        """
+        # unpack
+
+        transformation_matrix = self.transformation
+
+
+        self.tx.set_parameters(transformation_matrix)
+        if self.lazy or X is None:
+            return self.tx
+        else:
+            if y is None:
+                return self.tx.apply_to_image(X, reference=self.reference)
+            else:
+                return (
+                    self.tx.apply_to_image(X, reference=self.reference),
+                    self.tx.apply_to_image(y, reference=self.reference),
+                )
 
 
 class Translate3D(object):
@@ -94,7 +174,7 @@ class Translate3D(object):
         >>> tx = ants.contrib.Translate3D(translation=(10,10,10))
         >>> img2 = tx.transform(img)
         """
-        # convert to radians and unpack
+        # unpack
         translation_x, translation_y, translation_z = self.translation
 
         translation_matrix = np.array(
