@@ -208,13 +208,13 @@ jobs:
           uname
           mywhl=`find ~/ -name "antspyx*.whl"
           extrawheeldir=`dirname $mywhl`
-          wheeldir=`dirname $extrawheeldir`
-          wheeldir=`dirname $wheeldir`
+          wheeldirx=`dirname $extrawheeldir`
+          wheeldir=`dirname $wheeldirx`
           wheeldir=${wheeldir}/dist
           mkdir -p $wheeldir
           echo $wheeldir
           mv $mywhl $wheeldir
-          rm -r -f $extrawheeldir
+          rm -r -f $extrawheeldir $wheeldirx
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
