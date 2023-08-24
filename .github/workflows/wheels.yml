@@ -205,7 +205,7 @@ jobs:
       - name: Publish prep
         if: ${{ github.event_name == 'push' }}
         run: |
-          if [[ uname -eq "Linux" ]]; then
+          if [ `uname` == "Linux" ]; then
             mywhl=`find ~/ -name "antspyx*.whl"`
             extrawheeldir=`dirname $mywhl`
             wheeldirx=`dirname $extrawheeldir`
