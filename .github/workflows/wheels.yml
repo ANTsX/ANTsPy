@@ -12,29 +12,6 @@ on:
   workflow_dispatch:
 
 jobs:
-
-  make_sdist:
-    name: Make SDist
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Optional, use if you use setuptools_scm
-          submodules: true # Optional, use if you have submodules
-  
-      - name: Build SDist
-        run: |
-          pip install setuptools wheel twine
-          pipx run build --sdist        
-          twine upload --skip-existing dist/*
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          path: dist/*.tar.gz
-
   build_wheels:
     name: Build wheel for cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
     runs-on: ${{ matrix.os }}
@@ -225,14 +202,25 @@ jobs:
           artifacts: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
           token: ${{ secrets.GITHUB_TOKEN }}
 
-          if: ${{ (needs.rules.outputs.branch_name != 'production') && (needs.rules.outputs.branch_name != 'staging') }}
-
-      - name: Publish to pypi for osx and linux
-        if: ${{ (github.event_name == 'push') && (runner.os != 'Windows') }}
+      - name: Publish prep
+        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
         run: |
           mywhl=`find ~/ -name "antspyx*.whl"`
-          pip install setuptools wheel twine
-          twine upload --skip-existing $mywhl
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          extrawheeldir=`dirname $mywhl`
+          wheeldirx=`dirname $extrawheeldir`
+          wheeldir=`dirname $wheeldirx`
+          wheeldir=${wheeldir}/dist
+          mkdir -p $wheeldir
+          echo $wheeldir
+          mv $mywhl $wheeldir
+          rm -r -f $extrawheeldir $wheeldirx
+          
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          verify_metadata: false
+          skip_existing: true
+          verbose: true
