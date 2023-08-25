@@ -23,12 +23,17 @@ jobs:
           submodules: true # Optional, use if you have submodules
   
       - name: Build SDist
-        run: pipx run build --sdist
-  
+        run: |
+          pip install setuptools wheel twine
+          pipx run build --sdist        
+          twine upload --skip-existing dist/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
       - uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz
-          skip_existing: true
 
   build_wheels:
     name: Build wheel for cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
@@ -226,6 +231,7 @@ jobs:
         if: ${{ (github.event_name == 'push') && (runner.os != 'Windows') }}
         run: |
           mywhl=`find ~/ -name "antspyx*.whl"`
+          pip install setuptools wheel twine
           twine upload --skip-existing $mywhl
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
