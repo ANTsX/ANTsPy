@@ -106,7 +106,7 @@ macos_arm64_task:
   name: build_macos_arm64_wheels
   # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-monterey-xcode
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
   env:
     matrix:
       - CIBW_BUILD: cp38-macosx_arm64
