@@ -31,6 +31,6 @@ RUN pip --no-cache-dir -v install .
 RUN bash tests/run_tests.sh
 
 # optimize layers
-FROM debian:bullseye-20230919-slim
+FROM debian:bookworm-20230919-slim
 COPY --from=builder /opt/conda /opt/conda
 ENV PATH=/opt/conda/bin:$PATH
