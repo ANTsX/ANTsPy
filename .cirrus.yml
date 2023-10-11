@@ -13,7 +13,7 @@ env:
 
 build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   install_cibuildwheel_pipx_script:
-    - python -m pip install cibuildwheel==2.12.0 pipx jq
+    - python -m pip install cibuildwheel==2.16.2 pipx jq
     - python -m pipx ensurepath
   run_cibuildwheel_script:
     - cibuildwheel
