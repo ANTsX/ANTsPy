@@ -2,7 +2,7 @@
 # Note: QEMU emulated ppc64le build might take ~6 hours
 
 # Use conda to resolve dependencies cross-platform
-FROM continuumio/miniconda3:22.11.1 as builder
+FROM continuumio/miniconda3:23.5.2-0 as builder
 
 # install libpng to system for cross-architecture support
 # https://github.com/ANTsX/ANTs/issues/1069#issuecomment-681131938
@@ -24,13 +24,13 @@ RUN conda env update -n base
 COPY . .
 
 # number of parallel make jobs
-ARG j=2
+ARG j=20
 RUN pip --no-cache-dir -v install .
 
 # run tests
 RUN bash tests/run_tests.sh
 
 # optimize layers
-FROM debian:bullseye-20230109-slim
+FROM debian:bullseye-20230919-slim
 COPY --from=builder /opt/conda /opt/conda
 ENV PATH=/opt/conda/bin:$PATH
