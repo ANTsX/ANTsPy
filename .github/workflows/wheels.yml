@@ -43,6 +43,10 @@ jobs:
             python: '3.11'
             cibw_python: 311
             platform_id: win_amd64
+          - os: windows-latest
+            python: '3.12'
+            cibw_python: 312
+            platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
@@ -64,6 +68,10 @@ jobs:
           - os: ubuntu-latest
             python: '3.11'
             cibw_python: 311
+            platform_id: manylinux_x86_64
+          - os: ubuntu-latest
+            python: '3.12'
+            cibw_python: 312
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
@@ -90,6 +98,11 @@ jobs:
           - os: macos-latest
             python: '3.11'
             cibw_python: 311
+            arch: x86_64
+            platform_id: macosx_x86_64
+          - os: macos-latest
+            python: '3.12'
+            cibw_python: 312
             arch: x86_64
             platform_id: macosx_x86_64
 
