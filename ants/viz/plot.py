@@ -1547,6 +1547,7 @@ def plot_ortho(
     flat=False,
     transparent=True,
     resample=False,
+    allow_xyz_change=True,
 ):
     """
     Plot an orthographic view of a 3D image
@@ -1564,13 +1565,8 @@ def plot_ortho(
     overlay : ANTsImage
         image to overlay on base image
 
-    slices : list or tuple of 3 integers
-        slice indices along each axis to plot
-        This can be absolute array indices (e.g. (80,100,120)), or
-        this can be relative array indices (e.g. (0.4,0.5,0.6)).
-        The default is to take the middle slice along each axis.
-
     xyz : list or tuple of 3 integers
+        selects index location on which to center display
         if given, solid lines will be drawn to converge at this coordinate.
         This is useful for pinpointing a specific location in the image.
 
@@ -1655,6 +1651,8 @@ def plot_ortho(
         larger file size
 
     resample : resample image in case of unbalanced spacing
+
+    allow_xyz_change : boolean will attempt to adjust xyz after padding
 
     Example
     -------
@@ -1743,6 +1741,7 @@ def plot_ortho(
             int(sl * (sold / snew)) for sl, sold, snew in zip(xyz, spacing, new_spacing)
         ]
 
+
     # potentially crop image
     if crop:
         plotmask = image.get_mask(cleanup=0)
@@ -1753,10 +1752,13 @@ def plot_ortho(
             overlay = overlay.crop_image(plotmask)
 
     # pad images
-    image, lowpad, uppad = image.pad_image(return_padvals=True)
-    xyz = [v + l for v, l in zip(xyz, lowpad)]
-    if overlay is not None:
-        overlay = overlay.pad_image()
+    if True:
+        image, lowpad, uppad = image.pad_image(return_padvals=True)
+        if allow_xyz_change:
+            xyz = [v + l for v, l in zip(xyz, lowpad)]
+        if overlay is not None:
+            overlay = overlay.pad_image()
+
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
@@ -1830,8 +1832,10 @@ def plot_ortho(
         )
 
         # pad image to have isotropic array dimensions
+        imageReturn = image.clone()
         image = image.numpy()
         if overlay is not None:
+            overlayReturn = overlay.clone()
             overlay = overlay.numpy()
             if overlay.dtype not in ["uint8", "uint32"]:
                 overlay[np.abs(overlay) == 0] = np.nan
@@ -2087,6 +2091,7 @@ def plot_ortho(
 
     # turn warnings back to default
     warnings.simplefilter("default")
+    return { "image": imageReturn, "overlay": overlayReturn }
 
 
 def plot(
