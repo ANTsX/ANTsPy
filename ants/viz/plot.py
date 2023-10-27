@@ -1838,7 +1838,8 @@ def plot_ortho(
             overlayReturn = overlay.clone()
             overlay = overlay.numpy()
             if overlay.dtype not in ["uint8", "uint32"]:
-                overlay[np.abs(overlay) == 0] = np.nan
+                overlay = np.ma.masked_where( np.abs(overlay) <= 1e-16, overlay)
+#                overlay[np.abs(overlay) == 0] = np.nan
 
         yz_slice = reorient_slice(image[xyz[0], :, :], 0)
         ax = plt.subplot(gs[0, 0])
