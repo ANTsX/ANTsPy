@@ -161,15 +161,6 @@ def apply_transforms(fixed, moving, transformlist,
 
             myargs = utils._int_antsProcessArguments(args)
 
-            # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
-            for jj in range(len(myargs)):
-                if myargs[jj] is not None:
-                    if myargs[jj] == '-':
-                        myargs2 = [None]*(len(myargs)-1)
-                        myargs2[:(jj-1)] = myargs[:(jj-1)]
-                        myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
-                        myargs = myargs2
-
             myverb = int(verbose)
             if verbose:
                 print(myargs)
