@@ -1,5 +1,5 @@
 
- 
+
 
 __all__ = ['resample_image',
            'resample_image_to_target']
@@ -11,7 +11,7 @@ from .. import utils
 
 def resample_image(image, resample_params, use_voxels=False, interp_type=1):
     """
-    Resample image by spacing or number of voxels with 
+    Resample image by spacing or number of voxels with
     various interpolators. Works with multi-channel images.
 
     ANTsR function: `resampleImage`
@@ -20,14 +20,14 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
     ---------
     image : ANTsImage
         input image
-    
+
     resample_params : tuple/list
         vector of size dimension with numeric values
-    
+
     use_voxels : boolean
         True means interpret resample params as voxel counts
-    
-    interp_type : integer  
+
+    interp_type : integer
         one of 0 (linear), 1 (nearest neighbor), 2 (gaussian), 3 (windowed sinc), 4 (bspline)
 
     Returns
@@ -58,20 +58,20 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
 
 def resample_image_to_target(image, target, interp_type='linear', imagetype=0, verbose=False, **kwargs):
     """
-    Resample image by using another image as target reference. 
-    This function uses ants.apply_transform with an identity matrix 
+    Resample image by using another image as target reference.
+    This function uses ants.apply_transform with an identity matrix
     to achieve proper resampling.
-    
+
     ANTsR function: `resampleImageToTarget`
 
     Arguments
     ---------
     image : ANTsImage
         image to resample
-    
+
     target : ANTsImage
         image of reference, the output will be in this space
-    
+
     interp_type : string
         Choice of interpolator. Supports partial matching.
             linear
@@ -84,16 +84,16 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             hammingWindowedSinc
             lanczosWindowedSinc
             genericLabel use this for label images
-    
-    imagetype : integer 
+
+    imagetype : integer
         choose 0/1/2/3 mapping to scalar/vector/tensor/time-series
-    
+
     verbose : boolean
         print command and run verbose application of transform.
-    
+
     kwargs : keyword arguments
         additional arugment passed to antsApplyTransforms C code
-    
+
     Returns
     -------
     ANTsImage
@@ -144,15 +144,6 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
                 args = ['-d', fixed.dimension, '-i', m, '-o', mycompo, '-r', f, '-n', interpolator] + mytx
 
             myargs = utils._int_antsProcessArguments(args)
-
-            # NO CLUE WHAT THIS DOES OR WHY IT'S NEEDED
-            for jj in range(len(myargs)):
-                if myargs[jj] is not None:
-                    if myargs[jj] == '-':
-                        myargs2 = [None]*(len(myargs)-1)
-                        myargs2[:(jj-1)] = myargs[:(jj-1)]
-                        myargs2[jj:(len(myargs)-1)] = myargs[(jj+1):(len(myargs))]
-                        myargs = myargs2
 
             myverb = int(verbose)
 
