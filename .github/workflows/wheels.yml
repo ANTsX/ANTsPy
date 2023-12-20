@@ -159,14 +159,14 @@ jobs:
 
           CIBW_BEFORE_ALL_LINUX: |
             yum install -y gcc-c++ libpng-devel libpng
-            pip install cmake ninja
+            python -m pip install cmake ninja
 
           CIBW_BEFORE_ALL_WINDOWS: |
-            pip install cmake ninja
+            python -m pip install cmake ninja
 
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_ALL_MACOS: |
-            pip install cmake ninja
+            python -m pip install cmake ninja
 
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
@@ -176,7 +176,7 @@ jobs:
       - name: Install and test (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
         run: |
-          pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
+          python -m pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
           tests/run_tests.sh
 
       - name: Install and test (Windows)
