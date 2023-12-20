@@ -5,7 +5,6 @@ import shutil
 import subprocess
 import sys
 import time
-from distutils.version import LooseVersion
 from functools import cmp_to_key
 
 import setuptools
@@ -106,9 +105,7 @@ class CMakeBuild(build_ext):
                 + ", ".join(e.name for e in self.extensions)
             )
 
-        cmake_version = LooseVersion(
-            re.search(r"version\s*([\d.]+)", out.decode()).group(1)
-        )
+        cmake_version = re.search(r"version\s*([\d.]+)", out.decode()).group(1)
         if cmake_version < "3.10.0":
             raise RuntimeError("CMake >= 3.10.0 is required")
 
