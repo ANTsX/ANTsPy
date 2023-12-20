@@ -24,10 +24,6 @@ jobs:
 
           # Windows 64-bit
           - os: windows-latest
-            python: '3.7'
-            cibw_python: 37
-            platform_id: win_amd64
-          - os: windows-latest
             python: '3.8'
             cibw_python: 38
             platform_id: win_amd64
@@ -50,10 +46,6 @@ jobs:
 
           # Linux 64-bit
           - os: ubuntu-latest
-            python: '3.7'
-            cibw_python: 37
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
             python: '3.8'
             cibw_python: 38
             platform_id: manylinux_x86_64
@@ -75,11 +67,6 @@ jobs:
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
-          - os: macos-latest
-            python: '3.7'
-            cibw_python: 37
-            arch: x86_64
-            platform_id: macosx_x86_64
           - os: macos-latest
             python: '3.8'
             cibw_python: 38
