@@ -116,11 +116,11 @@ jobs:
           #   platform_id: macosx_arm64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python host for cibuildwheel
         with:
           python-version: ${{ matrix.python }}
