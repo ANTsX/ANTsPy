@@ -13,7 +13,7 @@ env:
 
 build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   install_cibuildwheel_pipx_script:
-    - python -m pip install cibuildwheel==2.12.0 pipx jq
+    - python -m pip install cibuildwheel==2.16.2 jq pipx setuptools
     - python -m pipx ensurepath
   run_cibuildwheel_script:
     - cibuildwheel
@@ -69,17 +69,16 @@ linux_aarch64_task:
   # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
   env:
     matrix:
-      - CIBW_BUILD: "cp36-manylinux*"
-      - CIBW_BUILD: "cp37-manylinux*"
       - CIBW_BUILD: "cp38-manylinux*"
       - CIBW_BUILD: "cp39-manylinux*"
       - CIBW_BUILD: "cp310-manylinux*"
       - CIBW_BUILD: "cp311-manylinux*"
+      - CIBW_BUILD: "cp312-manylinux*"
     CIBW_ARCHS_LINUX: "auto"
     CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
     CIBW_BEFORE_ALL_LINUX: >
       yum install -y gcc-c++ libpng-devel libpng &&
-      python -m pip install cmake ninja
+      python -m pip install cmake ninja setuptools
     CIBW_BEFORE_TEST: |
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
@@ -107,17 +106,18 @@ macos_arm64_task:
   name: build_macos_arm64_wheels
   # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-monterey-xcode
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:15
   env:
     matrix:
       - CIBW_BUILD: cp38-macosx_arm64
       - CIBW_BUILD: cp39-macosx_arm64
       - CIBW_BUILD: cp310-macosx_arm64
       - CIBW_BUILD: cp311-macosx_arm64
+      - CIBW_BUILD: cp312-macosx_arm64
     CIBW_ARCHS_MACOS: arm64
     CIBW_BEFORE_ALL_MACOS: >
       python -m ensurepip --upgrade &&
-      conda install cmake ninja libpng
+      conda install cmake ninja libpng setuptools
     CIBW_BEFORE_TEST: |
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh

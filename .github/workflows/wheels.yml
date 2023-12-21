@@ -24,10 +24,6 @@ jobs:
 
           # Windows 64-bit
           - os: windows-latest
-            python: '3.7'
-            cibw_python: 37
-            platform_id: win_amd64
-          - os: windows-latest
             python: '3.8'
             cibw_python: 38
             platform_id: win_amd64
@@ -42,14 +38,14 @@ jobs:
           - os: windows-latest
             python: '3.11'
             cibw_python: 311
+            platform_id: win_amd64
+          - os: windows-latest
+            python: '3.12'
+            cibw_python: 312
             platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
-            python: '3.7'
-            cibw_python: 37
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
             python: '3.8'
             cibw_python: 38
             platform_id: manylinux_x86_64
@@ -64,15 +60,14 @@ jobs:
           - os: ubuntu-latest
             python: '3.11'
             cibw_python: 311
+            platform_id: manylinux_x86_64
+          - os: ubuntu-latest
+            python: '3.12'
+            cibw_python: 312
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-latest
-            python: '3.7'
-            cibw_python: 37
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-latest
             python: '3.8'
             cibw_python: 38
             arch: x86_64
@@ -90,6 +85,11 @@ jobs:
           - os: macos-latest
             python: '3.11'
             cibw_python: 311
+            arch: x86_64
+            platform_id: macosx_x86_64
+          - os: macos-latest
+            python: '3.12'
+            cibw_python: 312
             arch: x86_64
             platform_id: macosx_x86_64
 
@@ -116,11 +116,11 @@ jobs:
           #   platform_id: macosx_arm64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python host for cibuildwheel
         with:
           python-version: ${{ matrix.python }}
@@ -131,7 +131,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.12.1
+        run: python -m pip install cibuildwheel==2.16.2 setuptools
 
       - name: Get package name and version (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
@@ -159,14 +159,14 @@ jobs:
 
           CIBW_BEFORE_ALL_LINUX: |
             yum install -y gcc-c++ libpng-devel libpng
-            pip install cmake ninja
+            python -m pip install cmake ninja setuptools
 
           CIBW_BEFORE_ALL_WINDOWS: |
-            pip install cmake ninja
+            python -m pip install cmake ninja setuptools
 
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_ALL_MACOS: |
-            pip install cmake ninja
+            python -m pip install cmake ninja setuptools
 
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
@@ -176,7 +176,7 @@ jobs:
       - name: Install and test (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
         run: |
-          pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
+          python -m pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
           tests/run_tests.sh
 
       - name: Install and test (Windows)
