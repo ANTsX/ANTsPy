@@ -167,8 +167,10 @@ jobs:
             python -m pip install cmake ninja setuptools
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
+          # Increase pip debugging output
+          CIBW_BUILD_VERBOSITY: 3
         run: |
-          python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
+          python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           pipx run build --sdist # make a source distribution
 
       - name: Install and test (Linux / Mac)
@@ -180,7 +182,7 @@ jobs:
       - name: Install and test (Windows)
         if: startsWith(matrix.os, 'windows-')
         run: |
-          python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{matrix.platform_id }} antspyx
+          python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{ matrix.platform_id }} antspyx
           tests\run_tests.ps1
 
       - name: Upload wheel artifacts
@@ -190,7 +192,7 @@ jobs:
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
 
       - name: Upload sdist artifact # only needs to be uploaded once
-        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') && (matrix.cibw_python == 'py312')}}
+        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') && (matrix.cibw_python == '312')}}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}
