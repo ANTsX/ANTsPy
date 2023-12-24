@@ -3,23 +3,31 @@ env:
   DOCKERHUB_ORG: noelmni
   DOCKERHUB_REPO: antspy
   DOCKER_USERNAME: ENCRYPTED[!09cc4caa9cb6dbf5af7f2630c1d74076abd1cff6bb103db2bae45d022f28404e040ee5db21f076f70decb59a294780ab!]
-  DOCKER_PASSWORD: ENCRYPTED[!3eccd194e0044101db2d7379d2d95f9255e3493c7ae72a6843ca83a6547ea271541271d77858a2ffd30f61ab68514a64!]
-  GITHUB_TOKEN: ENCRYPTED[!PLACEHOLDER_FOR_GITHUB_TOKEN!]
-  TWINE_USERNAME: ENCRYPTED[!PLACEHOLDER_FOR_TWINE_USERNAME!] # username for pypi
-  TWINE_PASSWORD: ENCRYPTED[!PLACEHOLDER_FOR_TWINE_PASSWORD!] # password for pypi
+  DOCKER_PASSWORD: ENCRYPTED[!4e8f945da70908366e7389ee7192c8c3f13d3f0411a75442bef1af794c2ce547e83b9b60044923c9775790b622da54f1!]
+  GITHUB_TOKEN: ENCRYPTED[!67d503db87885a2486161bdc51da6492e80c522c551c8d2c9b6f871af8adb354ca825c128a7b79f6755eb8b99610732a!]
+  TWINE_USERNAME: __token__ # username for pypi
+  TWINE_PASSWORD: ENCRYPTED[!40b9d18b454ec9c49f6b2df6afda3769644014f0c4612ac36db620c27fe58964ff81138c4e28e01b8a0001291e3eba1c!] # api token for pypi
   TAG_x86_64: ci-x86_64-tmp
   TAG_AARCH64: ci-aarch64-tmp
 
 
 build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   install_cibuildwheel_pipx_script:
+    - which python
+    - python -VV
+    - python -m pip install --upgrade build pip twine
     - python -m pip install cibuildwheel==2.16.2 jq pipx setuptools
     - python -m pipx ensurepath
+    - which pipx
   run_cibuildwheel_script:
-    - cibuildwheel
+    - pipx run cibuildwheel
+  wheels_artifacts:
+    path: "wheelhouse/*"
   make_sdist_script:
     - rm -rf dist # clear out your 'dist' folder 
     - pipx run build --sdist # make a source distribution
+  sdist_artifacts:
+    path: "dist/*.tar.gz"
   upload_releases_script: |
     #!/usr/bin/env bash
 
@@ -48,19 +56,15 @@ build_and_store_wheels: &BUILD_AND_STORE_WHEELS
   upload_pypi_script: |
     #!/usr/bin/env bash
 
-    if [[ "${CIRRUS_RELEASE}" == "" ]]; then
-        exit 0
-    fi
-
-    # deploy source distribution to PyPI using 'twine'
-    pipx run twine upload -r pypi dist/*
+    # if [[ "${CIRRUS_RELEASE}" == "" ]]; then
+    #     exit 0
+    # fi
 
     # deploy wheels to PyPI
-    pipx run twine upload -r pypi wheelhouse/*
-  sdist_artifacts:
-    path: "dist/*.tar.gz"
-  wheels_artifacts:
-    path: "wheelhouse/*"
+    pipx run twine upload --repository pypi wheelhouse/*
+
+    # deploy source distribution to PyPI
+    pipx run twine upload --repository pypi dist/*
 
 
 linux_aarch64_task:
@@ -78,7 +82,7 @@ linux_aarch64_task:
     CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
     CIBW_BEFORE_ALL_LINUX: >
       yum install -y gcc-c++ libpng-devel libpng &&
-      python -m pip install cmake ninja setuptools
+      python -m pip install cmake ninja
     CIBW_BEFORE_TEST: |
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
@@ -106,7 +110,7 @@ macos_arm64_task:
   name: build_macos_arm64_wheels
   # only_if: ${CIRRUS_BRANCH} == 'master' || ${CIRRUS_PR} != ''
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-ventura-xcode:15
+    image: ghcr.io/cirruslabs/macos-sonoma-xcode:15.1
   env:
     matrix:
       - CIBW_BUILD: cp38-macosx_arm64
@@ -117,7 +121,7 @@ macos_arm64_task:
     CIBW_ARCHS_MACOS: arm64
     CIBW_BEFORE_ALL_MACOS: >
       python -m ensurepip --upgrade &&
-      conda install cmake ninja libpng setuptools
+      mamba install cmake ninja libpng
     CIBW_BEFORE_TEST: |
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
@@ -125,8 +129,8 @@ macos_arm64_task:
     PATH: $HOME/mambaforge/bin/:${PATH}
     CONDA_HOME: $HOME/mambaforge
   conda_script:
-    - curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
-    - bash ~/mambaforge.sh -b -p ~/mambaforge
+    - curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/download/23.3.1-1/Mambaforge-23.3.1-1-MacOSX-arm64.sh
+    - bash ~/mambaforge.sh -b -p ${CONDA_HOME}
   <<: *BUILD_AND_STORE_WHEELS
 
 
