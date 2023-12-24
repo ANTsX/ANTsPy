@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - refactor_ci_pypi
   pull_request:
     branches:
     - master
@@ -202,25 +203,29 @@ jobs:
           artifacts: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish prep
-        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
-        run: |
-          mywhl=`find ~/ -name "antspyx*.whl"`
-          extrawheeldir=`dirname $mywhl`
-          wheeldirx=`dirname $extrawheeldir`
-          wheeldir=`dirname $wheeldirx`
-          wheeldir=${wheeldir}/dist
-          mkdir -p $wheeldir
-          echo $wheeldir
-          mv $mywhl $wheeldir
-          rm -r -f $extrawheeldir $wheeldirx
-          
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          verify_metadata: false
-          skip_existing: true
-          verbose: true
+
+  pypi-publish:
+    name: Upload release to PyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+    # retrieve your distributions here
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        # unpacks all CIBW artifacts into dist/
+        pattern: antspyx*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      # if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verify-metadata: false
+        skip-existing: true
+        verbose: true
