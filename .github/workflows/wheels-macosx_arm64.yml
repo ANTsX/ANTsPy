@@ -1,4 +1,4 @@
-name: Build
+name: Build wheels [macosx_arm64]
 
 on:
   push:
