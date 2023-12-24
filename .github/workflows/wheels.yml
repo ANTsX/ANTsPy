@@ -1,4 +1,4 @@
-name: Build
+name: Build wheels [x86_64]
 
 on:
   push:
@@ -149,30 +149,27 @@ jobs:
           -Append
           echo "PACKAGE_VERSION=$( python setup.py --version )" | Out-File -FilePath $env:GITHUB_ENV `
           -Append
-      - name: Build wheels
+
+      - name: Build wheels and make a source distribution
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
-
           # Include latest Python beta
           CIBW_PRERELEASE_PYTHONS: True
-
           CIBW_BEFORE_ALL_LINUX: |
             yum install -y gcc-c++ libpng-devel libpng
             python -m pip install cmake ninja setuptools
-
           CIBW_BEFORE_ALL_WINDOWS: |
             python -m pip install cmake ninja setuptools
-
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools
-
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
-
-        run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
+          pipx run build --sdist # make a source distribution
 
       - name: Install and test (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
@@ -186,10 +183,18 @@ jobs:
           python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{matrix.platform_id }} antspyx
           tests\run_tests.ps1
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload wheel artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
+
+      - name: Upload sdist artifact # only needs to be uploaded once
+        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') && (matrix.cibw_python == 'py312')}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}
+          path: ./dist/*.tar.gz
 
       - name: Upload release asset
         # Previously was using actions/upload-release-asset@v1 , but this had some
