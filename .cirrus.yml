@@ -113,7 +113,6 @@ macos_arm64_task:
     image: ghcr.io/cirruslabs/macos-sonoma-xcode:15.1
   env:
     matrix:
-      - CIBW_BUILD: cp38-macosx_arm64
       - CIBW_BUILD: cp39-macosx_arm64
       - CIBW_BUILD: cp310-macosx_arm64
       - CIBW_BUILD: cp311-macosx_arm64
@@ -125,7 +124,6 @@ macos_arm64_task:
     CIBW_BEFORE_TEST: |
       python -m pip install --find-links=wheelhouse/ -r requirements.txt
     CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
-    CIBW_TEST_SKIP: cp38-macosx_*:arm64
     PATH: $HOME/mambaforge/bin/:${PATH}
     CONDA_HOME: $HOME/mambaforge
   conda_script:
