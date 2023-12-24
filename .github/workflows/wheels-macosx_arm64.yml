@@ -1,0 +1,182 @@
+name: Build
+
+on:
+  push:
+    branches:
+    - master
+    - refactor_ci_pypi
+  pull_request:
+    branches:
+    - master
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheel for cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macOS on Apple M1 64-bit
+          - os: [self-hosted, macOS, ARM64]
+            python: '3.9'
+            cibw_python: 39
+            arch: arm64
+            platform_id: macosx_arm64
+          - os: [self-hosted, macOS, ARM64]
+            python: '3.10'
+            cibw_python: 310
+            arch: arm64
+            platform_id: macosx_arm64
+          - os: [self-hosted, macOS, ARM64]
+            python: '3.11'
+            cibw_python: 311
+            arch: arm64
+            platform_id: macosx_arm64
+          - os: [self-hosted, macOS, ARM64]
+            python: '3.12'
+            cibw_python: 312
+            arch: arm64
+            platform_id: macosx_arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install Python host for cibuildwheel
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: false
+          activate-environment: py${{ matrix.cibw_python }}
+          installer-url: https://github.com/conda-forge/miniforge/releases/download/23.3.1-1/Mambaforge-23.3.1-1-MacOSX-arm64.sh
+          allow-softlinks: true
+          show-channel-urls: true
+          use-only-tar-bz2: true
+          channels: conda-forge
+          channel-priority: true
+          init-shell: bash
+          cache-environment: true
+          cache-environment-key: environment-${{ steps.date.outputs.date }}
+          cache-downloads-key: downloads-${{ steps.date.outputs.date }}
+          post-cleanup: 'all'
+          use-mamba: true
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        shell: bash -l {0}
+        run: |
+          # Workaround for https://github.com/conda-incubator/setup-miniconda/issues/186
+          conda config --remove channels defaults
+          # dependencies
+          python -m ensurepip --upgrade
+          mamba install cmake ninja libpng setuptools
+
+      - name: Install cibuildwheel and other build tools
+        shell: bash -l {0}
+        run: |
+          python -m pip install --upgrade build pip twine setuptools
+          python -m pip install cibuildwheel==2.16.2 jq pipx
+          python -m pipx ensurepath
+
+      - name: Get package name and version (Linux / Mac)
+        shell: bash -l {0}
+        if: ${{ ! startsWith(matrix.os, 'windows-') }}
+        run: |
+          echo PACKAGE_NAME=$( python setup.py --name ) >> $GITHUB_ENV
+          echo PACKAGE_VERSION=$( python setup.py --version ) >> $GITHUB_ENV
+
+      - name: Build and test wheels
+        shell: bash -l {0}
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+          # Include latest Python beta
+          CIBW_PRERELEASE_PYTHONS: True
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
+          CIBW_ENVIRONMENT_MACOS: |
+            CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
+          CIBW_BEFORE_TEST: |
+            python -m pip install --find-links=wheelhouse/ -r requirements.txt
+          CIBW_TEST_COMMAND: bash {project}/tests/run_tests.sh
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+
+      - name: Store wheel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+          path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
+
+      - name: Upload release asset
+        # Previously was using actions/upload-release-asset@v1 , but this had some
+        # errors with large files
+        uses: ncipollo/release-action@v1.11.1
+        if: ${{ github.event_name == 'release' }}
+        with:
+          allowUpdates: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          artifacts: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
+  pypi-publish:
+    name: Upload release to PyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+    # retrieve your distributions here
+    - name: Download artifacts
+      # needs: [build_wheels, build_sdist]
+      uses: actions/download-artifact@v4
+      with:
+        # unpacks all CIBW artifacts into dist/
+        pattern: antspyx*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      # if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verify-metadata: false
+        skip-existing: true
+        verbose: true
+
+
+  testpypi-publish:
+    name: Upload release to TestPyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/ANTsPy_macos_arm64
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+    steps:
+    # retrieve your distributions here
+    - name: Download artifacts
+      # needs: [build_wheels, build_sdist]
+      uses: actions/download-artifact@v4
+      with:
+        # unpacks all CIBW artifacts into dist/
+        pattern: antspyx*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish package to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository-url: https://test.pypi.org/legacy/
+        verbose: true
