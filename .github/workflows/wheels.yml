@@ -150,7 +150,7 @@ jobs:
           echo "PACKAGE_VERSION=$( python setup.py --version )" | Out-File -FilePath $env:GITHUB_ENV `
           -Append
 
-      - name: Build wheels and make a source distribution
+      - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
@@ -171,6 +171,10 @@ jobs:
           CIBW_BUILD_VERBOSITY: 3
         run: |
           python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+
+      - name: Make a source distribution
+        if: ${{ (runner.os == 'Linux') && (matrix.cibw_python == '312')}}
+        run: |
           pipx run build --sdist # make a source distribution
 
       - name: Install and test (Linux / Mac)
@@ -192,7 +196,7 @@ jobs:
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
 
       - name: Upload sdist artifact # only needs to be uploaded once
-        if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') && (matrix.cibw_python == '312')}}
+        if: ${{ (runner.os == 'Linux') && (matrix.cibw_python == '312') }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}
