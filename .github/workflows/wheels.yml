@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - master
-    - refactor_ci_pypi
   pull_request:
     branches:
     - master
@@ -217,6 +216,7 @@ jobs:
 
   pypi-publish:
     name: Upload release to PyPI
+    if: github.event_name == 'release'
     needs: [build_wheels]
     runs-on: ubuntu-latest
     permissions:
@@ -233,7 +233,6 @@ jobs:
 
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      # if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
