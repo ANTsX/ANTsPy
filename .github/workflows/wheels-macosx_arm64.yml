@@ -151,32 +151,3 @@ jobs:
         verify-metadata: false
         skip-existing: true
         verbose: true
-
-
-  testpypi-publish:
-    name: Upload release to TestPyPI
-    needs: [build_wheels]
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/ANTsPy_macos_arm64
-    permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
-    steps:
-    # retrieve your distributions here
-    - name: Download artifacts
-      # needs: [build_wheels, build_sdist]
-      uses: actions/download-artifact@v4
-      with:
-        # unpacks all CIBW artifacts into dist/
-        pattern: antspyx*
-        path: dist
-        merge-multiple: true
-
-    - name: Publish package to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository-url: https://test.pypi.org/legacy/
-        verbose: true
