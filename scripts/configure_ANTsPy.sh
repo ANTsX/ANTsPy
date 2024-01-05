@@ -4,7 +4,7 @@
 # clone pybind11 into library directory
 
 cd ants/lib # go to lib dir
-if [[ ! -d ~/pybind11 ]]; then
+if [[ ! -d ./pybind11 ]]; then
   git clone https://github.com/stnava/pybind11.git
 #  git clone https://github.com/ncullen93/pybind11.git
 fi
