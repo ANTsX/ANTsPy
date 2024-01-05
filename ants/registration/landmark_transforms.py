@@ -42,7 +42,7 @@ def fit_transform_to_paired_points(moving_points,
                                    number_of_compositions=10,
                                    composition_step_size=0.5,
                                    sigma=0.0,
-                                   convergence_threshold=0.0,
+                                   convergence_threshold=1e-6,
                                    number_of_time_steps=2,
                                    number_of_integration_steps=100,
                                    rasterize_points=False,
@@ -308,7 +308,7 @@ def fit_transform_to_paired_points(moving_points,
                 diff_time = end_time - start_time
                 print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                       " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
-            if not convergence_value is None and convergence_value < convergence_threshold:
+            if not convergence_value is None and convergence_value <= convergence_threshold:
                 break
 
         if verbose:
@@ -407,7 +407,7 @@ def fit_transform_to_paired_points(moving_points,
                 diff_time = end_time - start_time
                 print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                       " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
-            if not convergence_value is None and convergence_value < convergence_threshold:
+            if not convergence_value is None and convergence_value <= convergence_threshold:
                 break
 
         total_forward_field = compose_displacement_fields(total_inverse_field_moving_to_middle, total_field_fixed_to_middle)
@@ -524,7 +524,7 @@ def fit_transform_to_paired_points(moving_points,
                 diff_time = end_time - start_time
                 print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                       " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
-            if not convergence_value is None and convergence_value < convergence_threshold:
+            if not convergence_value is None and convergence_value <= convergence_threshold:
                 break
 
         forward_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 0.0, 1.0, number_of_integration_steps))
@@ -557,7 +557,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                                              composition_step_size=0.5,
                                              number_of_integration_steps=100,
                                              sigma=0.0,
-                                             convergence_threshold=0.0,
+                                             convergence_threshold=1e-6,
                                              rasterize_points=False,
                                              verbose=False
                                             ):
@@ -828,7 +828,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
             diff_time = end_time - start_time
             print("Composition " + str(i) + ": error = " + str(error_values[-1]) +
                   " (convergence = " + str(convergence_value) + ", elapsed time = " + str(diff_time) + ")")
-        if not convergence_value is None and convergence_value < convergence_threshold:
+        if not convergence_value is None and convergence_value <= convergence_threshold:
             break
 
     forward_xfrm = txio.transform_from_displacement_field(integrate_velocity_field(velocity_field, 0.0, 1.0, number_of_integration_steps))
