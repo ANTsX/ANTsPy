@@ -1834,6 +1834,7 @@ def plot_ortho(
         # pad image to have isotropic array dimensions
         imageReturn = image.clone()
         image = image.numpy()
+        overlayReturn = None
         if overlay is not None:
             overlayReturn = overlay.clone()
             overlay = overlay.numpy()
