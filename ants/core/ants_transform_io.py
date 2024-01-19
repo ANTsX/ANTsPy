@@ -16,7 +16,8 @@ from .. import utils
 
 
 def new_ants_transform(
-    precision="float", dimension=3, transform_type="AffineTransform", parameters=None, fixed_parameters=None
+    precision="float", dimension=3, transform_type="AffineTransform", parameters=None,
+    fixed_parameters=None
 ):
     """
     Create a new ANTsTransform
