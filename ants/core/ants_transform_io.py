@@ -16,12 +16,15 @@ from .. import utils
 
 
 def new_ants_transform(
-    precision="float", dimension=3, transform_type="AffineTransform", parameters=None
+    precision="float", dimension=3, transform_type="AffineTransform", parameters=None, fixed_parameters=None
 ):
     """
     Create a new ANTsTransform
 
     ANTsR function: None
+
+    This is a simplified method for creating an ANTsTransform, mostly used internally.
+    See create_ants_transform for more options.
 
     Example
     -------
@@ -41,6 +44,9 @@ def new_ants_transform(
 
     if parameters is not None:
         ants_tx.set_parameters(parameters)
+
+    if fixed_parameters is not None:
+        ants_tx.set_fixed_parameters(fixed_parameters)
 
     return ants_tx
 
@@ -268,7 +274,7 @@ def transform_to_displacement_field(xfrm, ref):
         displacement field ANTsTransform
 
     ref : ANTs Image
-         
+
     Returns
     -------
     ANTsVectorImage
@@ -285,7 +291,7 @@ def transform_to_displacement_field(xfrm, ref):
     >>> atx = ants.transform_from_displacement_field( vec )
     >>> field = ants.transform_to_displacement_field( atx, fi )
     """
-    
+
     if not xfrm.type == 'DisplacementFieldTransform':
         raise ValueError("Transform must be of DisplacementFieldTransform type")
     libfn = utils.get_lib_fn("antsTransformToDisplacementFieldF%i" % xfrm.dimension)
