@@ -340,6 +340,32 @@ def bandpass_filter_matrix( matrix,
             matrix[:,k], lowf, highf, fs, order=order )
     return matrixOut
 
+def clean_data(arr, standardize=False):
+    """
+    Remove columns from a NumPy array that have no variation or contain NA/Inf values.
+    Optionally standardize the remaining data.
+
+    :param arr: NumPy array to be cleaned.
+    :param standardize: Boolean, if True standardize the data.
+    :return: Cleaned (and optionally standardized) NumPy array.
+    """
+    valid_columns = []
+
+    for i in range(arr.shape[1]):
+        column = arr[:, i]
+        if np.any(column != column[0]) and not np.any(np.isnan(column)) and not np.any(np.isinf(column)):
+            valid_columns.append(i)
+
+    cleaned_data = arr[:, valid_columns]
+
+    if standardize:
+        mean = np.mean(cleaned_data, axis=0)
+        std_dev = np.std(cleaned_data, axis=0)
+        # Avoid division by zero in case of zero standard deviation
+        std_dev[std_dev == 0] = 1
+        cleaned_data = (cleaned_data - mean) / std_dev
+
+    return cleaned_data
 
 def compcor( boldImage, ncompcor=4, quantile=0.975, mask=None, filter_type=False, degree=2 ):
     """
@@ -406,6 +432,7 @@ def compcor( boldImage, ncompcor=4, quantile=0.975, mask=None, filter_type=False
 #    M = M / compute_tSTD(M, 1.)['tSTD']
     # "The covariance matrix C = MMT was constructed and decomposed into its
     # principal components using a singular value decomposition."
+    M = clean_data( M )
     u, _, _ = linalg.svd(M, full_matrices=False)
     if components is None:
         components = u[:, :ncompcor]
