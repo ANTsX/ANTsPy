@@ -2286,8 +2286,6 @@ def plot(
         x = mirror_matrix(x)
         return x
 
-    # need this hack because of a weird NaN warning from matplotlib with overlays
-    warnings.simplefilter("ignore")
 
     # handle `image` argument
     if isinstance(image, str):
@@ -2295,7 +2293,12 @@ def plot(
     if not isinstance(image, iio.ANTsImage):
         raise ValueError("image argument must be an ANTsImage")
 
-    assert image.sum() > 0, "Image must be non-zero"
+    if not image.sum() > 0:
+        warnings.warn("Image must be non-zero. will not plot.")
+        return
+
+    # need this hack because of a weird NaN warning from matplotlib with overlays
+    warnings.simplefilter("ignore")
 
     if (image.pixeltype not in {"float", "double"}) or (image.is_rgb):
         scale = False  # turn off scaling if image is discrete
