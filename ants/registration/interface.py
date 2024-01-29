@@ -93,7 +93,7 @@ def registration(
         the metric for the affine part (GC, mattes, meansquares)
 
     aff_sampling : scalar
-        the nbins or radius parameter for the syn metric
+        number of bins for the mutual information metric
 
     aff_random_sampling_rate : scalar
         the fraction of points used to estimate the metric. this can impact
