@@ -162,7 +162,17 @@ class ANTsTransform(object):
             target space for transforming image
 
         interpolation : string
-            type of interpolation to use
+            type of interpolation to use. Options are:
+                linear
+                nearestneighbor
+                multilabel
+                gaussian
+                bspline
+                cosinewindowedsinc
+                welchwindowedsinc
+                hammingwindoweddinc
+                lanczoswindowedsinc
+                genericlabel
 
         Returns
         -------
@@ -171,6 +181,8 @@ class ANTsTransform(object):
         """
         if reference is None:
             reference = image.clone()
+        
+        interpolation = interpolation.lower()
 
         tform_fn = utils.get_lib_fn('transformImage%s%s' % (self._libsuffix, image._libsuffix))
         reference = reference.clone(image.pixeltype)
@@ -317,7 +329,17 @@ def apply_ants_transform_to_image(transform, image, reference, interpolation='li
         reference image
 
     interpolation : string
-        type of interpolation to use
+        type of interpolation to use. Options are:
+        linear
+        nearestneighbor
+        multilabel
+        gaussian
+        bspline
+        cosinewindowedsinc
+        welchwindowedsinc
+        hammingwindoweddinc
+        lanczoswindowedsinc
+        genericlabel
 
     Returns
     -------
