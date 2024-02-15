@@ -16,7 +16,9 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/stnava/ANTsPyDocker/master)
 [![PubMed](https://img.shields.io/badge/ANTsX_paper-Open_Access-8DABFF?logo=pubmed)](https://pubmed.ncbi.nlm.nih.gov/33907199/)
 
-## Advanced Normalization Tools in Python (ANTsPy)
+
+## About ANTsPy
+
 
 Search [ANTsPy documentation at read the docs.](https://antspyx.readthedocs.io/en/latest/?badge=latest)
 
@@ -35,7 +37,7 @@ scratch - see [C++ Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
 If you want to contribute to <i>ANTsPy</i> or simply want to learn about the package architecture
 and wrapping process, please read the extensive [contributors guide](CONTRIBUTING.md).
 
-If you have any questions or feature requests, feel free to open an issue or email Nick (ncullen at pennmedicine dot upenn dot edu).
+If you have any questions or feature requests, feel free to open an issue.
 
 ## Installation
 
