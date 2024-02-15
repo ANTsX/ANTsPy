@@ -8,6 +8,7 @@ from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import registration as reg
 
+__all__ = ['average_images']
 ########################
 def average_images( x, normalize=True, mask=None, imagetype=0, sum_image_threshold=3, return_sum_image=False, verbose=False ):
     """
