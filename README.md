@@ -1,5 +1,3 @@
-
-
 # Advanced Normalization Tools in Python
 
 ![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif)
@@ -7,7 +5,7 @@
 
 <a href='https://coveralls.io/github/ANTsX/ANTsPy?branch=master'><img src='https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master' alt='Coverage Status' /></a>
 <a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/antspyx/badge/?version=latest' alt='Documentation Status' />
+<img src='https://readthedocs.org/projects/antspyx/badge/?version=latest' alt='Documentation Status' />
 </a>
 ![Downloads](https://img.shields.io/github/downloads/antsx/antspy/total)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/antspyx?label=pypi%20downloads)
@@ -18,8 +16,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/stnava/ANTsPyDocker/master)
 [![PubMed](https://img.shields.io/badge/ANTsX_paper-Open_Access-8DABFF?logo=pubmed)](https://pubmed.ncbi.nlm.nih.gov/33907199/)
 
-
-## About ANTsPy
+## Advanced Normalization Tools in Python (ants-py)
 
 Search [ANTsPy documentation at read the docs.](https://antspyx.readthedocs.io/en/latest/?badge=latest)
 
@@ -44,13 +41,14 @@ If you have any questions or feature requests, feel free to open an issue or ema
 
 ### NOTE: old pip wheels will be deleted!!!
 
-we dont have the quota on pypi to support more than one or two prior releases.  if you care about this:  (1) open a pypi issue requesting more quota for this project;  (2) propose another alternative.
+we dont have the quota on pypi to support more than one or two prior releases. if you care about this: (1) open a pypi issue requesting more quota for this project; (2) propose another alternative.
 
 We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. Note
 that <i>ANTsPy</i> is not currently tested for Python 2.7 support.
 Copy the following command and paste it into your bash terminal:
 
 For MacOS and Linux:
+
 ```bash
 pip install antspyx
 ```
@@ -64,34 +62,34 @@ git clone https://github.com/ANTsX/ANTsPy
 cd ANTsPy
 python3 setup.py install
 ```
+
 or see below for an alternative strategy using `pip`. If you want more detailed instructions
 on compiling <i>ANTsPy</i> from source, you can read the
 [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
-
 
 ### Installing older versions
 
 We cannot store the entire history of releases because storage space on `pip` is limited.
 
 if you need an older release, you can check the [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or
-build from source. 
+build from source.
 
 Try something like:
 
 ```bash
 pip install 'antspyx @ git+https://github.com/ANTsX/ANTsPy@v0.3.2'
 ```
-which will attempt to build from source (requires a machine with developer tools).  
 
-
+which will attempt to build from source (requires a machine with developer tools).
 
 ### Recent wheels
 
 Non-release commits have wheels built automatically, which are available for download for a limited period.
-Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions).  Then click on the commit for the software version you want.
+Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions). Then click on the commit for the software version you want.
 Recent commits will have wheels stored as "artifacts".
 
 we build wheels locally like this:
+
 ```
 rm -r -f build/ antspymm.egg-info/ dist/
 python3 setup.py sdist bdist_wheel
@@ -103,13 +101,14 @@ pipx run twine upload dist/*
 Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). To build
 ANTsPy docker images, see the (installation tutorial)(https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md#docker-installation).
 
-------------------------------------------------------------------------------
+---
 
 ## ANTsR Comparison
 
 Here is a quick example to show the similarity with <i>ANTsR</i>:
 
 <i>ANTsR</i> code:
+
 ```R
 library(ANTsR)
 img   <- antsImageRead(getANTsRData("r16"))
@@ -119,6 +118,7 @@ segs1 <- atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 ```
 
 <i>ANTsPy</i> code:
+
 ```python
 from ants import atropos, get_ants_data, image_read, resample_image, get_mask
 img   = image_read(get_ants_data("r16"))
