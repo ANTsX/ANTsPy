@@ -2,6 +2,7 @@ from .. import utils, core
 from tempfile import mktemp
 import os
 
+__all__ = ['average_affine_transform', 'average_affine_transform_no_rigid']
 
 
 def _average_affine_transform_driver(transformlist, referencetransform=None, funcname="AverageAffineTransform"):
