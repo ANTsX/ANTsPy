@@ -3,10 +3,10 @@ name: Build
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
   release:
     types: [created]
   workflow_dispatch:
@@ -24,71 +24,19 @@ jobs:
 
           # Windows 64-bit
           - os: windows-latest
-            python: '3.8'
-            cibw_python: 38
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.9'
-            cibw_python: 39
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.10'
-            cibw_python: 310
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.11'
-            cibw_python: 311
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.12'
+            python: "3.12"
             cibw_python: 312
             platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
-            python: '3.8'
-            cibw_python: 38
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.9'
-            cibw_python: 39
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.10'
-            cibw_python: 310
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.11'
-            cibw_python: 311
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.12'
+            python: "3.12"
             cibw_python: 312
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-latest
-            python: '3.8'
-            cibw_python: 38
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-latest
-            python: '3.9'
-            cibw_python: 39
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-latest
-            python: '3.10'
-            cibw_python: 310
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-latest
-            python: '3.11'
-            cibw_python: 311
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-latest
-            python: '3.12'
+            python: "3.12"
             cibw_python: 312
             arch: x86_64
             platform_id: macosx_x86_64
@@ -214,7 +162,7 @@ jobs:
           echo $wheeldir
           mv $mywhl $wheeldir
           rm -r -f $extrawheeldir $wheeldirx
-          
+
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         if: ${{ (github.event_name == 'push') && (runner.os == 'Linux') }}
