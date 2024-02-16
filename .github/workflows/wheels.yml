@@ -41,28 +41,6 @@ jobs:
             arch: x86_64
             platform_id: macosx_x86_64
 
-          # macOS on Apple M1 64-bit
-          # - os: macos-latest
-          #   python: '3.8'
-          #   cibw_python: 38
-          #   arch: arm64
-          #   platform_id: macosx_arm64
-          # - os: macos-latest
-          #   python: '3.9'
-          #   cibw_python: 39
-          #   arch: arm64
-          #   platform_id: macosx_arm64
-          # - os: macos-latest
-          #   python: '3.10'
-          #   cibw_python: 310
-          #   arch: arm64
-          #   platform_id: macosx_arm64
-          # - os: macos-latest
-          #   python: '3.11'
-          #   cibw_python: 311
-          #   arch: arm64
-          #   platform_id: macosx_arm64
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -131,7 +109,11 @@ jobs:
         if: startsWith(matrix.os, 'windows-')
         run: |
           python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{matrix.platform_id }} antspyx
-          tests\run_tests.ps1
+          tests\run_tests.sh --coverage
+          coveralls --service=github
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
 
       - uses: actions/upload-artifact@v3
         with:
