@@ -85,6 +85,11 @@ def registration(
 
     flow_sigma : scalar
         smoothing for update field
+        At each iteration, the similarity metric and gradient is calculated. 
+        That gradient field is also called the update field and is smoothed 
+        before composing with the total field (i.e., the estimate of the total 
+        transform at that iteration). This total field can also be smoothed 
+        after each iteration.
 
     total_sigma : scalar
         smoothing for total field
