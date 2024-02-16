@@ -103,7 +103,8 @@ jobs:
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
         run: |
           python -m pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
-          tests/run_tests.sh
+          tests\run_tests.sh --coverage
+          coveralls --service=github
 
       - name: Install and test (Windows)
         if: startsWith(matrix.os, 'windows-')
