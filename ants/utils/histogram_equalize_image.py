@@ -28,9 +28,13 @@ def histogram_equalize_image(image, number_of_histogram_bins=256):
     image_array = image.numpy()
     image_histogram, bins = np.histogram(image_array.flatten(), number_of_histogram_bins, density=True)
     cdf = image_histogram.cumsum()
-    cdf = (number_of_histogram_bins-1) * cdf / cdf[-1]
+    cdf = image_array.max() * cdf / cdf[-1]
     image_array_equalized_flat = np.interp(image_array.flatten(), bins[:-1], cdf)
     image_array_equalized = image_array_equalized_flat.reshape(image_array.shape)    
+    image_array_equalized = ( ( image_array_equalized - image_array_equalized.min() ) /
+                              ( image_array_equalized.max() - image_array_equalized.min() ) )
+    image_array_equalized = image_array_equalized * ( image_array.max() - image_array.min() ) + image_array.min()
+
     image_equalized = core.from_numpy(image_array_equalized)
 
     return core.copy_image_info(image, image_equalized)
