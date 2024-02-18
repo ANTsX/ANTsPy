@@ -12,7 +12,7 @@ jobs:
         run: python -m pip install .
 
       - name: Unit tests
-        run: tests/run_tests.sh
+        run: tests/run_tests.sh -c
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
