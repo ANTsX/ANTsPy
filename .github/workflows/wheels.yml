@@ -103,12 +103,14 @@ jobs:
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
         run: |
           python -m pip install wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}/*.whl
+          python -m pip install coverage
           tests/run_tests.sh -c
 
       - name: Install and test (Windows)
         if: startsWith(matrix.os, 'windows-')
         run: |
           python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{matrix.platform_id }} antspyx
+          python -m pip install coverage
           tests/run_tests.sh -c
 
       - name: Coveralls

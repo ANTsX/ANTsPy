@@ -11,6 +11,9 @@ jobs:
       - name: Install package
         run: python -m pip install .
 
+      - name: Install coverage
+        run: python -m pip install coverage
+
       - name: Unit tests
         run: tests/run_tests.sh -c
 
