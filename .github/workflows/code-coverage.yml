@@ -1,5 +1,9 @@
-name: push
-on: [push]
+on:
+  push:
+    branches:
+      - master
+
+name: codecov
 
 jobs:
   test:
