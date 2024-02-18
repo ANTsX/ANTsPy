@@ -3,6 +3,12 @@ on:
     branches:
       - master
 
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name'
+        required: true
+
 name: codecov
 
 jobs:
