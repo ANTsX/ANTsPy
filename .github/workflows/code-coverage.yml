@@ -3,6 +3,12 @@ on:
     branches:
       - master
 
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name'
+        required: true
+
 name: codecov
 
 jobs:
@@ -18,8 +24,16 @@ jobs:
       - name: Install coverage
         run: python -m pip install coverage
 
+      - name: Find installed package path
+        id: find_package_path
+        run: >
+          echo "PACKAGE_PATH=$(python -c 'import importlib.util;
+          package_name=\"ants\"; package_spec=importlib.util.find_spec(package_name);
+          print(package_spec.submodule_search_locations[0] if package_spec else \"\")')"
+          >> $GITHUB_ENV
+
       - name: Unit tests
-        run: tests/run_tests.sh -c
+        run: tests/run_tests.sh -c -s ${PACKAGE_PATH}
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
