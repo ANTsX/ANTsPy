@@ -22,11 +22,8 @@ jobs:
 
       - name: Find installed package path
         id: find_package_path
-        run: >
-          echo "PACKAGE_PATH=$(python -c 'import importlib.util;
-          package_name=\"ants\"; package_spec=importlib.util.find_spec(package_name);
-          print(package_spec.submodule_search_locations[0] if package_spec else \"\")')"
-          >> $GITHUB_ENV
+        run: |
+          echo "PACKAGE_PATH=$(python tests/find_package_path.py)" >> $GITHUB_ENV
 
       - name: Unit tests
         run: tests/run_tests.sh -c -s ${PACKAGE_PATH}
