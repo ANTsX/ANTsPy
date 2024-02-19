@@ -436,6 +436,7 @@ class ANTsImage(object):
 
     ## OVERLOADED OPERATORS ##
     def __add__(self, other):
+        print(other)
         this_array = self.numpy()
 
         if isinstance(other, ANTsImage):
@@ -446,6 +447,17 @@ class ANTsImage(object):
         new_array = this_array + other
         return self.new_image_like(new_array)
 
+    def __radd__(self, other):
+        this_array = self.numpy()
+
+        if isinstance(other, ANTsImage):
+            if not image_physical_space_consistency(self, other):
+                raise ValueError('images do not occupy same physical space')
+            other = other.numpy()
+
+        new_array = other + this_array
+        return self.new_image_like(new_array)
+    
     def __sub__(self, other):
         this_array = self.numpy()
 
@@ -457,6 +469,17 @@ class ANTsImage(object):
         new_array = this_array - other
         return self.new_image_like(new_array)
 
+    def __rsub__(self, other):
+        this_array = self.numpy()
+
+        if isinstance(other, ANTsImage):
+            if not image_physical_space_consistency(self, other):
+                raise ValueError('images do not occupy same physical space')
+            other = other.numpy()
+
+        new_array = other - this_array
+        return self.new_image_like(new_array)
+    
     def __mul__(self, other):
         this_array = self.numpy()
 
@@ -466,6 +489,17 @@ class ANTsImage(object):
             other = other.numpy()
 
         new_array = this_array * other
+        return self.new_image_like(new_array)
+
+    def __rmul__(self, other):
+        this_array = self.numpy()
+
+        if isinstance(other, ANTsImage):
+            if not image_physical_space_consistency(self, other):
+                raise ValueError('images do not occupy same physical space')
+            other = other.numpy()
+
+        new_array = other * this_array
         return self.new_image_like(new_array)
 
     def __truediv__(self, other):
