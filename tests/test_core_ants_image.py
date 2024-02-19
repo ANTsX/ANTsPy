@@ -232,6 +232,25 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img + img2
 
+    def test__radd__(self):
+        #self.setUp()
+        for img in self.imgs:
+            # op on constant
+            img2 = 6.9 + img 
+            self.assertTrue(ants.image_physical_space_consistency(img, img2))
+            nptest.assert_allclose(img2.numpy(), img.numpy() + 6.9)
+
+            # op on another image
+            img2 = img + img.clone()
+            self.assertTrue(ants.image_physical_space_consistency(img, img2))
+            nptest.assert_allclose(img2.numpy(), img.numpy()+img.numpy())
+
+            with self.assertRaises(Exception):
+                # different physical space
+                img2 = img.clone()
+                img2.set_spacing([2.31]*img.dimension)
+                img3 = img + img2
+                
     def test__sub__(self):
         #self.setUp()
         for img in self.imgs:
@@ -251,6 +270,25 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img - img2
 
+    def test__rsub__(self):
+        #self.setUp()
+        for img in self.imgs:
+            # op on constant
+            img2 = 6.9 - img
+            self.assertTrue(ants.image_physical_space_consistency(img, img2))
+            nptest.assert_allclose(img2.numpy(), 6.9 - img.numpy())
+
+            # op on another image
+            img2 = img - img.clone()
+            self.assertTrue(ants.image_physical_space_consistency(img, img2))
+            nptest.assert_allclose(img2.numpy(), img.numpy()-img.numpy())
+
+            with self.assertRaises(Exception):
+                # different physical space
+                img2 = img.clone()
+                img2.set_spacing([2.31]*img.dimension)
+                img3 = img - img2
+                
     def test__mul__(self):
         #self.setUp()
         for img in self.imgs:
@@ -270,6 +308,25 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img * img2
 
+    def test__rmul__(self):
+        #self.setUp()
+        for img in self.imgs:
+            # op on constant
+            img2 = 6.9 * img
+            self.assertTrue(ants.image_physical_space_consistency(img, img2))
+            nptest.assert_allclose(img2.numpy(), 6.9*img.numpy())
+
+            # op on another image
+            img2 = img * img.clone()
+            self.assertTrue(ants.image_physical_space_consistency(img, img2))
+            nptest.assert_allclose(img2.numpy(), img.numpy()*img.numpy())
+
+            with self.assertRaises(Exception):
+                # different physical space
+                img2 = img.clone()
+                img2.set_spacing([2.31]*img.dimension)
+                img3 = img * img2
+                
     def test__div__(self):
         #self.setUp()
         for img in self.imgs:
