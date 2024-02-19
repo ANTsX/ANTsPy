@@ -436,7 +436,6 @@ class ANTsImage(object):
 
     ## OVERLOADED OPERATORS ##
     def __add__(self, other):
-        print(other)
         this_array = self.numpy()
 
         if isinstance(other, ANTsImage):
