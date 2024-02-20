@@ -236,7 +236,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             # op on constant
-            img2 = 6.9 + img 
+            img2 = img.__radd__(6.9)
             self.assertTrue(ants.image_physical_space_consistency(img, img2))
             nptest.assert_allclose(img2.numpy(), img.numpy() + 6.9)
 
@@ -274,7 +274,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             # op on constant
-            img2 = 6.9 - img
+            img2 = img.__rsub__(6.9)
             self.assertTrue(ants.image_physical_space_consistency(img, img2))
             nptest.assert_allclose(img2.numpy(), 6.9 - img.numpy())
 
@@ -312,7 +312,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             # op on constant
-            img2 = 6.9 * img
+            img2 = img.__rmul__(6.9)
             self.assertTrue(ants.image_physical_space_consistency(img, img2))
             nptest.assert_allclose(img2.numpy(), 6.9*img.numpy())
 
