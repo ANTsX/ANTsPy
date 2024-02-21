@@ -8,7 +8,7 @@ from ..core import ants_image as iio
 from .. import utils
 
 
-def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, **kwargs):
+def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kwargs):
     """
     Compute cortical thickness using the DiReCT algorithm.
 
@@ -36,6 +36,12 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, **kwargs):
     m : scalar
         gradient field smoothing parameter
 
+    gm_label : integer
+        label for gray matter in the segmentation image
+
+    wm_label : integer
+        label for white matter in the segmentation image
+
     kwargs : keyword arguments
         anything else, see KellyKapowski help in ANTs
 
@@ -60,7 +66,7 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, **kwargs):
     d = s.dimension
     outimg = g.clone()
     kellargs = {'d': d,
-                's': s,
+                's': "[{},{},{}]".format(utils.get_pointer_string(s),gm_label,wm_label),
                 'g': g,
                 'w': w,
                 'c': "[{}]".format(its),
