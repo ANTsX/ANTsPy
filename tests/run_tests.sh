@@ -39,7 +39,7 @@ $PYCMD test_segmentation.py $@
 echo "Running utils tests"
 $PYCMD test_utils.py $@
 
-# echo "Running viz tests"
+echo "Running viz tests"
 $PYCMD test_viz.py $@
 
 echo "Running bug tests"
