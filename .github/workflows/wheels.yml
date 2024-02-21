@@ -170,7 +170,7 @@ jobs:
             brew update
             brew install libpng
 
-          CIBW_ENVIRONMENT_MACOS: |
+          CIBW_ENVIRONMENT_MACOS: >
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
 	    CMAKE_PREFIX_PATH=/usr/local
 
