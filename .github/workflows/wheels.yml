@@ -172,6 +172,7 @@ jobs:
 
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}
+	    CMAKE_PREFIX_PATH=/usr/local
 
         run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
 
