@@ -386,7 +386,7 @@ def registration(
 
     # Perform checking of antsRegistrationSyN transforms later
     if not "antsRegistrationSyN" in type_of_transform and not ttexists:
-        raise ValueError("`type_of_transform` does not exist")
+        raise ValueError(f'{type_of_transform} does not exist')
 
     initx = initial_transform
     if isinstance(initx, str):
