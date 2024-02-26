@@ -142,6 +142,10 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         warnings.warn('ERROR: Non-zero exit status!')
 
     probsout = glob.glob(os.path.join(tdir,'*'+searchpattern))
+    
+    if len(probsout) == 0:
+        raise Exception('No atropos output probability images found.')
+    
     probsout.sort()
     probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
