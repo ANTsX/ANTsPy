@@ -1,7 +1,5 @@
 # Advanced Normalization Tools in Python
 
-![img](https://media0.giphy.com/media/OCMGLUo7d5jJ6/200_s.gif)
-<br>
 
 [![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master)](https://coveralls.io/github/ANTsX/ANTsPy?branch=master)
 <a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
@@ -16,6 +14,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/stnava/ANTsPyDocker/master)
 [![PubMed](https://img.shields.io/badge/ANTsX_paper-Open_Access-8DABFF?logo=pubmed)](https://pubmed.ncbi.nlm.nih.gov/33907199/)
 
+<br>
 
 ## About ANTsPy
 
@@ -38,6 +37,8 @@ If you want to contribute to <i>ANTsPy</i> or simply want to learn about the pac
 and wrapping process, please read the extensive [contributors guide](CONTRIBUTING.md).
 
 If you have any questions or feature requests, feel free to open an issue.
+
+<br>
 
 ## Installation
 
@@ -105,6 +106,8 @@ ANTsPy docker images, see the (installation tutorial)(https://github.com/ANTsX/A
 
 ---
 
+<br>
+
 ## ANTsR Comparison
 
 Here is a quick example to show the similarity with <i>ANTsR</i>:
@@ -129,6 +132,8 @@ mask  = get_mask(img)
 segs1 = atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
 ```
 
+<br>
+
 ## Tutorials
 
 We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tree/master/tutorials](https://github.com/ANTsX/ANTsPy/tree/master/tutorials)
@@ -139,7 +144,9 @@ We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tr
 
 [Composite registrations](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)
 
-## other notes on compilation
+<br>
+
+## Other notes on compilation
 
 in some cases, you may need some other libraries if they are not already installed eg if cmake says something about
 a missing png library or a missing `Python.h` file.
@@ -151,13 +158,15 @@ sudo apt-get install libpng-dev
 sudo apt-get install python3-dev  # for python3.x installs
 ```
 
-## Build documentation
+### Build documentation
 
 ```
 cd docs
 sphinx-apidoc -o source/ ../
 make html
 ```
+
+<br>
 
 ## References
 
