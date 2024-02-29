@@ -16,9 +16,9 @@
 
 <br>
 
-ANTsPy is a Python library which wraps the well-established C++ biomedical image processing library <i>[ANTs](https://github.com/ANTsX/ANTs)</i>. It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations. Moreover, ANTsPy seamlessly integrates with the greater Python community, particularly numpy.
+ANTsPy is a Python library which wraps the well-established C++ biomedical image processing library <i>[ANTs](https://github.com/ANTsX/ANTs)</i>. It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
 
-If you are looking to train deep learning models on your medical images, you might be interested in [ANTsPyNet](https://github.com/ANTsX/ANTsPy) which provides tools for training and visualizations deep learning.
+If you are looking to train deep learning models on your medical images, you might be interested in [ANTsPyNet](https://github.com/ANTsX/ANTsPy) which provides tools for training and visualizations deep learning. ANTsPy and ANTsPyNet seamlessly integrate with the greater Python community, particularly deep learning libraries, scikit-learn, and numpy.
 
 <br>
 
