@@ -16,39 +16,15 @@
 
 <br>
 
-## About ANTsPy
+ANTsPy is a Python library which wraps the well-established C++ biomedical image processing library <i>[ANTs](https://github.com/ANTsX/ANTs)</i>. It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations. Moreover, ANTsPy seamlessly integrates with the greater Python community, particularly numpy.
 
-
-Search [ANTsPy documentation at read the docs.](https://antspyx.readthedocs.io/en/latest/?badge=latest)
-
-<i>ANTsPy</i> is a Python library which wraps the C++ biomedical image processing library <i>[ANTs](https://github.com/ANTsX/ANTs)</i>,
-matches much of the statistical capabilities of <i>[ANTsR](https://github.com/ANTsX/ANTsR)</i>, and allows seamless integration
-with <i>numpy</i>, <i>scikit-learn</i>, and the greater Python community.
-
-<i>ANTsPy</i> includes blazing-fast IO (~40% faster than <i>nibabel</i> for loading Nifti images and
-converting them to <i>numpy</i> arrays), registration, segmentation, statistical learning,
-visualization, and other useful utility functions.
-
-<i>ANTsPy</i> also provides a low-barrier opportunity for users to quickly wrap their <i>ITK</i> (or general C++)
-code in Python without having to build an entire IO/plotting/wrapping code base from
-scratch - see [C++ Wrap Guide](tutorials/UsingITK.md) for a succinct tutorial.
-
-If you want to contribute to <i>ANTsPy</i> or simply want to learn about the package architecture
-and wrapping process, please read the extensive [contributors guide](CONTRIBUTING.md).
-
-If you have any questions or feature requests, feel free to open an issue.
+If you are looking to train deep learning models on your medical images, you might be interested in [ANTsPyNet](https://github.com/ANTsX/ANTsPy) which provides tools for training and visualizations deep learning.
 
 <br>
 
 ## Installation
 
-### NOTE: old pip wheels will be deleted!!!
-
-we dont have the quota on pypi to support more than one or two prior releases. if you care about this: (1) open a pypi issue requesting more quota for this project; (2) propose another alternative.
-
-We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. Note
-that <i>ANTsPy</i> is not currently tested for Python 2.7 support.
-Copy the following command and paste it into your bash terminal:
+We recommend that users install the latest pre-compiled binaries, which takes ~1 minute. 
 
 For MacOS and Linux:
 
@@ -57,7 +33,7 @@ pip install antspyx
 ```
 
 Because of limited storage space, pip binaries are not available for every combination of python
-version and platform. If we do not have releases for your platform, you can check the
+version and platform. Additionally, we are required to remove outdated wheels. If we do not have releases for your platform, you can check the
 [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or build from source with:
 
 ```
@@ -66,18 +42,14 @@ cd ANTsPy
 python3 setup.py install
 ```
 
-or see below for an alternative strategy using `pip`. If you want more detailed instructions
+If you want more detailed instructions
 on compiling <i>ANTsPy</i> from source, you can read the
 [installation tutorial](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md).
 
-### Installing older versions
+### Installing specific versions
 
-We cannot store the entire history of releases because storage space on `pip` is limited.
-
-if you need an older release, you can check the [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or
-build from source.
-
-Try something like:
+We cannot store the entire history of releases because storage space on `pip` is limited. If you need an older release, you can check the [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or
+build from source. To install a specific version from source, you can try the following:
 
 ```bash
 pip install 'antspyx @ git+https://github.com/ANTsX/ANTsPy@v0.3.2'
@@ -91,7 +63,7 @@ Non-release commits have wheels built automatically, which are available for dow
 Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions). Then click on the commit for the software version you want.
 Recent commits will have wheels stored as "artifacts".
 
-we build wheels locally like this:
+Wheels are built locally like this:
 
 ```
 rm -r -f build/ antspymm.egg-info/ dist/
@@ -108,21 +80,9 @@ ANTsPy docker images, see the (installation tutorial)(https://github.com/ANTsX/A
 
 <br>
 
-## ANTsR Comparison
+## Quickstart
 
-Here is a quick example to show the similarity with <i>ANTsR</i>:
-
-<i>ANTsR</i> code:
-
-```R
-library(ANTsR)
-img   <- antsImageRead(getANTsRData("r16"))
-img   <- resampleImage(img, c(64,64), 1, 0 )
-mask  <- getMask(img)
-segs1 <- atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask )
-```
-
-<i>ANTsPy</i> code:
+Here is an example of reading in an image, using various utility functions such as resampling and masking, then performing three-class Atropos segmentation.
 
 ```python
 from ants import atropos, get_ants_data, image_read, resample_image, get_mask
@@ -148,7 +108,7 @@ We provide numerous tutorials for new users: [https://github.com/ANTsX/ANTsPy/tr
 
 ## Other notes on compilation
 
-in some cases, you may need some other libraries if they are not already installed eg if cmake says something about
+In some cases, you may need some other libraries if they are not already installed eg if cmake says something about
 a missing png library or a missing `Python.h` file.
 
 ```
