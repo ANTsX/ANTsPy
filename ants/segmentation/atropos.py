@@ -139,13 +139,13 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     retval = libfn(processed_args)
 
     if retval != 0:
-        warnings.warn('ERROR: Non-zero exit status!')
+        raise Exception(f"Atropos exited with non-zero status {retval}. Run with verbose=1 to see error messages")
 
     probsout = glob.glob(os.path.join(tdir,'*'+searchpattern))
-    
-    if len(probsout) == 0:
-        raise Exception('No atropos output probability images found.')
-    
+
+    if probsout is None or len(probsout) == 0:
+        raise Exception('No Atropos output probability images found. Run with verbose=1 to see error messages')
+
     probsout.sort()
     probimgs = [iio2.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
