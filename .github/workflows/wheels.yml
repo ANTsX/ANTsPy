@@ -93,17 +93,7 @@ jobs:
             arch: x86_64
             platform_id: macosx_x86_64
 
-          # macOS on Apple M1 64-bit
-          - os: macos-14
-            python: '3.8'
-            cibw_python: 38
-            arch: arm64
-            platform_id: macosx_arm64
-          - os: macos-14
-            python: '3.9'
-            cibw_python: 39
-            arch: arm64
-            platform_id: macosx_arm64
+          # macOS on Apple M1 64-bit, supported for Python 3.10 and later
           - os: macos-14
             python: '3.10'
             cibw_python: 310
