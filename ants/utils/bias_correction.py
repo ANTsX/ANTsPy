@@ -63,7 +63,7 @@ def n3_bias_field_correction2(
         image to bias correct
 
     mask : ANTsImage
-        input mask, if one is not passed one will be made
+        Input mask.  If not specified, the entire image is used.
 
     rescale_intensities : boolean
         At each iteration, a new intensity mapping is
@@ -112,7 +112,7 @@ def n3_bias_field_correction2(
     iters = convergence["iters"]
     tol = convergence["tol"]
     if mask is None:
-        mask = get_mask(image)
+        mask = image * 0 + 1
     if spline_param is None:
         spline_param = [1] * image.dimension
 
@@ -182,7 +182,7 @@ def n4_bias_field_correction(
         image to bias correct
 
     mask : ANTsImage
-        input mask, if one is not passed one will be made
+        Input mask.  If not specified, the entire image is used.
 
     rescale_intensities : boolean
         At each iteration, a new intensity mapping is
@@ -228,8 +228,9 @@ def n4_bias_field_correction(
         image = image.clone("float")
     iters = convergence["iters"]
     tol = convergence["tol"]
+
     if mask is None:
-        mask = get_mask(image)
+        mask = image * 0 + 1
     if spline_param is None:
         spline_param = [1] * image.dimension
 
