@@ -64,7 +64,7 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
         s = s.clone('unsigned int')
 
     d = s.dimension
-    outimg = g.clone()
+    outimg = g.clone() * 0.0
     kellargs = {'d': d,
                 's': "[{},{},{}]".format(utils.get_pointer_string(s),gm_label,wm_label),
                 'g': g,
@@ -80,6 +80,11 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
 
     libfn = utils.get_lib_fn('KellyKapowski')
     libfn(processed_kellargs)
+
+    # Check thickness is not still all zeros
+    if outimg.sum() == 0.0:
+        raise RuntimeError("KellyKapowski failed to compute thickness")
+
     return outimg
 
 
