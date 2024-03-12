@@ -165,7 +165,7 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools
             echo "Running brew update"
-            brew update
+            brew update -v
             echo "Installing libpng"
             brew install libpng
 
