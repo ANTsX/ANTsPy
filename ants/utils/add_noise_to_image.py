@@ -8,10 +8,8 @@ def add_noise_to_image(image,
                        noise_parameters
 ):
     """
-    Add noise to an image using additive Guassian, salt-and-pepper,
+    Add noise to an image using additive Gaussian, salt-and-pepper,
     shot, or speckle noise.
-
-    ANTsR function: `addNoiseToImage`
 
     Arguments
     ---------
