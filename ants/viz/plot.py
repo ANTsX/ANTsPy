@@ -228,7 +228,7 @@ def plot(
     if not isinstance(image, iio.ANTsImage):
         raise ValueError("image argument must be an ANTsImage")
 
-    if sum(sum(image != 0)) == 0:
+    if np.all(np.equal(image.numpy(), 0.0)):
         warnings.warn("Image must be non-zero. will not plot.")
         return
 
