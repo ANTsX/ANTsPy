@@ -7,7 +7,7 @@ from ..core import ants_image as iio
 from .. import utils
 
 
-def slice_image(image, axis=None, idx=None, collapse_strategy=0):
+def slice_image(image, axis, idx, collapse_strategy=0):
     """
     Slice an image.
 
