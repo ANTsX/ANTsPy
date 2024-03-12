@@ -165,7 +165,9 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools
             brew update
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng
+            if ! brew list libpng &>/dev/null; then
+                HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng
+            fi
 
           CIBW_ENVIRONMENT_MACOS: |
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} CMAKE_PREFIX_PATH=/usr/local
