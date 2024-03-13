@@ -23,7 +23,12 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
           dimension to match the largest existing dimension so that it
           has isotropic dimension
 
-    pad_width : list of 
+    pad_width : list of integers or list-of-list of integers
+        How much to pad in each direction. If a single list is
+        supplied (e.g., [4,4,4]), then the image will be padded by half 
+        that amount on both sides. If a list-of-list is supplied
+        (e.g., [(0,4),(0,4),(0,4)]), then the image will be
+        padded unevenly on the different sides
 
     pad_value : scalar
         value with which image will be padded
