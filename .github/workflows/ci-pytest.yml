@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ env.python_version }}
         activate-environment: antspy-env
 
-    - name: Cache Conda environment
+    - name: Load conda environment from cache if available
       id: cache-env
       uses: actions/cache@v4
       with:
@@ -46,11 +46,13 @@ jobs:
     - name: Install dependencies and ANTsPy from commit
       if: steps.cache-env.outputs.cache-hit != 'true'
       run: |
-        conda install -c conda-forge conda-pack
         source $CONDA/etc/profile.d/conda.sh
+        conda install -c conda-forge conda-pack
+        conda create -n antspy-env python=${{ env.python_version }} -y
         conda activate antspy-env
         pip install ./antspy-temp
         # Pack the environment
+        conda deactivate
         conda-pack -n antspy-env -o ~/conda-env.tar.gz
 
     - name: Cache Conda environment
