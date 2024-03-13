@@ -105,7 +105,7 @@ def crop_indices(image, lowerind, upperind):
     return ants_image
 
 
-def decrop_image(cropped_image, full_image):
+def decrop_image(image, full_image):
     """
     The inverse function for `ants.crop_image`
 
@@ -113,7 +113,7 @@ def decrop_image(cropped_image, full_image):
     
     Arguments
     ---------
-    cropped_image : ANTsImage
+    image : ANTsImage
         cropped image
 
     full_image : ANTsImage
@@ -133,18 +133,17 @@ def decrop_image(cropped_image, full_image):
     >>> decropped = ants.decrop_image(cropped, fi)
     """
     inpixeltype = 'float'
-    if cropped_image.pixeltype != 'float':
-        inpixeltype= cropped_image.pixeltype
-        cropped_image = cropped_image.clone('float')
+    if image.pixeltype != 'float':
+        inpixeltype= image.pixeltype
+        image = image.clone('float')
     if full_image.pixeltype != 'float':
         full_image = full_image.clone('float')
     
-    libfn = utils.get_lib_fn('cropImageF%i' % cropped_image.dimension)
-    itkimage = libfn(cropped_image.pointer, full_image.pointer, 1, 1, [], [])
-    ants_image = iio.ANTsImage(pixeltype='float', dimension=cropped_image.dimension,
-                        components=cropped_image.components, pointer=itkimage)
+    libfn = utils.get_lib_fn('cropImageF%i' % image.dimension)
+    itkimage = libfn(image.pointer, full_image.pointer, 1, 1, [], [])
+    ants_image = iio.ANTsImage(pixeltype='float', dimension=image.dimension,
+                        components=image.components, pointer=itkimage)
     if inpixeltype != 'float':
         ants_image = ants_image.clone(inpixeltype)
 
     return ants_image
-
