@@ -230,6 +230,9 @@ class TestModule_crop_image(unittest.TestCase):
         cropped = ants.crop_image(fi, mask, 1)
         cropped = ants.smooth_image(cropped, 1)
         decropped = ants.decrop_image(cropped, fi)
+        
+        # test chaining
+        decropped = cropped.decrop_image(fi)
 
         # image not float
         cropped = ants.crop_image(fi.clone("unsigned int"), mask, 1)
