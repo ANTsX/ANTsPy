@@ -1,0 +1,76 @@
+name: ci-pytest
+
+on: pull_request
+
+env:
+  # Changing either of these two things will invalidate the cache and cause a full re-install
+  # of ANTsPy and its dependencies
+  # Update this hash whenever there is a change that affects ANTsPy libraries or dependencies
+  # Updates or changes to the runner OS or arch will also invalidate the cache
+  antspy_ref_hash: 'ff7413a5e7685b94ad7fc9a9b2553656f3bd005e'
+  python_version: '3.9' # Python version to use for testing - update when needed
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        python-version: ${{ env.python_version }}
+        activate-environment: antspy-env
+
+    - name: Cache Conda environment
+      id: cache-env
+      uses: actions/cache@v4
+      with:
+        path: ~/conda-env.tar.gz
+        key: ${{ runner.os }}-${{ runner.arch }}-conda-${{ env.python_version }}-${{ env.antspy_ref_hash }}
+
+    - name: Unpack cached environment
+      if: steps.cache-env.outputs.cache-hit == 'true'
+      run: |
+        tar -xzf ~/conda-env.tar.gz -C ${CONDA}/envs/antspy-env
+
+    - name: Checkout ANTsPy at specific commit
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: ANTsX/ANTsPy
+        ref: ${{ env.antspy_ref_hash }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        path: antspy-temp
+
+    - name: Install dependencies and ANTsPy from commit
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      run: |
+        conda install -c conda-forge conda-pack
+        source $CONDA/etc/profile.d/conda.sh
+        conda activate antspy-env
+        pip install ./antspy-temp
+        # Pack the environment
+        conda-pack -n antspy-env -o ~/conda-env.tar.gz
+
+    - name: Cache Conda environment
+      if: steps.cache-env.outputs.cache-hit != 'true'
+      uses: actions/cache@v4
+      with:
+        path: ~/conda-env.tar.gz
+        key: ${{ runner.os }}-${{ runner.arch }}-conda-${{ env.python_version }}-${{ env.antspy_ref_hash }}
+
+    - uses: actions/checkout@v4 # Checkout PR code to 'antspy-pr'
+      with:
+        path: antspy-pr
+
+    - name: Replace installed ANTsPy with PR code
+      run: |
+        rm -rf $ANTS_SITE_PACKAGES/ants
+        cp -r antspy-pr/ants/ $ANTS_SITE_PACKAGES/ants
+
+    - name: Run tests
+      run: |
+        source $CONDA/etc/profile.d/conda.sh
+        conda activate antspy-env
+        bash antspy-pr/tests/run_tests.sh
