@@ -68,8 +68,9 @@ jobs:
 
     - name: Replace installed ANTsPy with PR code
       run: |
+        ANTS_SITE_PACKAGES=$(python -c "import os, ants; print(os.path.dirname(ants.__file__))")
         rm -rf $ANTS_SITE_PACKAGES/ants
-        cp -r antspy-pr/ants/ $ANTS_SITE_PACKAGES/ants
+        cp -r antspy-pr/ants $ANTS_SITE_PACKAGES/ants
 
     - name: Run tests
       run: |
