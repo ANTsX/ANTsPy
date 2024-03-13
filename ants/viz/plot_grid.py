@@ -101,9 +101,10 @@ def plot_grid(
     ...                      [mni3, mni4]])
     >>> slices = np.asarray([[100, 100],
     ...                      [100, 100]])
-    >>> #axes = np.asarray([[2,2],[2,2]])
-    >>> # standard plotting
     >>> ants.plot_grid(images=images, slices=slices, title='2x2 Grid')
+    >>> images2d = np.asarray([[mni1.slice_image(2,100), mni2.slice_image(2,100)],
+    ...                        [mni3.slice_image(2,100), mni4.slice_image(2,100)]])
+    >>> ants.plot_grid(images=images2d, title='2x2 Grid Pre-Sliced')
     >>> ants.plot_grid(images.reshape(1,4), slices.reshape(1,4), title='1x4 Grid')
     >>> ants.plot_grid(images.reshape(4,1), slices.reshape(4,1), title='4x1 Grid')
 
@@ -178,6 +179,8 @@ def plot_grid(
     if not isinstance(images[0], list):
         images = [images]
 
+    if slices is None:
+        one_slice = True
     if isinstance(slices, int):
         one_slice = True
     if isinstance(slices, np.ndarray):
@@ -320,9 +323,17 @@ def plot_grid(
                 tmpaxis = axes
             else:
                 tmpaxis = axes[rowidx][colidx]
-            sliceidx = slices[rowidx][colidx] if not one_slice else slices
-            tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
-            tmpslice = reorient_slice(tmpslice, tmpaxis)
+            
+            if tmpimg.dimension == 2:
+                tmpslice = tmpimg.numpy()
+                tmpslice = reorient_slice(tmpslice, tmpaxis)
+            else:
+                sliceidx = slices[rowidx][colidx] if not one_slice else slices
+                if sliceidx is None:
+                    sliceidx = math.ceil(tmpimg.shape[tmpaxis] / 2)
+                tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
+                tmpslice = reorient_slice(tmpslice, tmpaxis)
+            
             im = ax.imshow(tmpslice, cmap=rcmap, aspect="auto", vmin=rvmin, vmax=rvmax)
             ax.axis("off")
 
