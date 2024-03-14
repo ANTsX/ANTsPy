@@ -7,7 +7,6 @@ env:
   # of ANTsPy and its dependencies
   # Update this hash whenever there is a change that affects ANTsPy libraries or dependencies
   # Updates or changes to the runner OS or arch will also invalidate the cache
-  antspy_ref_hash: 'ff7413a5e7685b94ad7fc9a9b2553656f3bd005e'
   python_version: '3.9' # Python version to use for testing - update when needed
 
 jobs:
@@ -27,7 +26,10 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/conda-env.tar.gz
-        key: ${{ runner.os }}-${{ runner.arch }}-conda-${{ env.python_version }}-${{ env.antspy_ref_hash }}
+        key: >-
+            ${{ runner.os }}-conda-${{ env.python_version }}-
+            ${{ hashFiles('environment.yml', 'requirements.txt', 'setup.py',
+            'scripts/configure_ITK.sh', 'scripts/configure_ANTsPy.sh') }}
 
     - name: Unpack cached environment
       if: steps.cache-env.outputs.cache-hit == 'true'
@@ -60,7 +62,10 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/conda-env.tar.gz
-        key: ${{ runner.os }}-${{ runner.arch }}-conda-${{ env.python_version }}-${{ env.antspy_ref_hash }}
+        key: >-
+            ${{ runner.os }}-conda-${{ env.python_version }}-
+            ${{ hashFiles('environment.yml', 'requirements.txt', 'setup.py',
+            'scripts/configure_ITK.sh', 'scripts/configure_ANTsPy.sh') }}
 
     - uses: actions/checkout@v4 # Checkout PR code to 'antspy-pr'
       with:
