@@ -53,7 +53,7 @@ jobs:
         pip install ./antspy-temp
         # Pack the environment
         conda deactivate
-        conda-pack -n antspy-env -o ~/conda-env.tar.gz
+        conda pack -n antspy-env -o ~/conda-env.tar.gz
 
     - name: Cache Conda environment
       if: steps.cache-env.outputs.cache-hit != 'true'
