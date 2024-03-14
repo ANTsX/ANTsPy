@@ -111,7 +111,7 @@ def apply_transforms(fixed, moving, transformlist,
             inpixeltype = fixed.pixeltype
             fixed = fixed.clone('float')
             moving = moving.clone('float')
-            warpedmovout = moving.clone()
+            warpedmovout = moving.clone('float')
             f = fixed
             m = moving
             if (moving.dimension == 4) and (fixed.dimension == 3) and (imagetype == 0):
