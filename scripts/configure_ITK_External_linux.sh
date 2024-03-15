@@ -8,7 +8,7 @@ if [[ ! -d $itkdir ]] ; then
 fi
 cd $itkdir
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itktag=ce57f309f4f4142b80367fd89a88f8dac9d6943a
+itktag=be79ceb0a9343c02dba310f5faee371941f6fa40 # 3-15-24
 if [[ ! -d ITK ]] ; then
   git clone $itkgit
 fi
