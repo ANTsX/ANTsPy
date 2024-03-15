@@ -611,7 +611,7 @@ if HAS_PY3:
     for k, v in utils.__dict__.items():
         if callable(v):
             args = inspect.getfullargspec(getattr(utils,k)).args
-            if (len(args) > 0) and (args[0] in {'img','image'}):
+            if (len(args) > 0) and (args[0] in {'img','image','cropped_image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 
     for k, v in registration.__dict__.items():
