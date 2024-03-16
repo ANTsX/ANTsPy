@@ -1,10 +1,9 @@
-name: Build
+name: Cross-platform wheel test
 
 on:
-  schedule:
-    - cron: "0 2 * * *"
-  release:
-    types: [created]
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -20,72 +19,20 @@ jobs:
 
           # Windows 64-bit
           - os: windows-latest
-            python: '3.8'
-            cibw_python: 38
-            platform_id: win_amd64
-          - os: windows-latest
             python: '3.9'
             cibw_python: 39
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.10'
-            cibw_python: 310
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.11'
-            cibw_python: 311
-            platform_id: win_amd64
-          - os: windows-latest
-            python: '3.12'
-            cibw_python: 312
             platform_id: win_amd64
 
-          # Linux 64-bit
-          - os: ubuntu-latest
-            python: '3.8'
-            cibw_python: 38
-            platform_id: manylinux_x86_64
+            # Linux 64-bit
           - os: ubuntu-latest
             python: '3.9'
             cibw_python: 39
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.10'
-            cibw_python: 310
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.11'
-            cibw_python: 311
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.12'
-            cibw_python: 312
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-12
-            python: '3.8'
-            cibw_python: 38
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-12
             python: '3.9'
             cibw_python: 39
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-12
-            python: '3.10'
-            cibw_python: 310
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-12
-            python: '3.11'
-            cibw_python: 311
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-12
-            python: '3.12'
-            cibw_python: 312
             arch: x86_64
             platform_id: macosx_x86_64
 
@@ -93,16 +40,6 @@ jobs:
           - os: macos-14
             python: '3.10'
             cibw_python: 310
-            arch: arm64
-            platform_id: macosx_arm64
-          - os: macos-14
-            python: '3.11'
-            cibw_python: 311
-            arch: arm64
-            platform_id: macosx_arm64
-          - os: macos-14
-            python: '3.12'
-            cibw_python: 312
             arch: arm64
             platform_id: macosx_arm64
 
@@ -184,40 +121,6 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
+          retention-days: 3
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
-
-      - name: Upload release asset
-        # Previously was using actions/upload-release-asset@v1 , but this had some
-        # errors with large files
-        uses: ncipollo/release-action@v1.11.1
-        if: ${{ github.event_name == 'release' }}
-        with:
-          allowUpdates: true
-          omitBodyDuringUpdate: true
-          omitNameDuringUpdate: true
-          artifacts: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish prep
-        if: ${{ (github.event_name == 'release') && (runner.os == 'Linux') }}
-        run: |
-          mywhl=`find ~/ -name "antspyx*.whl"`
-          extrawheeldir=`dirname $mywhl`
-          wheeldirx=`dirname $extrawheeldir`
-          wheeldir=`dirname $wheeldirx`
-          wheeldir=${wheeldir}/dist
-          mkdir -p $wheeldir
-          echo $wheeldir
-          mv $mywhl $wheeldir
-          rm -r -f $extrawheeldir $wheeldirx
-
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-        if: ${{ (github.event_name == 'release') && (runner.os == 'Linux') }}
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          verify_metadata: false
-          skip_existing: true
-          verbose: true
