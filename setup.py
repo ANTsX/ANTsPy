@@ -16,7 +16,7 @@ from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
-version = "0.4.2"  # ANTsPy version
+version = "0.5.0"  # ANTsPy version
 
 if "--weekly" in sys.argv:
     sys.argv.remove("--weekly")
@@ -57,18 +57,6 @@ class BuildExtFirst(setuptools.command.install.install):
 
 class CMakeBuild(build_ext):
     def run(self):
-        ## Find or Configure VTK ##
-        # print('Configuring VTK')
-        # if os.getenv('VTK_DIR'):
-        #    print('Using Local VTK Installation at:\n %s' % os.getenv('VTK_DIR'))
-        # elif os.path.exists(os.path.join(setup_py_dir, 'vtkbuild')):
-        #    print('Using local VTK already built for this package')
-        #    os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
-        # else:
-        #    print('No local VTK installation found... Building VTK now...')
-        #    subprocess.check_call(['./scripts/configure_VTK.sh'], cwd=setup_py_dir)
-        #    os.environ['VTK_DIR'] = os.path.join(setup_py_dir, 'vtkbuild')
-
         ## Find or Configure ITK ##
         print("Configuring ITK")
         if os.getenv("ITK_DIR"):
