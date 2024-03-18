@@ -5,7 +5,8 @@
 <a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
 </a>
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/antspyx?label=pypi%20downloads)
-[![Build](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml)
+[![Nightly Build](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml)
+[![ci-pytest](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml)
 [![ci-docker](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/antsx/antspy.svg)](https://hub.docker.com/repository/docker/antsx/antspy)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
