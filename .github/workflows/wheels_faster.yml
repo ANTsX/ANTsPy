@@ -1,9 +1,6 @@
 name: Cross-platform wheel test
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
