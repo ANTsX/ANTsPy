@@ -44,11 +44,21 @@ class TestModule_apply_transforms(unittest.TestCase):
         fixed = ants.image_read(ants.get_ants_data("r16"))
         moving = ants.image_read(ants.get_ants_data("r64"))
         fixed = ants.resample_image(fixed, (64, 64), 1, 0)
-        moving = ants.resample_image(moving, (64, 64), 1, 0)
+        moving = ants.resample_image(moving, (128, 128), 1, 0)
         mytx = ants.registration(fixed=fixed, moving=moving, type_of_transform="SyN")
         mywarpedimage = ants.apply_transforms(
             fixed=fixed, moving=moving, transformlist=mytx["fwdtransforms"]
         )
+        self.assertEqual(mywarpedimage.pixeltype, moving.pixeltype)
+        self.assertTrue(ants.ants_image.image_physical_space_consistency(fixed, mywarpedimage,
+                                                                         0.0001, datatype = False))
+
+        # Call with double precision for transforms, but should still return input type
+        mywarpedimage2 = ants.apply_transforms(
+            fixed=fixed, moving=moving, transformlist=mytx["fwdtransforms"], singleprecision=False
+        )
+        self.assertEqual(mywarpedimage2.pixeltype, moving.pixeltype)
+        self.assertAlmostEqual(mywarpedimage.sum(), mywarpedimage2.sum(), places=3)
 
         # bad interpolator
         with self.assertRaises(Exception):

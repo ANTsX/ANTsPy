@@ -87,7 +87,7 @@ class TestClass_ANTsTransform(unittest.TestCase):
         img = ants.image_read(ants.get_ants_data("r16")).clone('float')
         tx = ants.new_ants_transform(dimension=2)
         tx.set_parameters((0.9,0,0,1.1,10,11))
-        img2 = tx.apply(data=img, reference=img, data_type='image')  
+        img2 = tx.apply(data=img, reference=img, data_type='image')
 
     def test_apply_to_point(self):
         tx = ants.new_ants_transform()
@@ -99,14 +99,14 @@ class TestClass_ANTsTransform(unittest.TestCase):
         tx = ants.new_ants_transform()
         params = tx.parameters
         tx.set_parameters(params*2)
-        pt2 = tx.apply_to_vector((1,2,3)) # should be (2,4,6)    
+        pt2 = tx.apply_to_vector((1,2,3)) # should be (2,4,6)
 
     def test_apply_to_image(self):
         for ptype in self.pixeltypes:
             img = ants.image_read(ants.get_ants_data("r16")).clone(ptype)
             tx = ants.new_ants_transform(dimension=2)
             tx.set_parameters((0.9,0,0,1.1,10,11))
-            img2 = tx.apply_to_image(img, img)   
+            img2 = tx.apply_to_image(img, img)
 
 
 class TestModule_ants_transform(unittest.TestCase):
@@ -154,7 +154,8 @@ class TestModule_ants_transform(unittest.TestCase):
         img = ants.image_read(ants.get_ants_data("r16")).clone('float')
         tx = ants.new_ants_transform(dimension=2)
         tx.set_parameters((0.9,0,0,1.1,10,11))
-        img2 = ants.apply_ants_transform(tx, data=img, reference=img, data_type='image')  
+        img2 = ants.apply_ants_transform(tx, data=img, reference=img, data_type='image')
+
 
     def test_apply_ants_transform_to_point(self):
         tx = ants.new_ants_transform()

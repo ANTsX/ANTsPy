@@ -11,7 +11,7 @@ from .. import utils
 def apply_transforms(fixed, moving, transformlist,
                      interpolator='linear', imagetype=0,
                      whichtoinvert=None, compose=None,
-                     defaultvalue=0, verbose=False, **kwargs):
+                     defaultvalue=0, singleprecision=True, verbose=False, **kwargs):
     """
     Apply a transform list to map an image from one domain to another.
     In image registration, one computes mappings between (usually) pairs
@@ -67,6 +67,11 @@ def apply_transforms(fixed, moving, transformlist,
     defaultvalue : scalar
         Default voxel value for mappings outside the image domain.
 
+    singleprecision : boolean
+        if True, use float32 for computations and output data storage type. This reduces
+        memory storage and computational time for large images, but may result in a loss
+        of precision. Set to False to use double precision.
+
     verbose : boolean
         print command and run verbose application of transform.
 
@@ -102,6 +107,8 @@ def apply_transforms(fixed, moving, transformlist,
 
     args = [fixed, moving, transformlist, interpolator]
 
+    output_pixel_type = 'float' if singleprecision else 'double'
+
     if not isinstance(fixed, str):
         if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
             for tl_path in transformlist:
@@ -109,9 +116,9 @@ def apply_transforms(fixed, moving, transformlist,
                     raise Exception('Transform %s does not exist' % tl_path)
 
             inpixeltype = fixed.pixeltype
-            fixed = fixed.clone('float')
-            moving = moving.clone('float')
-            warpedmovout = moving.clone()
+            fixed = fixed.clone(output_pixel_type)
+            moving = moving.clone(output_pixel_type)
+            warpedmovout = moving.clone(output_pixel_type)
             f = fixed
             m = moving
             if (moving.dimension == 4) and (fixed.dimension == 3) and (imagetype == 0):
@@ -165,7 +172,7 @@ def apply_transforms(fixed, moving, transformlist,
             if verbose:
                 print(myargs)
 
-            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype), '-f', str(defaultvalue)]
+            processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(int(singleprecision)), '-e', str(imagetype), '-f', str(defaultvalue)]
             libfn = utils.get_lib_fn('antsApplyTransforms')
             libfn(processed_args)
 
@@ -180,7 +187,7 @@ def apply_transforms(fixed, moving, transformlist,
         else:
             return 1
     else:
-        args = args + ['-z', 1, '--float', 1, '-e', imagetype, '-f', defaultvalue]
+        args = args + ['-z', str(1), '--float', str(int(singleprecision)), '-e', imagetype, '-f', defaultvalue]
         processed_args = utils._int_antsProcessArguments(args)
         libfn = utils.get_lib_fn('antsApplyTransforms')
         libfn(processed_args)
