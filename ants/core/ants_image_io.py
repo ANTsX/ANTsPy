@@ -460,7 +460,7 @@ def image_clone(image, pixeltype=None):
     return image.clone(pixeltype)
 
 
-def image_read(filename, dimension=None, pixeltype="float", reorient=False):
+def image_read(filename, dimension=None, pixeltype=None, reorient=False):
     """
     Read an ANTsImage from file
 
