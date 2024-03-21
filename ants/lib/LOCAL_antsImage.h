@@ -345,5 +345,36 @@ py::tuple getSpacing( py::capsule & myPointer )
 
 extern std::string ptrstr(py::capsule c);
 
+/*
+This function resets the region of an image to index from zero if needed. This
+keeps the voxel indices in the numpy matrix consistent with the ITK image, and
+also keeps the origin of physical space of the consistent with how it will be
+saved as NIFTI.
+*/
+template <typename ImageType>
+static void FixNonZeroIndex( typename ImageType::Pointer img )
+{
+    assert(img);
+
+    typename ImageType::RegionType r = img->GetLargestPossibleRegion();
+    typename ImageType::IndexType idx = r.GetIndex();
+
+    for (unsigned int i = 0; i < ImageType::ImageDimension; ++i)
+    {
+        // if any index is non-zero, reset the origin and region
+        if ( idx[i] != 0 )
+        {
+            typename ImageType::PointType o;
+            img->TransformIndexToPhysicalPoint( idx, o );
+            img->SetOrigin( o );
+
+            idx.Fill( 0 );
+            r.SetIndex( idx );
+            img->SetRegions( r );
+
+            return;
+        }
+    }
+}
 
 #endif

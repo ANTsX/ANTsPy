@@ -235,7 +235,7 @@ class TestClass_ANTsImage(unittest.TestCase):
     def test__radd__(self):
         if os.name == "nt":
             return
-        
+
         #self.setUp()
         for img in self.imgs:
             # op on constant
@@ -253,7 +253,7 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2 = img.clone()
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img + img2
-                
+
     def test__sub__(self):
         #self.setUp()
         for img in self.imgs:
@@ -276,7 +276,7 @@ class TestClass_ANTsImage(unittest.TestCase):
     def test__rsub__(self):
         if os.name == "nt":
             return
-        
+
         #self.setUp()
         for img in self.imgs:
             # op on constant
@@ -294,7 +294,7 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2 = img.clone()
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img - img2
-                
+
     def test__mul__(self):
         #self.setUp()
         for img in self.imgs:
@@ -335,7 +335,7 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2 = img.clone()
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img * img2
-                
+
     def test__div__(self):
         #self.setUp()
         for img in self.imgs:
