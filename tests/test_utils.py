@@ -237,6 +237,43 @@ class TestModule_crop_image(unittest.TestCase):
         # full image not float
         cropped = ants.crop_image(fi, mask.clone("unsigned int"), 1)
 
+class TestModule_pad_image(unittest.TestCase):
+    def setUp(self):
+        self.img2d = ants.image_read(ants.get_ants_data("r16"))
+        self.img3d = ants.image_read(ants.get_ants_data("mni")).resample_image((2, 2, 2))
+
+    def tearDown(self):
+        pass
+
+    def test_pad_image_example(self):
+        img = self.img2d.clone()
+        img.set_origin((0, 0))
+        img.set_spacing((2, 2))
+        # isotropic pad via pad_width
+        padded = ants.pad_image(img, pad_width=(10, 10))
+        self.assertEqual(padded.shape, (img.shape[0] + 10, img.shape[1] + 10))
+        for img_orig_elem, pad_orig_elem in zip(img.origin, padded.origin):
+            self.assertAlmostEqual(pad_orig_elem, img_orig_elem - 10, places=3)
+
+        img = self.img2d.clone()
+        img.set_origin((0, 0))
+        img.set_spacing((2, 2))
+        img = ants.resample_image(img, (128,128), 1, 1)
+        # isotropic pad via shape
+        padded = ants.pad_image(img, shape=(160,160))
+        self.assertSequenceEqual(padded.shape, (160, 160))
+
+        img = self.img3d.clone()
+        img = ants.resample_image(img, (128,160,96), 1, 1)
+        padded = ants.pad_image(img)
+        self.assertSequenceEqual(padded.shape, (160, 160, 160))
+
+        # pad only on superior side
+        img = self.img3d.clone()
+        padded = ants.pad_image(img, pad_width=[(0,4),(0,8),(0,12)])
+        self.assertSequenceEqual(padded.shape, (img.shape[0] + 4, img.shape[1] + 8, img.shape[2] + 12))
+        self.assertSequenceEqual(img.origin, padded.origin)
+
 
 class TestModule_denoise_image(unittest.TestCase):
     def setUp(self):

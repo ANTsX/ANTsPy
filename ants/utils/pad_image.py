@@ -19,13 +19,13 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
     shape : tuple
         - if shape is given, the image will be padded in each dimension
           until it has this shape
-        - if shape is not given, the image will be padded along each
-          dimension to match the largest existing dimension so that it
-          has isotropic dimension
+        - if shape and pad_width are both None, the image will be padded along
+          each dimension to match the largest existing dimension so that it has
+          isotropic dimensions.
 
     pad_width : list of integers or list-of-list of integers
         How much to pad in each direction. If a single list is
-        supplied (e.g., [4,4,4]), then the image will be padded by half 
+        supplied (e.g., [4,4,4]), then the image will be padded by half
         that amount on both sides. If a list-of-list is supplied
         (e.g., [(0,4),(0,4),(0,4)]), then the image will be
         padded unevenly on the different sides
@@ -72,7 +72,7 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
     libfn = utils.get_lib_fn('padImageF%i' % ndim)
     itkimage = libfn(image.pointer, lower_pad_vals, upper_pad_vals, value)
 
-    new_image = iio.ANTsImage(pixeltype='float', dimension=ndim, 
+    new_image = iio.ANTsImage(pixeltype='float', dimension=ndim,
                          components=image.components, pointer=itkimage).clone(inpixeltype)
     if return_padvals:
         return new_image, lower_pad_vals, upper_pad_vals

@@ -45,15 +45,7 @@ typename ImageType::Pointer cropImageHelper(  typename ImageType::Pointer image,
     cropper->SetDirectionCollapseToSubmatrix();
     cropper->UpdateLargestPossibleRegion();
     cropper->GetOutput()->SetSpacing( image->GetSpacing() );
-    typename ImageType::RegionType region =
-      cropper->GetOutput()->GetLargestPossibleRegion();
-    typename ImageType::IndexType ind = region.GetIndex();
-    typename ImageType::PointType neworig;
-    image->TransformIndexToPhysicalPoint( ind, neworig );
-    ind.Fill(0);
-    region.SetIndex( ind );
-    cropper->GetOutput()->SetRegions( region );
-    cropper->GetOutput()->SetOrigin( neworig );
+    FixNonZeroIndex<ImageType>( cropper->GetOutput() );
     return cropper->GetOutput();
     }
   return nullptr;
@@ -97,15 +89,7 @@ typename ImageType::Pointer cropIndHelper(  typename ImageType::Pointer image,
     cropper->SetDirectionCollapseToSubmatrix();
     cropper->Update();
     cropper->GetOutput()->SetSpacing( image->GetSpacing() );
-    typename ImageType::RegionType region =
-      cropper->GetOutput()->GetLargestPossibleRegion();
-    typename ImageType::IndexType ind = region.GetIndex();
-    typename ImageType::PointType neworig;
-    image->TransformIndexToPhysicalPoint( ind, neworig );
-    ind.Fill(0);
-    region.SetIndex( ind );
-    cropper->GetOutput()->SetRegions( region );
-    cropper->GetOutput()->SetOrigin( neworig );
+    FixNonZeroIndex<ImageType>( cropper->GetOutput() );
     return cropper->GetOutput();
     }
   return nullptr;

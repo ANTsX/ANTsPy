@@ -14,7 +14,7 @@
 namespace py = pybind11;
 
 template < typename ImageType >
-py::capsule padImage( py::capsule & antsImage, 
+py::capsule padImage( py::capsule & antsImage,
                       std::vector<int> lowerPadDims,
                       std::vector<int> upperPadDims,
                       float padValue )
@@ -47,7 +47,7 @@ py::capsule padImage( py::capsule & antsImage,
   padFilter->SetPadUpperBound( upperExtendRegion );
   padFilter->SetConstant( padValue );
   padFilter->Update();
-
+  FixNonZeroIndex<ImageType>( padFilter->GetOutput() );
   return wrap< ImageType >( padFilter->GetOutput() );
 }
 
