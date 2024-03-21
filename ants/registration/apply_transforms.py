@@ -11,7 +11,7 @@ from .. import utils
 def apply_transforms(fixed, moving, transformlist,
                      interpolator='linear', imagetype=0,
                      whichtoinvert=None, compose=None,
-                     defaultvalue=0, singleprecision=True, verbose=False, **kwargs):
+                     defaultvalue=0, singleprecision=False, verbose=False, **kwargs):
     """
     Apply a transform list to map an image from one domain to another.
     In image registration, one computes mappings between (usually) pairs
@@ -68,9 +68,8 @@ def apply_transforms(fixed, moving, transformlist,
         Default voxel value for mappings outside the image domain.
 
     singleprecision : boolean
-        if True, use float32 for computations and output data storage type. This reduces
-        memory storage and computational time for large images, but may result in a loss
-        of precision. Set to False to use double precision.
+        if True, use float32 for computations. This is useful for reducing memory
+        usage for large datasets, at the cost of precision.
 
     verbose : boolean
         print command and run verbose application of transform.

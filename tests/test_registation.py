@@ -53,9 +53,9 @@ class TestModule_apply_transforms(unittest.TestCase):
         self.assertTrue(ants.ants_image.image_physical_space_consistency(fixed, mywarpedimage,
                                                                          0.0001, datatype = False))
 
-        # Call with double precision for transforms, but should still return input type
+        # Call with float precision for transforms, but should still return input type
         mywarpedimage2 = ants.apply_transforms(
-            fixed=fixed, moving=moving, transformlist=mytx["fwdtransforms"], singleprecision=False
+            fixed=fixed, moving=moving, transformlist=mytx["fwdtransforms"], singleprecision=True
         )
         self.assertEqual(mywarpedimage2.pixeltype, moving.pixeltype)
         self.assertAlmostEqual(mywarpedimage.sum(), mywarpedimage2.sum(), places=3)
