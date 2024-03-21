@@ -58,7 +58,7 @@ class TestModule_apply_transforms(unittest.TestCase):
             fixed=fixed, moving=moving, transformlist=mytx["fwdtransforms"], singleprecision=True
         )
         self.assertEqual(mywarpedimage2.pixeltype, moving.pixeltype)
-        self.assertAlmostEqual(mywarpedimage.sum(), mywarpedimage2.sum(), places=3)
+        self.assertLessEqual(np.sum((mywarpedimage.numpy() - mywarpedimage2.numpy()) ** 2), 0.1)
 
         # bad interpolator
         with self.assertRaises(Exception):
