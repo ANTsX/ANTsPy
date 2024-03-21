@@ -30,8 +30,8 @@ $PYCMD test_core_ants_metric.py $@
 echo "Running learn tests"
 $PYCMD test_learn.py $@
 
-echo "Running registation tests"
-$PYCMD test_registation.py $@
+echo "Running registration tests"
+$PYCMD test_registration.py $@
 
 echo "Running segmentation tests"
 $PYCMD test_segmentation.py $@

@@ -7,7 +7,7 @@ $PYTHON_SCRIPTS = @(
     "test_core_ants_transform_io.py",
     "test_core_ants_metric.py",
     "test_learn.py",
-    "test_registation.py",
+    "test_registration.py",
     "test_segmentation.py",
     "test_utils.py",
     "test_bugs.py"
