@@ -60,9 +60,9 @@ py::capsule simulateBsplineDisplacementField(py::capsule & antsDomainImage,
   antsField->CopyInformation( domainImage );
   antsField->SetRegions( domainImage->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
-  IteratorType It( bsplineSimulator->GetOutput(), 
+  IteratorType It( bsplineSimulator->GetOutput(),
     bsplineSimulator->GetOutput()->GetRequestedRegion() );
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {
@@ -116,9 +116,9 @@ py::capsule simulateExponentialDisplacementField(py::capsule & antsDomainImage,
   antsField->CopyInformation( domainImage );
   antsField->SetRegions( domainImage->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
-  IteratorType It( exponentialSimulator->GetOutput(), 
+  IteratorType It( exponentialSimulator->GetOutput(),
     exponentialSimulator->GetOutput()->GetRequestedRegion() );
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {

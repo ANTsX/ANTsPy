@@ -77,7 +77,7 @@ py::capsule fitBsplineVectorImageHelper(
   inputITKField->SetRegions( fieldSize );
   inputITKField->SetSpacing( fieldSpacing );
   inputITKField->SetDirection( fieldDirection );
-  inputITKField->Allocate();
+  inputITKField->AllocateInitialized();
 
   IteratorType It( inputITKField, inputITKField->GetRequestedRegion() );
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
@@ -190,7 +190,7 @@ py::capsule fitBsplineVectorImageHelper(
   antsField->CopyInformation( bsplineFilter->GetOutput() );
   antsField->SetRegions( bsplineFilter->GetOutput()->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   IteratorType ItB( bsplineFilter->GetOutput(),
     bsplineFilter->GetOutput()->GetRequestedRegion() );

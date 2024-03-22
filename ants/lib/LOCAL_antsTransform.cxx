@@ -84,7 +84,7 @@ py::capsule antsTransformFromDisplacementField( py::capsule field )
   itkField->SetSpacing( antsrField->GetSpacing() );
   itkField->SetOrigin( antsrField->GetOrigin() );
   itkField->SetDirection( antsrField->GetDirection() );
-  itkField->Allocate();
+  itkField->AllocateInitialized();
 
   typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType> IteratorType;
   IteratorType it( itkField, itkField->GetLargestPossibleRegion() );
@@ -143,7 +143,7 @@ py::capsule antsTransformToDisplacementField( py::capsule xfrm, py::capsule ref 
   antsrField->CopyInformation( domainImage );
   antsrField->SetRegions( domainImage->GetLargestPossibleRegion() );
   antsrField->SetNumberOfComponentsPerPixel( Dimension );
-  antsrField->Allocate();
+  antsrField->AllocateInitialized();
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
   IteratorType it( domainImage, domainImage->GetLargestPossibleRegion() );
@@ -213,7 +213,7 @@ PYBIND11_MODULE(antsTransform, m) {
     m.def("transformImageD2UC4", &transformImage<itk::Transform<double,2, 2>, itk::Image<unsigned char, 2>>);
     m.def("transformImageD3UC4", &transformImage<itk::Transform<double,3, 3>, itk::Image<unsigned char, 3>>);
     m.def("transformImageD4UC4", &transformImage<itk::Transform<double,4, 4>, itk::Image<unsigned char, 4>>);
-    
+
     m.def("transformImageF2UI2", &transformImage<itk::Transform<float, 2, 2>, itk::Image<unsigned int, 2>>);
     m.def("transformImageF3UI3", &transformImage<itk::Transform<float, 3, 3>, itk::Image<unsigned int, 3>>);
     m.def("transformImageF4UI4", &transformImage<itk::Transform<float, 4, 4>, itk::Image<unsigned int, 4>>);

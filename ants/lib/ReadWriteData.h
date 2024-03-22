@@ -754,7 +754,7 @@ ConvertTimeSeriesImageToMultiChannelImage( TTimeSeriesImageType *timeSeriesImage
   multiChannelImage->SetOrigin( origin );
   multiChannelImage->SetDirection( direction );
   multiChannelImage->SetVectorLength( timeSeriesSize[ImageDimension] );
-  multiChannelImage->Allocate();
+  multiChannelImage->AllocateInitialized();
 
   itk::ImageRegionIteratorWithIndex<MultiChannelImageType> It(
     multiChannelImage, multiChannelImage->GetRequestedRegion() );

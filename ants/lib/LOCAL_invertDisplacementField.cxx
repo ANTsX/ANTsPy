@@ -61,14 +61,14 @@ py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
   inputITKDisplacementField->SetRegions( fieldSize );
   inputITKDisplacementField->SetSpacing( fieldSpacing );
   inputITKDisplacementField->SetDirection( fieldDirection );
-  inputITKDisplacementField->Allocate();
+  inputITKDisplacementField->AllocateInitialized();
 
   ITKFieldPointerType inputITKInverseFieldInitialEstimate = ITKFieldType::New();
   inputITKInverseFieldInitialEstimate->SetOrigin( fieldOrigin );
   inputITKInverseFieldInitialEstimate->SetRegions( fieldSize );
   inputITKInverseFieldInitialEstimate->SetSpacing( fieldSpacing );
   inputITKInverseFieldInitialEstimate->SetDirection( fieldDirection );
-  inputITKInverseFieldInitialEstimate->Allocate();
+  inputITKInverseFieldInitialEstimate->AllocateInitialized();
 
   IteratorType ItF( inputITKDisplacementField, inputITKDisplacementField->GetRequestedRegion() );
   IteratorType ItE( inputITKInverseFieldInitialEstimate, inputITKInverseFieldInitialEstimate->GetRequestedRegion() );
@@ -108,7 +108,7 @@ py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
   antsField->CopyInformation( inverter->GetOutput() );
   antsField->SetRegions( inverter->GetOutput()->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   ConstIteratorType ItI( inverter->GetOutput(),
     inverter->GetOutput()->GetRequestedRegion() );

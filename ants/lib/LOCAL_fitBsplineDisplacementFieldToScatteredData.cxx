@@ -107,25 +107,21 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
     weightImage->SetSpacing( bsplineFilter->GetBSplineDomainSpacing() );
     weightImage->SetDirection( bsplineFilter->GetBSplineDomainDirection() );
     weightImage->SetRegions( bsplineFilter->GetBSplineDomainSize() );
-    weightImage->Allocate();
-    weightImage->FillBuffer( 0.0 );
+    weightImage->AllocateInitialized();
 
     WeightImagePointerType countImage = WeightImageType::New();
     countImage->SetOrigin( bsplineFilter->GetBSplineDomainOrigin() );
     countImage->SetSpacing( bsplineFilter->GetBSplineDomainSpacing() );
     countImage->SetDirection( bsplineFilter->GetBSplineDomainDirection() );
     countImage->SetRegions( bsplineFilter->GetBSplineDomainSize() );
-    countImage->Allocate();
-    countImage->FillBuffer( 0.0 );
+    countImage->AllocateInitialized();
 
-    VectorType zeroVector( 0.0 );
     ITKFieldPointerType rasterizedField = ITKFieldType::New();
     rasterizedField->SetOrigin( bsplineFilter->GetBSplineDomainOrigin() );
     rasterizedField->SetSpacing( bsplineFilter->GetBSplineDomainSpacing() );
     rasterizedField->SetDirection( bsplineFilter->GetBSplineDomainDirection() );
     rasterizedField->SetRegions( bsplineFilter->GetBSplineDomainSize() );
-    rasterizedField->Allocate();
-    rasterizedField->FillBuffer( zeroVector );
+    rasterizedField->AllocateInitialized();
 
     for( unsigned int n = 0; n < numberOfPoints; n++ )
       {
@@ -214,7 +210,7 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
   antsField->CopyInformation( bsplineFilter->GetOutput() );
   antsField->SetRegions( bsplineFilter->GetOutput()->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   IteratorType It( bsplineFilter->GetOutput(),
     bsplineFilter->GetOutput()->GetRequestedRegion() );

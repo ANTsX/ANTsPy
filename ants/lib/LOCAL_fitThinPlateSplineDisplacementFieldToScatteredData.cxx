@@ -80,7 +80,7 @@ py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
     field->SetOrigin( fieldOrigin );
     field->SetSpacing( fieldSpacing );
     field->SetDirection( fieldDirection );
-    field->Allocate();
+    field->AllocateInitialized();
     }
 
   auto sourceLandmarks = PointSetType::New();
@@ -119,7 +119,7 @@ py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
   antsField->CopyInformation( field );
   antsField->SetRegions( field->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   typename TransformType::InputPointType  source;
   typename TransformType::OutputPointType target;

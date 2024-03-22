@@ -17,7 +17,7 @@
 *=========================================================================*/
 
 #define ANTS_VERSION_MAJOR 2
-#define ANTS_VERSION_MINOR 3
-#define ANTS_VERSION_PATCH 5
+#define ANTS_VERSION_MINOR 5
+#define ANTS_VERSION_PATCH 1
 #define ANTS_VERSION_TWEAK 
-#define ANTS_VERSION "v2.3.5.post95-g6f07ac5"
+#define ANTS_VERSION "v2.5.1.post95-g2236a75"

@@ -57,14 +57,14 @@ py::capsule composeDisplacementFields( py::capsule & antsDisplacementField,
   inputITKDisplacementField->SetRegions( fieldSize );
   inputITKDisplacementField->SetSpacing( fieldSpacing );
   inputITKDisplacementField->SetDirection( fieldDirection );
-  inputITKDisplacementField->Allocate();
+  inputITKDisplacementField->AllocateInitialized();
 
   ITKFieldPointerType inputITKWarpingField = ITKFieldType::New();
   inputITKWarpingField->SetOrigin( fieldOrigin );
   inputITKWarpingField->SetRegions( fieldSize );
   inputITKWarpingField->SetSpacing( fieldSpacing );
   inputITKWarpingField->SetDirection( fieldDirection );
-  inputITKWarpingField->Allocate();
+  inputITKWarpingField->AllocateInitialized();
 
   IteratorType ItF( inputITKDisplacementField, inputITKDisplacementField->GetRequestedRegion() );
   IteratorType ItE( inputITKWarpingField, inputITKWarpingField->GetRequestedRegion() );
@@ -100,7 +100,7 @@ py::capsule composeDisplacementFields( py::capsule & antsDisplacementField,
   antsField->CopyInformation( composer->GetOutput() );
   antsField->SetRegions( composer->GetOutput()->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   ConstIteratorType ItI( composer->GetOutput(),
     composer->GetOutput()->GetRequestedRegion() );
