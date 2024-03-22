@@ -22,8 +22,8 @@ from functools import partialmethod
 import inspect
 
 from .. import lib, utils
-from .utils_core import get_orientation
-from . import ants_image_io as iio2, utils_core
+from .ants_image_utils import get_orientation
+from . import ants_image_io as iio2, ants_image_utils
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
@@ -264,9 +264,9 @@ class ANTsImage(object):
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
         if self.has_components and (not self.is_rgb):
-            comp_imgs = utils_core.split_channels(self)
+            comp_imgs = ants_image_utils.split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-            return utils_core.merge_channels(comp_imgs_cloned)
+            return ants_image_utils.merge_channels(comp_imgs_cloned)
         else:
             p1_short = utils.short_ptype(self.pixeltype)
             p2_short = utils.short_ptype(pixeltype)

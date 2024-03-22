@@ -23,4 +23,4 @@ from .ants_image import (
     allclose
 )
 
-from .utils_core import (get_orientation)
+from .ants_image_utils import (get_orientation)
