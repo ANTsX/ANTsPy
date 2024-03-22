@@ -26,4 +26,4 @@ jobs:
       - name: Coveralls
         uses: coverallsapp/github-action@v2.2.3
         with:
-          file: coverage.xml
+          file: tests/coverage.xml
