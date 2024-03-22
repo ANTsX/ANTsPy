@@ -12,7 +12,7 @@ import warnings
 from tempfile import mktemp
 
 from ..core import ants_image_io as iio2
-from .. import utils
+from .. import lib, utils
 
 
 def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
@@ -99,11 +99,12 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         outimg = a[0].clone('unsigned int')
     else:
         outimg = a.clone('unsigned int')
+    outimg = a
 
     mydim = outimg.dimension
-    outs = '[%s,%s]' % (utils._ptrstr(outimg.pointer), probs)
+    outs = '[%s,%s]' % (lib.ptrstr(outimg.pointer), probs)
     mymask = x.clone('unsigned int')
-
+    mymask = x
     if (not isinstance(a, (list,tuple))) or (len(a) == 1):
         myargs = {
             'd': mydim,
@@ -134,9 +135,9 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         for aa_idx, aa in enumerate(a):
             myargs['a-MULTINAME-%i'%aa_idx] = aa
 
-    processed_args = utils._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn('Atropos')
-    retval = libfn(processed_args)
+    processed_args = utils.process_arguments(myargs)
+    print(processed_args)
+    retval = lib.Atropos(processed_args)
 
     if retval != 0:
         raise Exception(f"Atropos exited with non-zero status {retval}. Run with verbose=1 to see error messages")
