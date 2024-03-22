@@ -330,7 +330,7 @@ py::capsule antsImageClone( py::capsule antsImage )
   out_image->SetOrigin( in_image->GetOrigin() ) ;
   out_image->SetDirection( in_image->GetDirection() );
   //out_image->CopyInformation( in_image );
-  out_image->Allocate() ;
+  out_image->AllocateInitialized() ;
 
   itk::ImageRegionConstIterator< InImageType > in_iterator( in_image , in_image->GetLargestPossibleRegion() ) ;
   itk::ImageRegionIterator< OutImageType > out_iterator( out_image , out_image->GetLargestPossibleRegion() ) ;

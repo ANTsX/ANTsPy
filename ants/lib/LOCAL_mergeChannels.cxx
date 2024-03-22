@@ -34,7 +34,7 @@ py::capsule mergeChannels( std::vector<void *> imageList )
   vectorImage->SetOrigin( images[0]->GetOrigin() );
   vectorImage->SetDirection( images[0]->GetDirection() );
   vectorImage->SetNumberOfComponentsPerPixel( nImages );
-  vectorImage->Allocate();
+  vectorImage->AllocateInitialized();
 
   // Fill image data
   itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
@@ -75,7 +75,7 @@ py::capsule mergeChannels2( std::vector<py::capsule> imageList )
   vectorImage->SetOrigin( images[0]->GetOrigin() );
   vectorImage->SetDirection( images[0]->GetDirection() );
   vectorImage->SetNumberOfComponentsPerPixel( nImages );
-  vectorImage->Allocate();
+  vectorImage->AllocateInitialized();
 
   // Fill image data
   itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
@@ -116,7 +116,7 @@ py::capsule mergeChannels3( std::vector<py::capsule> imageList )
   vectorImage->SetOrigin( images[0]->GetOrigin() );
   vectorImage->SetDirection( images[0]->GetDirection() );
   //vectorImage->SetNumberOfComponentsPerPixel( nImages );
-  vectorImage->Allocate();
+  vectorImage->AllocateInitialized();
 
   // Fill image data
   itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
@@ -156,7 +156,7 @@ std::vector<py::capsule > splitChannels( py::capsule & antsimage )
     image->SetSpacing( input->GetSpacing() );
     image->SetOrigin( input->GetOrigin() );
     image->SetDirection( input->GetDirection() );
-    image->Allocate();
+    image->AllocateInitialized();
     images.push_back( image );
     }
 

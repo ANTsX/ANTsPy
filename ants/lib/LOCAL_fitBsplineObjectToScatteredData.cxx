@@ -313,7 +313,7 @@ py::capsule fitBsplineVectorImageHelper(
   antsField->SetSpacing( spacing );
   antsField->SetVectorLength( DataDimension );
   antsField->SetDirection( direction );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   IteratorType It( bsplineFilter->GetOutput(),
     bsplineFilter->GetOutput()->GetRequestedRegion() );

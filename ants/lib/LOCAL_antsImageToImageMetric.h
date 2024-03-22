@@ -359,8 +359,7 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
     itkField->SetSpacing( moving->GetSpacing() );
     itkField->SetOrigin( moving->GetOrigin() );
     itkField->SetDirection( moving->GetDirection() );
-    itkField->Allocate();
-    //itkField->FillBuffer(0);
+    itkField->AllocateInitialized();
 
     typename TransformType::Pointer idTransform = TransformType::New();
     idTransform->SetDisplacementField( itkField );

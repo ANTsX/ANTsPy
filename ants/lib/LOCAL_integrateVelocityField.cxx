@@ -45,7 +45,7 @@ py::capsule integrateVelocityField( py::capsule & antsVelocityField,
   ITKVelocityFieldPointerType inputITKVelocityField = ITKVelocityFieldType::New();
   inputITKVelocityField->CopyInformation( inputVelocityField );
   inputITKVelocityField->SetRegions( inputVelocityField->GetRequestedRegion() );
-  inputITKVelocityField->Allocate();
+  inputITKVelocityField->AllocateInitialized();
 
   IteratorType It( inputITKVelocityField,
                    inputITKVelocityField->GetRequestedRegion() );
@@ -79,7 +79,7 @@ py::capsule integrateVelocityField( py::capsule & antsVelocityField,
   antsField->CopyInformation( integrator->GetOutput() );
   antsField->SetRegions( integrator->GetOutput()->GetRequestedRegion() );
   antsField->SetVectorLength( Dimension );
-  antsField->Allocate();
+  antsField->AllocateInitialized();
 
   ConstIteratorType ItI( integrator->GetOutput(),
     integrator->GetOutput()->GetRequestedRegion() );
