@@ -1,3 +1,0 @@
-
-rm -r -f itkbuild/ build/ itksource/ ./ants/lib/antscore
-# rm -r -f ants/lib/pybind11
