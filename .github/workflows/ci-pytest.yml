@@ -1,12 +1,6 @@
 name: ci-pytest
 
-# Fast tests with cached antspy build designed to test changes in the python code
-# Builds on Linux only, with a single python version
-
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -88,8 +82,6 @@ jobs:
       if: steps.cache-env.outputs.cache-hit == 'true'
       run: |
         conda activate antspy-env
-        echo "List of installed packages in cached env:"
-        conda list
         ANTS_SITE_PACKAGES="${CONDA}/envs/antspy-env/lib/python${{ env.python_version }}/site-packages/ants"
         for d in contrib core learn registration segmentation utils viz; do
           rm -rf $ANTS_SITE_PACKAGES/$d;
@@ -101,4 +93,10 @@ jobs:
       if: steps.cache-env.outputs.cache-hit == 'true'
       run: |
         conda activate antspy-env
-        bash antspy-pr/tests/run_tests.sh
+        bash antspy-pr/tests/run_tests.sh -c
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        files: antspy-pr/tests/coverage.xml
+
