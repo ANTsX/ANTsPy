@@ -64,7 +64,7 @@ jobs:
         conda info
         pip install ./antspy-pr
         conda list
-        antspy-pr/tests/run_tests.sh
+        antspy-pr/tests/run_tests.sh -c
         conda pack -n antspy-env -o ~/conda-env.tar.bz2
 
     - name: Cache Conda environment
