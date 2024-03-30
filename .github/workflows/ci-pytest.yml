@@ -60,7 +60,7 @@ jobs:
       run: |
         conda create -n antspy-env python=${{ env.python_version }} -y
         conda activate antspy-env
-        conda install -c conda-forge conda-pack
+        conda install -c conda-forge conda-pack coverage
         conda info
         pip install ./antspy-pr
         conda list
