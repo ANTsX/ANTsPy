@@ -1,4 +1,4 @@
-name: ci-pytest
+name: ci-pytest2
 
 # Fast tests with cached antspy build designed to test changes in the python code
 # Builds on Linux only, with a single python version
