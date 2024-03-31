@@ -276,13 +276,6 @@ nb::object numpyHelper( typename ImageType::Pointer itkImage )
     return itkArrayObject;
 }
 
-// import antscore
-// img = antscore.image_read('/Users/ni5875cu/Desktop/test.nii.gz')
-// img2 = img.clone('double')
-// x = img.numpy()
-// x2 = img2.numpy()
-
-
 nb::object toNumpy( void * ptr, std::string imageType )
 {
     if (imageType == "D3") {
@@ -298,10 +291,6 @@ nb::object toNumpy( void * ptr, std::string imageType )
         auto itkImage = asImage<ImageType>( ptr );
         return numpyHelper<ImageType>( itkImage );
 }
-
-// import antscore
-// img = antscore.testfn()
-// antscore.printfn(img)
 
 void local_antsImage(nb::module_ &m) {
     m.def("ptrstr", &ptrstr);
