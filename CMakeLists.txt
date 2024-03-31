@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16.3...3.26)
 project(ants LANGUAGES CXX)
 
 # Try to import all Python components potentially needed by nanobind
-find_package(Python
+find_package(Python 3.8
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
