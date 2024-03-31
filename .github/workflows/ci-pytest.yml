@@ -10,7 +10,6 @@ on:
   pull_request:
     branches:
       - master
-  workflow_dispatch:
 
 env:
   # Updates or changes to this, or the runner OS or arch will invalidate the cache
