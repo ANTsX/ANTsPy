@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "antspy"
-version = "0.0.1"
+version = "0.5.0"
 description = "An example minimal project that compiles bindings using nanobind and scikit-build"
 readme = "README.md"
 requires-python = ">=3.8"

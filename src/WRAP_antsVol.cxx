@@ -1,17 +1,19 @@
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/antsVol.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int antsVol( std::vector<std::string> instring )
 {
     return ants::antsVol(instring, NULL);
 }
 
-PYBIND11_MODULE(antsVol, m)
-{
+void wrap_antsVol(nb::module_ &m) {
   m.def("antsVol", &antsVol);
 }

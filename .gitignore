@@ -1,4 +1,6 @@
+
 # custom ignores
+.vscode
 sandbox/
 softwareVersions.csv
 ants/version.py

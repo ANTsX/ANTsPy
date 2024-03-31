@@ -1,17 +1,19 @@
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/CreateJacobianDeterminantImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int CreateJacobianDeterminantImage( std::vector<std::string> instring )
 {
     return ants::CreateJacobianDeterminantImage(instring, NULL);
 }
 
-PYBIND11_MODULE(CreateJacobianDeterminantImage, m)
-{
+void wrap_CreateJacobianDeterminantImage(nb::module_ &m) {
   m.def("CreateJacobianDeterminantImage", &CreateJacobianDeterminantImage);
 }

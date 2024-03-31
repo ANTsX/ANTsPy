@@ -10,8 +10,8 @@ find_package(Python 3.11
 # Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
 
-execute_process(COMMAND sh ./scripts/configure_ITK.sh)
-execute_process(COMMAND sh ./scripts/configure_ANTs.sh)
+#execute_process(COMMAND sh ./scripts/configure_ITK.sh)
+#execute_process(COMMAND sh ./scripts/configure_ANTs.sh)
 
 # ITK
 set(ITK_DIR "./itkbuild")
@@ -39,6 +39,29 @@ nanobind_add_module(
   NB_STATIC
   src/main.cpp
   src/antscore/antsAffineInitializer.cxx
+  src/antscore/antsApplyTransforms.cxx
+  src/antscore/antsApplyTransformsToPoints.cxx
+  src/antscore/antsJointFusion.cxx
+  src/antscore/antsLandmarkBasedTransformInitializer.cxx
+  src/antscore/antsMotionCorr.cxx
+  src/antscore/antsMotionCorrStats.cxx
+  src/antscore/antsSliceRegularizedRegistration.cxx
+  src/antscore/AverageAffineTransform.cxx
+  src/antscore/AverageAffineTransformNoRigid.cxx
+  src/antscore/AverageAffineTransformNoRigid.cxx
+  src/antscore/ConvertScalarImageToRGB.cxx
+  src/antscore/CreateJacobianDeterminantImage.cxx
+  src/antscore/DenoiseImage.cxx
+  src/antscore/KellyKapowski.cxx
+  src/antscore/LabelClustersUniquely.cxx
+  src/antscore/LabelGeometryMeasures.cxx
+  src/antscore/LesionFilling.cxx
+  src/antscore/N3BiasFieldCorrection.cxx
+  src/antscore/N4BiasFieldCorrection.cxx
+  src/antscore/ResampleImage.cxx
+  src/antscore/SuperResolution.cxx
+  src/antscore/ThresholdImage.cxx
+  src/antscore/TileImages.cxx
   src/antscore/Atropos.cxx
   src/antscore/antsRegistration.cxx
   src/antscore/iMath.cxx

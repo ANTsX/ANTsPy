@@ -1,17 +1,19 @@
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/CreateTiledMosaic.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int CreateTiledMosaic( std::vector<std::string> instring )
 {
     return ants::CreateTiledMosaic(instring, NULL);
 }
 
-PYBIND11_MODULE(CreateTiledMosaic, m)
-{
+void wrap_CreateTiledMosaic(nb::module_ &m) {
   m.def("CreateTiledMosaic", &CreateTiledMosaic);
 }

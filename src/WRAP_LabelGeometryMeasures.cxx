@@ -1,17 +1,19 @@
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/LabelGeometryMeasures.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int LabelGeometryMeasures( std::vector<std::string> instring )
 {
     return ants::LabelGeometryMeasures(instring, NULL);
 }
 
-PYBIND11_MODULE(LabelGeometryMeasures, m)
-{
+void wrap_LabelGeometryMeasures(nb::module_ &m) {
   m.def("LabelGeometryMeasures", &LabelGeometryMeasures);
 }

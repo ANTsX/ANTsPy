@@ -1,17 +1,20 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/AverageAffineTransform.h"
 #include "antscore/AverageAffineTransformNoRigid.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int AverageAffineTransform( std::vector<std::string> instring )
 {
     return ants::AverageAffineTransform(instring, NULL);
 }
 
-PYBIND11_MODULE(AverageAffineTransform, m)
-{
+void wrap_AverageAffineTransform(nb::module_ &m) {
   m.def("AverageAffineTransform", &AverageAffineTransform);
 }

@@ -1,17 +1,19 @@
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/KellyKapowski.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int KellyKapowski( std::vector<std::string> instring )
 {
     return ants::KellyKapowski(instring, NULL);
 }
 
-PYBIND11_MODULE(KellyKapowski, m)
-{
+void wrap_KellyKapowski(nb::module_ &m) {
   m.def("KellyKapowski", &KellyKapowski);
 }

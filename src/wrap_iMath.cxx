@@ -2,12 +2,12 @@
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
 
+#include "antscore/iMath.h"
+
 namespace nb = nanobind;
 using namespace nb::literals;
 
 using StrVector = std::vector<std::string>;
-
-#include "antscore/iMath.h"
 
 int iMath( std::vector<std::string> instring )
 {

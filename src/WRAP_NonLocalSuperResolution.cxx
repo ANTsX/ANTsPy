@@ -1,17 +1,19 @@
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 
 #include "antscore/NonLocalSuperResolution.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
+using StrVector = std::vector<std::string>;
 
 int NonLocalSuperResolution( std::vector<std::string> instring )
 {
     return ants::NonLocalSuperResolution(instring, NULL);
 }
 
-PYBIND11_MODULE(NonLocalSuperResolution, m)
-{
+void wrap_NonLocalSuperResolution(nb::module_ &m) {
   m.def("NonLocalSuperResolution", &NonLocalSuperResolution);
 }
