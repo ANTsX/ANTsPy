@@ -8,8 +8,6 @@ on:
     branches:
       - master
   pull_request:
-    branches:
-      - master
   workflow_dispatch:
 
 env:
@@ -20,7 +18,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-python@v5
 
       - name: Install package

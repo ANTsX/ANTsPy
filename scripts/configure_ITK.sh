@@ -1,4 +1,5 @@
 #!/bin/bash
+
 CXX_STD=CXX11
 JTHREADS=2
 if [[ "`uname`" == "Darwin" ]] ; then

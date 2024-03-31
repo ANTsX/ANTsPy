@@ -12,8 +12,8 @@ find_package(nanobind CONFIG REQUIRED)
 
 message("My test's working directory: ${PROJECT_SOURCE_DIR}")
 execute_process(COMMAND ls ${PROJECT_SOURCE_DIR})
-execute_process(COMMAND sh ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
-execute_process(COMMAND sh ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
+execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
+execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
 
 # ITK
 set(ITK_DIR "./itkbuild")
