@@ -10,8 +10,7 @@ find_package(Python 3.8
 # Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
 
-get_test_property(${PROJECT_NAME} WORKING_DIRECTORY test_dir)
-message("My test's working directory: ${test_dir}")
+message("My test's working directory: ${CMAKE_CURRENT_LIST_DIR}")
 
 execute_process(COMMAND sh scripts/configure_ITK.sh)
 execute_process(COMMAND sh scripts/configure_ANTs.sh)
