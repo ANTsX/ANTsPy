@@ -1,4 +1,4 @@
-name: ci-pytest2
+name: ci-pytest
 
 # Fast tests with cached antspy build designed to test changes in the python code
 # Builds on Linux only, with a single python version
@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 env:
   # Updates or changes to this, or the runner OS or arch will invalidate the cache
