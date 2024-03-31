@@ -14,91 +14,14 @@ on:
 
 env:
   # Updates or changes to this, or the runner OS or arch will invalidate the cache
-  python_version: '3.10' # Python version to use for testing - update when needed
+  python_version: "3.10" # Python version to use for testing - update when needed
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
-    # Default shell needs to be bash for conda
-    # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#important
-    defaults:
-        run:
-          shell: bash -el {0}
+    runs-on: ubuntu-latest
     steps:
-    - name: Setup Miniconda
-      uses: conda-incubator/setup-miniconda@030178870c779d9e5e1b4e563269f3aa69b04081 # v3.0.3, devs recommend using hash
-      with:
-        miniconda-version: "latest"
-        python-version: ${{ env.python_version }}
-        auto-update-conda: true
-        activate-environment: "test-env"
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
 
-    - name: Configure Conda to use only .tar.bz2
-      run: |
-        conda config --set use_only_tar_bz2 true
-
-    - name: Checkout code
-      uses: actions/checkout@v4 # Checkout PR code to 'antspy-pr'
-      with:
-        path: antspy-pr
-
-    - name: Load conda environment from cache if available
-      id: cache-env
-      uses: actions/cache@v4
-      with:
-        path: ~/conda-env.tar.bz2
-        key: >-
-            ${{ runner.os }}-conda-${{ env.python_version }}-
-            ${{ hashFiles('antspy-pr/ants/environment.yml', 'antspy-pr/ants/requirements.txt', 'antspy-pr/ants/setup.py',
-            'antspy-pr/ants/scripts/configure_ITK.sh', 'antspy-pr/ants/scripts/configure_ANTsPy.sh',
-            'antspy-pr/ants/lib/*') }}
-
-    - name: Unpack cached environment
-      if: steps.cache-env.outputs.cache-hit == 'true'
-      run: |
-        mkdir -p ${CONDA}/envs/antspy-env
-        tar -xjf ~/conda-env.tar.bz2 -C ${CONDA}/envs/antspy-env
-        conda activate antspy-env
-        conda-unpack
-
-    - name: Install dependencies and ANTsPy from PR
-      if: steps.cache-env.outputs.cache-hit != 'true'
-      run: |
-        conda create -n antspy-env python=${{ env.python_version }} -y
-        conda activate antspy-env
-        conda install -c conda-forge conda-pack
-        conda info
-        pip install ./antspy-pr
-        conda list
-        antspy-pr/tests/run_tests.sh
-        conda pack -n antspy-env -o ~/conda-env.tar.bz2
-
-    - name: Cache Conda environment
-      if: steps.cache-env.outputs.cache-hit != 'true'
-      uses: actions/cache@v4
-      with:
-        path: ~/conda-env.tar.bz2
-        key: >-
-            ${{ runner.os }}-conda-${{ env.python_version }}-
-                ${{ hashFiles('antspy-pr/ants/environment.yml', 'antspy-pr/ants/requirements.txt', 'antspy-pr/ants/setup.py',
-                'antspy-pr/ants/scripts/configure_ITK.sh', 'antspy-pr/ants/scripts/configure_ANTsPy.sh',
-                'antspy-pr/ants/lib/*') }}) }}
-
-    - name: Replace installed ANTsPy with PR code
-      if: steps.cache-env.outputs.cache-hit == 'true'
-      run: |
-        conda activate antspy-env
-        echo "List of installed packages in cached env:"
-        conda list
-        ANTS_SITE_PACKAGES="${CONDA}/envs/antspy-env/lib/python${{ env.python_version }}/site-packages/ants"
-        for d in contrib core learn registration segmentation utils viz; do
-          rm -rf $ANTS_SITE_PACKAGES/$d;
-          cp -r antspy-pr/ants/$d $ANTS_SITE_PACKAGES/$d;
-          done
-        find $ANTS_SITE_PACKAGES -name '__pycache__' -exec rm -rf {} +
-
-    - name: Run tests
-      if: steps.cache-env.outputs.cache-hit == 'true'
-      run: |
-        conda activate antspy-env
-        bash antspy-pr/tests/run_tests.sh
+      - name: Install package
+        run: python -m pip install .
