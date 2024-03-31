@@ -4,6 +4,7 @@
 #include <nanobind/stl/tuple.h>
 #include <nanobind/stl/list.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include "itkPyBuffer.h"
 #include "itkImageIOBase.h"
@@ -16,9 +17,8 @@
 #include "itkImage.h"
 #include <iostream>
 
-#include "antscore/DenoiseImage.h"
+#include "local_antsImage.h"
 
-#include <nanobind/stl/shared_ptr.h>
 
 namespace nb = nanobind;
 
@@ -27,20 +27,6 @@ using namespace nb::literals;
 using StrVector = std::vector<std::string>;
 
 
-template <typename ImageType>
-typename ImageType::Pointer as( void * ptr )
-{
-    typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
-    return *real;
-}
-
-
-template <typename ImageType>
-auto asImage( void * ptr ) {
-        auto itkImage = ImageType::New();
-        itkImage = as<ImageType>( ptr );
-        return itkImage;
-}
 
 void printfn(void * ptr) {
     using ImageType = itk::Image<unsigned char, 3>;

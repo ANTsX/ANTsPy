@@ -1,5 +1,6 @@
 #include <nanobind/nanobind.h>
 
+#include "local_antsImage.h"
 #include "local_antsImage.cpp"
 #include "local_antsImageClone.cpp"
 #include "local_antsImageHeaderInfo.cpp"

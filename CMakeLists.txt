@@ -10,8 +10,8 @@ find_package(Python 3.11
 # Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
 
-execute_process(COMMAND sh ./scripts/configure_ITK.sh)
-execute_process(COMMAND sh ./scripts/configure_ANTs.sh)
+#execute_process(COMMAND sh ./scripts/configure_ITK.sh)
+#execute_process(COMMAND sh ./scripts/configure_ANTs.sh)
 
 # ITK
 set(ITK_DIR "./itkbuild")
