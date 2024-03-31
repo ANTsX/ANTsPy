@@ -1,4 +1,4 @@
-name: ci-pytest
+name: ci-pytest2
 
 # Fast tests with cached antspy build designed to test changes in the python code
 # Builds on Linux only, with a single python version
@@ -19,14 +19,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-20.04
-    # Default shell needs to be bash for conda
-    # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#important
-    defaults:
-      run:
-        shell: bash -el {0}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v5
 
       - name: Install package
-        run: python -m pip install .
+        run: python -m pip -v install .

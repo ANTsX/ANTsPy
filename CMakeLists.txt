@@ -11,7 +11,7 @@ find_package(Python 3.8
 find_package(nanobind CONFIG REQUIRED)
 
 message("My test's working directory: ${PROJECT_SOURCE_DIR}")
-
+execute_process(COMMAND ls ${PROJECT_SOURCE_DIR})
 execute_process(COMMAND sh ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
 execute_process(COMMAND sh ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
 
