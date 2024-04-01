@@ -5,7 +5,6 @@
 #include "local_antsImage.cpp"
 #include "local_antsImageClone.cpp"
 #include "local_antsImageHeaderInfo.cpp"
-#include "local_test.cpp"
 #include "local_imageRead.cpp"
 #include "WRAP_antsAffineInitializer.cxx"
 #include "WRAP_antsApplyTransforms.cxx"
@@ -76,7 +75,6 @@ NB_MODULE(lib, m) {
     local_antsImage(m);
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);
-    local_test(m);
     local_imageRead(m);
     wrap_antsAffineInitializer(m);
     wrap_antsApplyTransforms(m);

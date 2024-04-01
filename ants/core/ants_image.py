@@ -2,9 +2,10 @@ import os
 
 import numpy as np
 
-from .. import lib, utils
-from .utils import get_orientation, image_physical_space_consistency
-from . import ants_image_io as iio2, utils
+from .. import lib
+from .._utils import short_ptype
+from .ants_image_utils import image_physical_space_consistency
+from . import ants_image_io as iio2, ants_image_utils
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
@@ -56,7 +57,7 @@ class AntsImage(object):
             self._pixelclass = 'rgb'
             self._shortpclass = 'RGB'
 
-        self._libsuffix = '%s%s%i' % (self._shortpclass, utils.short_ptype(self.pixeltype), self.dimension)
+        self._libsuffix = '%s%s%i' % (self._shortpclass, short_ptype(self.pixeltype), self.dimension)
 
         self.shape = lib.getShape(self.pointer, self._libsuffix)
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
@@ -245,12 +246,12 @@ class AntsImage(object):
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
         if self.has_components and (not self.is_rgb):
-            comp_imgs = utils.split_channels(self)
+            comp_imgs = ants_image_utils.split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-            return utils.merge_channels(comp_imgs_cloned)
+            return ants_image_utils.merge_channels(comp_imgs_cloned)
         else:
-            p1_short = utils.short_ptype(self.pixeltype)
-            p2_short = utils.short_ptype(pixeltype)
+            p1_short = short_ptype(self.pixeltype)
+            p2_short = short_ptype(pixeltype)
             ndim = self.dimension
             fn_suffix1 = '%s%i' % (p1_short,ndim)
             fn_suffix2 = '%s%i' % (p2_short,ndim)

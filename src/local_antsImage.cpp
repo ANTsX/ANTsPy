@@ -27,14 +27,6 @@ using namespace nb::literals;
 using StrVector = std::vector<std::string>;
 
 
-
-void printfn(void * ptr) {
-    using ImageType = itk::Image<unsigned char, 3>;
-    auto image = asImage<ImageType>( ptr );
-    std::cout << image << std::endl;
-}
-
-
 template <typename ImageType>
 std::list<int> getShapeHelper( typename ImageType::Pointer image )
 {
@@ -281,7 +273,6 @@ nb::object toNumpy( void * ptr, std::string imageType )
 void local_antsImage(nb::module_ &m) {
     m.def("ptrstr", &ptrstr);
     m.def("toNumpy", &toNumpy);
-    m.def("printfn", &printfn);
     m.def("getShape", &getShape);
     m.def("getSpacing", &getSpacing);
     m.def("getDirection", &getDirection);

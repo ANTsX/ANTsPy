@@ -8,7 +8,8 @@ import numpy as np
 import warnings
 
 from . import ants_image as iio
-from .. import lib, utils
+from .. import lib
+from .._utils import short_ptype
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
 _supported_ptypes = {"unsigned char", "unsigned int", "float", "double"}
@@ -51,7 +52,7 @@ def from_numpy(
     data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
 ):
     """
-    Create an ANTsImage object from a numpy array
+    Create an AntsImage object from a numpy array
 
     ANTsR function: `as.antsImage`
 
@@ -74,7 +75,7 @@ def from_numpy(
 
     Returns
     -------
-    ANTsImage
+    AntsImage
         image with given data and any given information
     """
     data = data.astype("float32") if data.dtype.name == "float64" else data
@@ -86,7 +87,7 @@ def _from_numpy(
     data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
 ):
     """
-    Internal function for creating an ANTsImage
+    Internal function for creating an AntsImage
     """
     if is_rgb:
         has_components = True
@@ -108,7 +109,7 @@ def _from_numpy(
     fn_suffix = f'{_ntype_type_map[dtype]}{ndim}'
 
     itk_image = lib.fromNumpy(data, data.shape[::-1], fn_suffix)
-    ants_image = iio.ANTsImage(
+    ants_image = iio.AntsImage(
         pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image
     )
     ants_image.set_origin(origin)
@@ -135,7 +136,7 @@ def make_image(
 
     Arguments
     ---------
-    shape : tuple/ANTsImage
+    shape : tuple/AntsImage
         input image size or mask
 
     voxval : scalar
@@ -158,9 +159,9 @@ def make_image(
 
     Returns
     -------
-    ANTsImage
+    AntsImage
     """
-    if isinstance(imagesize, iio.ANTsImage):
+    if isinstance(imagesize, iio.AntsImage):
         img = imagesize.clone()
         sel = imagesize > 0
         if voxval.ndim > 1:
@@ -200,13 +201,13 @@ def matrix_to_images(data_matrix, mask):
         each row corresponds to an image
         array should have number of columns equal to non-zero voxels in the mask
 
-    mask : ANTsImage
+    mask : AntsImage
         image containing a binary mask. Rows of the matrix are
         unmasked and written as images. The mask defines the output image space
 
     Returns
     -------
-    list of ANTsImage types
+    list of AntsImage types
 
     Example
     -------
@@ -281,13 +282,13 @@ def image_header_info(filename):
 
 def image_clone(image, pixeltype=None):
     """
-    Clone an ANTsImage
+    Clone an AntsImage
 
     ANTsR function: `antsImageClone`
 
     Arguments
     ---------
-    image : ANTsImage
+    image : AntsImage
         image to clone
 
     dtype : string (optional)
@@ -295,14 +296,14 @@ def image_clone(image, pixeltype=None):
 
     Returns
     -------
-    ANTsImage
+    AntsImage
     """
     return image.clone(pixeltype)
 
 
 def image_read(filename, dimension=None, pixeltype=None, reorient=False):
     """
-    Read an ANTsImage from file
+    Read an AntsImage from file
 
     ANTsR function: `antsImageRead`
 
@@ -330,7 +331,7 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
 
     Returns
     -------
-    ANTsImage
+    AntsImage
     """
     if filename.endswith(".npy"):
         filename = os.path.expanduser(filename)
@@ -384,10 +385,10 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
         if (ndim < 2) or (ndim > 4):
             raise ValueError("Found %i-dimensional image - not supported!" % ndim)
 
-        fn_suffix = f'{utils.short_ptype(ptype)}{ndim}'
+        fn_suffix = f'{short_ptype(ptype)}{ndim}'
         itk_pointer = lib.imageRead(filename, fn_suffix)
 
-        ants_image = iio.ANTsImage(
+        ants_image = iio.AntsImage(
             pixeltype=ptype,
             dimension=ndim,
             components=ncomp,
@@ -409,7 +410,7 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
 
 def dicom_read(directory, pixeltype="float"):
     """
-    Read a set of dicom files in a directory into a single ANTsImage.
+    Read a set of dicom files in a directory into a single AntsImage.
     The origin of the resulting 3D image will be the origin of the
     first dicom image read.
 
@@ -420,7 +421,7 @@ def dicom_read(directory, pixeltype="float"):
 
     Returns
     -------
-    ANTsImage
+    AntsImage
 
     Example
     -------
@@ -453,13 +454,13 @@ def dicom_read(directory, pixeltype="float"):
 
 def image_write(image, filename, ri=False):
     """
-    Write an ANTsImage to file
+    Write an AntsImage to file
 
     ANTsR function: `antsImageWrite`
 
     Arguments
     ---------
-    image : ANTsImage
+    image : AntsImage
         image to save to file
 
     filename : string

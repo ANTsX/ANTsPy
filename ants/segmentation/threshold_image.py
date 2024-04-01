@@ -3,7 +3,7 @@
 
 __all__ = ['threshold_image']
 
-from .. import utils, lib
+from .. import ants_image_utils, lib
 
 
 def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0, binary=True):
@@ -50,7 +50,7 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0,
     dim = image.dimension
     outimage = image.clone()
     args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
-    processed_args = utils.process_arguments(args)
+    processed_args = ants_image_utils.process_arguments(args)
     lib.ThresholdImage(processed_args)
     if binary:
         return outimage

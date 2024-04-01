@@ -12,7 +12,7 @@ import warnings
 from tempfile import mktemp
 
 from ..core import ants_image_io as iio2
-from .. import lib, utils
+from .. import lib, ants_image_utils
 
 
 def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
@@ -135,7 +135,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         for aa_idx, aa in enumerate(a):
             myargs['a-MULTINAME-%i'%aa_idx] = aa
 
-    processed_args = utils.process_arguments(myargs)
+    processed_args = ants_image_utils.process_arguments(myargs)
     print(processed_args)
     retval = lib.Atropos(processed_args)
 

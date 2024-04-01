@@ -28,7 +28,7 @@ __all__ = ['iMath',
            'iMath_propagate_labels_through_mask']
 
 
-from .. import lib, utils
+from .. import lib, ants_image_utils
 
 _iMathOps = {'FillHoles',
             'GetLargestComponent',
@@ -96,7 +96,7 @@ def iMath(image, operation, *args):
     imagedim = image.dimension
     outimage = image.clone()
     args = [imagedim, outimage, operation, image] + [a for a in args]
-    processed_args = utils.process_arguments(args)
+    processed_args = ants_image_utils.process_arguments(args)
 
     lib.iMath(processed_args)
     return outimage

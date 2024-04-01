@@ -2,7 +2,7 @@ import os
 import requests
 import tempfile
 
-from . import lib
+from .. import lib
 from . import ants_image as iio
 import numpy as np
 
@@ -15,14 +15,14 @@ def copy_image_info(reference, target):
 
     Arguments
     ---------
-    reference : ANTsImage
+    reference : AntsImage
         Image to get values from.
     target  : ANTsImAGE
         Image to copy values to
 
     Returns
     -------
-    ANTsImage
+    AntsImage
         Target image with reference header information
     """
     target.set_origin(reference.origin)
@@ -32,13 +32,13 @@ def copy_image_info(reference, target):
 
 def image_physical_space_consistency(image1, image2, tolerance=1e-2, datatype=False):
     """
-    Check if two or more ANTsImage objects occupy the same physical space
+    Check if two or more AntsImage objects occupy the same physical space
 
     ANTsR function: `antsImagePhysicalSpaceConsistency`
 
     Arguments
     ---------
-    *images : ANTsImages
+    *images : AntsImages
         images to compare
 
     tolerance : float
@@ -56,7 +56,7 @@ def image_physical_space_consistency(image1, image2, tolerance=1e-2, datatype=Fa
 
     img1 = images[0]
     for img2 in images[1:]:
-        if (not isinstance(img1, ANTsImage)) or (not isinstance(img2, ANTsImage)):
+        if (not isinstance(img1, AntsImage)) or (not isinstance(img2, AntsImage)):
             raise ValueError('Both images must be of class `AntsImage`')
 
         # image dimension check
@@ -107,11 +107,11 @@ def image_type_cast(image_list, pixeltype=None):
 
     Returns
     -------
-    list of ANTsImages
+    list of AntsImages
         given images casted to new type
     """
     if not isinstance(image_list, (list,tuple)):
-        raise ValueError('image_list must be list of ANTsImage types')
+        raise ValueError('image_list must be list of AntsImage types')
 
     pixtypes = []
     for img in image_list:

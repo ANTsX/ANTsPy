@@ -1,6 +1,4 @@
 from . import lib
-from .core.ants_image import AntsImage
-
 
 def short_ptype(pixeltype):
     _short_ptype_map = {
@@ -14,7 +12,6 @@ def short_ptype(pixeltype):
 def ptrstr(pointer):
     """ get string representation of pointer to underlying ants image """
     return lib.ptrstr(pointer)
-
 
 def process_arguments(args):
     """Turn a dictionary/list of python arguments into ANTs-style arguments"""
@@ -33,11 +30,11 @@ def process_arguments(args):
                 else:
                     p_args.append("-%s" % argname)
 
-                if isinstance(argval, AntsImage):
+                if 'AntsImage' in type(argval):
                     p_args.append(ptrstr(argval.pointer))
                 elif isinstance(argval, list):
                     for av in argval:
-                        if isinstance(av, AntsImage):
+                        if 'AntsImage' in type(av):
                             av = ptrstr(av.pointer)
                         elif str(arg) == "True":
                             av = str(1)
@@ -48,7 +45,7 @@ def process_arguments(args):
                     p_args.append(str(argval))
     elif isinstance(args, list):
         for arg in args:
-            if isinstance(arg, AntsImage):
+            if 'AntsImage' in type(arg):
                 pointer_string = ptrstr(arg.pointer)
                 p_arg = pointer_string
             elif arg is None:
