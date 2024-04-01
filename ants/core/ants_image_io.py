@@ -9,7 +9,7 @@ import warnings
 
 from . import ants_image as iio
 from .. import lib
-from .._utils import short_ptype
+from ..internal import short_ptype
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
 _supported_ptypes = {"unsigned char", "unsigned int", "float", "double"}

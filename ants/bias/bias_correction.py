@@ -1,7 +1,7 @@
 __all__ = ["n3_bias_field_correction", "n3_bias_field_correction2", "n4_bias_field_correction", "abp_n4"]
 
 
-from . import process_args as pargs
+from ..algorithms import process_args as pargs
 from .get_mask import get_mask
 from ..ops.iMath import iMath
 

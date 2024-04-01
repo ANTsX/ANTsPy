@@ -3,8 +3,8 @@ __all__ = ['ndimage_to_list',
 
 import numpy as np
 # import itk as itk
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
+from . import ants_image as iio
+from . import ants_image_io as iio2
 from .. import utils
 
 

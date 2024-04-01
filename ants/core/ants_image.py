@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from .. import lib
-from .._utils import short_ptype
+from ..internal import short_ptype
 from .ants_image_utils import image_physical_space_consistency
 from . import ants_image_io as iio2, ants_image_utils
 
