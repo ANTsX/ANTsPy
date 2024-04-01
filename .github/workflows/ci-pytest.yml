@@ -48,10 +48,9 @@ jobs:
       with:
         path: ~/conda-env.tar.bz2
         key: >-
-            ${{ runner.os }}-conda-${{ env.python_version }}-
-            ${{ hashFiles('antspy-pr/ants/environment.yml', 'antspy-pr/ants/requirements.txt', 'antspy-pr/ants/setup.py',
-            'antspy-pr/ants/scripts/configure_ITK.sh', 'antspy-pr/ants/scripts/configure_ANTsPy.sh',
-            'antspy-pr/ants/lib/*') }}
+            ${{ runner.os }}-conda-${{ env.python_version }}-${{ hashFiles('antspy-pr/ants/environment.yml',
+            'antspy-pr/ants/requirements.txt', 'antspy-pr/ants/setup.py', 'antspy-pr/scripts/configure_ITK.sh',
+            'antspy-pr/scripts/configure_ANTsPy.sh', 'antspy-pr/ants/lib/*') }}
 
     - name: Unpack cached environment
       if: steps.cache-env.outputs.cache-hit == 'true'
@@ -79,10 +78,9 @@ jobs:
       with:
         path: ~/conda-env.tar.bz2
         key: >-
-            ${{ runner.os }}-conda-${{ env.python_version }}-
-                ${{ hashFiles('antspy-pr/ants/environment.yml', 'antspy-pr/ants/requirements.txt', 'antspy-pr/ants/setup.py',
-                'antspy-pr/ants/scripts/configure_ITK.sh', 'antspy-pr/ants/scripts/configure_ANTsPy.sh',
-                'antspy-pr/ants/lib/*') }}) }}
+            ${{ runner.os }}-conda-${{ env.python_version }}-${{ hashFiles('antspy-pr/ants/environment.yml',
+            'antspy-pr/ants/requirements.txt', 'antspy-pr/ants/setup.py', 'antspy-pr/scripts/configure_ITK.sh',
+            'antspy-pr/scripts/configure_ANTsPy.sh', 'antspy-pr/ants/lib/*') }}) }}
 
     - name: Replace installed ANTsPy with PR code
       if: steps.cache-env.outputs.cache-hit == 'true'
