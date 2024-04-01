@@ -20,6 +20,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: antsx/antspy
+          flavor: |
+            latest=${{ startsWith(github.ref, 'refs/tags/v') }}
+          tags: |
+            type=semver,pattern={{version}}
       -
         name: Login to DockerHub
         if: ${{ github.repository == 'ANTsX/ANTsPy' }}
