@@ -1,5 +1,6 @@
 #include <nanobind/nanobind.h>
 
+#include "local_addNoiseToImage.cxx"
 #include "local_antsImage.h"
 #include "local_antsImage.cpp"
 #include "local_antsImageClone.cpp"
@@ -36,6 +37,7 @@
 namespace nb = nanobind;
 
 
+void local_addNoiseToImage(nb::module_ &);
 void local_antsImage(nb::module_ &);
 void local_antsImageClone(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
@@ -70,6 +72,7 @@ void wrap_ThresholdImage(nb::module_ &);
 void wrap_TileImages(nb::module_ &);
 
 NB_MODULE(lib, m) {
+    local_addNoiseToImage(m);
     local_antsImage(m);
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);

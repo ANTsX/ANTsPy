@@ -35,6 +35,14 @@ typename ImageType::Pointer as( void * ptr )
     return *real;
 }
 
+// converts an ITK image pointer to a pointer
+template <typename ImageType>
+void * wrap( const typename ImageType::Pointer &image )
+{
+    typedef typename ImageType::Pointer ImagePointerType;
+    ImagePointerType * ptr = new ImagePointerType( image );
+    return ptr;
+}
 
 template <typename ImageType>
 auto asImage( void * ptr ) {
