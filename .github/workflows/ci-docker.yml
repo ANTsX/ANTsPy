@@ -39,7 +39,7 @@ jobs:
         id: set_tag
         run: |
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "IMAGE_TAG=nightly" >> $GITHUB_ENV
+            echo "IMAGE_TAG=antsx/antspy:nightly" >> $GITHUB_ENV
           else
             TAG=${{ steps.meta.outputs.tags }}
             echo "IMAGE_TAG=${TAG}" >> $GITHUB_ENV
