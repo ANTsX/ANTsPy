@@ -4,8 +4,7 @@
 __all__ = ['get_mask']
 
 from ..core import ants_image as iio
-from .threshold_image import threshold_image
-from ..ops import iMath
+from ..ops import iMath, threshold_image
 
 
 
