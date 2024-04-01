@@ -1,29 +1,10 @@
-
-
-__all__ = ['ANTsImage',
-           'copy_image_info',
-           'set_origin',
-           'get_origin',
-           'set_direction',
-           'get_direction',
-           'set_spacing',
-           'get_spacing',
-           'image_physical_space_consistency',
-           'image_type_cast',
-           'allclose']
-
 import os
 
 import numpy as np
-import pandas as pd
-
-from functools import partialmethod
-
-import inspect
 
 from .. import lib, utils
-from .ants_image_utils import get_orientation
-from . import ants_image_io as iio2, ants_image_utils
+from .utils import get_orientation, image_physical_space_consistency
+from . import ants_image_io as iio2, utils
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
@@ -39,11 +20,11 @@ _npy_to_itk_map = {
     'float64': 'double'}
 
 
-class ANTsImage(object):
+class AntsImage(object):
 
     def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None, is_rgb=False):
         """
-        Initialize an ANTsImage
+        Initialize an AntsImage
 
         Arguments
         ---------
@@ -60,7 +41,7 @@ class ANTsImage(object):
             pybind11 capsule holding the pointer to the underlying ITK image object
 
         """
-        ## Attributes which cant change without creating a new ANTsImage object
+        ## Attributes which cant change without creating a new AntsImage object
         self.pointer = pointer
         self.pixeltype = pixeltype
         self.dimension = dimension
@@ -237,14 +218,14 @@ class ANTsImage(object):
 
     def clone(self, pixeltype=None):
         """
-        Create a copy of the given ANTsImage with the same data and info, possibly with
+        Create a copy of the given AntsImage with the same data and info, possibly with
         a different data type for the image data. Only supports casting to
         uint8 (unsigned char), uint32 (unsigned int), float32 (float), and float64 (double)
 
         Arguments
         ---------
         dtype: string (optional)
-            if None, the dtype will be the same as the cloned ANTsImage. Otherwise,
+            if None, the dtype will be the same as the cloned AntsImage. Otherwise,
             the data will be cast to this type. This can be a numpy type or an ITK
             type.
             Options:
@@ -255,7 +236,7 @@ class ANTsImage(object):
 
         Returns
         -------
-        ANTsImage
+        AntsImage
         """
         if pixeltype is None:
             pixeltype = self.pixeltype
@@ -264,9 +245,9 @@ class ANTsImage(object):
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
         if self.has_components and (not self.is_rgb):
-            comp_imgs = ants_image_utils.split_channels(self)
+            comp_imgs = utils.split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-            return ants_image_utils.merge_channels(comp_imgs_cloned)
+            return utils.merge_channels(comp_imgs_cloned)
         else:
             p1_short = utils.short_ptype(self.pixeltype)
             p2_short = utils.short_ptype(pixeltype)
@@ -274,7 +255,7 @@ class ANTsImage(object):
             fn_suffix1 = '%s%i' % (p1_short,ndim)
             fn_suffix2 = '%s%i' % (p2_short,ndim)
             pointer_cloned = lib.antsImageClone(self.pointer, fn_suffix1, fn_suffix2)
-            return ANTsImage(pixeltype=pixeltype,
+            return AntsImage(pixeltype=pixeltype,
                             dimension=self.dimension,
                             components=self.components,
                             is_rgb=self.is_rgb,
@@ -285,7 +266,7 @@ class ANTsImage(object):
 
     def astype(self, dtype):
         """
-        Cast & clone an ANTsImage to a given numpy datatype.
+        Cast & clone an AntsImage to a given numpy datatype.
 
         Map:
             uint8   : unsigned char
@@ -301,7 +282,7 @@ class ANTsImage(object):
 
     def new_image_like(self, data):
         """
-        Create a new ANTsImage with the same header information, but with
+        Create a new AntsImage with the same header information, but with
         a new image array.
 
         Arguments
@@ -313,7 +294,7 @@ class ANTsImage(object):
 
         Returns
         -------
-        ANTsImage
+        AntsImage
         """
         if not isinstance(data, np.ndarray):
             raise ValueError('data must be a numpy array')
@@ -330,7 +311,7 @@ class ANTsImage(object):
 
     def to_file(self, filename):
         """
-        Write the ANTsImage to file
+        Write the AntsImage to file
 
         Args
         ----
@@ -343,7 +324,7 @@ class ANTsImage(object):
 
     def apply(self, fn):
         """
-        Apply an arbitrary function to ANTsImage.
+        Apply an arbitrary function to AntsImage.
 
         Args
         ----
@@ -352,7 +333,7 @@ class ANTsImage(object):
 
         Returns
         -------
-        ANTsImage
+        AntsImage
             image with function applied to it
         """
         this_array = self.numpy()
@@ -415,7 +396,7 @@ class ANTsImage(object):
     def __add__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -428,7 +409,7 @@ class ANTsImage(object):
     def __sub__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -439,7 +420,7 @@ class ANTsImage(object):
     def __rsub__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -450,7 +431,7 @@ class ANTsImage(object):
     def __mul__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -463,7 +444,7 @@ class ANTsImage(object):
     def __truediv__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -474,7 +455,7 @@ class ANTsImage(object):
     def __pow__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -485,7 +466,7 @@ class ANTsImage(object):
     def __gt__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -496,7 +477,7 @@ class ANTsImage(object):
     def __ge__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -507,7 +488,7 @@ class ANTsImage(object):
     def __lt__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -518,7 +499,7 @@ class ANTsImage(object):
     def __le__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -529,7 +510,7 @@ class ANTsImage(object):
     def __eq__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -540,7 +521,7 @@ class ANTsImage(object):
     def __ne__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if isinstance(other, AntsImage):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -552,7 +533,7 @@ class ANTsImage(object):
         if self._array is None:
             self._array = self.numpy()
 
-        if isinstance(idx, ANTsImage):
+        if isinstance(idx, AntsImage):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
             return self._array.__getitem__(idx.numpy().astype('bool'))
@@ -562,7 +543,7 @@ class ANTsImage(object):
 
     def __setitem__(self, idx, value):
         arr = self.view()
-        if isinstance(idx, ANTsImage):
+        if isinstance(idx, AntsImage):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
             arr.__setitem__(idx.numpy().astype('bool'), value)
@@ -571,9 +552,9 @@ class ANTsImage(object):
 
     def __repr__(self):
         if self.dimension == 3:
-            s = 'ANTsImage ({})\n'.format(self.orientation)
+            s = 'AntsImage ({})\n'.format(self.orientation)
         else:
-            s = 'ANTsImage\n'
+            s = 'AntsImage\n'
         s = s +\
             '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
             '\t {:<10} : {}{}\n'.format('Components', self.components, ' (RGB)' if 'RGB' in self._libsuffix else '')+\
@@ -584,41 +565,9 @@ class ANTsImage(object):
         return s
 
 
-class Dictlist(dict):
-    def __setitem__(self, key, value):
-        try:
-            self[key]
-        except KeyError:
-            super(Dictlist, self).__setitem__(key, [])
-        self[key].append(value)
-
-
-def copy_image_info(reference, target):
-    """
-    Copy origin, direction, and spacing from one antsImage to another
-
-    ANTsR function: `antsCopyImageInfo`
-
-    Arguments
-    ---------
-    reference : ANTsImage
-        Image to get values from.
-    target  : ANTsImAGE
-        Image to copy values to
-
-    Returns
-    -------
-    ANTsImage
-        Target image with reference header information
-    """
-    target.set_origin(reference.origin)
-    target.set_direction(reference.direction)
-    target.set_spacing(reference.spacing)
-    return target
-
 def set_origin(image, origin):
     """
-    Set origin of ANTsImage
+    Set origin of AntsImage
 
     ANTsR function: `antsSetOrigin`
     """
@@ -626,7 +575,7 @@ def set_origin(image, origin):
 
 def get_origin(image):
     """
-    Get origin of ANTsImage
+    Get origin of AntsImage
 
     ANTsR function: `antsGetOrigin`
     """
@@ -635,7 +584,7 @@ def get_origin(image):
 
 def set_direction(image, direction):
     """
-    Set direction of ANTsImage
+    Set direction of AntsImage
 
     ANTsR function: `antsSetDirection`
     """
@@ -643,7 +592,7 @@ def set_direction(image, direction):
 
 def get_direction(image):
     """
-    Get direction of ANTsImage
+    Get direction of AntsImage
 
     ANTsR function: `antsGetDirection`
     """
@@ -651,7 +600,7 @@ def get_direction(image):
 
 def set_spacing(image, spacing):
     """
-    Set spacing of ANTsImage
+    Set spacing of AntsImage
 
     ANTsR function: `antsSetSpacing`
     """
@@ -659,122 +608,33 @@ def set_spacing(image, spacing):
 
 def get_spacing(image):
     """
-    Get spacing of ANTsImage
+    Get spacing of AntsImage
 
     ANTsR function: `antsGetSpacing`
     """
     return image.spacing
 
+def get_orientation(image):
+    direction = image.direction
 
-def image_physical_space_consistency(image1, image2, tolerance=1e-2, datatype=False):
-    """
-    Check if two or more ANTsImage objects occupy the same physical space
+    orientation = []
+    for i in range(3):
+        row = direction[:,i]
+        idx = np.where(np.abs(row)==np.max(np.abs(row)))[0][0]
 
-    ANTsR function: `antsImagePhysicalSpaceConsistency`
-
-    Arguments
-    ---------
-    *images : ANTsImages
-        images to compare
-
-    tolerance : float
-        tolerance when checking origin and spacing
-
-    data_type : boolean
-        If true, also check that the image data types are the same
-
-    Returns
-    -------
-    boolean
-        true if images share same physical space, false otherwise
-    """
-    images = [image1, image2]
-
-    img1 = images[0]
-    for img2 in images[1:]:
-        if (not isinstance(img1, ANTsImage)) or (not isinstance(img2, ANTsImage)):
-            raise ValueError('Both images must be of class `AntsImage`')
-
-        # image dimension check
-        if img1.dimension != img2.dimension:
-            return False
-
-        # image spacing check
-        space_diffs = sum([abs(s1-s2)>tolerance for s1, s2 in zip(img1.spacing, img2.spacing)])
-        if space_diffs > 0:
-            return False
-
-        # image origin check
-        origin_diffs = sum([abs(s1-s2)>tolerance for s1, s2 in zip(img1.origin, img2.origin)])
-        if origin_diffs > 0:
-            return False
-
-        # image direction check
-        origin_diff = np.allclose(img1.direction, img2.direction, atol=tolerance)
-        if not origin_diff:
-            return False
-
-        # data type
-        if datatype == True:
-            if img1.pixeltype != img2.pixeltype:
-                return False
-
-            if img1.components != img2.components:
-                return False
-
-    return True
-
-
-def image_type_cast(image_list, pixeltype=None):
-    """
-    Cast a list of images to the highest pixeltype present in the list
-    or all to a specified type
-
-    ANTsR function: `antsImageTypeCast`
-
-    Arguments
-    ---------
-    image_list : list/tuple
-        images to cast
-
-    pixeltype : string (optional)
-        pixeltype to cast to. If None, images will be cast to the highest
-        precision pixeltype found in image_list
-
-    Returns
-    -------
-    list of ANTsImages
-        given images casted to new type
-    """
-    if not isinstance(image_list, (list,tuple)):
-        raise ValueError('image_list must be list of ANTsImage types')
-
-    pixtypes = []
-    for img in image_list:
-        pixtypes.append(img.pixeltype)
-
-    if pixeltype is None:
-        pixeltype = 'unsigned char'
-        for p in pixtypes:
-            if p == 'double':
-                pixeltype = 'double'
-            elif (p=='float') and (pixeltype!='double'):
-                pixeltype = 'float'
-            elif (p=='unsigned int') and (pixeltype!='float') and (pixeltype!='double'):
-                pixeltype = 'unsigned int'
-
-    out_images = []
-    for img in image_list:
-        if img.pixeltype == pixeltype:
-            out_images.append(img)
-        else:
-            out_images.append(img.clone(pixeltype))
-
-    return out_images
-
-
-def allclose(image1, image2):
-    """
-    Check if two images have the same array values
-    """
-    return np.allclose(image1.numpy(), image2.numpy())
+        if idx == 0:
+            if row[idx] < 0:
+                orientation.append('L')
+            else:
+                orientation.append('R')
+        elif idx == 1:
+            if row[idx] < 0:
+                orientation.append('P')
+            else:
+                orientation.append('A')
+        elif idx == 2:
+            if row[idx] < 0:
+                orientation.append('S')
+            else:
+                orientation.append('I')
+    return ''.join(orientation)
