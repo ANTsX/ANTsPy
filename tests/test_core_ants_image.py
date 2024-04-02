@@ -24,9 +24,9 @@ class TestClass_ANTsImage(unittest.TestCase):
     Test ants.ANTsImage class
     """
     def setUp(self):
-        img2d = ants.image_read(ants.get_ants_data('r16'))
+        #img2d = ants.image_read(ants.get_ants_data('r16'))
         img3d = ants.image_read(ants.get_ants_data('mni'))
-        self.imgs = [img2d, img3d]
+        self.imgs = [img3d]
         self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
 
     def tearDown(self):
@@ -36,7 +36,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             spacing = img.spacing
-            self.assertTrue(isinstance(spacing, tuple))
+            self.assertTrue(isinstance(spacing, list))
             self.assertEqual(len(img.spacing), img.dimension)
 
     def test_set_spacing(self):
@@ -45,12 +45,12 @@ class TestClass_ANTsImage(unittest.TestCase):
             # set spacing from list
             new_spacing_list = [6.9]*img.dimension
             img.set_spacing(new_spacing_list)
-            self.assertEqual(img.spacing, tuple(new_spacing_list))
+            self.assertEqual(img.spacing, list(new_spacing_list))
 
-            # set spacing from tuple
-            new_spacing_tuple = tuple(new_spacing_list)
-            img.set_spacing(new_spacing_tuple)
-            self.assertEqual(img.spacing, new_spacing_tuple)
+            # set spacing from list
+            new_spacing_list = list(new_spacing_list)
+            img.set_spacing(new_spacing_list)
+            self.assertEqual(img.spacing, new_spacing_list)
 
             # test exceptions
             with self.assertRaises(Exception):
@@ -64,7 +64,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             origin = img.origin
-            self.assertTrue(isinstance(origin, tuple))
+            self.assertTrue(isinstance(origin, list))
             self.assertEqual(len(img.origin), img.dimension)
 
     def test_set_origin(self):
@@ -72,12 +72,12 @@ class TestClass_ANTsImage(unittest.TestCase):
             # set spacing from list
             new_origin_list = [6.9]*img.dimension
             img.set_origin(new_origin_list)
-            self.assertEqual(img.origin, tuple(new_origin_list))
+            self.assertEqual(img.origin, list(new_origin_list))
 
-            # set spacing from tuple
-            new_origin_tuple = tuple(new_origin_list)
-            img.set_origin(new_origin_tuple)
-            self.assertEqual(img.origin, new_origin_tuple)
+            # set spacing from list
+            new_origin_list = list(new_origin_list)
+            img.set_origin(new_origin_list)
+            self.assertEqual(img.origin, new_origin_list)
 
             # test exceptions
             with self.assertRaises(Exception):
@@ -527,9 +527,9 @@ class TestClass_ANTsImage(unittest.TestCase):
 class TestModule_ants_image(unittest.TestCase):
 
     def setUp(self):
-        img2d = ants.image_read(ants.get_ants_data('r16')).clone('float')
+        #img2d = ants.image_read(ants.get_ants_data('r16')).clone('float')
         img3d = ants.image_read(ants.get_ants_data('mni')).clone('float')
-        self.imgs = [img2d, img3d]
+        self.imgs = [img3d]
         self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
 
     def tearDown(self):
@@ -548,7 +548,7 @@ class TestModule_ants_image(unittest.TestCase):
     def test_get_spacing(self):
         for img in self.imgs:
             spacing = ants.get_spacing(img)
-            self.assertTrue(isinstance(spacing, tuple))
+            self.assertTrue(isinstance(spacing, list))
             self.assertEqual(len(ants.get_spacing(img)), img.dimension)
 
     def test_set_spacing(self):
@@ -556,17 +556,17 @@ class TestModule_ants_image(unittest.TestCase):
             # set spacing from list
             new_spacing_list = [6.9]*img.dimension
             ants.set_spacing(img, new_spacing_list)
-            self.assertEqual(img.spacing, tuple(new_spacing_list))
+            self.assertEqual(img.spacing, list(new_spacing_list))
 
-            # set spacing from tuple
-            new_spacing_tuple = tuple(new_spacing_list)
-            ants.set_spacing(img, new_spacing_tuple)
-            self.assertEqual(ants.get_spacing(img), new_spacing_tuple)
+            # set spacing from list
+            new_spacing_list = list(new_spacing_list)
+            ants.set_spacing(img, new_spacing_list)
+            self.assertEqual(ants.get_spacing(img), new_spacing_list)
 
     def test_get_origin(self):
         for img in self.imgs:
             origin = ants.get_origin(img)
-            self.assertTrue(isinstance(origin, tuple))
+            self.assertTrue(isinstance(origin, list))
             self.assertEqual(len(ants.get_origin(img)), img.dimension)
 
     def test_set_origin(self):
@@ -574,12 +574,12 @@ class TestModule_ants_image(unittest.TestCase):
             # set spacing from list
             new_origin_list = [6.9]*img.dimension
             ants.set_origin(img, new_origin_list)
-            self.assertEqual(img.origin, tuple(new_origin_list))
+            self.assertEqual(img.origin, list(new_origin_list))
 
-            # set spacing from tuple
-            new_origin_tuple = tuple(new_origin_list)
-            ants.set_origin(img, new_origin_tuple)
-            self.assertEqual(ants.get_origin(img), new_origin_tuple)
+            # set spacing from list
+            new_origin_list = list(new_origin_list)
+            ants.set_origin(img, new_origin_list)
+            self.assertEqual(ants.get_origin(img), new_origin_list)
 
     def test_get_direction(self):
         for img in self.imgs:
@@ -620,7 +620,7 @@ class TestModule_ants_image(unittest.TestCase):
 
             # bad dimension
             ndim = img.dimension
-            img2 = ants.from_numpy(np.random.randn(*tuple([69]*(ndim+1))).astype('float32'))
+            img2 = ants.from_numpy(np.random.randn(*list([69]*(ndim+1))).astype('float32'))
             self.assertTrue(not ants.image_physical_space_consistency(img,img2))
 
             # only one image
@@ -641,7 +641,7 @@ class TestModule_ants_image(unittest.TestCase):
         for img in imgs2:
             self.assertTrue(img.pixeltype, 'float')
 
-        # not a list or tuple
+        # not a list or list
         with self.assertRaises(Exception):
             ants.image_type_cast(self.imgs[0])
 

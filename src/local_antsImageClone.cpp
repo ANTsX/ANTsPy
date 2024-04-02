@@ -14,7 +14,7 @@ namespace nb = nanobind;
 using namespace nb::literals;
 
 template<typename InImageType, typename OutImageType>
-void * antsImageCloneHelper( typename InImageType::Pointer in_image )
+typename OutImageType::Pointer antsImageCloneHelper( typename InImageType::Pointer in_image )
 {
 
   typename OutImageType::Pointer out_image = OutImageType::New() ;
@@ -31,65 +31,23 @@ void * antsImageCloneHelper( typename InImageType::Pointer in_image )
     out_iterator.Set( static_cast< typename OutImageType::PixelType >( in_iterator.Get() ) ) ;
     }
 
-    typedef typename OutImageType::Pointer ImagePointerType;
-    ImagePointerType * ptr = new ImagePointerType( out_image );
-    return ptr;
+    //typedef typename OutImageType::Pointer ImagePointerType;
+    //ImagePointerType * ptr = new ImagePointerType( out_image );
+    return out_image;
 
 }
 
-void * antsImageClone(void * ptr, std::string inType, std::string outType) {
-    if (inType == "UC3") {
-        void * antsImage;
-        using ImageType = itk::Image<unsigned char, 3>;
-
-        typedef typename ImageType::Pointer ImagePointerType;
-        ImagePointerType itkImage = ImageType::New();
-        typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
-        itkImage = *real;
-
-        return antsImageCloneHelper<ImageType, ImageType>( itkImage );
-    }
-
-    if (inType == "UI3") {
-        void * antsImage;
-        using ImageType = itk::Image<unsigned int, 3>;
-        
-        typedef typename ImageType::Pointer ImagePointerType;
-        ImagePointerType itkImage = ImageType::New();
-        typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
-        itkImage = *real;
-
-        return antsImageCloneHelper<ImageType, ImageType>( itkImage );
-    }
-
-    if (inType == "F3") {
-        void * antsImage;
-        using ImageType = itk::Image<float, 3>;
-        
-        typedef typename ImageType::Pointer ImagePointerType;
-        ImagePointerType itkImage = ImageType::New();
-        typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
-        itkImage = *real;
-        
-        return antsImageCloneHelper<ImageType, ImageType>( itkImage );
-    }
-
-    if (inType == "D3") {
-        void * antsImage;
-        using ImageType = itk::Image<double, 3>;
-
-        typedef typename ImageType::Pointer ImagePointerType;
-        ImagePointerType itkImage = ImageType::New();
-        typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
-        itkImage = *real;
-        
-        return antsImageCloneHelper<ImageType, ImageType>( itkImage );
-    }
-
+template< typename ImageType >
+typename ImageType::Pointer antsImageClone(typename ImageType::Pointer ptr, std::string inType, std::string outType) {
+    typename ImageType::Pointer itkImage = asImage<ImageType>( ptr );
+    return antsImageCloneHelper<ImageType, ImageType>( itkImage );
 }
 
 void local_antsImageClone(nb::module_ &m) {
-    m.def("antsImageClone", &antsImageClone);
+    m.def("antsImageClone", &antsImageClone<itk::Image<unsigned char, 3>>);
+    m.def("antsImageClone", &antsImageClone<itk::Image<unsigned int, 3>>);
+    m.def("antsImageClone", &antsImageClone<itk::Image<float, 3>>);
+    m.def("antsImageClone", &antsImageClone<itk::Image<double, 3>>);
 }
 
 

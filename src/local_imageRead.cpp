@@ -15,8 +15,8 @@ namespace nb = nanobind;
 
 using namespace nb::literals;
 
-template< typename ImageType >
-void * imageReadHelper( std::string filename )
+template <typename ImageType>
+typename ImageType::Pointer imageReadHelper( std::string filename )
 {
     typedef typename ImageType::Pointer           ImagePointerType;
     typedef itk::ImageFileReader< ImageType >     ImageReaderType;
@@ -26,46 +26,28 @@ void * imageReadHelper( std::string filename )
     image_reader->Update();
 
     ImagePointerType itkImage = image_reader->GetOutput();
-    typedef typename ImageType::Pointer ImagePointerType;
-    ImagePointerType * ptr = new ImagePointerType( itkImage );
-    return ptr;
+    return itkImage;
 }
 
-void * imageRead( std::string filename, std::string imageType )
+
+template <typename ImageType>
+AntsImage<ImageType> imageRead( std::string filename, std::string imageType )
 {
 
-    if (imageType == "UC3") {
-        void * antsImage;
-        using ImageType = itk::Image<unsigned char, 3>;
-        antsImage = imageReadHelper<ImageType>(filename);
-        return antsImage;
-    }
+    typename ImageType::Pointer  antsImage = imageReadHelper<ImageType>(filename);
 
-    if (imageType == "UI3") {
-        void * antsImage;
-        using ImageType = itk::Image<unsigned int, 3>;
-        antsImage = imageReadHelper<ImageType>(filename);
-        return antsImage;
-    }
-
-    if (imageType == "F3") {
-        void * antsImage;
-        using ImageType = itk::Image<float, 3>;
-        antsImage = imageReadHelper<ImageType>(filename);
-        return antsImage;
-    }
-
-    if (imageType == "D3") {
-        void * antsImage;
-        using ImageType = itk::Image<double, 3>;
-        antsImage = imageReadHelper<ImageType>(filename);
-        return antsImage;
-    }
-
+    AntsImage<ImageType> myImage = { antsImage };
+    return myImage;
 }
 
+
+
 void local_imageRead(nb::module_ &m) {
-    m.def("imageRead", &imageRead);
+    m.def("imageReadF3", &imageRead<itk::Image<float, 3>>);
+    m.def("imageReadF2", &imageRead<itk::Image<float, 2>>);
+
+    nb::class_<AntsImage<itk::Image<float, 3>>>(m, "AntsImageF3");
+    nb::class_<AntsImage<itk::Image<float, 2>>>(m, "AntsImageF2");
 }
 
 

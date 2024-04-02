@@ -61,8 +61,9 @@ class AntsImage(object):
 
         self._libsuffix = '%s%s%i' % (self._shortpclass, short_ptype(self.pixeltype), self.dimension)
 
-        self.shape = lib.getShape(self.pointer, self._libsuffix)
-        self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
+        print(self.pointer)
+        self.shape = None# lib.getShape(self.pointer.ptr, self._libsuffix)
+        #self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
 
         self._array = None
 

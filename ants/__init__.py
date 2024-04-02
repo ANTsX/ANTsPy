@@ -9,14 +9,5 @@
 # - utils: utility functions that dont really fit anywhere else
 
 
-from .algorithms import *
 from .core import *
-from .cli import *
-from .label import *
-from .metrics import *
-from .ops import *
-from .plotting import *
-from .registration import *
-from .segmentation import *
-from .transforms import *
 from .utils import *

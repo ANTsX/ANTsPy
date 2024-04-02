@@ -45,10 +45,15 @@ void * wrap( const typename ImageType::Pointer &image )
 }
 
 template <typename ImageType>
-auto asImage( void * ptr ) {
-        auto itkImage = ImageType::New();
+typename ImageType::Pointer asImage( void * ptr ) {
+        typename ImageType::Pointer itkImage = ImageType::New();
         itkImage = as<ImageType>( ptr );
         return itkImage;
 }
+
+template <typename ImageType> 
+struct AntsImage {
+    typename ImageType::Pointer ptr;
+};
 
 #endif

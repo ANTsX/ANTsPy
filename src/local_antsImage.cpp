@@ -19,7 +19,6 @@
 
 #include "local_antsImage.h"
 
-
 namespace nb = nanobind;
 
 using namespace nb::literals;
@@ -41,37 +40,22 @@ std::list<int> getShapeHelper( typename ImageType::Pointer image )
     return shapelist;
 }
 
-std::list<int> getShape( void * ptr, std::string imageType )
+template <typename ImageType>
+typename ImageType::Pointer asMe( void * myPointer )
 {
+    //void *ptr = image.pointer;
+    typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(myPointer); // static_cast or reinterpret_cast ??
+    return *real;
+}
 
-    if (imageType == "UC3") {
-        using ImageType = itk::Image<unsigned char, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
+template <typename ImageType>
+int getShape( AntsImage<ImageType> & myPointer, std::string imageType )
+{
+    typename ImageType::Pointer itkImage = myPointer.ptr;
+    std::cout << itkImage << std::endl;
 
-        return getShapeHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "UI3") {
-        using ImageType = itk::Image<unsigned int, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-
-        return getShapeHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "F3") {
-        using ImageType = itk::Image<float, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getShapeHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "D3") {
-        using ImageType = itk::Image<double, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getShapeHelper<ImageType>( itkImage );
-    }
-
+    return 1;
+    //return getShapeHelper<ImageType>( itkImage );
 }
 
 
@@ -195,35 +179,49 @@ std::vector<double> getOriginHelper( typename ImageType::Pointer image )
     return originlist;
 }
 
+enum string_code {
+    UC3,
+    UI3,
+    F3,
+    D3
+};
+
+string_code hashit (std::string const& inString) {
+    if (inString == "UC3") return UC3;
+    if (inString == "UI3") return UI3;
+    if (inString == "F3") return F3;
+    if (inString == "D3") return D3;
+}
+
 std::vector<double> getOrigin( void * ptr, std::string imageType )
 {
-    if (imageType == "UC3") {
-        using ImageType = itk::Image<unsigned char, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
 
-        return getOriginHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "UI3") {
-        using ImageType = itk::Image<unsigned int, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-
-        return getOriginHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "F3") {
-        using ImageType = itk::Image<float, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getOriginHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "D3") {
-        using ImageType = itk::Image<double, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getOriginHelper<ImageType>( itkImage );
-    }
+    switch (hashit(imageType)) {
+        case UC3:
+        {
+            typedef itk::Image<unsigned char, 3>  ImageType;
+            auto itkImage = asImage<ImageType>( ptr );
+            return getOriginHelper<ImageType>( itkImage );
+        }
+        case UI3:
+        {
+            typedef itk::Image<unsigned int, 3> ImageType;
+            auto itkImage = asImage<ImageType>( ptr );
+            return getOriginHelper<ImageType>( itkImage );
+        }
+        case F3:
+        {
+            typedef itk::Image<float, 3> ImageType;
+            auto itkImage = asImage<ImageType>( ptr );
+            return getOriginHelper<ImageType>( itkImage );
+        }
+        case D3:
+        {
+            typedef itk::Image<double, 3> ImageType;
+            auto itkImage = asImage<ImageType>( ptr );
+            return getOriginHelper<ImageType>( itkImage );
+        }
+    }    
 
 }
 
@@ -273,7 +271,8 @@ nb::object toNumpy( void * ptr, std::string imageType )
 void local_antsImage(nb::module_ &m) {
     m.def("ptrstr", &ptrstr);
     m.def("toNumpy", &toNumpy);
-    m.def("getShape", &getShape);
+    m.def("getShape", &getShape<itk::Image<float, 3>>);
+    m.def("getShape", &getShape<itk::Image<float, 2>>);
     m.def("getSpacing", &getSpacing);
     m.def("getDirection", &getDirection);
     m.def("getOrigin", &getOrigin);

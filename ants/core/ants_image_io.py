@@ -386,7 +386,10 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
             raise ValueError("Found %i-dimensional image - not supported!" % ndim)
 
         fn_suffix = f'{short_ptype(ptype)}{ndim}'
-        itk_pointer = lib.imageRead(filename, fn_suffix)
+        if ndim == 2:
+            itk_pointer = lib.imageReadF2(filename, fn_suffix)
+        else:
+            itk_pointer = lib.imageReadF3(filename, fn_suffix)
 
         ants_image = iio.AntsImage(
             pixeltype=ptype,
