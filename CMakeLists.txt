@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16.3...3.26)
 
 project(ants LANGUAGES CXX)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Try to import all Python components potentially needed by nanobind
 find_package(Python 3.8
   REQUIRED COMPONENTS Interpreter Development.Module
@@ -18,6 +20,9 @@ set(ITK_DIR "./itkbuild")
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
+#set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -O2 -fPIC" )
+#set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wno-c++11-long-long -O2 -fPIC" )
+
 # ANTS
 add_library(antsUtilities STATIC src/antscore/antsUtilities.cxx src/antscore/antsCommandLineOption.cxx src/antscore/antsCommandLineParser.cxx src/antscore/ReadWriteData.cxx src/antscore/ANTsVersion.cxx)
 add_library(registrationUtilities STATIC  src/antscore/antsRegistrationTemplateHeader.cxx
@@ -27,6 +32,7 @@ add_library(registrationUtilities STATIC  src/antscore/antsRegistrationTemplateH
 
 
 add_library(imageMathUtilities STATIC  src/antscore/ImageMathHelper2D.cxx src/antscore/ImageMathHelper3D.cxx src/antscore/ImageMathHelper4D.cxx)
+
 
 # this may not be needed
 target_link_libraries(antsUtilities ${ITK_LIBRARIES})
