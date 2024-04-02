@@ -2,10 +2,12 @@ import os
 
 import numpy as np
 
+from . import ants_image_utils
+
 from .. import lib
 from ..internal import short_ptype
 from .ants_image_utils import image_physical_space_consistency
-from . import ants_image_io as iio2, ants_image_utils
+from . import ants_image_io as iio2
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
