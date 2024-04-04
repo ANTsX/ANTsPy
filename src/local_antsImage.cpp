@@ -27,8 +27,9 @@ using StrVector = std::vector<std::string>;
 
 
 template <typename ImageType>
-std::list<int> getShapeHelper( typename ImageType::Pointer image )
+std::list<int> getShape( AntsImage<ImageType> & myPointer )
 {
+    typename ImageType::Pointer image = myPointer.ptr;
     unsigned int ndim = ImageType::GetImageDimension();
     image->UpdateOutputInformation();
     typename ImageType::SizeType shape = image->GetBufferedRegion().GetSize();
@@ -38,24 +39,6 @@ std::list<int> getShapeHelper( typename ImageType::Pointer image )
         shapelist.push_back( shape[i] );
     }
     return shapelist;
-}
-
-template <typename ImageType>
-typename ImageType::Pointer asMe( void * myPointer )
-{
-    //void *ptr = image.pointer;
-    typename ImageType::Pointer * real  = static_cast<typename ImageType::Pointer *>(myPointer); // static_cast or reinterpret_cast ??
-    return *real;
-}
-
-template <typename ImageType>
-int getShape( AntsImage<ImageType> & myPointer, std::string imageType )
-{
-    typename ImageType::Pointer itkImage = myPointer.ptr;
-    std::cout << itkImage << std::endl;
-
-    return 1;
-    //return getShapeHelper<ImageType>( itkImage );
 }
 
 
@@ -276,5 +259,9 @@ void local_antsImage(nb::module_ &m) {
     m.def("getSpacing", &getSpacing);
     m.def("getDirection", &getDirection);
     m.def("getOrigin", &getOrigin);
+
+
+    nb::class_<AntsImage<itk::Image<float, 3>>>(m, "AntsImageF3");
+    nb::class_<AntsImage<itk::Image<float, 2>>>(m, "AntsImageF2");
 }
 

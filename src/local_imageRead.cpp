@@ -45,9 +45,6 @@ AntsImage<ImageType> imageRead( std::string filename, std::string imageType )
 void local_imageRead(nb::module_ &m) {
     m.def("imageReadF3", &imageRead<itk::Image<float, 3>>);
     m.def("imageReadF2", &imageRead<itk::Image<float, 2>>);
-
-    nb::class_<AntsImage<itk::Image<float, 3>>>(m, "AntsImageF3");
-    nb::class_<AntsImage<itk::Image<float, 2>>>(m, "AntsImageF2");
 }
 
 
