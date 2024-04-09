@@ -290,6 +290,17 @@ ANTsImageToImageMetric<MetricType> new_ants_metric( std::string precision, unsig
       MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
       return wrap_metric< MetricType >( basePointer );
     }
+    else if ( metrictype == "MattesMutualInformation" )
+    {
+      typedef itk::Image<float, Dimension> ImageType;
+      typedef itk::MattesMutualInformationImageToImageMetricv4<ImageType,ImageType> SpecificMetricType;
+      typename SpecificMetricType::Pointer metricPointer = SpecificMetricType::New();
+      typedef itk::ImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> MetricBaseType;
+      typedef typename MetricBaseType::Pointer  MetricBasePointerType;
+
+      MetricBasePointerType basePointer = dynamic_cast<MetricBaseType *>( metricPointer.GetPointer() );
+      return wrap_metric< MetricType >( basePointer );
+    }
     // should never reach this
     typedef itk::Image<float, Dimension> ImageType;
     typedef itk::MeanSquaresImageToImageMetricv4<itk::Image<float, Dimension>,itk::Image<float,Dimension>> SpecificMetricType;
