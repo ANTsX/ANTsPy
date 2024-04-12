@@ -14,8 +14,10 @@ namespace nb = nanobind;
 using namespace nb::literals;
 
 template<typename InImageType, typename OutImageType>
-typename OutImageType::Pointer antsImageCloneHelper( typename InImageType::Pointer in_image )
+AntsImage<OutImageType> antsImageClone( AntsImage<InImageType> & myPointer )
 {
+
+    typename InImageType::Pointer in_image = myPointer.ptr;
 
   typename OutImageType::Pointer out_image = OutImageType::New() ;
   out_image->SetRegions( in_image->GetLargestPossibleRegion() ) ;
@@ -31,23 +33,87 @@ typename OutImageType::Pointer antsImageCloneHelper( typename InImageType::Point
     out_iterator.Set( static_cast< typename OutImageType::PixelType >( in_iterator.Get() ) ) ;
     }
 
-    //typedef typename OutImageType::Pointer ImagePointerType;
-    //ImagePointerType * ptr = new ImagePointerType( out_image );
-    return out_image;
+    AntsImage<OutImageType> outImage = { out_image };
 
-}
+    return outImage;
 
-template< typename ImageType >
-typename ImageType::Pointer antsImageClone(typename ImageType::Pointer ptr, std::string inType, std::string outType) {
-    typename ImageType::Pointer itkImage = asImage<ImageType>( ptr );
-    return antsImageCloneHelper<ImageType, ImageType>( itkImage );
 }
 
 void local_antsImageClone(nb::module_ &m) {
-    m.def("antsImageClone", &antsImageClone<itk::Image<unsigned char, 3>>);
-    m.def("antsImageClone", &antsImageClone<itk::Image<unsigned int, 3>>);
-    m.def("antsImageClone", &antsImageClone<itk::Image<float, 3>>);
-    m.def("antsImageClone", &antsImageClone<itk::Image<double, 3>>);
+
+    // call the function based on the image type you are converting TO.
+    // the image type you are converting FROM should be automatically inferred by the template
+
+    // dim = 2
+    m.def("antsImageCloneUC2", &antsImageClone<itk::Image<unsigned char,2>,itk::Image<unsigned char,2>>);
+    m.def("antsImageCloneUC2", &antsImageClone<itk::Image<unsigned int,2>,itk::Image<unsigned char,2>>);
+    m.def("antsImageCloneUC2", &antsImageClone<itk::Image<float,2>,itk::Image<unsigned char,2>>);
+    m.def("antsImageCloneUC2", &antsImageClone<itk::Image<double,2>,itk::Image<unsigned char,2>>);
+
+    m.def("antsImageCloneUI2", &antsImageClone<itk::Image<unsigned char,2>,itk::Image<unsigned int,2>>);
+    m.def("antsImageCloneUI2", &antsImageClone<itk::Image<unsigned int,2>,itk::Image<unsigned int,2>>);
+    m.def("antsImageCloneUI2", &antsImageClone<itk::Image<float,2>,itk::Image<unsigned int,2>>);
+    m.def("antsImageCloneUI2", &antsImageClone<itk::Image<double,2>,itk::Image<unsigned int,2>>);
+
+    m.def("antsImageCloneF2", &antsImageClone<itk::Image<unsigned char,2>,itk::Image<float,2>>);
+    m.def("antsImageCloneF2", &antsImageClone<itk::Image<unsigned int,2>,itk::Image<float,2>>);
+    m.def("antsImageCloneF2", &antsImageClone<itk::Image<float,2>,itk::Image<float,2>>);
+    m.def("antsImageCloneF2", &antsImageClone<itk::Image<double,2>,itk::Image<float,2>>);
+
+    m.def("antsImageCloneD2", &antsImageClone<itk::Image<unsigned char,2>,itk::Image<double,2>>);
+    m.def("antsImageCloneD2", &antsImageClone<itk::Image<unsigned int,2>,itk::Image<double,2>>);
+    m.def("antsImageCloneD2", &antsImageClone<itk::Image<float,2>,itk::Image<double,2>>);
+    m.def("antsImageCloneD2", &antsImageClone<itk::Image<double,2>,itk::Image<double,2>>);
+
+    m.def("antsImageCloneRGBUC2", &antsImageClone<itk::Image<itk::RGBPixel<unsigned char>,2>,itk::Image<itk::RGBPixel<unsigned char>,2>>);
+
+    // dim = 3
+
+    m.def("antsImageCloneUC3", &antsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>);
+    m.def("antsImageCloneUC3", &antsImageClone<itk::Image<unsigned int,3>,itk::Image<unsigned char,3>>);
+    m.def("antsImageCloneUC3", &antsImageClone<itk::Image<float,3>,itk::Image<unsigned char,3>>);
+    m.def("antsImageCloneUC3", &antsImageClone<itk::Image<double,3>,itk::Image<unsigned char,3>>);
+
+    m.def("antsImageCloneUI3", &antsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned int,3>>);
+    m.def("antsImageCloneUI3", &antsImageClone<itk::Image<unsigned int,3>,itk::Image<unsigned int,3>>);
+    m.def("antsImageCloneUI3", &antsImageClone<itk::Image<float,3>,itk::Image<unsigned int,3>>);
+    m.def("antsImageCloneUI3", &antsImageClone<itk::Image<double,3>,itk::Image<unsigned int,3>>);
+
+    m.def("antsImageCloneF3", &antsImageClone<itk::Image<unsigned char,3>,itk::Image<float,3>>);
+    m.def("antsImageCloneF3", &antsImageClone<itk::Image<unsigned int,3>,itk::Image<float,3>>);
+    m.def("antsImageCloneF3", &antsImageClone<itk::Image<float,3>,itk::Image<float,3>>);
+    m.def("antsImageCloneF3", &antsImageClone<itk::Image<double,3>,itk::Image<float,3>>);
+
+    m.def("antsImageCloneD3", &antsImageClone<itk::Image<unsigned char,3>,itk::Image<double,3>>);
+    m.def("antsImageCloneD3", &antsImageClone<itk::Image<unsigned int,3>,itk::Image<double,3>>);
+    m.def("antsImageCloneD3", &antsImageClone<itk::Image<float,3>,itk::Image<double,3>>);
+    m.def("antsImageCloneD3", &antsImageClone<itk::Image<double,3>,itk::Image<double,3>>);
+
+    m.def("antsImageCloneRGBUC3", &antsImageClone<itk::Image<itk::RGBPixel<unsigned char>,3>,itk::Image<itk::RGBPixel<unsigned char>,3>>);
+
+    // dim = 4
+
+    m.def("antsImageCloneUC4", &antsImageClone<itk::Image<unsigned char,4>,itk::Image<unsigned char,4>>);
+    m.def("antsImageCloneUC4", &antsImageClone<itk::Image<unsigned int,4>,itk::Image<unsigned char,4>>);
+    m.def("antsImageCloneUC4", &antsImageClone<itk::Image<float,4>,itk::Image<unsigned char,4>>);
+    m.def("antsImageCloneUC4", &antsImageClone<itk::Image<double,4>,itk::Image<unsigned char,4>>);
+
+    m.def("antsImageCloneUI4", &antsImageClone<itk::Image<unsigned char,4>,itk::Image<unsigned int,4>>);
+    m.def("antsImageCloneUI4", &antsImageClone<itk::Image<unsigned int,4>,itk::Image<unsigned int,4>>);
+    m.def("antsImageCloneUI4", &antsImageClone<itk::Image<float,4>,itk::Image<unsigned int,4>>);
+    m.def("antsImageCloneUI4", &antsImageClone<itk::Image<double,4>,itk::Image<unsigned int,4>>);
+
+    m.def("antsImageCloneF4", &antsImageClone<itk::Image<unsigned char,4>,itk::Image<float,4>>);
+    m.def("antsImageCloneF4", &antsImageClone<itk::Image<unsigned int,4>,itk::Image<float,4>>);
+    m.def("antsImageCloneF4", &antsImageClone<itk::Image<float,4>,itk::Image<float,4>>);
+    m.def("antsImageCloneF4", &antsImageClone<itk::Image<double,4>,itk::Image<float,4>>);
+
+    m.def("antsImageCloneD4", &antsImageClone<itk::Image<unsigned char,4>,itk::Image<double,4>>);
+    m.def("antsImageCloneD4", &antsImageClone<itk::Image<unsigned int,4>,itk::Image<double,4>>);
+    m.def("antsImageCloneD4", &antsImageClone<itk::Image<float,4>,itk::Image<double,4>>);
+    m.def("antsImageCloneD4", &antsImageClone<itk::Image<double,4>,itk::Image<double,4>>);
+
+    m.def("antsImageCloneRGBUC4", &antsImageClone<itk::Image<itk::RGBPixel<unsigned char>,4>,itk::Image<itk::RGBPixel<unsigned char>,4>>);
 }
 
 

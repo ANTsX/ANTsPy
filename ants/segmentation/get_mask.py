@@ -46,7 +46,7 @@ def get_mask(image, low_thresh=None, high_thresh=None, cleanup=2):
     >>> mask = ants.get_mask(image)
     """
     cleanup = int(cleanup)
-    if isinstance(image, iio.ANTsImage):
+    if isinstance(image, iio.AntsImage):
         if image.pixeltype != 'float':
             image = image.clone('float')
 

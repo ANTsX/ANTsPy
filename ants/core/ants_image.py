@@ -253,9 +253,8 @@ class AntsImage(object):
             p1_short = short_ptype(self.pixeltype)
             p2_short = short_ptype(pixeltype)
             ndim = self.dimension
-            fn_suffix1 = '%s%i' % (p1_short,ndim)
-            fn_suffix2 = '%s%i' % (p2_short,ndim)
-            pointer_cloned = lib.antsImageClone(self.pointer, fn_suffix1, fn_suffix2)
+            libfn = lib.__dict__[f'antsImageClone{p2_short}{ndim}']
+            pointer_cloned = libfn(self.pointer)
             return AntsImage(pixeltype=pixeltype,
                             dimension=self.dimension,
                             components=self.components,
