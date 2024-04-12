@@ -59,11 +59,8 @@ class AntsImage(object):
             self._pixelclass = 'rgb'
             self._shortpclass = 'RGB'
 
-        self._libsuffix = '%s%s%i' % (self._shortpclass, short_ptype(self.pixeltype), self.dimension)
-
-        print(self.pointer)
-        self.shape = None# lib.getShape(self.pointer.ptr, self._libsuffix)
-        #self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
+        self.shape = lib.getShape(self.pointer)
+        self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
 
         self._array = None
 
@@ -76,7 +73,7 @@ class AntsImage(object):
         -------
         tuple
         """
-        return lib.getSpacing(self.pointer, self._libsuffix)
+        return lib.getSpacing(self.pointer)
 
     def set_spacing(self, new_spacing):
         """
@@ -97,7 +94,7 @@ class AntsImage(object):
         if len(new_spacing) != self.dimension:
             raise ValueError('must give a spacing value for each dimension (%i)' % self.dimension)
 
-        return lib.setSpacing(self.pointer, new_spacing, self._libsuffix)
+        return lib.setSpacing(self.pointer, new_spacing)
 
     @property
     def origin(self):
@@ -108,7 +105,7 @@ class AntsImage(object):
         -------
         tuple
         """
-        return lib.getOrigin(self.pointer, self._libsuffix)
+        return lib.getOrigin(self.pointer)
 
     def set_origin(self, new_origin):
         """
@@ -129,7 +126,7 @@ class AntsImage(object):
         if len(new_origin) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        lib.setOrigin(self.pointer, new_origin, self._libsuffix)
+        lib.setOrigin(self.pointer, new_origin)
 
     @property
     def direction(self):
@@ -140,7 +137,7 @@ class AntsImage(object):
         -------
         tuple
         """
-        return np.array(lib.getDirection(self.pointer, self._libsuffix)).reshape(self.dimension, self.dimension)
+        return np.array(lib.getDirection(self.pointer)).reshape(self.dimension, self.dimension)
 
     def set_direction(self, new_direction):
         """
@@ -164,7 +161,7 @@ class AntsImage(object):
         if len(new_direction) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        lib.setDirection(self.pointer, new_direction, self._libsuffix)
+        lib.setDirection(self.pointer, new_direction)
 
     @property
     def orientation(self):
@@ -198,7 +195,7 @@ class AntsImage(object):
         if img.has_components or (single_components == True):
             shape = list(shape) + [img.components]
         
-        array = np.frombuffer(lib.toNumpy(self.pointer, self._libsuffix), dtype=self.dtype).reshape(self.shape)
+        array = np.frombuffer(lib.toNumpy(self.pointer), dtype=self.dtype).reshape(self.shape)
         if self.has_components or (single_components == True):
             array = np.rollaxis(array, 0, self.dimension+1)
         return array
@@ -323,7 +320,7 @@ class AntsImage(object):
             filepath to which the image will be written
         """
         filename = os.path.expanduser(filename)
-        lib.toFile(self.pointer, filename, self._libsuffix)
+        lib.toFile(self.pointer, filename)
     to_filename = to_file
 
     def apply(self, fn):
@@ -561,7 +558,7 @@ class AntsImage(object):
             s = 'AntsImage\n'
         s = s +\
             '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
-            '\t {:<10} : {}{}\n'.format('Components', self.components, ' (RGB)' if 'RGB' in self._libsuffix else '')+\
+            '\t {:<10} : {}{}\n'.format('Components', self.components, ' (RGB)' if self.is_rgb else '')+\
             '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
             '\t {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
             '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\

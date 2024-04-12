@@ -367,7 +367,7 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
             pclass = "vector"
         if pclass == "symmetric_second_rank_tensor":
             pclass = "vector"
-#        is_rgb = True if pclass == "rgb" else False
+        is_rgb = True if pclass == "rgb" else False
         if dimension is not None:
             ndim = dimension
 
@@ -385,11 +385,9 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
         if (ndim < 2) or (ndim > 4):
             raise ValueError("Found %i-dimensional image - not supported!" % ndim)
 
-        fn_suffix = f'{short_ptype(ptype)}{ndim}'
-        if ndim == 2:
-            itk_pointer = lib.imageReadF2(filename, fn_suffix)
-        else:
-            itk_pointer = lib.imageReadF3(filename, fn_suffix)
+        fn_suffix = f'imageRead{short_ptype(ptype)}{ndim}'
+        libfn = lib.__dict__[fn_suffix]
+        itk_pointer = libfn(filename)
 
         ants_image = iio.AntsImage(
             pixeltype=ptype,

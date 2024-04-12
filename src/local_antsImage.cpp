@@ -43,8 +43,9 @@ std::list<int> getShape( AntsImage<ImageType> & myPointer )
 
 
 template <typename ImageType>
-std::list<float> getSpacingHelper( typename ImageType::Pointer image )
+std::list<float> getSpacing( AntsImage<ImageType> & myPointer )
 {
+    typename ImageType::Pointer image = myPointer.ptr;
     typename ImageType::SpacingType spacing = image->GetSpacing();
     unsigned int ndim = ImageType::GetImageDimension();
 
@@ -57,41 +58,25 @@ std::list<float> getSpacingHelper( typename ImageType::Pointer image )
     return spacinglist;
 }
 
-std::list<float> getSpacing( void * ptr, std::string imageType )
-{
-
-    if (imageType == "UC3") {
-        using ImageType = itk::Image<unsigned char, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-
-        return getSpacingHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "UI3") {
-        using ImageType = itk::Image<unsigned int, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-
-        return getSpacingHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "F3") {
-        using ImageType = itk::Image<float, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getSpacingHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "D3") {
-        using ImageType = itk::Image<double, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getSpacingHelper<ImageType>( itkImage );
-    }
-}
 
 template <typename ImageType>
-std::vector<double> getDirectionHelper( typename ImageType::Pointer image )
+void setSpacing( AntsImage<ImageType> & myPointer, std::vector<double> new_spacing)
 {
+    typename ImageType::Pointer itkImage = myPointer.ptr;
+    unsigned int nvals = new_spacing.size();
+    typename ImageType::SpacingType spacing = itkImage->GetSpacing();
+    for (int i = 0; i < nvals; i++)
+    {
+        spacing[i] = new_spacing[i];
+    }
+    itkImage->SetSpacing( spacing );
+}
+
+
+template <typename ImageType>
+std::vector<double> getDirection( AntsImage<ImageType> & myPointer )
+{
+    typename ImageType::Pointer image = myPointer.ptr;
     typedef typename ImageType::DirectionType ImageDirectionType;
     ImageDirectionType direction = image->GetDirection();
 
@@ -115,41 +100,12 @@ std::vector<double> getDirectionHelper( typename ImageType::Pointer image )
 
 }
 
-std::vector<double> getDirection( void * ptr, std::string imageType )
-{
-    if (imageType == "UC3") {
-        using ImageType = itk::Image<unsigned char, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-
-        return getDirectionHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "UI3") {
-        using ImageType = itk::Image<unsigned int, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-
-        return getDirectionHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "F3") {
-        using ImageType = itk::Image<float, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getDirectionHelper<ImageType>( itkImage );
-    }
-
-    if (imageType == "D3") {
-        using ImageType = itk::Image<double, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        
-        return getDirectionHelper<ImageType>( itkImage );
-    }
-}
 
 
 template <typename ImageType>
-std::vector<double> getOriginHelper( typename ImageType::Pointer image )
+std::vector<double> getOrigin( AntsImage<ImageType> & myPointer )
 {
+    typename ImageType::Pointer image = myPointer.ptr;
     typename ImageType::PointType origin = image->GetOrigin();
     unsigned int ndim = ImageType::GetImageDimension();
 
@@ -162,51 +118,30 @@ std::vector<double> getOriginHelper( typename ImageType::Pointer image )
     return originlist;
 }
 
-enum string_code {
-    UC3,
-    UI3,
-    F3,
-    D3
-};
-
-string_code hashit (std::string const& inString) {
-    if (inString == "UC3") return UC3;
-    if (inString == "UI3") return UI3;
-    if (inString == "F3") return F3;
-    if (inString == "D3") return D3;
-}
-
-std::vector<double> getOrigin( void * ptr, std::string imageType )
+template <typename ImageType>
+void setOrigin( AntsImage<ImageType> & myPointer, std::vector<double> new_origin)
 {
-
-    switch (hashit(imageType)) {
-        case UC3:
-        {
-            typedef itk::Image<unsigned char, 3>  ImageType;
-            auto itkImage = asImage<ImageType>( ptr );
-            return getOriginHelper<ImageType>( itkImage );
-        }
-        case UI3:
-        {
-            typedef itk::Image<unsigned int, 3> ImageType;
-            auto itkImage = asImage<ImageType>( ptr );
-            return getOriginHelper<ImageType>( itkImage );
-        }
-        case F3:
-        {
-            typedef itk::Image<float, 3> ImageType;
-            auto itkImage = asImage<ImageType>( ptr );
-            return getOriginHelper<ImageType>( itkImage );
-        }
-        case D3:
-        {
-            typedef itk::Image<double, 3> ImageType;
-            auto itkImage = asImage<ImageType>( ptr );
-            return getOriginHelper<ImageType>( itkImage );
-        }
-    }    
-
+    typename ImageType::Pointer itkImage = myPointer.ptr;
+    unsigned int nvals = new_origin.size();
+    typename ImageType::PointType origin = itkImage->GetOrigin();
+    for (int i = 0; i < nvals; i++)
+    {
+        origin[i] = new_origin[i];
+    }
+    itkImage->SetOrigin( origin );
 }
+
+template <typename ImageType>
+void toFile( AntsImage<ImageType> & myPointer, std::string filename )
+{
+    typename ImageType::Pointer image = myPointer.ptr;
+    typedef itk::ImageFileWriter< ImageType > ImageWriterType ;
+    typename ImageWriterType::Pointer image_writer = ImageWriterType::New() ;
+    image_writer->SetFileName( filename.c_str() ) ;
+    image_writer->SetInput( image );
+    image_writer->Update();
+}
+
 
 std::string ptrstr(void * c)
 {
@@ -216,52 +151,280 @@ std::string ptrstr(void * c)
     return s;
 }
 
-template <typename ImageType>
-nb::object numpyHelperWorking( typename ImageType::Pointer itkImage )
-{
-    typedef itk::PyBuffer<ImageType> PyBufferType;
-    PyObject * itkArray = PyBufferType::_GetArrayViewFromImage( itkImage );
-    nb::object itkArrayObject = nb::steal( itkArray );
-    //nb::ndarray<nb::numpy, float> itkArrayObject2 = nb::cast<nb::ndarray<nb::numpy, float>>( itkArray );
-    return itkArrayObject;
-}
 
 template <typename ImageType>
-nb::object numpyHelper( typename ImageType::Pointer itkImage )
+nb::object toNumpy( AntsImage<ImageType> & myPointer )
 {
+    typename ImageType::Pointer image = myPointer.ptr;
     typedef itk::PyBuffer<ImageType> PyBufferType;
-    PyObject * itkArray = PyBufferType::_GetArrayViewFromImage( itkImage );
+    PyObject * itkArray = PyBufferType::_GetArrayViewFromImage( image );
     nb::object itkArrayObject = nb::steal( itkArray );
     return itkArrayObject;
 }
 
-nb::object toNumpy( void * ptr, std::string imageType )
-{
-    if (imageType == "D3") {
-        using ImageType = itk::Image<double, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        return numpyHelper<ImageType>( itkImage );
-    } else if (imageType == "F3") {
-        using ImageType = itk::Image<float, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        return numpyHelper<ImageType>( itkImage );
-    } 
-        using ImageType = itk::Image<float, 3>;
-        auto itkImage = asImage<ImageType>( ptr );
-        return numpyHelper<ImageType>( itkImage );
-}
 
 void local_antsImage(nb::module_ &m) {
     m.def("ptrstr", &ptrstr);
-    m.def("toNumpy", &toNumpy);
-    m.def("getShape", &getShape<itk::Image<float, 3>>);
-    m.def("getShape", &getShape<itk::Image<float, 2>>);
-    m.def("getSpacing", &getSpacing);
-    m.def("getDirection", &getDirection);
-    m.def("getOrigin", &getOrigin);
 
+    m.def("getShape",  &getShape<itk::Image<unsigned char,2>>);
+    m.def("getShape",  &getShape<itk::Image<unsigned char,3>>);
+    m.def("getShape",  &getShape<itk::Image<unsigned char,4>>);
+    m.def("getShape",  &getShape<itk::Image<unsigned int,2>>);
+    m.def("getShape",  &getShape<itk::Image<unsigned int,3>>);
+    m.def("getShape",  &getShape<itk::Image<unsigned int,4>>);
+    m.def("getShape",   &getShape<itk::Image<float,2>>);
+    m.def("getShape",   &getShape<itk::Image<float,3>>);
+    m.def("getShape",   &getShape<itk::Image<float,4>>);
+    m.def("getShape",   &getShape<itk::Image<double,2>>);
+    m.def("getShape",   &getShape<itk::Image<double,3>>);
+    m.def("getShape",   &getShape<itk::Image<double,4>>);
+    m.def("getShape", &getShape<itk::VectorImage<unsigned char,2>>);
+    m.def("getShape", &getShape<itk::VectorImage<unsigned char,3>>);
+    m.def("getShape", &getShape<itk::VectorImage<unsigned char,4>>);
+    m.def("getShape", &getShape<itk::VectorImage<unsigned int,2>>);
+    m.def("getShape", &getShape<itk::VectorImage<unsigned int,3>>);
+    m.def("getShape", &getShape<itk::VectorImage<unsigned int,4>>);
+    m.def("getShape",  &getShape<itk::VectorImage<float,2>>);
+    m.def("getShape",  &getShape<itk::VectorImage<float,3>>);
+    m.def("getShape",  &getShape<itk::VectorImage<float,4>>);
+    m.def("getShape",  &getShape<itk::VectorImage<double,2>>);
+    m.def("getShape",  &getShape<itk::VectorImage<double,3>>);
+    m.def("getShape",  &getShape<itk::VectorImage<double,4>>);
+    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<float>,3>>);
 
-    nb::class_<AntsImage<itk::Image<float, 3>>>(m, "AntsImageF3");
-    nb::class_<AntsImage<itk::Image<float, 2>>>(m, "AntsImageF2");
+    m.def("getOrigin",  &getOrigin<itk::Image<unsigned char,2>>);
+    m.def("getOrigin",  &getOrigin<itk::Image<unsigned char,3>>);
+    m.def("getOrigin",  &getOrigin<itk::Image<unsigned char,4>>);
+    m.def("getOrigin",  &getOrigin<itk::Image<unsigned int,2>>);
+    m.def("getOrigin",  &getOrigin<itk::Image<unsigned int,3>>);
+    m.def("getOrigin",  &getOrigin<itk::Image<unsigned int,4>>);
+    m.def("getOrigin",   &getOrigin<itk::Image<float,2>>);
+    m.def("getOrigin",   &getOrigin<itk::Image<float,3>>);
+    m.def("getOrigin",   &getOrigin<itk::Image<float,4>>);
+    m.def("getOrigin",   &getOrigin<itk::Image<double,2>>);
+    m.def("getOrigin",   &getOrigin<itk::Image<double,3>>);
+    m.def("getOrigin",   &getOrigin<itk::Image<double,4>>);
+    m.def("getOrigin", &getOrigin<itk::VectorImage<unsigned char,2>>);
+    m.def("getOrigin", &getOrigin<itk::VectorImage<unsigned char,3>>);
+    m.def("getOrigin", &getOrigin<itk::VectorImage<unsigned char,4>>);
+    m.def("getOrigin", &getOrigin<itk::VectorImage<unsigned int,2>>);
+    m.def("getOrigin", &getOrigin<itk::VectorImage<unsigned int,3>>);
+    m.def("getOrigin", &getOrigin<itk::VectorImage<unsigned int,4>>);
+    m.def("getOrigin",  &getOrigin<itk::VectorImage<float,2>>);
+    m.def("getOrigin",  &getOrigin<itk::VectorImage<float,3>>);
+    m.def("getOrigin",  &getOrigin<itk::VectorImage<float,4>>);
+    m.def("getOrigin",  &getOrigin<itk::VectorImage<double,2>>);
+    m.def("getOrigin",  &getOrigin<itk::VectorImage<double,3>>);
+    m.def("getOrigin",  &getOrigin<itk::VectorImage<double,4>>);
+    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("setOrigin",  &setOrigin<itk::Image<unsigned char,2>>);
+    m.def("setOrigin",  &setOrigin<itk::Image<unsigned char,3>>);
+    m.def("setOrigin",  &setOrigin<itk::Image<unsigned char,4>>);
+    m.def("setOrigin",  &setOrigin<itk::Image<unsigned int,2>>);
+    m.def("setOrigin",  &setOrigin<itk::Image<unsigned int,3>>);
+    m.def("setOrigin",  &setOrigin<itk::Image<unsigned int,4>>);
+    m.def("setOrigin",   &setOrigin<itk::Image<float,2>>);
+    m.def("setOrigin",   &setOrigin<itk::Image<float,3>>);
+    m.def("setOrigin",   &setOrigin<itk::Image<float,4>>);
+    m.def("setOrigin",   &setOrigin<itk::Image<double,2>>);
+    m.def("setOrigin",   &setOrigin<itk::Image<double,3>>);
+    m.def("setOrigin",   &setOrigin<itk::Image<double,4>>);
+    m.def("setOrigin", &setOrigin<itk::VectorImage<unsigned char,2>>);
+    m.def("setOrigin", &setOrigin<itk::VectorImage<unsigned char,3>>);
+    m.def("setOrigin", &setOrigin<itk::VectorImage<unsigned char,4>>);
+    m.def("setOrigin", &setOrigin<itk::VectorImage<unsigned int,2>>);
+    m.def("setOrigin", &setOrigin<itk::VectorImage<unsigned int,3>>);
+    m.def("setOrigin", &setOrigin<itk::VectorImage<unsigned int,4>>);
+    m.def("setOrigin",  &setOrigin<itk::VectorImage<float,2>>);
+    m.def("setOrigin",  &setOrigin<itk::VectorImage<float,3>>);
+    m.def("setOrigin",  &setOrigin<itk::VectorImage<float,4>>);
+    m.def("setOrigin",  &setOrigin<itk::VectorImage<double,2>>);
+    m.def("setOrigin",  &setOrigin<itk::VectorImage<double,3>>);
+    m.def("setOrigin",  &setOrigin<itk::VectorImage<double,4>>);
+    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("getSpacing",  &getSpacing<itk::Image<unsigned char,2>>);
+    m.def("getSpacing",  &getSpacing<itk::Image<unsigned char,3>>);
+    m.def("getSpacing",  &getSpacing<itk::Image<unsigned char,4>>);
+    m.def("getSpacing",  &getSpacing<itk::Image<unsigned int,2>>);
+    m.def("getSpacing",  &getSpacing<itk::Image<unsigned int,3>>);
+    m.def("getSpacing",  &getSpacing<itk::Image<unsigned int,4>>);
+    m.def("getSpacing",   &getSpacing<itk::Image<float,2>>);
+    m.def("getSpacing",   &getSpacing<itk::Image<float,3>>);
+    m.def("getSpacing",   &getSpacing<itk::Image<float,4>>);
+    m.def("getSpacing",   &getSpacing<itk::Image<double,2>>);
+    m.def("getSpacing",   &getSpacing<itk::Image<double,3>>);
+    m.def("getSpacing",   &getSpacing<itk::Image<double,4>>);
+    m.def("getSpacing", &getSpacing<itk::VectorImage<unsigned char,2>>);
+    m.def("getSpacing", &getSpacing<itk::VectorImage<unsigned char,3>>);
+    m.def("getSpacing", &getSpacing<itk::VectorImage<unsigned char,4>>);
+    m.def("getSpacing", &getSpacing<itk::VectorImage<unsigned int,2>>);
+    m.def("getSpacing", &getSpacing<itk::VectorImage<unsigned int,3>>);
+    m.def("getSpacing", &getSpacing<itk::VectorImage<unsigned int,4>>);
+    m.def("getSpacing",  &getSpacing<itk::VectorImage<float,2>>);
+    m.def("getSpacing",  &getSpacing<itk::VectorImage<float,3>>);
+    m.def("getSpacing",  &getSpacing<itk::VectorImage<float,4>>);
+    m.def("getSpacing",  &getSpacing<itk::VectorImage<double,2>>);
+    m.def("getSpacing",  &getSpacing<itk::VectorImage<double,3>>);
+    m.def("getSpacing",  &getSpacing<itk::VectorImage<double,4>>);
+    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("setSpacing",  &setSpacing<itk::Image<unsigned char,2>>);
+    m.def("setSpacing",  &setSpacing<itk::Image<unsigned char,3>>);
+    m.def("setSpacing",  &setSpacing<itk::Image<unsigned char,4>>);
+    m.def("setSpacing",  &setSpacing<itk::Image<unsigned int,2>>);
+    m.def("setSpacing",  &setSpacing<itk::Image<unsigned int,3>>);
+    m.def("setSpacing",  &setSpacing<itk::Image<unsigned int,4>>);
+    m.def("setSpacing",   &setSpacing<itk::Image<float,2>>);
+    m.def("setSpacing",   &setSpacing<itk::Image<float,3>>);
+    m.def("setSpacing",   &setSpacing<itk::Image<float,4>>);
+    m.def("setSpacing",   &setSpacing<itk::Image<double,2>>);
+    m.def("setSpacing",   &setSpacing<itk::Image<double,3>>);
+    m.def("setSpacing",   &setSpacing<itk::Image<double,4>>);
+    m.def("setSpacing", &setSpacing<itk::VectorImage<unsigned char,2>>);
+    m.def("setSpacing", &setSpacing<itk::VectorImage<unsigned char,3>>);
+    m.def("setSpacing", &setSpacing<itk::VectorImage<unsigned char,4>>);
+    m.def("setSpacing", &setSpacing<itk::VectorImage<unsigned int,2>>);
+    m.def("setSpacing", &setSpacing<itk::VectorImage<unsigned int,3>>);
+    m.def("setSpacing", &setSpacing<itk::VectorImage<unsigned int,4>>);
+    m.def("setSpacing",  &setSpacing<itk::VectorImage<float,2>>);
+    m.def("setSpacing",  &setSpacing<itk::VectorImage<float,3>>);
+    m.def("setSpacing",  &setSpacing<itk::VectorImage<float,4>>);
+    m.def("setSpacing",  &setSpacing<itk::VectorImage<double,2>>);
+    m.def("setSpacing",  &setSpacing<itk::VectorImage<double,3>>);
+    m.def("setSpacing",  &setSpacing<itk::VectorImage<double,4>>);
+    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("getDirection",  &getDirection<itk::Image<unsigned char,2>>);
+    m.def("getDirection",  &getDirection<itk::Image<unsigned char,3>>);
+    m.def("getDirection",  &getDirection<itk::Image<unsigned char,4>>);
+    m.def("getDirection",  &getDirection<itk::Image<unsigned int,2>>);
+    m.def("getDirection",  &getDirection<itk::Image<unsigned int,3>>);
+    m.def("getDirection",  &getDirection<itk::Image<unsigned int,4>>);
+    m.def("getDirection",   &getDirection<itk::Image<float,2>>);
+    m.def("getDirection",   &getDirection<itk::Image<float,3>>);
+    m.def("getDirection",   &getDirection<itk::Image<float,4>>);
+    m.def("getDirection",   &getDirection<itk::Image<double,2>>);
+    m.def("getDirection",   &getDirection<itk::Image<double,3>>);
+    m.def("getDirection",   &getDirection<itk::Image<double,4>>);
+    m.def("getDirection", &getDirection<itk::VectorImage<unsigned char,2>>);
+    m.def("getDirection", &getDirection<itk::VectorImage<unsigned char,3>>);
+    m.def("getDirection", &getDirection<itk::VectorImage<unsigned char,4>>);
+    m.def("getDirection", &getDirection<itk::VectorImage<unsigned int,2>>);
+    m.def("getDirection", &getDirection<itk::VectorImage<unsigned int,3>>);
+    m.def("getDirection", &getDirection<itk::VectorImage<unsigned int,4>>);
+    m.def("getDirection",  &getDirection<itk::VectorImage<float,2>>);
+    m.def("getDirection",  &getDirection<itk::VectorImage<float,3>>);
+    m.def("getDirection",  &getDirection<itk::VectorImage<float,4>>);
+    m.def("getDirection",  &getDirection<itk::VectorImage<double,2>>);
+    m.def("getDirection",  &getDirection<itk::VectorImage<double,3>>);
+    m.def("getDirection",  &getDirection<itk::VectorImage<double,4>>);
+    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("toFile",  &toFile<itk::Image<unsigned char,2>>);
+    m.def("toFile",  &toFile<itk::Image<unsigned char,3>>);
+    m.def("toFile",  &toFile<itk::Image<unsigned char,4>>);
+    m.def("toFile",  &toFile<itk::Image<unsigned int,2>>);
+    m.def("toFile",  &toFile<itk::Image<unsigned int,3>>);
+    m.def("toFile",  &toFile<itk::Image<unsigned int,4>>);
+    m.def("toFile",   &toFile<itk::Image<float,2>>);
+    m.def("toFile",   &toFile<itk::Image<float,3>>);
+    m.def("toFile",   &toFile<itk::Image<float,4>>);
+    m.def("toFile",   &toFile<itk::Image<double,2>>);
+    m.def("toFile",   &toFile<itk::Image<double,3>>);
+    m.def("toFile",   &toFile<itk::Image<double,4>>);
+    m.def("toFile", &toFile<itk::VectorImage<unsigned char,2>>);
+    m.def("toFile", &toFile<itk::VectorImage<unsigned char,3>>);
+    m.def("toFile", &toFile<itk::VectorImage<unsigned char,4>>);
+    m.def("toFile", &toFile<itk::VectorImage<unsigned int,2>>);
+    m.def("toFile", &toFile<itk::VectorImage<unsigned int,3>>);
+    m.def("toFile", &toFile<itk::VectorImage<unsigned int,4>>);
+    m.def("toFile",  &toFile<itk::VectorImage<float,2>>);
+    m.def("toFile",  &toFile<itk::VectorImage<float,3>>);
+    m.def("toFile",  &toFile<itk::VectorImage<float,4>>);
+    m.def("toFile",  &toFile<itk::VectorImage<double,2>>);
+    m.def("toFile",  &toFile<itk::VectorImage<double,3>>);
+    m.def("toFile",  &toFile<itk::VectorImage<double,4>>);
+    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("toNumpy",  &toNumpy<itk::Image<unsigned char,2>>);
+    m.def("toNumpy",  &toNumpy<itk::Image<unsigned char,3>>);
+    m.def("toNumpy",  &toNumpy<itk::Image<unsigned char,4>>);
+    m.def("toNumpy",  &toNumpy<itk::Image<unsigned int,2>>);
+    m.def("toNumpy",  &toNumpy<itk::Image<unsigned int,3>>);
+    m.def("toNumpy",  &toNumpy<itk::Image<unsigned int,4>>);
+    m.def("toNumpy",   &toNumpy<itk::Image<float,2>>);
+    m.def("toNumpy",   &toNumpy<itk::Image<float,3>>);
+    m.def("toNumpy",   &toNumpy<itk::Image<float,4>>);
+    m.def("toNumpy",   &toNumpy<itk::Image<double,2>>);
+    m.def("toNumpy",   &toNumpy<itk::Image<double,3>>);
+    m.def("toNumpy",   &toNumpy<itk::Image<double,4>>);
+    m.def("toNumpy", &toNumpy<itk::VectorImage<unsigned char,2>>);
+    m.def("toNumpy", &toNumpy<itk::VectorImage<unsigned char,3>>);
+    m.def("toNumpy", &toNumpy<itk::VectorImage<unsigned char,4>>);
+    m.def("toNumpy", &toNumpy<itk::VectorImage<unsigned int,2>>);
+    m.def("toNumpy", &toNumpy<itk::VectorImage<unsigned int,3>>);
+    m.def("toNumpy", &toNumpy<itk::VectorImage<unsigned int,4>>);
+    m.def("toNumpy",  &toNumpy<itk::VectorImage<float,2>>);
+    m.def("toNumpy",  &toNumpy<itk::VectorImage<float,3>>);
+    m.def("toNumpy",  &toNumpy<itk::VectorImage<float,4>>);
+    m.def("toNumpy",  &toNumpy<itk::VectorImage<double,2>>);
+    m.def("toNumpy",  &toNumpy<itk::VectorImage<double,3>>);
+    m.def("toNumpy",  &toNumpy<itk::VectorImage<double,4>>);
+    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<float>,3>>);
+
+    nb::class_<AntsImage<itk::Image<unsigned char,2>>>(m, "AntsImageUC2");
+    nb::class_<AntsImage<itk::Image<unsigned char,3>>>(m, "AntsImageUC3");
+    nb::class_<AntsImage<itk::Image<unsigned char,4>>>(m, "AntsImageUC4");
+    nb::class_<AntsImage<itk::Image<unsigned int,2>>>(m, "AntsImageUI2");
+    nb::class_<AntsImage<itk::Image<unsigned int,3>>>(m, "AntsImageUI3");
+    nb::class_<AntsImage<itk::Image<unsigned int,4>>>(m, "AntsImageUI4");
+    nb::class_<AntsImage<itk::Image<float,2>>>(m, "AntsImageF2");
+    nb::class_<AntsImage<itk::Image<float,3>>>(m, "AntsImageF3");
+    nb::class_<AntsImage<itk::Image<float,4>>>(m, "AntsImageF4");
+    nb::class_<AntsImage<itk::Image<double,2>>>(m, "AntsImageD2");
+    nb::class_<AntsImage<itk::Image<double,3>>>(m, "AntsImageD3");
+    nb::class_<AntsImage<itk::Image<double,4>>>(m, "AntsImageD4");
+    nb::class_<AntsImage<itk::VectorImage<unsigned char,2>>>(m, "AntsImageVUC2");
+    nb::class_<AntsImage<itk::VectorImage<unsigned char,3>>>(m, "AntsImageVUC3");
+    nb::class_<AntsImage<itk::VectorImage<unsigned char,4>>>(m, "AntsImageVUC4");
+    nb::class_<AntsImage<itk::VectorImage<unsigned int,2>>>(m, "AntsImageVUI2");
+    nb::class_<AntsImage<itk::VectorImage<unsigned int,3>>>(m, "AntsImageVUI3");
+    nb::class_<AntsImage<itk::VectorImage<unsigned int,4>>>(m, "AntsImageVUI4");
+    nb::class_<AntsImage<itk::VectorImage<float,2>>>(m, "AntsImageVF2");
+    nb::class_<AntsImage<itk::VectorImage<float,3>>>(m, "AntsImageVF3");
+    nb::class_<AntsImage<itk::VectorImage<float,4>>>(m, "AntsImageVF4");
+    nb::class_<AntsImage<itk::VectorImage<double,2>>>(m, "AntsImageVD2");
+    nb::class_<AntsImage<itk::VectorImage<double,3>>>(m, "AntsImageVD3");
+    nb::class_<AntsImage<itk::VectorImage<double,4>>>(m, "AntsImageVD4");
+    nb::class_<AntsImage<itk::Image<itk::RGBPixel<unsigned char>,2>>>(m, "AntsImageRGBUC2");
+    nb::class_<AntsImage<itk::Image<itk::RGBPixel<unsigned char>,3>>>(m, "AntsImageRGBUC3");
+    nb::class_<AntsImage<itk::Image<itk::RGBPixel<float>,2>>>(m, "AntsImageRGBF2");
+    nb::class_<AntsImage<itk::Image<itk::RGBPixel<float>,3>>>(m, "AntsImageRGBF3");
 }
 
