@@ -43,16 +43,16 @@ std::list<int> getShape( AntsImage<ImageType> & myPointer )
 
 
 template <typename ImageType>
-std::list<float> getSpacing( AntsImage<ImageType> & myPointer )
+nb::list getSpacing( AntsImage<ImageType> & myPointer )
 {
     typename ImageType::Pointer image = myPointer.ptr;
     typename ImageType::SpacingType spacing = image->GetSpacing();
     unsigned int ndim = ImageType::GetImageDimension();
 
-    std::list<float> spacinglist;
+    nb::list spacinglist;
     for (int i = 0; i < ndim; i++)
     {
-        spacinglist.push_back( spacing[i] );
+        spacinglist.append( spacing[i] );
     }
 
     return spacinglist;
@@ -65,6 +65,7 @@ void setSpacing( AntsImage<ImageType> & myPointer, std::vector<double> new_spaci
     typename ImageType::Pointer itkImage = myPointer.ptr;
     unsigned int nvals = new_spacing.size();
     typename ImageType::SpacingType spacing = itkImage->GetSpacing();
+
     for (int i = 0; i < nvals; i++)
     {
         spacing[i] = new_spacing[i];
@@ -100,6 +101,20 @@ std::vector<double> getDirection( AntsImage<ImageType> & myPointer )
 
 }
 
+
+template <typename ImageType>
+void setDirection( AntsImage<ImageType> & myPointer, std::vector<std::vector<double>> new_direction)
+{
+
+    typename ImageType::Pointer itkImage = myPointer.ptr;
+
+    typename ImageType::DirectionType new_matrix2 = itkImage->GetDirection( );
+    for ( std::size_t i = 0; i < new_direction.size(); i++ )
+      for ( std::size_t j = 0; j < new_direction[0].size(); j++ ) {
+        new_matrix2(i,j) = new_direction[i][j];
+      }
+    itkImage->SetDirection( new_matrix2 );
+}
 
 
 template <typename ImageType>
@@ -339,6 +354,35 @@ void local_antsImage(nb::module_ &m) {
     m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
     m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<float>,2>>);
     m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<float>,3>>);
+
+    m.def("setDirection",  &setDirection<itk::Image<unsigned char,2>>);
+    m.def("setDirection",  &setDirection<itk::Image<unsigned char,3>>);
+    m.def("setDirection",  &setDirection<itk::Image<unsigned char,4>>);
+    m.def("setDirection",  &setDirection<itk::Image<unsigned int,2>>);
+    m.def("setDirection",  &setDirection<itk::Image<unsigned int,3>>);
+    m.def("setDirection",  &setDirection<itk::Image<unsigned int,4>>);
+    m.def("setDirection",   &setDirection<itk::Image<float,2>>);
+    m.def("setDirection",   &setDirection<itk::Image<float,3>>);
+    m.def("setDirection",   &setDirection<itk::Image<float,4>>);
+    m.def("setDirection",   &setDirection<itk::Image<double,2>>);
+    m.def("setDirection",   &setDirection<itk::Image<double,3>>);
+    m.def("setDirection",   &setDirection<itk::Image<double,4>>);
+    m.def("setDirection", &setDirection<itk::VectorImage<unsigned char,2>>);
+    m.def("setDirection", &setDirection<itk::VectorImage<unsigned char,3>>);
+    m.def("setDirection", &setDirection<itk::VectorImage<unsigned char,4>>);
+    m.def("setDirection", &setDirection<itk::VectorImage<unsigned int,2>>);
+    m.def("setDirection", &setDirection<itk::VectorImage<unsigned int,3>>);
+    m.def("setDirection", &setDirection<itk::VectorImage<unsigned int,4>>);
+    m.def("setDirection",  &setDirection<itk::VectorImage<float,2>>);
+    m.def("setDirection",  &setDirection<itk::VectorImage<float,3>>);
+    m.def("setDirection",  &setDirection<itk::VectorImage<float,4>>);
+    m.def("setDirection",  &setDirection<itk::VectorImage<double,2>>);
+    m.def("setDirection",  &setDirection<itk::VectorImage<double,3>>);
+    m.def("setDirection",  &setDirection<itk::VectorImage<double,4>>);
+    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
+    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<float>,2>>);
+    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("toFile",  &toFile<itk::Image<unsigned char,2>>);
     m.def("toFile",  &toFile<itk::Image<unsigned char,3>>);

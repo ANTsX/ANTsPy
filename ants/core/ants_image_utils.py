@@ -56,7 +56,7 @@ def image_physical_space_consistency(image1, image2, tolerance=1e-2, datatype=Fa
 
     img1 = images[0]
     for img2 in images[1:]:
-        if (not isinstance(img1, AntsImage)) or (not isinstance(img2, AntsImage)):
+        if (not isinstance(img1, iio.AntsImage)) or (not isinstance(img2, iio.AntsImage)):
             raise ValueError('Both images must be of class `AntsImage`')
 
         # image dimension check

@@ -107,8 +107,9 @@ def _from_numpy(
         direction = np.eye(ndim)
 
     fn_suffix = f'{_ntype_type_map[dtype]}{ndim}'
+    libfn = lib.__dict__[f'fromNumpy{fn_suffix}']
 
-    itk_image = lib.fromNumpy(data, data.shape[::-1], fn_suffix)
+    itk_image = libfn(data, data.shape[::-1])
     ants_image = iio.AntsImage(
         pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image
     )

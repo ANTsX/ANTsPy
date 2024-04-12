@@ -59,7 +59,7 @@ class AntsImage(object):
             self._pixelclass = 'rgb'
             self._shortpclass = 'RGB'
 
-        self.shape = lib.getShape(self.pointer)
+        self.shape = tuple(lib.getShape(self.pointer))
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
 
         self._array = None
@@ -195,7 +195,7 @@ class AntsImage(object):
         if img.has_components or (single_components == True):
             shape = list(shape) + [img.components]
         
-        array = np.frombuffer(lib.toNumpy(self.pointer), dtype=self.dtype).reshape(self.shape)
+        array = np.frombuffer(lib.toNumpy(self.pointer), dtype=self.dtype).reshape(self.shape).T
         if self.has_components or (single_components == True):
             array = np.rollaxis(array, 0, self.dimension+1)
         return array
