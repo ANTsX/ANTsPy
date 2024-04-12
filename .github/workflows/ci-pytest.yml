@@ -30,6 +30,9 @@ jobs:
       - name: Install package
         run: python -m pip -v install .
 
+      - name: Install dependencies
+        run: python -m pip -r install requirements.txt
+
       - name: Install coverage
         run: python -m pip install coverage
 

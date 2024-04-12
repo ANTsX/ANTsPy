@@ -13,10 +13,12 @@ from common import run_tests
 
 from tempfile import mktemp
 
+import ants
+
 import numpy as np
 import numpy.testing as nptest
 
-import ants
+
 
 
 class TestClass_ANTsImage(unittest.TestCase):
