@@ -118,6 +118,8 @@ def _from_numpy(
         ants_image.set_origin(origin)
         ants_image.set_spacing(spacing)
         ants_image.set_direction(direction)
+        # need this to keep data pointer alive
+        ants_image._ndarr = data
     else:
         arrays = [data[i, ...].copy() for i in range(data.shape[0])]
         data_shape = arrays[0].shape

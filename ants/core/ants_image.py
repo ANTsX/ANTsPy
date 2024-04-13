@@ -309,7 +309,7 @@ class AntsImage(object):
 
         return iio2.from_numpy(data, origin=self.origin,
             spacing=self.spacing, direction=self.direction,
-            has_components=self.has_components).clone()
+            has_components=self.has_components)
 
     def to_file(self, filename):
         """
