@@ -12,16 +12,15 @@ find_package(Python 3.8
 # Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
 
-execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
-execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
+# TODO: make it so this runs only if ITK and ANTs are not already built
+# otherwise you have to comment it out during development
+#execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
+#execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
 
 # ITK
 set(ITK_DIR "./itkbuild")
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
-
-#set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -O2 -fPIC" )
-#set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wno-c++11-long-long -O2 -fPIC" )
 
 # ANTS
 add_library(antsUtilities STATIC src/antscore/antsUtilities.cxx src/antscore/antsCommandLineOption.cxx src/antscore/antsCommandLineParser.cxx src/antscore/ReadWriteData.cxx src/antscore/ANTsVersion.cxx)

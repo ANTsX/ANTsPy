@@ -633,10 +633,16 @@ class TestModule_ants_image(unittest.TestCase):
                 ants.image_physical_space_consistency(img, 12)
 
         # false because of components
-        #vecimg = ants.from_numpy(np.random.randn(69,70,3), has_components=True)
+        vecimg = ants.from_numpy(np.random.randn(69,70,3), has_components=True)
         #vecimg2 = ants.from_numpy(np.random.randn(69,70,4), has_components=True)
         #self.assertTrue(not ants.image_physical_space_consistency(vecimg, vecimg2, datatype=True))
 
+    def test_vector_images(self):
+        vecimg = ants.from_numpy(np.random.randn(69,70,3), has_components=True)
+        self.assertTrue(vecimg.components == 3)
+        vecimg2 = ants.from_numpy(np.random.randn(69,70,4), has_components=True)
+        self.assertTrue(vecimg2.components == 4)
+        
     def test_image_type_cast(self):
         # test with list of images
         imgs2 = ants.image_type_cast(self.imgs)

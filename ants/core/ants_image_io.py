@@ -9,6 +9,7 @@ import warnings
 
 from . import ants_image as iio
 from .. import lib
+from ..utils.channels import merge_channels
 from ..internal import short_ptype
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
@@ -109,15 +110,31 @@ def _from_numpy(
     fn_suffix = f'{_ntype_type_map[dtype]}{ndim}'
     libfn = lib.__dict__[f'fromNumpy{fn_suffix}']
 
-    itk_image = libfn(data, data.shape[::-1])
-    ants_image = iio.AntsImage(
-        pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image
-    )
-    ants_image.set_origin(origin)
-    ants_image.set_spacing(spacing)
-    ants_image.set_direction(direction)
-    ants_image._ndarr = data
-    
+    if not has_components:
+        itk_image = libfn(data, data.shape[::-1])
+        ants_image = iio.ANTsImage(
+            pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image
+        )
+        ants_image.set_origin(origin)
+        ants_image.set_spacing(spacing)
+        ants_image.set_direction(direction)
+    else:
+        arrays = [data[i, ...].copy() for i in range(data.shape[0])]
+        data_shape = arrays[0].shape
+        ants_images = []
+        for i in range(len(arrays)):
+            tmp_ptr = libfn(arrays[i], data_shape[::-1])
+            tmp_img = iio.ANTsImage(
+                pixeltype=ptype, dimension=ndim, components=1, pointer=tmp_ptr
+            )
+            tmp_img.set_origin(origin)
+            tmp_img.set_spacing(spacing)
+            tmp_img.set_direction(direction)
+            tmp_img._ndarr = arrays[i]
+            ants_images.append(tmp_img)
+        ants_image = merge_channels(ants_images)
+        if is_rgb:
+            ants_image = ants_image.vector_to_rgb()
     return ants_image
 
 

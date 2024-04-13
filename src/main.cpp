@@ -6,6 +6,7 @@
 #include "local_antsImageClone.cpp"
 #include "local_antsImageHeaderInfo.cpp"
 #include "local_imageRead.cpp"
+#include "local_mergeChannels.cpp"
 #include "WRAP_antsAffineInitializer.cxx"
 #include "WRAP_antsApplyTransforms.cxx"
 #include "WRAP_antsApplyTransformsToPoints.cxx"
@@ -42,6 +43,7 @@ void local_antsImageClone(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
 void local_test(nb::module_ &);
 void local_imageRead(nb::module_ &);
+void local_mergeChannels(nb::module_ &);
 
 void wrap_antsAffineInitializer(nb::module_ &);
 void wrap_antsApplyTransforms(nb::module_ &);
@@ -76,6 +78,7 @@ NB_MODULE(lib, m) {
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);
     local_imageRead(m);
+    local_mergeChannels(m);
     wrap_antsAffineInitializer(m);
     wrap_antsApplyTransforms(m);
     wrap_antsApplyTransformsToPoints(m);
