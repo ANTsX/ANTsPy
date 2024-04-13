@@ -20,9 +20,11 @@ fi
 
 pushd "$(dirname "$0")"
 
-echo "Running core tests"
+echo "Running core image tests"
 $PYCMD test_core_ants_image.py $@
 
+echo "Running image io tests"
+$PYCMD test_core_ants_image_io.py $@
 
 if [[ $COVERAGE -eq 1 ]]; then
     coverage combine

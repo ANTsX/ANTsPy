@@ -43,13 +43,14 @@ AntsImage<ImageType> imageRead( std::string filename )
 
 
 template <typename ImageType>
-AntsImage<ImageType> fromNumpy( nb::handle data, nb::tuple datashape )
+AntsImage<ImageType> fromNumpy( nb::ndarray<nb::numpy> data, nb::tuple datashape )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType antsImage = ImageType::New();
     typedef itk::PyBuffer<ImageType> PyBufferType;
 
-    antsImage = PyBufferType::_GetImageViewFromArray(data.ptr(), datashape.ptr(), nb::make_tuple(1)[0].ptr());
+    nb::object o = nb::cast(data);
+    antsImage = PyBufferType::_GetImageViewFromArray(o.ptr(), datashape.ptr(), nb::make_tuple(1)[0].ptr());
 
     //std::cout << antsImage << std::endl;
     AntsImage<ImageType> myImage = { antsImage };

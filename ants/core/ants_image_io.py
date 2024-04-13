@@ -185,7 +185,7 @@ def make_image(
         if voxval.ndim > 1:
             voxval = voxval.flatten()
         if (len(voxval) == int((sel > 0).sum())) or (len(voxval) == 0):
-            img[sel] = voxval
+            img[imagesize > 0] = voxval
         else:
             raise ValueError(
                 "Num given voxels %i not same as num positive values %i in `imagesize`"
@@ -403,7 +403,10 @@ def image_read(filename, dimension=None, pixeltype=None, reorient=False):
         if (ndim < 2) or (ndim > 4):
             raise ValueError("Found %i-dimensional image - not supported!" % ndim)
 
-        fn_suffix = f'imageRead{short_ptype(ptype)}{ndim}'
+        suffix = f'{short_ptype(ptype)}{ndim}'
+        if pclass == 'vector':
+            suffix = f'V{suffix}'
+        fn_suffix = f'imageRead{suffix}'
         libfn = lib.__dict__[fn_suffix]
         itk_pointer = libfn(filename)
 
@@ -507,3 +510,4 @@ def image_write(image, filename, ri=False):
 
     if ri:
         return image
+

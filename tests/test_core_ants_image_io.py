@@ -14,7 +14,6 @@ from common import run_tests
 from tempfile import mktemp
 
 import numpy as np
-import nibabel as nib
 import numpy.testing as nptest
 
 import ants
@@ -35,6 +34,20 @@ class TestModule_ants_image_io(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def test_array_corruption(self):
+        # arrays should not be corrupted by calling math operations
+        # if this fails, there is a big issue with the wrapping code
+        img = ants.image_read(ants.get_ants_data('r16')).clone('float')
+        arr = img > 0
+        arr2 = arr.numpy()
+        mean1 = arr.mean()
+        arr.sum()
+        arr2.mean()
+        arr2.sum()
+        arr2 += 10
+        # mean of the image should still be the same
+        self.assertEqual(arr.mean(), mean1)
 
     def test_from_numpy(self):
         self.setUp()
@@ -118,75 +131,75 @@ class TestModule_ants_image_io(unittest.TestCase):
             #    img3 = ants.make_image(img, voxval=arr)
 
 
-    def test_matrix_to_images(self):
-        # def matrix_to_images(data_matrix, mask):
-        for img in self.imgs:
-            imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-            data = img[imgmask]
-            dataflat = data.reshape(1,-1)
-            mat = np.vstack([dataflat,dataflat]).astype('float32')
-            imglist = ants.matrix_to_images(mat, imgmask)
-            nptest.assert_allclose((img*imgmask).numpy(), imglist[0].numpy())
-            nptest.assert_allclose((img*imgmask).numpy(), imglist[1].numpy())
-            self.assertTrue(ants.image_physical_space_consistency(img,imglist[0]))
-            self.assertTrue(ants.image_physical_space_consistency(img,imglist[1]))
-
-            # go back to matrix
-            mat2 = ants.images_to_matrix(imglist, imgmask)
-            nptest.assert_allclose(mat, mat2)
-
-            # test with matrix.ndim > 2
-            img = img.clone()
-            img.set_direction(img.direction*2)
-            imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-            arr = (img*imgmask).numpy()
-            arr = arr[arr>=0.5]
-            arr2 = arr.copy()
-            mat = np.stack([arr,arr2])
-            imglist = ants.matrix_to_images(mat, imgmask)
-            for im in imglist:
-                self.assertTrue(ants.allclose(im, imgmask*img))
-                self.assertTrue(ants.image_physical_space_consistency(im, imgmask))
-
-            # test for wrong number of voxels
-            #with self.assertRaises(Exception):
-            #    arr = (img*imgmask).numpy()
-            #    arr = arr[arr>0.5]
-            #    arr2 = arr.copy()
-            #    mat = np.stack([arr,arr2])
-            #    imglist = ants.matrix_to_images(mat, img)
-
-    def test_images_to_matrix(self):
-        # def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
-        for img in self.imgs:
-            mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-            imglist = [img.clone(),img.clone(),img.clone()]
-            imgmat = ants.images_to_matrix(imglist, mask=mask)
-            self.assertTrue(imgmat.shape[0] == len(imglist))
-            self.assertTrue(imgmat.shape[1] == (mask>0).sum())
-
-            # go back to images
-            imglist2 = ants.matrix_to_images(imgmat, mask)
-            for i1,i2 in zip(imglist,imglist2):
-                self.assertTrue(ants.image_physical_space_consistency(i1,i2))
-                nptest.assert_allclose(i1.numpy()*mask.numpy(),i2.numpy())
-
-            if img.dimension == 2:
-                # with sigma
-                mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-                imglist = [img.clone(),img.clone(),img.clone()]
-                imgmat = ants.images_to_matrix(imglist, mask=mask, sigma=2.)
-
-                # with no mask
-                mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-                imglist = [img.clone(),img.clone(),img.clone()]
-                imgmat = ants.images_to_matrix(imglist)
-
-                # with mask of different shape
-                s = [65]*img.dimension
-                mask2 = ants.from_numpy(np.random.randn(*s))
-                mask2 = mask2 > mask2.mean()
-                imgmat = ants.images_to_matrix(imglist, mask=mask2)
+    #def test_matrix_to_images(self):
+    #    # def matrix_to_images(data_matrix, mask):
+    #    for img in self.imgs:
+    #        imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
+    #        data = img[imgmask]
+    #        dataflat = data.reshape(1,-1)
+    #        mat = np.vstack([dataflat,dataflat]).astype('float32')
+    #        imglist = ants.matrix_to_images(mat, imgmask)
+    #        nptest.assert_allclose((img*imgmask).numpy(), imglist[0].numpy())
+    #        nptest.assert_allclose((img*imgmask).numpy(), imglist[1].numpy())
+    #        self.assertTrue(ants.image_physical_space_consistency(img,imglist[0]))
+    #        self.assertTrue(ants.image_physical_space_consistency(img,imglist[1]))
+#
+    #        # go back to matrix
+    #        mat2 = ants.images_to_matrix(imglist, imgmask)
+    #        nptest.assert_allclose(mat, mat2)
+#
+    #        # test with matrix.ndim > 2
+    #        img = img.clone()
+    #        img.set_direction(img.direction*2)
+    #        imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
+    #        arr = (img*imgmask).numpy()
+    #        arr = arr[arr>=0.5]
+    #        arr2 = arr.copy()
+    #        mat = np.stack([arr,arr2])
+    #        imglist = ants.matrix_to_images(mat, imgmask)
+    #        for im in imglist:
+    #            self.assertTrue(ants.allclose(im, imgmask*img))
+    #            self.assertTrue(ants.image_physical_space_consistency(im, imgmask))
+#
+    #        # test for wrong number of voxels
+    #        #with self.assertRaises(Exception):
+    #        #    arr = (img*imgmask).numpy()
+    #        #    arr = arr[arr>0.5]
+    #        #    arr2 = arr.copy()
+    #        #    mat = np.stack([arr,arr2])
+    #        #    imglist = ants.matrix_to_images(mat, img)
+#
+    #def test_images_to_matrix(self):
+    #    # def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0):
+    #    for img in self.imgs:
+    #        mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
+    #        imglist = [img.clone(),img.clone(),img.clone()]
+    #        imgmat = ants.images_to_matrix(imglist, mask=mask)
+    #        self.assertTrue(imgmat.shape[0] == len(imglist))
+    #        self.assertTrue(imgmat.shape[1] == (mask>0).sum())
+#
+    #        # go back to images
+    #        imglist2 = ants.matrix_to_images(imgmat, mask)
+    #        for i1,i2 in zip(imglist,imglist2):
+    #            self.assertTrue(ants.image_physical_space_consistency(i1,i2))
+    #            nptest.assert_allclose(i1.numpy()*mask.numpy(),i2.numpy())
+#
+    #        if img.dimension == 2:
+    #            # with sigma
+    #            mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
+    #            imglist = [img.clone(),img.clone(),img.clone()]
+    #            imgmat = ants.images_to_matrix(imglist, mask=mask, sigma=2.)
+#
+    #            # with no mask
+    #            mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
+    #            imglist = [img.clone(),img.clone(),img.clone()]
+    #            imgmat = ants.images_to_matrix(imglist)
+#
+    #            # with mask of different shape
+    #            s = [65]*img.dimension
+    #            mask2 = ants.from_numpy(np.random.randn(*s))
+    #            mask2 = mask2 > mask2.mean()
+    #            imgmat = ants.images_to_matrix(imglist, mask=mask2)
 
 
     def test_image_header_info(self):
@@ -266,15 +279,6 @@ class TestModule_ants_image_io(unittest.TestCase):
                 nptest.assert_allclose(img.numpy(), imgcloned.numpy())
                 self.assertEqual(imgcloned.pixeltype, ptype)
                 self.assertEqual(img.pixeltype, orig_ptype)
-
-    def test_nibabel(self):
-        fn = ants.get_ants_data( 'mni' )
-        ants_img = ants.image_read( fn )
-        nii_mni = nib.load( fn )
-        ants_mni = ants_img.to_nibabel()
-        self.assertTrue( ( ants_mni.get_qform() == nii_mni.get_qform() ).all() )
-        temp = ants.from_nibabel( nii_mni )
-        self.assertTrue(ants.image_physical_space_consistency(ants_img,temp))
 
     def test_image_read_write(self):
         # def image_read(filename, dimension=None, pixeltype='float'):

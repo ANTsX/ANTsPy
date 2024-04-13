@@ -6,6 +6,7 @@ from . import ants_image_utils
 
 from .. import lib
 from ..internal import short_ptype
+from ..utils.channels import merge_channels, split_channels
 from .ants_image_utils import image_physical_space_consistency
 from . import ants_image_io as iio2
 
@@ -73,7 +74,7 @@ class AntsImage(object):
         -------
         tuple
         """
-        return lib.getSpacing(self.pointer)
+        return tuple(lib.getSpacing(self.pointer))
 
     def set_spacing(self, new_spacing):
         """
@@ -105,7 +106,7 @@ class AntsImage(object):
         -------
         tuple
         """
-        return lib.getOrigin(self.pointer)
+        return tuple(lib.getOrigin(self.pointer))
 
     def set_origin(self, new_origin):
         """
@@ -195,7 +196,7 @@ class AntsImage(object):
         if img.has_components or (single_components == True):
             shape = list(shape) + [img.components]
         
-        array = np.frombuffer(lib.toNumpy(self.pointer), dtype=self.dtype).reshape(self.shape).T
+        array = np.frombuffer(lib.toNumpy(self.pointer), dtype=self.dtype).reshape(shape).T
         if self.has_components or (single_components == True):
             array = np.rollaxis(array, 0, self.dimension+1)
         return array
@@ -215,7 +216,8 @@ class AntsImage(object):
         -------
         ndarray
         """
-        return np.copy(self.view())
+        array = np.copy(self.view(single_components=single_components))
+        return array
 
     def clone(self, pixeltype=None):
         """
@@ -246,9 +248,9 @@ class AntsImage(object):
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
         if self.has_components and (not self.is_rgb):
-            comp_imgs = ants_image_utils.split_channels(self)
+            comp_imgs = split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-            return ants_image_utils.merge_channels(comp_imgs_cloned)
+            return merge_channels(comp_imgs_cloned)
         else:
             p1_short = short_ptype(self.pixeltype)
             p2_short = short_ptype(pixeltype)
@@ -307,7 +309,7 @@ class AntsImage(object):
 
         return iio2.from_numpy(data, origin=self.origin,
             spacing=self.spacing, direction=self.direction,
-            has_components=self.has_components)
+            has_components=self.has_components).clone()
 
     def to_file(self, filename):
         """

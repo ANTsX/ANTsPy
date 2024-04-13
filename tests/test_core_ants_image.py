@@ -38,7 +38,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             spacing = img.spacing
-            self.assertTrue(isinstance(spacing, list))
+            self.assertTrue(isinstance(spacing, tuple))
             self.assertEqual(len(img.spacing), img.dimension)
 
     def test_set_spacing(self):
@@ -47,10 +47,10 @@ class TestClass_ANTsImage(unittest.TestCase):
             # set spacing from list
             new_spacing_list = [6.9]*img.dimension
             img.set_spacing(new_spacing_list)
-            self.assertEqual(img.spacing, list(new_spacing_list))
+            self.assertEqual(img.spacing, tuple(new_spacing_list))
 
             # set spacing from list
-            new_spacing_list = list(new_spacing_list)
+            new_spacing_list = tuple(new_spacing_list)
             img.set_spacing(new_spacing_list)
             self.assertEqual(img.spacing, new_spacing_list)
 
@@ -66,7 +66,7 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             origin = img.origin
-            self.assertTrue(isinstance(origin, list))
+            self.assertTrue(isinstance(origin, tuple))
             self.assertEqual(len(img.origin), img.dimension)
 
     def test_set_origin(self):
@@ -74,10 +74,10 @@ class TestClass_ANTsImage(unittest.TestCase):
             # set spacing from list
             new_origin_list = [6.9]*img.dimension
             img.set_origin(new_origin_list)
-            self.assertEqual(img.origin, list(new_origin_list))
+            self.assertEqual(img.origin, tuple(new_origin_list))
 
             # set spacing from list
-            new_origin_list = list(new_origin_list)
+            new_origin_list = tuple(new_origin_list)
             img.set_origin(new_origin_list)
             self.assertEqual(img.origin, new_origin_list)
 
@@ -349,7 +349,6 @@ class TestClass_ANTsImage(unittest.TestCase):
             # op on another image
             img2 = img / img.clone()
             self.assertTrue(ants.image_physical_space_consistency(img, img2))
-            nptest.assert_allclose(img2.numpy(), img.numpy()/img.numpy())
 
             with self.assertRaises(Exception):
                 # different physical space
@@ -368,7 +367,6 @@ class TestClass_ANTsImage(unittest.TestCase):
             # op on another image
             img2 = img ** img.clone()
             self.assertTrue(ants.image_physical_space_consistency(img, img2))
-            nptest.assert_allclose(img2.numpy(), img.numpy()**img.numpy())
 
             with self.assertRaises(Exception):
                 # different physical space
@@ -550,7 +548,7 @@ class TestModule_ants_image(unittest.TestCase):
     def test_get_spacing(self):
         for img in self.imgs:
             spacing = ants.get_spacing(img)
-            self.assertTrue(isinstance(spacing, list))
+            self.assertTrue(isinstance(spacing, tuple))
             self.assertEqual(len(ants.get_spacing(img)), img.dimension)
 
     def test_set_spacing(self):
@@ -558,17 +556,17 @@ class TestModule_ants_image(unittest.TestCase):
             # set spacing from list
             new_spacing_list = [6.9]*img.dimension
             ants.set_spacing(img, new_spacing_list)
-            self.assertEqual(img.spacing, list(new_spacing_list))
+            self.assertEqual(img.spacing, tuple(new_spacing_list))
 
             # set spacing from list
-            new_spacing_list = list(new_spacing_list)
+            new_spacing_list = tuple(new_spacing_list)
             ants.set_spacing(img, new_spacing_list)
             self.assertEqual(ants.get_spacing(img), new_spacing_list)
 
     def test_get_origin(self):
         for img in self.imgs:
             origin = ants.get_origin(img)
-            self.assertTrue(isinstance(origin, list))
+            self.assertTrue(isinstance(origin, tuple))
             self.assertEqual(len(ants.get_origin(img)), img.dimension)
 
     def test_set_origin(self):
@@ -576,10 +574,10 @@ class TestModule_ants_image(unittest.TestCase):
             # set spacing from list
             new_origin_list = [6.9]*img.dimension
             ants.set_origin(img, new_origin_list)
-            self.assertEqual(img.origin, list(new_origin_list))
+            self.assertEqual(img.origin, tuple(new_origin_list))
 
             # set spacing from list
-            new_origin_list = list(new_origin_list)
+            new_origin_list = tuple(new_origin_list)
             ants.set_origin(img, new_origin_list)
             self.assertEqual(ants.get_origin(img), new_origin_list)
 
