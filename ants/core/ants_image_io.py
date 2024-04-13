@@ -112,7 +112,7 @@ def _from_numpy(
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
-        ants_image = iio.ANTsImage(
+        ants_image = iio.AntsImage(
             pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image
         )
         ants_image.set_origin(origin)
@@ -124,7 +124,7 @@ def _from_numpy(
         ants_images = []
         for i in range(len(arrays)):
             tmp_ptr = libfn(arrays[i], data_shape[::-1])
-            tmp_img = iio.ANTsImage(
+            tmp_img = iio.AntsImage(
                 pixeltype=ptype, dimension=ndim, components=1, pointer=tmp_ptr
             )
             tmp_img.set_origin(origin)

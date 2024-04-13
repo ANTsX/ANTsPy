@@ -62,7 +62,7 @@ AntsImage<VectorImageType> mergeChannels( std::vector<AntsImage<ImageType>> imag
 }
 
 template< class VectorImageType, class ImageType>
-std::vector<AntsImage<ImageType>> splitChannels( AntsImage<ImageType> & antsimage )
+std::vector<AntsImage<ImageType>> splitChannels( AntsImage<VectorImageType> & antsimage )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef typename VectorImageType::Pointer VectorImagePointerType;
@@ -101,7 +101,7 @@ std::vector<AntsImage<ImageType>> splitChannels( AntsImage<ImageType> & antsimag
   std::vector<AntsImage<ImageType>> outputList( nComponents );
   for (unsigned int i=0; i<nComponents; i++)
     {
-        AntsImage<VectorImageType> tmpImage = { images[i] };
+        AntsImage<ImageType> tmpImage = { images[i] };
     outputList[i] = tmpImage;
     }
 

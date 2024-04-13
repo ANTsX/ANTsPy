@@ -5,7 +5,7 @@ __all__ = ['merge_channels',
            'split_channels']
 
 from ..core import ants_image as iio
-from .. import utils
+from .. import lib
 
 
 def merge_channels(image_list):
@@ -37,15 +37,14 @@ def merge_channels(image_list):
     components = len(image_list)
 
     for image in image_list:
-        if not isinstance(image, iio.ANTsImage):
+        if not isinstance(image, iio.AntsImage):
             raise ValueError('list may only contain ANTsImage objects')
         if image.pixeltype != inpixeltype:
             raise ValueError('all images must have the same pixeltype')
 
-    libfn = utils.get_lib_fn('mergeChannels%s' % image_list[0]._libsuffix)
-    image_ptr = libfn([image.pointer for image in image_list])
+    image_ptr = lib.mergeChannels([image.pointer for image in image_list])
     
-    return iio.ANTsImage(pixeltype=inpixeltype,
+    return iio.AntsImage(pixeltype=inpixeltype,
                          dimension=dimension,
                          components=components,
                          pointer=image_ptr)
@@ -80,9 +79,8 @@ def split_channels(image):
     dimension = image.dimension
     components = 1
 
-    libfn = utils.get_lib_fn('splitChannels%s' % image._libsuffix)
-    itkimages = libfn(image.pointer)
-    antsimages = [iio.ANTsImage(pixeltype=inpixeltype, dimension=dimension, 
+    itkimages = lib.splitChannels(image.pointer)
+    antsimages = [iio.AntsImage(pixeltype=inpixeltype, dimension=dimension, 
                               components=components, pointer=itkimage) for itkimage in itkimages]
     return antsimages
 
