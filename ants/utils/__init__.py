@@ -16,7 +16,7 @@ from .get_centroids import get_centroids
 from .get_mask import get_mask
 from .get_neighborhood import (get_neighborhood_in_mask,
             get_neighborhood_at_voxel)
-from .histogram_match_image import histogram_match_image
+from .histogram_match_image import histogram_match_image, histogram_match_image2
 from .histogram_equalize_image import histogram_equalize_image
 from .hausdorff_distance import hausdorff_distance
 from .image_similarity import image_similarity
