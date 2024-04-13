@@ -625,5 +625,4 @@ def plot_ortho(
 
     # turn warnings back to default
     warnings.simplefilter("default")
-    return { "image": imageReturn, "overlay": overlayReturn }
 
