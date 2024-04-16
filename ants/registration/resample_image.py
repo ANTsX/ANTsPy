@@ -40,6 +40,9 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
     >>> fi = ants.image_read( ants.get_ants_data("r16"))
     >>> finn = ants.resample_image(fi,(50,60),True,0)
     >>> filin = ants.resample_image(fi,(1.5,1.5),False,1)
+    >>> img = ants.image_read( ants.get_ants_data("r16"))
+    >>> img = ants.merge_channels([img, img])
+    >>> outimg = ants.resample_image(img, (128,128), True)
     """
     if image.components == 1:
         inimage = image.clone('float')
@@ -53,7 +56,21 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
         outimage = outimage.clone(image.pixeltype)
         return outimage
     else:
-        raise ValueError('images with more than 1 component not currently supported')
+        images = utils.split_channels(image)
+        new_images = []
+        for image in images:
+            inimage = image.clone('float')
+            outimage = image.clone('float')
+            rsampar = 'x'.join([str(rp) for rp in resample_params])
+
+            args = [image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
+            processed_args = utils._int_antsProcessArguments(args)
+            libfn = utils.get_lib_fn('ResampleImage')
+            libfn(processed_args)
+            outimage = outimage.clone(image.pixeltype)
+            new_images.append(outimage)
+        outimage = utils.merge_channels(new_images)
+        return outimage
 
 
 def resample_image_to_target(image, target, interp_type='linear', imagetype=0, verbose=False, **kwargs):

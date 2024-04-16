@@ -295,6 +295,13 @@ class TestModule_resample_image(unittest.TestCase):
         fi = ants.image_read(ants.get_ants_data("r16"))
         finn = ants.resample_image(fi, (50, 60), True, 0)
         filin = ants.resample_image(fi, (1.5, 1.5), False, 1)
+    
+    def test_resample_channels(self):
+        img = ants.image_read( ants.get_ants_data("r16"))
+        img = ants.merge_channels([img, img])
+        outimg = ants.resample_image(img, (128,128), True)
+        self.assertEqual(outimg.shape, (128, 128))
+        self.assertEqual(outimg.components, 2)
 
     def test_resample_image_to_target_example(self):
         fi = ants.image_read(ants.get_ants_data("r16"))
