@@ -66,7 +66,7 @@ def registration(
         See Notes below for more.
 
     initial_transform : list of strings (optional)
-        transforms to prepend
+        transforms to prepend. If None, a translation is computed to align the image centers of mass.
 
     outprefix : string
         output will be named with this prefix.
@@ -193,10 +193,12 @@ def registration(
                     with mutual information as optimization metric.
         - "SyNRA": Symmetric normalization: Rigid + Affine + deformable
                     transformation, with mutual information as optimization metric.
-        - "SyNOnly": Symmetric normalization: no initial transformation,
-                    with mutual information as optimization metric. Assumes
-                    images are aligned by an inital transformation. Can be
-                    useful if you want to run an unmasked affine followed by
+        - "SyNOnly": Symmetric normalization with no rigid or affine stages.
+                    Uses mutual information as optimization metric. Affine alignment is
+                    from the initial_transform arg, either provide the .mat from linear
+                    registration or use initial_transform='Identity' if the images are 
+                    already affinely aligned.
+                    Can be useful if you want to run an unmasked affine followed by
                     masked deformable registration.
         - "SyNCC": SyN, but with cross-correlation as the metric.
         - "SyNabp": SyN optimized for abpBrainExtraction.
