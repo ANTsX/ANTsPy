@@ -94,7 +94,8 @@ jobs:
       if: steps.cache-env.outputs.cache-hit == 'true'
       run: |
         conda activate antspy-env
-        bash antspy-pr/tests/run_tests.sh -c
+        cd antspy-pr
+        bash tests/run_tests.sh -c
 
     - name: Coveralls
       uses: coverallsapp/github-action@v2
