@@ -1,8 +1,5 @@
 
-try:
-    from .version import __version__
-except:
-    pass
+__version__ = '0.5.2'
 
 from .core import *
 from .utils import *
