@@ -51,8 +51,6 @@ from .iMath import (iMath,
            iMath_propagate_labels_through_mask)
 from .impute import impute
 from .integrate_velocity_field import integrate_velocity_field
-from .invariant_image_similarity import (invariant_image_similarity,
-           convolve_image)
 from .invert_displacement_field import invert_displacement_field
 from .label_clusters import label_clusters
 from .label_image_centroids import label_image_centroids

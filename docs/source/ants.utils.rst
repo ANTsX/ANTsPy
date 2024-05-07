@@ -108,13 +108,6 @@ ants.utils.impute module
    :undoc-members:
    :show-inheritance:
 
-ants.utils.invariant\_image\_similarity module
-----------------------------------------------
-
-.. automodule:: ants.utils.invariant_image_similarity
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 ants.utils.label\_clusters module
 ---------------------------------
