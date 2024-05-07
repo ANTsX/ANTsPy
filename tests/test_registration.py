@@ -13,6 +13,7 @@ from tempfile import mktemp
 
 import numpy as np
 import numpy.testing as nptest
+import pandas as pd
 
 import ants
 
@@ -249,20 +250,16 @@ class TestModule_reflect_image(unittest.TestCase):
         asym = asym - fi
 
 
-# class TestModule_reorient_image(unittest.TestCase):
-#    def setUp(self):
-#        pass
-#
-#    def tearDown(self):
-#        pass
-#
-#    def test_reorient_image(self):
-#        image = ants.image_read(ants.get_ants_data("r16"))
-#        ants.reorient_image(image, (1, 0))
-#
-#        image = ants.image_read(ants.get_ants_data("r16"))
-#        image = image.clone("unsigned int")
-#        ants.reorient_image(image, (1, 0))
+class TestModule_reorient_image(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_reorient_image(self):
+        mni = ants.image_read(ants.get_data('mni'))
+        mni2 = mni.reorient_image2()
 
     def test_get_center_of_mass(self):
         fi = ants.image_read(ants.get_ants_data("r16"))
@@ -362,6 +359,64 @@ class TestModule_multivar(unittest.TestCase):
             image, image2, "SyNOnly", multivariate_extras=metrics, verbose=True
         )
 
+class TestModule_random(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+    
+    def test_landmark_transforms(self):
+        fixed = np.array([[50.0,50.0],[200.0,50.0],[200.0,200.0]])
+        moving = np.array([[50.0,50.0],[50.0,200.0],[200.0,200.0]])
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="rigid")
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
+        domain_image = ants.image_read(ants.get_ants_data("r16"))
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="bspline", domain_image=domain_image, number_of_fitting_levels=5)
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
+    
+    def test_deformation_gradient(self):
+        fi = ants.image_read( ants.get_ants_data('r16'))
+        mi = ants.image_read( ants.get_ants_data('r64'))
+        fi = ants.resample_image(fi,(128,128),1,0)
+        mi = ants.resample_image(mi,(128,128),1,0)
+        mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
+        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
+
+    def test_jacobian(self):
+        fi = ants.image_read( ants.get_ants_data('r16'))
+        mi = ants.image_read( ants.get_ants_data('r64'))
+        fi = ants.resample_image(fi,(128,128),1,0)
+        mi = ants.resample_image(mi,(128,128),1,0)
+        mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
+        jac = ants.create_jacobian_determinant_image(fi,mytx['fwdtransforms'][0],1)
+
+    def test_apply_transforms(self):
+        fixed = ants.image_read( ants.get_ants_data('r16') )
+        moving = ants.image_read( ants.get_ants_data('r64') )
+        fixed = ants.resample_image(fixed, (64,64), 1, 0)
+        moving = ants.resample_image(moving, (64,64), 1, 0)
+        mytx = ants.registration(fixed=fixed , moving=moving ,
+                                type_of_transform = 'SyN' )
+        mywarpedimage = ants.apply_transforms( fixed=fixed, moving=moving,
+                                            transformlist=mytx['fwdtransforms'] )
+
+    def test_apply_transforms_to_points(self):
+        fixed = ants.image_read( ants.get_ants_data('r16') )
+        moving = ants.image_read( ants.get_ants_data('r27') )
+        reg = ants.registration( fixed, moving, 'Affine' )
+        d = {'x': [128, 127], 'y': [101, 111]}
+        pts = pd.DataFrame(data=d)
+        ptsw = ants.apply_transforms_to_points( 2, pts, reg['fwdtransforms'])
+
+    def test_warped_grid(self):
+        fi = ants.image_read( ants.get_ants_data( 'r16' ) )
+        mi = ants.image_read( ants.get_ants_data( 'r64' ) )
+        mygr = ants.create_warped_grid( mi )
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
+        mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
+                            transform=mytx['fwdtransforms'], fixed_reference_image=fi )
 
 if __name__ == "__main__":
     run_tests()

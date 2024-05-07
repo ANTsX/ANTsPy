@@ -50,7 +50,8 @@ def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
 
     Example
     -------
-    >>> rank_intensity( some_image )
+    >>> img = ants.image_read(ants.get_data('r16'))
+    >>> ants.rank_intensity(img)
     """
     if mask is not None:
         fir = rankdata( (x*mask).numpy(), method=method )
@@ -122,7 +123,7 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
     >>> df = pd.DataFrame( data )
     >>> vlist = { "mat1": mat, "mat2": mat2 }
     >>> myform = " outcome ~ covar * mat1 "
-    >>> result = ilr( df, vlist, myform)
+    >>> result = ants.ilr( df, vlist, myform)
     >>> myform = " mat2 ~ covar + mat1 "
     >>> result = ants.ilr( df, vlist, myform)
 
@@ -202,6 +203,12 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
 def quantile(image, q, nonzero=True):
     """
     Get the quantile values from an ANTsImage
+    
+    Examples
+    --------
+    >>> img = ants.image_read(ants.get_data('r16'))
+    >>> ants.quantile(img, 0.5)
+    >>> ants.quantile(img, (0.5, 0.75))
     """
     img_arr = image.numpy()
     if isinstance(q, (list,tuple)):

@@ -339,6 +339,7 @@ class TestClass_ANTsImage(unittest.TestCase):
     def test__div__(self):
         #self.setUp()
         for img in self.imgs:
+            img = img + 10
             # op on constant
             img2 = img / 6.9
             self.assertTrue(ants.image_physical_space_consistency(img, img2))
@@ -358,6 +359,7 @@ class TestClass_ANTsImage(unittest.TestCase):
     def test__pow__(self):
         #self.setUp()
         for img in self.imgs:
+            img = img + 10
             # op on constant
             img2 = img ** 6.9
             self.assertTrue(ants.image_physical_space_consistency(img, img2))

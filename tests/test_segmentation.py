@@ -168,5 +168,25 @@ class TestModule_prior_based_segmentation(unittest.TestCase):
         priorseg = ants.prior_based_segmentation(fi, seg['probabilityimages'], mask, 0.25, 0.1, 3)
 
 
+class TestModule_random(unittest.TestCase):
+    
+    def setUp(self):
+        pass
+    def tearDown(self):
+        pass
+
+    def test_fuzzy_cmeans(self):
+        image = ants.image_read(ants.get_ants_data('r16'))
+        mask = ants.get_mask(image)
+        fuzzy = ants.fuzzy_spatial_cmeans_segmentation(image, mask, number_of_clusters=3)
+        
+    def test_functional_lung(self):
+        image = ants.image_read(ants.get_data("mni")).resample_image((4,4,4))
+        mask = image.get_mask()
+        seg = ants.functional_lung_segmentation(image, mask, verbose=True,
+                                                number_of_iterations=1,
+                                                number_of_clusters=2,
+                                                number_of_atropos_iterations=1)
+
 if __name__ == '__main__':
     run_tests()

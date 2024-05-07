@@ -4,7 +4,8 @@ __all__ = ['histogram_match_image',
 
 import numpy as np
 
-from ..core import ants_image_io as iio
+from ..core import ants_image as iio
+from ..core import ants_image_io as iio2
 from .. import utils
 
 from ..utils import fit_bspline_object_to_scattered_data
@@ -94,7 +95,7 @@ def histogram_match_image2(source_image, reference_image,
     >>> import ants
     >>> src_img = ants.image_read(ants.get_data('r16'))
     >>> ref_img = ants.image_read(ants.get_data('r64'))
-    >>> src_ref = ants.histogram_match_image(src_img, ref_img)
+    >>> src_ref = ants.histogram_match_image2(src_img, ref_img)
     """
 
     if not isinstance(match_points, int):
@@ -147,7 +148,7 @@ def histogram_match_image2(source_image, reference_image,
         xfrm = alpha * (bspline_histogram_transform[i+1] - bspline_histogram_transform[i]) + bspline_histogram_transform[i]
         transformed_source_array[indices] = intensities + xfrm
 
-    transformed_source_image = iio.from_numpy(transformed_source_array, origin=source_image.origin,
+    transformed_source_image = iio2.from_numpy(transformed_source_array, origin=source_image.origin,
         spacing=source_image.spacing, direction=source_image.direction)
     transformed_source_image[source_mask == 0] = source_image[source_mask == 0]
 

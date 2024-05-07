@@ -53,17 +53,14 @@ def fit_thin_plate_spline_displacement_field(displacement_origins=None,
 
     Example
     -------
-    >>> # Perform 2-D fitting
-    >>>
-    >>> import ants, numpy
-    >>>
-    >>> points = numpy.array([[-50, -50]])
-    >>> deltas = numpy.array([[10, 10]])
-    >>>
+    >>> import ants
+    >>> import numpy as np
+    >>> points = np.array([[-50, -50]])
+    >>> deltas = np.array([[10, 10]])
     >>> tps_field = ants.fit_thin_plate_spline_displacement_field(
     >>>   displacement_origins=points, displacements=deltas,
     >>>   origin=[0.0, 0.0], spacing=[1.0, 1.0], size=[100, 100],
-    >>>   direction=numpy.array([[-1, 0], [0, -1]]))
+    >>>   direction=np.array([[-1, 0], [0, -1]]))
     """
 
     dimensionality = displacement_origins.shape[1]

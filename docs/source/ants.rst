@@ -6,7 +6,6 @@ Subpackages
 
 .. toctree::
 
-   ants.contrib
    ants.core
    ants.learn
    ants.lib
