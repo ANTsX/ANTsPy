@@ -228,6 +228,9 @@ def registration(
     >>> fi = ants.resample_image(fi, (60,60), 1, 0)
     >>> mi = ants.resample_image(mi, (60,60), 1, 0)
     >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'SyN' )
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[t]' )
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[b]' )
+    >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[s]' )
     """
     if isinstance(fixed, list) and (moving is None):
         processed_args = utils._int_antsProcessArguments(fixed)

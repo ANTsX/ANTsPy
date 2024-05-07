@@ -369,13 +369,20 @@ class TestModule_random(unittest.TestCase):
     def test_landmark_transforms(self):
         fixed = np.array([[50.0,50.0],[200.0,50.0],[200.0,200.0]])
         moving = np.array([[50.0,50.0],[50.0,200.0],[200.0,200.0]])
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="syn",
+                                            domain_image=ants.image_read(ants.get_data('r16')))
+        xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="tv",
+                                            domain_image=ants.image_read(ants.get_data('r16')))
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="rigid")
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="similarity")
         domain_image = ants.image_read(ants.get_ants_data("r16"))
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="bspline", domain_image=domain_image, number_of_fitting_levels=5)
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
-    
+
+        res = ants.fit_time_varying_transform_to_point_sets([fixed, moving, moving], 
+                                                            domain_image=ants.image_read(ants.get_data('r16')))
+        
     def test_deformation_gradient(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
         mi = ants.image_read( ants.get_ants_data('r64'))
@@ -383,7 +390,16 @@ class TestModule_random(unittest.TestCase):
         mi = ants.resample_image(mi,(128,128),1,0)
         mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
         dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
+        
+        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+                                       py_based=True)
 
+        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+                                       to_rotation=True)
+        
+        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+                                       to_rotation=True, py_based=True)
+        
     def test_jacobian(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
         mi = ants.image_read( ants.get_ants_data('r64'))
@@ -417,6 +433,20 @@ class TestModule_random(unittest.TestCase):
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
         mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
                             transform=mytx['fwdtransforms'], fixed_reference_image=fi )
+
+    def test_more_registration(self):
+        fi = ants.image_read(ants.get_ants_data('r16'))
+        mi = ants.image_read(ants.get_ants_data('r64'))
+        fi = ants.resample_image(fi, (60,60), 1, 0)
+        mi = ants.resample_image(mi, (60,60), 1, 0)
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'SyN' )
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[t]' )
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[b]' )
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[s]' )
+
+    def test_motion_correction(self):
+        fi = ants.image_read(ants.get_ants_data('ch2'))
+        mytx = ants.motion_correction( fi )
 
 if __name__ == "__main__":
     run_tests()

@@ -105,6 +105,35 @@ class TestModule_joint_label_fusion(unittest.TestCase):
                     label_list=seglist, rad=[r]*ref.dimension )
         pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=2 )
 
+    def test_max_lab_plus_one(self):
+        ref = ants.image_read( ants.get_ants_data('r16'))
+        ref = ants.resample_image(ref, (50,50),1,0)
+        ref = ants.iMath(ref,'Normalize')
+        mi = ants.image_read( ants.get_ants_data('r27'))
+        mi2 = ants.image_read( ants.get_ants_data('r30'))
+        mi3 = ants.image_read( ants.get_ants_data('r62'))
+        mi4 = ants.image_read( ants.get_ants_data('r64'))
+        mi5 = ants.image_read( ants.get_ants_data('r85'))
+        refmask = ants.get_mask(ref)
+        refmask = ants.iMath(refmask,'ME',2) # just to speed things up
+        ilist = [mi,mi2,mi3,mi4,mi5]
+        seglist = [None]*len(ilist)
+        for i in range(len(ilist)):
+            ilist[i] = ants.iMath(ilist[i],'Normalize')
+            mytx = ants.registration(fixed=ref , moving=ilist[i] ,
+                typeofTransform = ('Affine') )
+            mywarpedimage = ants.apply_transforms(fixed=ref,moving=ilist[i],
+                    transformlist=mytx['fwdtransforms'])
+            ilist[i] = mywarpedimage
+            seg = ants.threshold_image(ilist[i],'Otsu', 3)
+            seglist[i] = ( seg ) + ants.threshold_image( seg, 1, 3 ).morphology( operation='dilate', radius=3 )
+
+        r = 2
+        pp = ants.joint_label_fusion(ref, refmask, ilist, r_search=2,
+                    label_list=seglist, rad=[r]*ref.dimension, max_lab_plus_one=True )
+        pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=2,
+                                     max_lab_plus_one=True)
+
 
 
 class TestModule_kelly_kapowski(unittest.TestCase):
