@@ -21,8 +21,6 @@ Utilities
 .. autofunction:: image_to_cluster_images
 .. autofunction:: iMath
 .. autofunction:: impute
-.. autofunction:: invariant_image_similarity
-.. autofunction:: convolve_image
 .. autofunction:: label_clusters
 .. autofunction:: label_image_centroids
 .. autofunction:: label_overlap_measures

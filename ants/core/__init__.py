@@ -19,7 +19,6 @@ from .ants_image_io import (
 
 from .ants_image import (
     ANTsImage,
-    LabelImage,
     copy_image_info,
     set_origin,
     get_origin,

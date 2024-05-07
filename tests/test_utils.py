@@ -580,28 +580,6 @@ class TestModule_impute(unittest.TestCase):
         # data_imputed = ants.impute(data, method='constant', value=12.)
 
 
-# class TestModule_invariant_image_similarity(unittest.TestCase):
-#    def setUp(self):
-#        pass
-#
-#    def tearDown(self):
-#        pass
-#
-#    def test_invariate_image_similarity_example(self):
-#        img1 = ants.image_read(ants.get_ants_data("r16"))
-#        img2 = ants.image_read(ants.get_ants_data("r64"))
-#        metric1 = ants.invariant_image_similarity(img1, img2, do_reflection=False)
-#
-#        img1 = ants.image_read(ants.get_ants_data("r16"))
-#        img2 = ants.image_read(ants.get_ants_data("r64"))
-#        metric2 = ants.invariant_image_similarity(img1, img2, do_reflection=True)
-#
-#    def test_convolve_image_example(self):
-#        fi = ants.image_read(ants.get_ants_data("r16"))
-#        convimg = ants.make_image((3, 3), (1, 0, 1, 0, -4, 0, 1, 0, 1))
-#        convout = ants.convolve_image(fi, convimg)
-
-
 class TestModule_label_clusters(unittest.TestCase):
     def setUp(self):
         pass

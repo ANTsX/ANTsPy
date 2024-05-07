@@ -370,7 +370,8 @@ class TestModule_random(unittest.TestCase):
         fixed = np.array([[50.0,50.0],[200.0,50.0],[200.0,200.0]])
         moving = np.array([[50.0,50.0],[50.0,200.0],[200.0,200.0]])
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="syn",
-                                            domain_image=ants.image_read(ants.get_data('r16')))
+                                            domain_image=ants.image_read(ants.get_data('r16')),
+                                            verbose=True)
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="tv",
                                             domain_image=ants.image_read(ants.get_data('r16')))
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="affine")
@@ -381,7 +382,8 @@ class TestModule_random(unittest.TestCase):
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
 
         res = ants.fit_time_varying_transform_to_point_sets([fixed, moving, moving], 
-                                                            domain_image=ants.image_read(ants.get_data('r16')))
+                                                            domain_image=ants.image_read(ants.get_data('r16')),
+                                                            verbose=True)
         
     def test_deformation_gradient(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
