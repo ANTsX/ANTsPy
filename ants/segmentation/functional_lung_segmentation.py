@@ -61,9 +61,12 @@ def functional_lung_segmentation(image,
     Example
     -------
     >>> import ants
-    >>> image = ants.image_read("lung_image.nii.gz")
-    >>> mask = ants.image_read("lung_mask.nii.gz")
-    >>> seg = functional_lung_segmentation(image, mask, verbose=True)
+    >>> image = ants.image_read(ants.get_data("mni")).resample_image((4,4,4))
+    >>> mask = image.get_mask()
+    >>> seg = ants.functional_lung_segmentation(image, mask, verbose=True,
+                                                number_of_iterations=1,
+                                                number_of_clusters=2,
+                                                number_of_atropos_iterations=1)
     """
 
     if image.dimension != 3:

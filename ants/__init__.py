@@ -7,5 +7,3 @@ from .segmentation import *
 from .registration import *
 from .learn import *
 from .viz import *
-
-from . import contrib

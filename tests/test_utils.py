@@ -1,12 +1,25 @@
 """
 Test utils module
+"""
+
+import os
+import unittest
+
+from common import run_tests
+
+import numpy.testing as nptest
+import numpy as np
+import pandas as pd
+
+import ants
+
 
 class TestModule_iMath(unittest.TestCase):
 
     def setUp(self):
         img2d = ants.image_read(ants.get_ants_data('r16'))
-        img3d = ants.image_read(ants.get_ants_data('mni')).resample_image((2,2,2))
-        self.imgs = [img2d, img3d]
+        #img3d = ants.image_read(ants.get_ants_data('mni')).resample_image((2,2,2))
+        self.imgs = [img2d]
 
     def tearDown(self):
         pass
@@ -25,17 +38,17 @@ class TestModule_iMath(unittest.TestCase):
             # Grayscale erosion
             img_tx = ants.iMath(img, 'GE', 3)
             self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
-            self.assertTrue(not ants.allclose(img_tx, img))
+            self.assertFalse(ants.allclose(img_tx, img))
 
             # Morphological dilation
             img_tx = ants.iMath(img, 'MD', 3)
             self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
-            self.assertTrue(not ants.allclose(img_tx, img))
+            self.assertFalse(ants.allclose(img_tx, img))
 
             # Morphological erosion
             img_tx = ants.iMath(img, 'ME', 3)
             self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
-            self.assertTrue(not ants.allclose(img_tx, img))
+            self.assertFalse(ants.allclose(img_tx, img))
 
             # Morphological closing
             img_tx = ants.iMath(img, 'MC', 3)
@@ -72,19 +85,6 @@ class TestModule_iMath(unittest.TestCase):
             img_tx = ants.iMath(img, 'Laplacian', 1, 1)
             self.assertTrue(ants.image_physical_space_consistency(img_tx, img))
             self.assertTrue(not ants.allclose(img_tx, img))
-
-"""
-
-import os
-import unittest
-
-from common import run_tests
-
-import numpy as np
-import numpy.testing as nptest
-
-import ants
-
 
 class TestModule_bias_correction(unittest.TestCase):
     def setUp(self):
@@ -878,6 +878,106 @@ class TestModule_scalar_rgb_vector(unittest.TestCase):
         )
         rgb_img = vec_img.vector_to_rgb()
         print(ants.allclose(rgb_img, vec_img))
+
+
+class TestRandom(unittest.TestCase):
+    def setUp(self):
+        pass
+    def tearDown(self):
+        pass
+    
+    def test_bspline_field(self):
+        points = np.array([[-50, -50]])
+        deltas = np.array([[10, 10]])
+        bspline_field = ants.fit_bspline_displacement_field(
+        displacement_origins=points, displacements=deltas,
+        origin=[0.0, 0.0], spacing=[1.0, 1.0], size=[100, 100],
+        direction=np.array([[-1, 0], [0, -1]]),
+        number_of_fitting_levels=4, mesh_size=(1, 1))
+
+    def test_quantile(self):
+        img = ants.image_read(ants.get_data('r16'))
+        ants.rank_intensity(img)
+
+    def test_ilr(self):
+        nsub = 20
+        mu, sigma = 0, 1
+        outcome = np.random.normal( mu, sigma, nsub )
+        covar = np.random.normal( mu, sigma, nsub )
+        mat = np.random.normal( mu, sigma, (nsub, 500 ) )
+        mat2 = np.random.normal( mu, sigma, (nsub, 500 ) )
+        data = {'covar':covar,'outcome':outcome}
+        df = pd.DataFrame( data )
+        vlist = { "mat1": mat, "mat2": mat2 }
+        myform = " outcome ~ covar * mat1 "
+        result = ants.ilr( df, vlist, myform)
+        myform = " mat2 ~ covar + mat1 "
+        result = ants.ilr( df, vlist, myform)
+        
+    def test_quantile(self):
+        img = ants.image_read(ants.get_data('r16'))
+        ants.quantile(img, 0.5)
+        ants.quantile(img, (0.5, 0.75))
+        
+    def test_bandpass(self):
+        brainSignal = np.random.randn( 400, 1000 )
+        tr = 1
+        filtered = ants.bandpass_filter_matrix( brainSignal, tr = tr )
+        
+    def test_compcorr(self):
+        cc = ants.compcor( ants.image_read(ants.get_ants_data("ch2")) )
+
+    def test_histogram_match(self):
+        src_img = ants.image_read(ants.get_data('r16'))
+        ref_img = ants.image_read(ants.get_data('r64'))
+        src_ref = ants.histogram_match_image(src_img, ref_img)
+        
+        src_img = ants.image_read(ants.get_data('r16'))
+        ref_img = ants.image_read(ants.get_data('r64'))
+        src_ref = ants.histogram_match_image2(src_img, ref_img)
+        
+    def test_averaging(self):
+        x0=[ ants.get_data('r16'), ants.get_data('r27'), ants.get_data('r62'), ants.get_data('r64') ]
+        x1=[]
+        for k in range(len(x0)):
+            x1.append( ants.image_read( x0[k] ) )
+        avg=ants.average_images(x0)
+        avg1=ants.average_images(x1)
+        avg2=ants.average_images(x1,mask=0)
+        avg3=ants.average_images(x1,mask=1,normalize=True)
+        
+    def test_impute(self):
+        data = np.random.randn(4,10)
+        data[2,3] = np.nan
+        data[3,5] = np.nan
+        data_imputed = ants.impute(data, 'mean')
+        
+    def test_n3_2(self):
+        image = ants.image_read( ants.get_ants_data('r16') )
+        image_n3 = ants.n3_bias_field_correction2(image)
+
+    def test_add_noise(self):
+        image = ants.image_read(ants.get_ants_data('r16'))
+        noise_image = ants.add_noise_to_image(image, 'additivegaussian', (0.0, 1.0))
+        noise_image = ants.add_noise_to_image(image, 'saltandpepper', (0.1, 0.0, 100.0))
+        noise_image = ants.add_noise_to_image(image, 'shot', 1.0)
+        noise_image = ants.add_noise_to_image(image, 'speckle', 1.0)
+    
+    def test_thin_plate_spline(self):
+        points = np.array([[-50, -50]])
+        deltas = np.array([[10, 10]])
+        tps_field = ants.fit_thin_plate_spline_displacement_field(
+        displacement_origins=points, displacements=deltas,
+        origin=[0.0, 0.0], spacing=[1.0, 1.0], size=[100, 100],
+        direction=np.array([[-1, 0], [0, -1]]))
+        
+    def test_multi_label_morph(self):
+        img = ants.image_read(ants.get_data('r16'))
+        labels = ants.get_mask(img,1,150) + ants.get_mask(img,151,225) * 2
+        labels_dilated = ants.multi_label_morphology(labels, 'MD', 2)
+        # should see original label regions preserved in dilated version
+        # label N should have mean N and 0 variance
+        print(ants.label_stats(labels_dilated, labels))
 
 
 if __name__ == "__main__":
