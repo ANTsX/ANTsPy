@@ -13,9 +13,8 @@ find_package(Python 3.8
 find_package(nanobind CONFIG REQUIRED)
 
 # TODO: make this run only if ITK + ANTs are not already built (for now: comment these 2 lines out to quickly rebuild antspy)
-# TODO: make this handle different OS either here or within the configure script
+# TODO: handle different OS either here or within the configure script
 # TODO: move this outside of CMakeLists.txt like in the old antspy (issue: how to run scripts from pyproject.toml?)
-# otherwise you have to comment it out during development
 execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
 execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
 

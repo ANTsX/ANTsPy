@@ -14,7 +14,18 @@ authors = [
 classifiers = [
     "License :: OSI Approved :: BSD License",
 ]
-dynamic = ["dependencies"]
+dependenices = [
+    "pandas",
+    "pyyaml",
+    "numpy",
+    "scikit-image",
+    "scikit-learn",
+    "statsmodels",
+    "webcolors",
+    "matplotlib",
+    "Pillow",
+    "nibabel"
+]
 
 [project.urls]
 Homepage = "https://github.com/antsx/antspy"
@@ -33,9 +44,6 @@ wheel.py-api = "cp311"
 cmake.args = []
 
 wheel.packages = ["ants"]
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
 
 [tool.cibuildwheel]
 # Necessary to see build output from the actual compilation
