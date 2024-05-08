@@ -4,6 +4,7 @@
 #include "LOCAL_antsImage.cxx"
 #include "LOCAL_antsImageClone.cxx"
 #include "LOCAL_antsImageHeaderInfo.cxx"
+#include "LOCAL_antsImageUtils.cxx"
 #include "LOCAL_antsTransform.cxx"
 #include "LOCAL_cropImage.cxx"
 #include "LOCAL_mergeChannels.cxx"
@@ -40,6 +41,7 @@ void local_addNoiseToImage(nb::module_ &);
 void local_antsImage(nb::module_ &);
 void local_antsImageClone(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
+void local_antsImageUtils(nb::module_ &);
 void local_antsTransform(nb::module_ &);
 void local_cropImage(nb::module_ &);
 void local_mergeChannels(nb::module_ &);
@@ -75,6 +77,7 @@ NB_MODULE(lib, m) {
     local_antsImage(m);
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);
+    local_antsImageUtils(m);
     local_antsTransform(m);
     local_cropImage(m);
     local_mergeChannels(m);

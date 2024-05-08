@@ -416,7 +416,7 @@ def compose_ants_transforms(transform_list):
             raise ValueError('All transforms must have the same dimension')
 
     tx_ptr_list = list(reversed([tf.pointer for tf in transform_list]))
-    libfn = utils.get_lib_fn('composeTransforms')
+    libfn = utils.get_lib_fn('composeTransforms%s' % (transform_list[0]._libsuffix))
     itk_composed_tx = libfn(tx_ptr_list, precision, dimension)
     return ANTsTransform(precision=precision, dimension=dimension,
                         transform_type='CompositeTransform', pointer=itk_composed_tx)

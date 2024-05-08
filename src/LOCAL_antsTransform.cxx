@@ -250,12 +250,12 @@ void local_antsTransform(nb::module_ &m) {
     m.def("inverseTransform", &inverseTransform<itk::Transform<double,3, 3>, itk::Transform<double,3, 3>>);
     m.def("inverseTransform", &inverseTransform<itk::Transform<double,4, 4>, itk::Transform<double,4, 4>>);
 
-    m.def("composeTransforms", &composeTransforms<itk::Transform<float, 2, 2>, float, 2>);
-    m.def("composeTransforms", &composeTransforms<itk::Transform<float, 3, 3>, float, 3>);
-    m.def("composeTransforms", &composeTransforms<itk::Transform<float, 4, 4>, float, 4>);
-    m.def("composeTransforms", &composeTransforms<itk::Transform<double,2, 2>, double,2> );
-    m.def("composeTransforms", &composeTransforms<itk::Transform<double,3, 3>, double,3> );
-    m.def("composeTransforms", &composeTransforms<itk::Transform<double,4, 4>, double,4> );
+    m.def("composeTransformsF2", &composeTransforms<itk::Transform<float, 2, 2>, float, 2>);
+    m.def("composeTransformsF3", &composeTransforms<itk::Transform<float, 3, 3>, float, 3>);
+    m.def("composeTransformsF4", &composeTransforms<itk::Transform<float, 4, 4>, float, 4>);
+    m.def("composeTransformsD2", &composeTransforms<itk::Transform<double,2, 2>, double,2> );
+    m.def("composeTransformsD3", &composeTransforms<itk::Transform<double,3, 3>, double,3> );
+    m.def("composeTransformsD4", &composeTransforms<itk::Transform<double,4, 4>, double,4> );
 
     m.def("readTransformF2", &readTransform<itk::Transform<float, 2, 2>, float, 2>);
     m.def("readTransformF3", &readTransform<itk::Transform<float, 3, 3>, float, 3>);
@@ -271,18 +271,21 @@ void local_antsTransform(nb::module_ &m) {
     m.def("writeTransform", &writeTransform<itk::Transform<double,3, 3>>);
     m.def("writeTransform", &writeTransform<itk::Transform<double,4, 4>>);
 
-    m.def("matrixOffset", &matrixOffset<itk::Transform<float, 2, 2>, float, 2>);
-    m.def("matrixOffset", &matrixOffset<itk::Transform<float, 3, 3>, float, 3>);
-    m.def("matrixOffset", &matrixOffset<itk::Transform<float, 4, 4>, float, 4>);
-    m.def("matrixOffset", &matrixOffset<itk::Transform<double,2, 2>, double,2>);
-    m.def("matrixOffset", &matrixOffset<itk::Transform<double,3, 3>, double,3>);
-    m.def("matrixOffset", &matrixOffset<itk::Transform<double,4, 4>, double,4>);
+    m.def("matrixOffsetF2", &matrixOffset<itk::Transform<float, 2, 2>, float, 2>);
+    m.def("matrixOffsetF3", &matrixOffset<itk::Transform<float, 3, 3>, float, 3>);
+    m.def("matrixOffsetF4", &matrixOffset<itk::Transform<float, 4, 4>, float, 4>);
+    m.def("matrixOffsetD2", &matrixOffset<itk::Transform<double,2, 2>, double,2>);
+    m.def("matrixOffsetD3", &matrixOffset<itk::Transform<double,3, 3>, double,3>);
+    m.def("matrixOffsetD4", &matrixOffset<itk::Transform<double,4, 4>, double,4>);
 
     m.def("antsTransformFromDisplacementField", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
     m.def("antsTransformFromDisplacementField", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
     m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
     m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
 
+    
+    nb::class_<AntsTransform<itk::DisplacementFieldTransform<float,2>>>(m, "AntsTransformDF2");
+    nb::class_<AntsTransform<itk::DisplacementFieldTransform<float,3>>>(m, "AntsTransformDF3");
     nb::class_<AntsTransform<itk::Transform<float, 2, 2>>>(m, "AntsTransformF22");
     nb::class_<AntsTransform<itk::Transform<float, 3, 3>>>(m, "AntsTransformF33");
     nb::class_<AntsTransform<itk::Transform<float, 4, 4>>>(m, "AntsTransformF44");
