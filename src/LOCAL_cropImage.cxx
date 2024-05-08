@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <algorithm>
 #include <stdio.h>
@@ -15,7 +20,8 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template< class ImageType >
 typename ImageType::Pointer cropImageHelper(  typename ImageType::Pointer image,
@@ -125,8 +131,8 @@ typename ImageType::Pointer decropImageHelper(  typename ImageType::Pointer cima
 }
 
 template <typename ImageType>
-py::capsule cropImage( py::capsule &in_image1,
-                                  py::capsule &in_image2,
+AntsImage<ImageType> cropImage( AntsImage<ImageType> &in_image1,
+                                  AntsImage<ImageType> &in_image2,
                                   unsigned int label,
                                   unsigned int decrop,
                                   std::vector<int> loind,
@@ -134,38 +140,36 @@ py::capsule cropImage( py::capsule &in_image1,
 {
   typedef typename ImageType::Pointer ImagePointerType;
 
-  ImagePointerType antsimage1 = as< ImageType >( in_image1 );
-  ImagePointerType antsimage2 = as< ImageType >( in_image2 );
+  ImagePointerType antsimage1 = in_image1.ptr;
+  ImagePointerType antsimage2 = in_image2.ptr; 
 
   if ( decrop == 0 )
   {
     ImagePointerType out_image = cropImageHelper<ImageType>(antsimage1, antsimage2, label);
-    py::capsule out_ants_image = wrap<ImageType>( out_image );
+    AntsImage<ImageType> out_ants_image = { out_image };
     return out_ants_image;
   }
   else if ( decrop == 1 )
   {
     ImagePointerType out_image = decropImageHelper<ImageType>(antsimage1, antsimage2);
-    py::capsule out_ants_image = wrap<ImageType>( out_image );
+    AntsImage<ImageType> out_ants_image = { out_image };
     return out_ants_image;
   }
 
   else if ( decrop == 2 )
   {
     ImagePointerType out_image = cropIndHelper<ImageType>(antsimage1, loind, upind);
-    py::capsule out_ants_image = wrap<ImageType>( out_image );
+    AntsImage<ImageType> out_ants_image = { out_image };
     return out_ants_image;
   }
 
   ImagePointerType out_image = ImageType::New();
-  py::capsule out_ants_image = wrap<ImageType>( out_image );
+  AntsImage<ImageType> out_ants_image = { out_image };
   return out_ants_image;
 
 }
 
-
-
-PYBIND11_MODULE(cropImage, m) {
-  m.def("cropImageF2", &cropImage<itk::Image<float, 2>>);
-  m.def("cropImageF3", &cropImage<itk::Image<float, 3>>);
+void local_cropImage(nb::module_ &m) {
+  m.def("cropImage", &cropImage<itk::Image<float, 2>>);
+  m.def("cropImage", &cropImage<itk::Image<float, 3>>);
 }

@@ -55,7 +55,7 @@ class ANTsTransform(object):
     @property
     def parameters(self):
         """ Get parameters of transform """
-        libfn = utils.get_lib_fn('getTransformParameters%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('getTransformParameters')
         return np.asarray(libfn(self.pointer), order='F')#.reshape((self.dimension, self.dimension+1), order='F')
 
     def set_parameters(self, parameters):
@@ -67,13 +67,13 @@ class ANTsTransform(object):
         if parameters.ndim > 1:
             parameters = parameters.flatten(order='F')
 
-        libfn = utils.get_lib_fn('setTransformParameters%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('setTransformParameters')
         libfn(self.pointer, parameters.tolist())
 
     @property
     def fixed_parameters(self):
         """ Get parameters of transform """
-        libfn = utils.get_lib_fn('getTransformFixedParameters%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('getTransformFixedParameters')
         return np.asarray(libfn(self.pointer))
 
     def set_fixed_parameters(self, parameters):
@@ -81,12 +81,12 @@ class ANTsTransform(object):
         if not isinstance(parameters, np.ndarray):
             parameters = np.asarray(parameters)
 
-        libfn = utils.get_lib_fn('setTransformFixedParameters%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('setTransformFixedParameters')
         libfn(self.pointer, parameters.tolist())
 
     def invert(self):
         """ Invert the transform """
-        libfn = utils.get_lib_fn('inverseTransform%s' % (self._libsuffix))
+        libfn = utils.get_lib_fn('inverseTransform')
         inv_tx_ptr = libfn(self.pointer)
 
         new_tx = ANTsTransform(precision=self.precision, dimension=self.dimension,
@@ -127,7 +127,7 @@ class ANTsTransform(object):
         >>> tx.set_parameters(params*2)
         >>> pt2 = tx.apply_to_point((1,2,3)) # should be (2,4,6)
         """
-        libfn = utils.get_lib_fn('transformPoint%s' % (self._libsuffix))
+        libfn = utils.get_lib_fn('transformPoint')
         return tuple(libfn(self.pointer, point))
 
     def apply_to_vector(self, vector):
@@ -146,7 +146,7 @@ class ANTsTransform(object):
         if isinstance(vector, np.ndarray):
             vector = vector.tolist()
 
-        libfn = utils.get_lib_fn('transformVector%s' % (self._libsuffix))
+        libfn = utils.get_lib_fn('transformVector')
         return np.asarray(libfn(self.pointer, vector))
 
     def apply_to_image(self, image, reference=None, interpolation='linear'):
@@ -184,7 +184,7 @@ class ANTsTransform(object):
         
         interpolation = interpolation.lower()
 
-        tform_fn = utils.get_lib_fn('transformImage%s%s' % (self._libsuffix, image._libsuffix))
+        tform_fn = utils.get_lib_fn('transformImage')
         reference = reference.clone(image.pixeltype)
 
         img_ptr = tform_fn(self.pointer, image.pointer, reference.pointer, interpolation)
@@ -416,7 +416,7 @@ def compose_ants_transforms(transform_list):
             raise ValueError('All transforms must have the same dimension')
 
     tx_ptr_list = list(reversed([tf.pointer for tf in transform_list]))
-    libfn = utils.get_lib_fn('composeTransforms%s' % (transform_list[0]._libsuffix))
+    libfn = utils.get_lib_fn('composeTransforms')
     itk_composed_tx = libfn(tx_ptr_list, precision, dimension)
     return ANTsTransform(precision=precision, dimension=dimension,
                         transform_type='CompositeTransform', pointer=itk_composed_tx)
@@ -462,7 +462,7 @@ def transform_index_to_physical_point(image, index):
     index = [i+1 for i in index]
     ndim = image.dimension
     ptype = image.pixeltype
-    libfn = utils.get_lib_fn('TransformIndexToPhysicalPoint%s%i' % (utils.short_ptype(ptype), ndim))
+    libfn = utils.get_lib_fn('TransformIndexToPhysicalPoint')
     point = libfn(image.pointer, [list(index)])
 
     return np.array(point[0])
@@ -509,7 +509,7 @@ def transform_physical_point_to_index(image, point):
 
     ndim = image.dimension
     ptype = image.pixeltype
-    libfn = utils.get_lib_fn('TransformPhysicalPointToIndex%s%i'%(utils.short_ptype(ptype),ndim))
+    libfn = utils.get_lib_fn('TransformPhysicalPointToIndex')
     index = libfn(image.pointer, [list(point)])
     index = [i-1 for i in index[0]]
 

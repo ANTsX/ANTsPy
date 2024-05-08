@@ -1,6 +1,10 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include "itkMacro.h"
 #include "itkImage.h"
@@ -56,7 +60,8 @@
 
 #include "register_transforms.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 unsigned int getTransformDimensionFromFile( std::string filename )
 {
@@ -86,7 +91,7 @@ std::string getTransformNameFromFile( std::string filename )
 
 
 template <typename PrecisionType, unsigned int Dimension>
-py::capsule newAntsTransform( std::string precision, unsigned int dimension, std::string type)
+AntsTransform<itk::Transform<PrecisionType, Dimension, Dimension>> newAntsTransform( std::string precision, unsigned int dimension, std::string type)
 {
 
     //auto transformPointer = TransformType::New();
@@ -100,7 +105,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "CenteredAffineTransform" )
     {
@@ -111,7 +117,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "Euler3DTransform" )
     {
@@ -122,7 +129,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
 
     }
   else if ( type == "Euler2DTransform" )
@@ -134,7 +142,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "QuaternionRigidTransform" )
     {
@@ -145,7 +154,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "Rigid2DTransform" )
     {
@@ -156,7 +166,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "Rigid3DTransform" )
     {
@@ -167,7 +178,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "CenteredEuler3DTransform" )
     {
@@ -178,7 +190,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "CenteredRigid2DTransform" )
     {
@@ -189,7 +202,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "Similarity3DTransform" )
     {
@@ -200,7 +214,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "Similarity2DTransform" )
     {
@@ -211,7 +226,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
   else if ( type == "CenteredSimilarity2DTransform" )
     {
@@ -222,7 +238,8 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
     }
 
     typedef itk::AffineTransform<PrecisionType,Dimension> TransformType;
@@ -232,11 +249,12 @@ py::capsule newAntsTransform( std::string precision, unsigned int dimension, std
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     TransformBasePointerType basePointer = dynamic_cast<TransformBaseType *>( transformPointer.GetPointer() );
 
-    return wrap_transform< TransformBaseType >( basePointer );
+    AntsTransform<TransformBaseType> outTransform = { basePointer };
+    return outTransform;
 }
 
 
-PYBIND11_MODULE(readTransform, m)
+void local_readTransform(nb::module_ &m)
 {
     m.def("newAntsTransformF2", &newAntsTransform<float, 2>);
     m.def("newAntsTransformF3", &newAntsTransform<float, 3>);

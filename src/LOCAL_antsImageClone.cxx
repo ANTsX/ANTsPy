@@ -13,6 +13,7 @@
 #include "LOCAL_antsImage.h"
 
 namespace nb = nanobind;
+using namespace nb::literals;
 
 template<typename InImageType, typename OutImageType>
 AntsImage<OutImageType> antsImageClone( AntsImage<InImageType> & myPointer )

@@ -1,9 +1,13 @@
 #ifndef ANTSPYREADIMAGE_H
 #define ANTSPYREADIMAGE_H
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include "itkMacro.h"
 #include "itkImage.h"
@@ -55,8 +59,11 @@
 
 #include "LOCAL_antsTransform.h"
 
-template <typename TransformType, class PrecisionType, unsigned int Dimension>
-py::capsule newAntsTransform( std::string precision, unsigned int dimension, std::string type);
+namespace nb = nanobind;
+using namespace nb::literals;
+
+template <class PrecisionType, unsigned int Dimension>
+AntsTransform<itk::Transform<PrecisionType, Dimension, Dimension>> newAntsTransform( std::string precision, unsigned int dimension, std::string type);
 
 
 
