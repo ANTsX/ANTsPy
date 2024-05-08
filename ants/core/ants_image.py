@@ -80,7 +80,7 @@ class ANTsImage(object):
 
         self._libsuffix = '%s%s%i' % (self._shortpclass, utils.short_ptype(self.pixeltype), self.dimension)
 
-        self.shape = utils.get_lib_fn('getShape%s'%self._libsuffix)(self.pointer)
+        self.shape = tuple(utils.get_lib_fn('getShape')(self.pointer))
         self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
 
         self._array = None
@@ -94,8 +94,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        libfn = utils.get_lib_fn('getSpacing%s'%self._libsuffix)
-        return libfn(self.pointer)
+        libfn = utils.get_lib_fn('getSpacing')
+        return tuple(libfn(self.pointer))
 
     def set_spacing(self, new_spacing):
         """
@@ -116,7 +116,7 @@ class ANTsImage(object):
         if len(new_spacing) != self.dimension:
             raise ValueError('must give a spacing value for each dimension (%i)' % self.dimension)
 
-        libfn = utils.get_lib_fn('setSpacing%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('setSpacing')
         libfn(self.pointer, new_spacing)
 
     @property
@@ -128,8 +128,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        libfn = utils.get_lib_fn('getOrigin%s'%self._libsuffix)
-        return libfn(self.pointer)
+        libfn = utils.get_lib_fn('getOrigin')
+        return tuple(libfn(self.pointer))
 
     def set_origin(self, new_origin):
         """
@@ -150,7 +150,7 @@ class ANTsImage(object):
         if len(new_origin) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        libfn = utils.get_lib_fn('setOrigin%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('setOrigin')
         libfn(self.pointer, new_origin)
 
     @property
@@ -162,8 +162,8 @@ class ANTsImage(object):
         -------
         tuple
         """
-        libfn = utils.get_lib_fn('getDirection%s'%self._libsuffix)
-        return libfn(self.pointer)
+        libfn = utils.get_lib_fn('getDirection')
+        return np.array(libfn(self.pointer)).reshape(self.dimension,self.dimension)
 
     def set_direction(self, new_direction):
         """
@@ -187,7 +187,7 @@ class ANTsImage(object):
         if len(new_direction) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        libfn = utils.get_lib_fn('setDirection%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('setDirection')
         libfn(self.pointer, new_direction)
 
     @property
@@ -221,7 +221,7 @@ class ANTsImage(object):
         shape = img.shape[::-1]
         if img.has_components or (single_components == True):
             shape = list(shape) + [img.components]
-        libfn = utils.get_lib_fn('toNumpy%s'%img._libsuffix)
+        libfn = utils.get_lib_fn('toNumpy')
         memview = libfn(img.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
@@ -281,7 +281,7 @@ class ANTsImage(object):
             p1_short = utils.short_ptype(self.pixeltype)
             p2_short = utils.short_ptype(pixeltype)
             ndim = self.dimension
-            fn_suffix = '%s%i%s%i' % (p1_short,ndim,p2_short,ndim)
+            fn_suffix = '%s%i' % (p2_short,ndim)
             libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
             pointer_cloned = libfn(self.pointer)
             return ANTsImage(pixeltype=pixeltype,
@@ -348,7 +348,7 @@ class ANTsImage(object):
             filepath to which the image will be written
         """
         filename = os.path.expanduser(filename)
-        libfn = utils.get_lib_fn('toFile%s'%self._libsuffix)
+        libfn = utils.get_lib_fn('toFile')
         libfn(self.pointer, filename)
     to_filename = to_file
 
