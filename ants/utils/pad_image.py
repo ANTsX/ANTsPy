@@ -69,7 +69,7 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
                 lower_pad_vals.append(math.floor(p/2))
                 upper_pad_vals.append(math.ceil(p/2))
 
-    libfn = utils.get_lib_fn('padImageF%i' % ndim)
+    libfn = utils.get_lib_fn('padImage')
     itkimage = libfn(image.pointer, lower_pad_vals, upper_pad_vals, value)
 
     new_image = iio.ANTsImage(pixeltype='float', dimension=ndim,

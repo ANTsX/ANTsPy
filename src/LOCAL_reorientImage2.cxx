@@ -1,24 +1,25 @@
 
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/ndarray.h>
 
 #include "itkImage.h"
 #include "itkOrientImageFilter.h"
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
-
-py::capsule reorientImage2( py::capsule antsImage , std::string newOrientation )
+template <typename ImageType>
+AntsImage<ImageType> reorientImage2( AntsImage<ImageType> & antsImage , std::string newOrientation )
 {
-  typedef itk::Image<float, 3> ImageType;
-  typedef typename ImageType::Pointer ImagePointerType;
+  typename ImageType::Pointer itkImage = antsImage.ptr;
 
-  ImagePointerType itkImage = as< ImageType >( antsImage );
-
-  itk::OrientImageFilter<ImageType,ImageType>::Pointer orienter = itk::OrientImageFilter<ImageType,ImageType>::New();
+  typename itk::OrientImageFilter<ImageType,ImageType>::Pointer orienter = itk::OrientImageFilter<ImageType,ImageType>::New();
   orienter->UseImageDirectionOn();
 
   if (newOrientation == "RIP") {
@@ -167,10 +168,11 @@ py::capsule reorientImage2( py::capsule antsImage , std::string newOrientation )
   }
   orienter->SetInput( itkImage );
   orienter->Update();
-  return wrap< ImageType >( orienter->GetOutput() );
+  AntsImage<ImageType> myImage = { orienter->GetOutput() };
+  return myImage;
 }
 
-PYBIND11_MODULE(reorientImage2, m)
+void local_reorientImage2(nb::module_ &m) 
 {
-  m.def("reorientImage2", reorientImage2);
+  m.def("reorientImage2", &reorientImage2<itk::Image<float,3>>);
 }

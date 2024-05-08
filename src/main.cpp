@@ -5,7 +5,10 @@
 #include "LOCAL_antsImageClone.cxx"
 #include "LOCAL_antsImageHeaderInfo.cxx"
 #include "LOCAL_mergeChannels.cxx"
+#include "LOCAL_padImage.cxx"
 #include "LOCAL_readImage.cxx"
+#include "LOCAL_reorientImage2.cxx"
+#include "LOCAL_sliceImage.cxx"
 #include "LOCAL_SmoothImage.cxx"
 
 #include "WRAP_antsAffineInitializer.cxx"
@@ -35,7 +38,10 @@ void local_antsImage(nb::module_ &);
 void local_antsImageClone(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
 void local_mergeChannels(nb::module_ &);
+void local_padImage(nb::module_ &);
 void local_readImage(nb::module_ &);
+void local_reorientImage2(nb::module_ &);
+void local_sliceImage(nb::module_ &);
 void local_SmoothImage(nb::module_ &);
 
 void wrap_antsAffineInitializer(nb::module_ &);
@@ -64,7 +70,10 @@ NB_MODULE(lib, m) {
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);
     local_mergeChannels(m);
+    local_padImage(m);
     local_readImage(m);
+    local_reorientImage2(m);
+    local_sliceImage(m);
     local_SmoothImage(m);
 
     wrap_antsAffineInitializer(m);

@@ -1,6 +1,9 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/ndarray.h>
 
 #include <exception>
 #include <vector>
@@ -11,16 +14,17 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template < typename ImageType >
-py::capsule padImage( py::capsule & antsImage,
+AntsImage<ImageType> padImage( AntsImage<ImageType> & antsImage,
                       std::vector<int> lowerPadDims,
                       std::vector<int> upperPadDims,
                       float padValue )
 {
   typedef typename ImageType::Pointer ImagePointerType;
-  ImagePointerType itkImage = as< ImageType >( antsImage );
+  typename ImageType::Pointer itkImage = antsImage.ptr;
 
 
   typename ImageType::SizeType lowerExtendRegion;
@@ -48,13 +52,15 @@ py::capsule padImage( py::capsule & antsImage,
   padFilter->SetConstant( padValue );
   padFilter->Update();
   FixNonZeroIndex<ImageType>( padFilter->GetOutput() );
-  return wrap< ImageType >( padFilter->GetOutput() );
+
+  AntsImage<ImageType> myImage = { padFilter->GetOutput() };
+  return myImage;
 }
 
-PYBIND11_MODULE(padImage, m)
+void local_padImage(nb::module_ &m) 
 {
-  m.def("padImageF2", &padImage<itk::Image<float, 2>>);
-  m.def("padImageF3", &padImage<itk::Image<float, 3>>);
-  m.def("padImageF4", &padImage<itk::Image<float, 4>>);
+  m.def("padImage", &padImage<itk::Image<float, 2>>);
+  m.def("padImage", &padImage<itk::Image<float, 3>>);
+  m.def("padImage", &padImage<itk::Image<float, 4>>);
 }
 

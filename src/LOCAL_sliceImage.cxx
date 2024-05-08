@@ -1,21 +1,23 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/ndarray.h>
 
 #include "itkImage.h"
 #include "itkExtractImageFilter.h"
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
-template < typename ImageType, typename PixelType, unsigned int NewDimension >
-py::capsule sliceImage( py::capsule antsImage, int plane, int slice, int collapseStrategy)
+template < typename ImageType, typename SliceImageType>
+AntsImage<SliceImageType> sliceImage( AntsImage<ImageType> & antsImage, int plane, int slice, int collapseStrategy)
 {
-    typedef typename ImageType::Pointer ImagePointerType;
-    ImagePointerType itkImage = as< ImageType >( antsImage );
+    typename ImageType::Pointer itkImage = antsImage.ptr;
 
-    typedef itk::Image<PixelType, NewDimension> SliceImageType;
     typedef itk::ExtractImageFilter< ImageType, SliceImageType > FilterType;
     typename FilterType::Pointer filter = FilterType::New();
 
@@ -48,12 +50,13 @@ py::capsule sliceImage( py::capsule antsImage, int plane, int slice, int collaps
   
     filter->Update();
 
-    return wrap<SliceImageType>( filter->GetOutput() );
+    AntsImage<SliceImageType> myImage = { filter->GetOutput() };
+    return myImage;
 
 }
 
-PYBIND11_MODULE(sliceImage, m)
+void local_sliceImage(nb::module_ &m) 
 {
-    m.def("sliceImageF3", &sliceImage<itk::Image<float,3>, float, 2>);
-    m.def("sliceImageF4", &sliceImage<itk::Image<float,4>, float, 3>);
+    m.def("sliceImage", &sliceImage<itk::Image<float,3>, itk::Image<float,2>>);
+    m.def("sliceImage", &sliceImage<itk::Image<float,4>, itk::Image<float,3>>);
 }
