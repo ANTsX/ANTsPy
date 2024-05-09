@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <algorithm>
 #include <vector>
@@ -23,7 +28,8 @@
 #define RAS_TO_FSL 0
 #define FSL_TO_RAS 1
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 /**
  * Get a matrix that maps points voxel coordinates to RAS coordinates
@@ -61,9 +67,9 @@ TransformMatrixType GetVoxelSpaceToRASPhysicalSpaceMatrix(typename ImageType::Po
 
 
 template< class PixelType, unsigned int Dimension >
-py::capsule fsl2antstransform( std::vector<std::vector<float> > matrix,
-                py::capsule ants_reference,
-                py::capsule ants_moving,
+AntsTransform<itk::Transform<double,3,3>> fsl2antstransform( std::vector<std::vector<float> > matrix,
+                AntsImage<itk::Image<PixelType, Dimension>> & ants_reference,
+                AntsImage<itk::Image<PixelType, Dimension>> & ants_moving,
                 int flag )
 {
   typedef vnl_matrix_fixed<double, 4, 4>              MatrixType;
@@ -77,8 +83,8 @@ py::capsule fsl2antstransform( std::vector<std::vector<float> > matrix,
   typedef itk::Transform<double,3,3>                    TransformBaseType;
   typedef typename TransformBaseType::Pointer           TransformBasePointerType;
 
-  ImagePointerType ref = as< ImageType >( ants_reference );
-  ImagePointerType mov = as< ImageType >( ants_moving );
+  ImagePointerType ref = ants_reference.ptr;
+  ImagePointerType mov = ants_moving.ptr;
 
   MatrixType m_fsl, m_spcref, m_spcmov, m_swpref, m_swpmov, mat, m_ref, m_mov;
 
@@ -155,11 +161,12 @@ py::capsule fsl2antstransform( std::vector<std::vector<float> > matrix,
 
   TransformBasePointerType itkTransform = dynamic_cast<TransformBaseType*>( atran.GetPointer() );
 
-  return wrap_transform< TransformBaseType >( itkTransform );
+  AntsTransform<TransformBaseType> out_ants_tx = { itkTransform };
+  return out_ants_tx;
 }
 
 
-PYBIND11_MODULE(fsl2antstransform, m)
+void local_fsl2antstransform(nb::module_ &m)
 {
   m.def("fsl2antstransformF3", &fsl2antstransform<float,3>);
 }

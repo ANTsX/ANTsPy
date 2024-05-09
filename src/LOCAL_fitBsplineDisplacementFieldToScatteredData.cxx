@@ -1,7 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -13,17 +17,18 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template<unsigned int Dimension>
-py::capsule fitBsplineVectorImageToScatteredDataHelper(
-  py::array_t<double> displacementOrigins,
-  py::array_t<double> displacements,
+AntsImage<itk::VectorImage<float, Dimension>> fitBsplineVectorImageToScatteredDataHelper(
+  std::vector<std::vector<double>> displacementOrigins,
+  std::vector<std::vector<double>> displacements,
   std::vector<double> displacementWeights,
-  py::array_t<double> origin,
-  py::array_t<double> spacing,
-  py::array_t<unsigned int> size,
-  py::array_t<double> direction,
+  std::vector<double> origin,
+  std::vector<double> spacing,
+  std::vector<unsigned int> size,
+  std::vector<std::vector<double>> direction,
   unsigned int numberOfFittingLevels,
   std::vector<unsigned int> numberOfControlPoints,
   unsigned int splineOrder,
@@ -55,12 +60,12 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
   //  Define the output B-spline field domain
   //
 
-  auto originP = origin.unchecked<1>();
-  auto spacingP = spacing.unchecked<1>();
-  auto sizeP = size.unchecked<1>();
-  auto directionP = direction.unchecked<2>();
+  auto originP = origin;//.unchecked<1>();
+  auto spacingP = spacing;//.unchecked<1>();
+  auto sizeP = size;//.unchecked<1>();
+  auto directionP = direction;//.unchecked<2>();
 
-  if( originP.shape(0) == 0 || sizeP.shape(0) == 0 || spacingP.shape(0) == 0 || directionP.shape(0) == 0 )
+  if( originP.size() == 0 || sizeP.size() == 0 || spacingP.size() == 0 || directionP.size() == 0 )
     {
     throw std::invalid_argument( "one or more b-spline domain definitions are not specified." );
     }
@@ -73,12 +78,12 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
 
     for( unsigned int d = 0; d < Dimension; d++ )
       {
-      fieldOrigin[d] = originP(d);
-      fieldSpacing[d] = spacingP(d);
-      fieldSize[d] = sizeP(d);
+      fieldOrigin[d] = originP[d];
+      fieldSpacing[d] = spacingP[d];
+      fieldSize[d] = sizeP[d];
       for( unsigned int e = 0; e < Dimension; e++ )
         {
-        fieldDirection(d, e) = directionP(d, e);
+        fieldDirection(d, e) = directionP[d][e];
         }
       }
     bsplineFilter->SetBSplineDomain( fieldOrigin, fieldSpacing, fieldSize, fieldDirection );
@@ -89,14 +94,14 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
   //  Add the inputs (if they are specified)
   //
 
-  auto displacementOriginsP = displacementOrigins.unchecked<2>();
-  auto displacementsP = displacements.unchecked<2>();
+  auto displacementOriginsP = displacementOrigins;//.unchecked<2>();
+  auto displacementsP = displacements;//.unchecked<2>();
 
   typename PointSetType::Pointer pointSet = PointSetType::New();
   pointSet->Initialize();
   typename WeightsContainerType::Pointer weights = WeightsContainerType::New();
 
-  unsigned int numberOfPoints = displacementsP.shape(0);
+  unsigned int numberOfPoints = displacementsP.size();
 
   if( rasterizePoints )
     {
@@ -129,8 +134,8 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
       VectorType imageDisplacement;
       for( unsigned int d = 0; d < Dimension; d++ )
         {
-        imagePoint[d] = displacementOriginsP(n, d);
-        imageDisplacement[d] = displacementsP(n, d);
+        imagePoint[d] = displacementOriginsP[n][d];//displacementOriginsP(n, d);
+        imageDisplacement[d] = displacementsP[n][d];
         }
       typename ITKFieldType::IndexType imageIndex =
         weightImage->TransformPhysicalPointToIndex( imagePoint );
@@ -170,14 +175,14 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
       typename PointSetType::PointType point;
       for( unsigned int d = 0; d < Dimension; d++ )
         {
-        point[d] = displacementOriginsP(n, d);
+        point[d] = displacementOriginsP[n][d];
         }
       pointSet->SetPoint( n, point );
 
       VectorType data( 0.0 );
       for( unsigned int d = 0; d < Dimension; d++ )
         {
-        data[d] = displacementsP(n, d);
+        data[d] = displacementsP[n][d];
         }
       pointSet->SetPointData( n, data );
       weights->InsertElement( n, displacementWeights[n] );
@@ -226,10 +231,11 @@ py::capsule fitBsplineVectorImageToScatteredDataHelper(
     antsField->SetPixel( It.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> out_ants_image = { antsField };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(fitBsplineDisplacementFieldToScatteredData, m)
+void local_fitBsplineDisplacementFieldToScatteredData(nb::module_ &m)
 {
   m.def("fitBsplineDisplacementFieldToScatteredDataD2", &fitBsplineVectorImageToScatteredDataHelper<2>);
   m.def("fitBsplineDisplacementFieldToScatteredDataD3", &fitBsplineVectorImageToScatteredDataHelper<3>);

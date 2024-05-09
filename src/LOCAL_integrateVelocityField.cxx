@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -15,10 +20,11 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template <unsigned int Dimension>
-py::capsule integrateVelocityField( py::capsule & antsVelocityField,
+AntsImage<itk::VectorImage<float, Dimension>> integrateVelocityField( AntsImage<itk::VectorImage<float, Dimension+1>> & antsVelocityField,
                                     float lowerBound,
                                     float upperBound,
                                     unsigned int numberOfIntegrationSteps )
@@ -40,7 +46,7 @@ py::capsule integrateVelocityField( py::capsule & antsVelocityField,
   using IteratorType = itk::ImageRegionIteratorWithIndex<ITKVelocityFieldType>;
   using ConstIteratorType = itk::ImageRegionConstIteratorWithIndex<ITKFieldType>;
 
-  ANTsVelocityFieldPointerType inputVelocityField = as<ANTsVelocityFieldType>( antsVelocityField );
+  ANTsVelocityFieldPointerType inputVelocityField = antsVelocityField.ptr;
 
   ITKVelocityFieldPointerType inputITKVelocityField = ITKVelocityFieldType::New();
   inputITKVelocityField->CopyInformation( inputVelocityField );
@@ -95,10 +101,11 @@ py::capsule integrateVelocityField( py::capsule & antsVelocityField,
     antsField->SetPixel( ItI.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> out_ants_image = { antsField };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(integrateVelocityField, m)
+void local_integrateVelocityField(nb::module_ &m)
 {
   m.def("integrateVelocityFieldD2", &integrateVelocityField<2>);
   m.def("integrateVelocityFieldD3", &integrateVelocityField<3>);

@@ -201,6 +201,9 @@ void local_antsTransform(nb::module_ &m) {
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<double,3, 3>>);
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<double,4, 4>>);
 
+
+    m.def("transformPoint", &transformPoint<itk::DisplacementFieldTransform<float, 2>>);
+    m.def("transformPoint", &transformPoint<itk::DisplacementFieldTransform<float, 3>>);
     m.def("transformPoint", &transformPoint<itk::Transform<float, 2, 2>>);
     m.def("transformPoint", &transformPoint<itk::Transform<float, 3, 3>>);
     m.def("transformPoint", &transformPoint<itk::Transform<float, 4, 4>>);

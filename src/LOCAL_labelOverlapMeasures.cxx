@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -11,18 +16,18 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
-using namespace py::literals;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template<class PrecisionType, unsigned int ImageDimension>
-py::dict labelOverlapMeasures( py::capsule & antsSourceImage,
-                                  py::capsule & antsTargetImage )
+nb::dict labelOverlapMeasures( AntsImage<itk::Image<PrecisionType, ImageDimension>> &  antsSourceImage,
+                                AntsImage<itk::Image<PrecisionType, ImageDimension>> &  antsTargetImage )
 {
   using ImageType = itk::Image<PrecisionType, ImageDimension>;
   using ImagePointerType = typename ImageType::Pointer;
 
-  ImagePointerType itkSourceImage = as< ImageType >( antsSourceImage );
-  ImagePointerType itkTargetImage = as< ImageType >( antsTargetImage );
+  typename ImageType::Pointer itkSourceImage = antsSourceImage.ptr;
+  typename ImageType::Pointer itkTargetImage = antsTargetImage.ptr;
 
   using FilterType = itk::LabelOverlapMeasuresImageFilter<ImageType>;
   typename FilterType::Pointer filter = FilterType::New();
@@ -85,18 +90,19 @@ py::dict labelOverlapMeasures( py::capsule & antsSourceImage,
     i++;
     }
 
-  py::dict labelOverlapMeasures = py::dict( "Label"_a=labels,
-                                            "TotalOrTargetOverlap"_a=totalOrTargetOverlap,
-                                            "UnionOverlap"_a=unionOverlap,
-                                            "MeanOverlap"_a=meanOverlap,
-                                            "VolumeSimilarity"_a=volumeSimilarity,
-                                            "FalseNegativeError"_a=falseNegativeError,
-                                            "FalsePositiveError"_a=falsePositiveError );
+  nb::dict labelOverlapMeasures;
+  labelOverlapMeasures["Label"] = labels;
+  labelOverlapMeasures["TotalOrTargetOverlap"] = totalOrTargetOverlap;
+  labelOverlapMeasures["UnionOverlap"] = unionOverlap;
+  labelOverlapMeasures["MeanOverlap"] = meanOverlap;
+  labelOverlapMeasures["VolumeSimilarity"] = volumeSimilarity;
+  labelOverlapMeasures["FalseNegativeError"] = falseNegativeError;
+  labelOverlapMeasures["FalsePositiveError"] = falsePositiveError;
 
-  return (labelOverlapMeasures);
+  return labelOverlapMeasures;
 }
 
-PYBIND11_MODULE(labelOverlapMeasures, m)
+void local_labelOverlapMeasures(nb::module_ &m)
 {
   m.def("labelOverlapMeasures2D", &labelOverlapMeasures<unsigned int, 2>);
   m.def("labelOverlapMeasures3D", &labelOverlapMeasures<unsigned int, 3>);

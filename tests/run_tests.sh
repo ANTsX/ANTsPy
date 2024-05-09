@@ -31,10 +31,10 @@ echo "Running learn tests"
 #$PYCMD test_learn.py $@
 
 echo "Running registration tests"
-#$PYCMD test_registration.py $@
+$PYCMD test_registration.py $@
 
 echo "Running segmentation tests"
-#$PYCMD test_segmentation.py $@
+$PYCMD test_segmentation.py $@
 
 echo "Running utils tests"
 #$PYCMD test_utils.py $@

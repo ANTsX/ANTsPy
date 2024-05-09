@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -13,18 +18,19 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 
 template <unsigned int Dimension>
-double antsImageMutualInformation( py::capsule in_image1, 
-                                   py::capsule in_image2 )
+double antsImageMutualInformation( AntsImage<itk::Image< float , Dimension >> & in_image1, 
+                                   AntsImage<itk::Image< float , Dimension >> & in_image2 )
 {
   double mi = 1;
   typedef itk::Image< float , Dimension > ImageType;
   typedef typename ImageType::Pointer ImagePointerType;
-  ImagePointerType itkImage1 = as<ImageType>( in_image1 );
-  ImagePointerType itkImage2 = as<ImageType>( in_image2 );
+  ImagePointerType itkImage1 = in_image1.ptr;
+  ImagePointerType itkImage2 = in_image2.ptr;
 
   typedef itk::MattesMutualInformationImageToImageMetricv4
     <ImageType, ImageType, ImageType> MetricType;
@@ -39,8 +45,7 @@ double antsImageMutualInformation( py::capsule in_image1,
 
 }
 
-
-PYBIND11_MODULE(antsImageMutualInformation, m)
+void local_antsImageMutualInformation(nb::module_ &m)
 {
   m.def("antsImageMutualInformation2D", &antsImageMutualInformation<2>);
   m.def("antsImageMutualInformation3D", &antsImageMutualInformation<3>);

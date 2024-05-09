@@ -1,7 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -14,12 +18,13 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template<unsigned int DataDimension>
-py::array_t<double> fitBsplineCurveHelper(
-  py::array_t<double> scatteredData,
-  py::array_t<double> parametricData,
+std::vector<std::vector<double>> fitBsplineCurveHelper(
+  std::vector<std::vector<double>> scatteredData,
+  std::vector<std::vector<double>> parametricData,
   std::vector<double> dataWeights,
   std::vector<double> parametricDomainOrigin,
   std::vector<double> parametricDomainSpacing,
@@ -44,24 +49,24 @@ py::array_t<double> fitBsplineCurveHelper(
   pointSet->Initialize();
   typename WeightsContainerType::Pointer weights = WeightsContainerType::New();
 
-  auto scatteredDataR = scatteredData.unchecked<2>();
-  auto parametricDataR = parametricData.unchecked<2>();
+  auto scatteredDataR = scatteredData;//.unchecked<2>();
+  auto parametricDataR = parametricData;//.unchecked<2>();
 
-  unsigned int numberOfPoints = scatteredDataR.shape(0);
+  unsigned int numberOfPoints = scatteredDataR.size();
 
   for( unsigned int n = 0; n < numberOfPoints; n++ )
     {
     typename PointSetType::PointType point;
     for( unsigned int d = 0; d < ParametricDimension; d++ )
       {
-      point[d] = parametricDataR(n, d);
+      point[d] = parametricDataR[n][d];
       }
     pointSet->SetPoint( n, point );
 
     ScatteredDataType data( 0.0 );
     for( unsigned int d = 0; d < DataDimension; d++ )
       {
-      data[d] = scatteredDataR(n, d);
+      data[d] = scatteredDataR[n][d];
       }
     pointSet->SetPointData( n, data );
 
@@ -102,8 +107,8 @@ py::array_t<double> fitBsplineCurveHelper(
   //  is the return type.
   //
 
-  py::array_t<double> bsplineCurve({ parametricDomainSize[0], DataDimension });
-  auto bsplineCurveR = bsplineCurve.mutable_unchecked<2>();
+  std::vector<std::vector<double>> bsplineCurve(parametricDomainSize[0], std::vector<double>(DataDimension) );
+  auto bsplineCurveR = bsplineCurve;//.mutable_unchecked<2>();
 
   unsigned int count = 0;
   IteratorType It( bsplineFilter->GetOutput(),
@@ -113,7 +118,7 @@ py::array_t<double> fitBsplineCurveHelper(
     ScatteredDataType data = It.Value();
     for( unsigned int d = 0; d < DataDimension; d++ )
       {
-      bsplineCurveR(count, d) = data[d];
+      bsplineCurveR[count][d] = data[d];
       }
     count++;
     }
@@ -122,9 +127,9 @@ py::array_t<double> fitBsplineCurveHelper(
 }
 
 template<unsigned int ParametricDimension>
-py::capsule fitBsplineImageHelper(
-  py::array_t<double> scatteredData,
-  py::array_t<double> parametricData,
+AntsImage<itk::Image<float, ParametricDimension>> fitBsplineImageHelper(
+  std::vector<std::vector<double>> scatteredData,
+  std::vector<std::vector<double>> parametricData,
   std::vector<double> dataWeights,
   std::vector<double> parametricDomainOrigin,
   std::vector<double> parametricDomainSpacing,
@@ -149,24 +154,24 @@ py::capsule fitBsplineImageHelper(
   pointSet->Initialize();
   typename WeightsContainerType::Pointer weights = WeightsContainerType::New();
 
-  auto scatteredDataR = scatteredData.unchecked<2>();
-  auto parametricDataR = parametricData.unchecked<2>();
+  auto scatteredDataR = scatteredData;//.unchecked<2>();
+  auto parametricDataR = parametricData;//.unchecked<2>();
 
-  unsigned int numberOfPoints = scatteredDataR.shape(0);
+  unsigned int numberOfPoints = scatteredDataR.size();
 
   for( unsigned int n = 0; n < numberOfPoints; n++ )
     {
     typename PointSetType::PointType point;
     for( unsigned int d = 0; d < ParametricDimension; d++ )
       {
-      point[d] = parametricDataR(n, d);
+      point[d] = parametricDataR[n][d];
       }
     pointSet->SetPoint( n, point );
 
     ScatteredDataType data( 0.0 );
     for( unsigned int d = 0; d < DataDimension; d++ )
       {
-      data[d] = scatteredDataR(n, d);
+      data[d] = scatteredDataR[n][d];
       }
     pointSet->SetPointData( n, data );
 
@@ -214,13 +219,14 @@ py::capsule fitBsplineImageHelper(
   selectionFilter->SetInput( bsplineFilter->GetOutput() );
   selectionFilter->Update();
 
-  return wrap< ScalarImageType >( selectionFilter->GetOutput() );
+  AntsImage<ScalarImageType> out_ants_image = { selectionFilter->GetOutput() };
+  return out_ants_image;
 }
 
 template<unsigned int ParametricDimension, unsigned int DataDimension>
-py::capsule fitBsplineVectorImageHelper(
-  py::array_t<double> scatteredData,
-  py::array_t<double> parametricData,
+AntsImage<itk::VectorImage<float, ParametricDimension>> fitBsplineVectorImageHelper(
+  std::vector<std::vector<double>> scatteredData,
+  std::vector<std::vector<double>> parametricData,
   std::vector<double> dataWeights,
   std::vector<double> parametricDomainOrigin,
   std::vector<double> parametricDomainSpacing,
@@ -243,24 +249,24 @@ py::capsule fitBsplineVectorImageHelper(
   pointSet->Initialize();
   typename WeightsContainerType::Pointer weights = WeightsContainerType::New();
 
-  auto scatteredDataR = scatteredData.unchecked<2>();
-  auto parametricDataR = parametricData.unchecked<2>();
+  auto scatteredDataR = scatteredData;//.unchecked<2>();
+  auto parametricDataR = parametricData;//.unchecked<2>();
 
-  unsigned int numberOfPoints = scatteredDataR.shape(0);
+  unsigned int numberOfPoints = scatteredDataR.size();
 
   for( unsigned int n = 0; n < numberOfPoints; n++ )
     {
     typename PointSetType::PointType point;
     for( unsigned int d = 0; d < ParametricDimension; d++ )
       {
-      point[d] = parametricDataR(n, d);
+      point[d] = parametricDataR[n][d];
       }
     pointSet->SetPoint( n, point );
 
     ScatteredDataType data( 0.0 );
     for( unsigned int d = 0; d < DataDimension; d++ )
       {
-      data[d] = scatteredDataR(n, d);
+      data[d] = scatteredDataR[n][d];
       }
     pointSet->SetPointData( n, data );
 
@@ -329,10 +335,11 @@ py::capsule fitBsplineVectorImageHelper(
     antsField->SetPixel( It.GetIndex(), antsVector );
     }
 
-  return wrap< VectorImageType >( antsField );
+  AntsImage<VectorImageType> out_ants_image = { antsField };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(fitBsplineObjectToScatteredData, m)
+void local_fitBsplineObjectToScatteredData(nb::module_ &m)
 {
   m.def("fitBsplineObjectToScatteredDataP1D1", &fitBsplineCurveHelper<1>);
   m.def("fitBsplineObjectToScatteredDataP1D2", &fitBsplineCurveHelper<2>);

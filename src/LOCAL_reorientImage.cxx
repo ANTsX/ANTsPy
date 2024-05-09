@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -16,7 +21,8 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 /*
 template< unsigned int ImageDimension >
@@ -155,10 +161,10 @@ int reorientImage(  py::capsule in_image, std::string txfn,
 
 
 template <typename ImageType, unsigned int Dimension>
-std::vector<double> centerOfMass( py::capsule & image  )
+std::vector<double> centerOfMass( AntsImage<ImageType> & image  )
 {
   typedef typename ImageType::Pointer ImagePointerType;
-  ImagePointerType itkimage = as<ImageType>( image );
+  ImagePointerType itkimage = image.ptr;
 
   typedef typename itk::ImageMomentsCalculator<ImageType> ImageCalculatorType;
   typename ImageCalculatorType::VectorType com( Dimension );
@@ -179,14 +185,13 @@ std::vector<double> centerOfMass( py::capsule & image  )
   return myCoM;
 }
 
-
-PYBIND11_MODULE(reorientImage, m)
+void local_reorientImage(nb::module_ &m)
 {
 //  m.def("reorientImageF2", &reorientImage<itk::Image<float, 2>, 2>);
 //  m.def("reorientImageF3", &reorientImage<itk::Image<float, 3>, 3>);
 //  m.def("reorientImageF4", &reorientImage<itk::Image<float, 4>, 4>);
 
-  m.def("centerOfMassF2", &centerOfMass<itk::Image<float, 2>, 2>);
-  m.def("centerOfMassF3", &centerOfMass<itk::Image<float, 3>, 3>);
-  m.def("centerOfMassF4", &centerOfMass<itk::Image<float, 4>, 4>);
+  m.def("centerOfMass", &centerOfMass<itk::Image<float, 2>, 2>);
+  m.def("centerOfMass", &centerOfMass<itk::Image<float, 3>, 3>);
+  m.def("centerOfMass", &centerOfMass<itk::Image<float, 4>, 4>);
 }

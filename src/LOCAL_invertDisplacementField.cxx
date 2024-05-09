@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -14,11 +19,12 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template <unsigned int Dimension>
-py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
-                                     py::capsule & antsInverseFieldInitialEstimate,
+AntsImage<itk::VectorImage<float, Dimension>> invertDisplacementField( AntsImage<itk::VectorImage<float, Dimension>> & antsDisplacementField,
+                                     AntsImage<itk::VectorImage<float, Dimension>> & antsInverseFieldInitialEstimate,
                                      unsigned int maximumNumberOfIterations,
                                      float meanErrorToleranceThreshold,
                                      float maxErrorToleranceThreshold,
@@ -37,8 +43,8 @@ py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
   using IteratorType = itk::ImageRegionIteratorWithIndex<ITKFieldType>;
   using ConstIteratorType = itk::ImageRegionConstIteratorWithIndex<ITKFieldType>;
 
-  ANTsFieldPointerType inputDisplacementField = as<ANTsFieldType>( antsDisplacementField );
-  ANTsFieldPointerType inputInverseFieldInitialEstimate = as<ANTsFieldType>( antsInverseFieldInitialEstimate );
+  ANTsFieldPointerType inputDisplacementField = antsDisplacementField.ptr;
+  ANTsFieldPointerType inputInverseFieldInitialEstimate = antsInverseFieldInitialEstimate.ptr;
 
   typename ITKFieldType::PointType fieldOrigin;
   typename ITKFieldType::SpacingType fieldSpacing;
@@ -124,10 +130,11 @@ py::capsule invertDisplacementField( py::capsule & antsDisplacementField,
     antsField->SetPixel( ItI.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> out_ants_image = { antsField };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(invertDisplacementField, m)
+void local_invertDisplacementField(nb::module_ &m)
 {
   m.def("invertDisplacementFieldD2", &invertDisplacementField<2>);
   m.def("invertDisplacementFieldD3", &invertDisplacementField<3>);

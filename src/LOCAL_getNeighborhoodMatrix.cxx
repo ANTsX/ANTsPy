@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <algorithm>
 #include <vector>
@@ -26,12 +31,12 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
-using namespace py::literals;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template< class PixelType , unsigned int Dimension >
-py::dict getNeighborhoodMatrix( py::capsule ants_image,
-                                py::capsule ants_mask,
+nb::dict getNeighborhoodMatrix( AntsImage<itk::Image<PixelType, Dimension>> & ants_image,
+                                AntsImage<itk::Image<PixelType, Dimension>> & ants_mask,
                                 std::vector<int> radius,
                                 int physical,
                                 int boundary,
@@ -47,8 +52,8 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
   typedef itk::CentralDifferenceImageFunction< ImageType, RealType >  GradientCalculatorType;
   typedef itk::CovariantVector<RealType, Dimension> CovariantVectorType;
 
-  ImagePointerType image = as< ImageType >( ants_image );
-  ImagePointerType mask = as< ImageType >( ants_mask );
+  ImagePointerType image = ants_image.ptr;
+  ImagePointerType mask = ants_mask.ptr;
 
   //Rcpp::NumericVector radius( r_radius ) ;
   //int physical = Rcpp::as<int>( r_physical );
@@ -141,7 +146,10 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
         ++it;
         ++nit;
         }
-    return py::dict("matrix"_a=matrix );
+
+    nb::dict mymat;
+    mymat["matrix"] = matrix;
+    return mymat;
     }
 
   if ( ( ! spatial )  && ( getgradient ) )
@@ -218,7 +226,10 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
       }
   //return Rcpp::List::create( Rcpp::Named("values") = matrix,
   //                           Rcpp::Named("gradients") = gradients );
-  return py::dict("values"_a=matrix, "gradients"_a=gradients);
+    nb::dict res;
+    res["values"] = matrix;
+    res["gradients"] = gradients;
+  return res;
   }
 // if spatial and gradient, then just use spatial - no gradient ...
 
@@ -321,12 +332,16 @@ py::dict getNeighborhoodMatrix( py::capsule ants_image,
   //return Rcpp::List::create( Rcpp::Named("values") = matrix,
   //                             Rcpp::Named("indices") = indices,
   //                             Rcpp::Named("offsets") = offsets );
-  return py::dict("values"_a=matrix, "indices"_a=indices, "offsets"_a=offsets);
+    nb::dict res;
+    res["values"] = matrix;
+    res["indices"] = indices;
+    res["offsets"] = offsets;
+  return res;
 }
 
 
 template< class PixelType , unsigned int Dimension >
-py::dict getNeighborhood( py::capsule ants_image,
+nb::dict getNeighborhood( AntsImage<itk::Image<PixelType, Dimension>> & ants_image,
                           std::vector<float> index,
                           std::vector<float> kernel,
                           std::vector<int> radius,
@@ -338,7 +353,7 @@ py::dict getNeighborhood( py::capsule ants_image,
   typedef typename ImageType::RegionType   RegionType;
   typedef typename ImageType::IndexType    IndexType;
 
-  ImagePointerType image = as< ImageType >( ants_image );
+  ImagePointerType image = ants_image.ptr;
 
   //Rcpp::NumericVector kernel( r_kernel );
   //Rcpp::NumericVector radius( r_radius );
@@ -419,12 +434,16 @@ py::dict getNeighborhood( py::capsule ants_image,
 
   //return Rcpp::List::create( Rcpp::Named("values") = pixels,
   //                           Rcpp::Named("indices") = indices );
-  return py::dict("values"_a=pixels, "indices"_a=indices);
+
+    nb::dict res;
+    res["values"] = pixels;
+    res["indices"] = indices;
+  return res;
 
 }
 
 
-PYBIND11_MODULE(getNeighborhoodMatrix, m)
+void local_getNeighborhoodMatrix(nb::module_ &m)
 {
     m.def("getNeighborhoodMatrixUC2", &getNeighborhoodMatrix<unsigned char,2>);
     m.def("getNeighborhoodMatrixUC3", &getNeighborhoodMatrix<unsigned char,3>);

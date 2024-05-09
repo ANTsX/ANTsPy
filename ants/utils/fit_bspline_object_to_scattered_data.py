@@ -93,19 +93,17 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     >>>
     >>> import ants, numpy
     >>> import matplotlib.pyplot as plt
-    >>>
     >>> x = numpy.linspace(-4, 4, num=100)
     >>> y = numpy.exp(-numpy.multiply(x, x)) + numpy.random.uniform(-0.1, 0.1, len(x))
     >>> u = numpy.linspace(0, 1.0, num=len(x))
     >>> scattered_data = numpy.column_stack((x, y))
     >>> parametric_data = numpy.expand_dims(u, axis=-1)
     >>> spacing = 1/(len(x)-1) * 1.0;
-    >>>
-    >>> bspline_curve = ants.fit_bspline_object_to_scattered_data(scattered_data, parametric_data,
+    >>> bspline_curve = ants.fit_bspline_object_to_scattered_data(scattered_data, 
+    >>>    parametric_data,
     >>>   parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
     >>>   parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
     >>>   number_of_fitting_levels=5, mesh_size=1)
-    >>>
     >>> plt.plot(x, y, label='Noisy points')
     >>> plt.plot(bspline_curve[:,0], bspline_curve[:,1], label='B-spline curve')
     >>> plt.grid(True)
@@ -118,22 +116,17 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     >>> # Perform 2-D scalar field (i.e., image) example
     >>>
     >>> import ants, numpy
-    >>>
     >>> number_of_random_points = 10000
-    >>>
     >>> img = ants.image_read( ants.get_ants_data("r16"))
     >>> img_array = img.numpy()
     >>> row_indices = numpy.random.choice(range(2, img_array.shape[0]), number_of_random_points)
     >>> col_indices = numpy.random.choice(range(2, img_array.shape[1]), number_of_random_points)
-    >>>
     >>> scattered_data = numpy.zeros((number_of_random_points, 1))
     >>> parametric_data = numpy.zeros((number_of_random_points, 2))
-    >>>
     >>> for i in range(number_of_random_points):
     >>>     scattered_data[i,0] = img_array[row_indices[i], col_indices[i]]
     >>>     parametric_data[i,0] = row_indices[i]
     >>>     parametric_data[i,1] = col_indices[i]
-    >>>
     >>> bspline_img = ants.fit_bspline_object_to_scattered_data(
     >>>     scattered_data, parametric_data,
     >>>     parametric_domain_origin=[0.0, 0.0],
@@ -181,14 +174,14 @@ def fit_bspline_object_to_scattered_data(scattered_data,
         raise ValueError("The number of weights is not the same as the number of points.")
 
     libfn = utils.get_lib_fn("fitBsplineObjectToScatteredDataP%iD%i" % (parametric_dimension, data_dimension))
-    bspline_object = libfn(scattered_data, parametric_data, data_weights,
+    bspline_object = libfn(scattered_data.tolist(), parametric_data.tolist(), data_weights.tolist(),
                            parametric_domain_origin, parametric_domain_spacing,
-                           parametric_domain_size, is_parametric_dimension_closed,
-                           number_of_fitting_levels, number_of_control_points,
+                           parametric_domain_size, is_parametric_dimension_closed.tolist(),
+                           number_of_fitting_levels, number_of_control_points.tolist(),
                            spline_order)
 
     if parametric_dimension == 1:
-        return bspline_object
+        return np.array(bspline_object)
     else:
         bspline_image = iio.ANTsImage(pixeltype='float',
           dimension=parametric_dimension, components=data_dimension,

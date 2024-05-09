@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -15,15 +20,16 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template< class ImageType >
-int reflectionMatrixHelper( py::capsule py_image, unsigned int axis, std::string filename )
+int reflectionMatrixHelper( AntsImage<ImageType> & py_image, unsigned int axis, std::string filename )
 {
   typedef typename ImageType::Pointer       ImagePointerType;
   typedef itk::AffineTransform<double, ImageType::ImageDimension> AffineTransformType;
 
-  ImagePointerType image = as<ImageType>( py_image );
+  ImagePointerType image = py_image.ptr;
 
   typedef typename itk::ImageMomentsCalculator<ImageType> ImageCalculatorType;
   typename ImageCalculatorType::Pointer calculator = ImageCalculatorType::New();
@@ -63,26 +69,26 @@ int reflectionMatrixHelper( py::capsule py_image, unsigned int axis, std::string
 
 
 template <typename ImageType>
-int reflectionMatrixEntry( py::capsule image, unsigned int axis, std::string filename)
+int reflectionMatrixEntry( AntsImage<ImageType> & image, unsigned int axis, std::string filename)
 {
   return reflectionMatrixHelper<ImageType>( image, axis, filename );
 }
 
 
 
-PYBIND11_MODULE(reflectionMatrix, m)
+void local_reflectionMatrix(nb::module_ &m)
 {
-  m.def("reflectionMatrixUC2", &reflectionMatrixEntry<itk::Image<unsigned char, 2>>);
-  m.def("reflectionMatrixUC3", &reflectionMatrixEntry<itk::Image<unsigned char, 3>>);
-  m.def("reflectionMatrixUC4", &reflectionMatrixEntry<itk::Image<unsigned char, 4>>);
-  m.def("reflectionMatrixUI2", &reflectionMatrixEntry<itk::Image<unsigned int, 2>>);
-  m.def("reflectionMatrixUI3", &reflectionMatrixEntry<itk::Image<unsigned int, 3>>);
-  m.def("reflectionMatrixUI4", &reflectionMatrixEntry<itk::Image<unsigned int, 4>>);
-  m.def("reflectionMatrixF2", &reflectionMatrixEntry<itk::Image<float, 2>>);
-  m.def("reflectionMatrixF3", &reflectionMatrixEntry<itk::Image<float, 3>>);
-  m.def("reflectionMatrixF4", &reflectionMatrixEntry<itk::Image<float, 4>>);
-  m.def("reflectionMatrixD2", &reflectionMatrixEntry<itk::Image<double, 2>>);
-  m.def("reflectionMatrixD3", &reflectionMatrixEntry<itk::Image<double, 3>>);
-  m.def("reflectionMatrixD4", &reflectionMatrixEntry<itk::Image<double, 4>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<unsigned char, 2>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<unsigned char, 3>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<unsigned char, 4>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<unsigned int, 2>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<unsigned int, 3>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<unsigned int, 4>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<float, 2>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<float, 3>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<float, 4>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<double, 2>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<double, 3>>);
+  m.def("reflectionMatrix", &reflectionMatrixEntry<itk::Image<double, 4>>);
 }
 

@@ -4,13 +4,24 @@
 #include "LOCAL_antsImage.cxx"
 #include "LOCAL_antsImageClone.cxx"
 #include "LOCAL_antsImageHeaderInfo.cxx"
+#include "LOCAL_antsImageMutualInformation.cxx"
 #include "LOCAL_antsImageUtils.cxx"
 #include "LOCAL_antsTransform.cxx"
+#include "LOCAL_composeDisplacementFields.cxx"
 #include "LOCAL_cropImage.cxx"
+#include "LOCAL_fitBsplineDisplacementFieldToScatteredData.cxx"
+#include "LOCAL_fitBsplineObjectToScatteredData.cxx"
+#include "LOCAL_fsl2antstransform.cxx"
+#include "LOCAL_getNeighborhoodMatrix.cxx"
+#include "LOCAL_integrateVelocityField.cxx"
+#include "LOCAL_invertDisplacementField.cxx"
+#include "LOCAL_labelOverlapMeasures.cxx"
 #include "LOCAL_mergeChannels.cxx"
 #include "LOCAL_padImage.cxx"
 #include "LOCAL_readImage.cxx"
 #include "LOCAL_readTransform.cxx"
+#include "LOCAL_reflectionMatrix.cxx"
+#include "LOCAL_reorientImage.cxx"
 #include "LOCAL_reorientImage2.cxx"
 #include "LOCAL_sliceImage.cxx"
 #include "LOCAL_SmoothImage.cxx"
@@ -41,13 +52,24 @@ void local_addNoiseToImage(nb::module_ &);
 void local_antsImage(nb::module_ &);
 void local_antsImageClone(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
+void local_antsImageMutualInformation(nb::module_ &);
 void local_antsImageUtils(nb::module_ &);
 void local_antsTransform(nb::module_ &);
 void local_cropImage(nb::module_ &);
+void local_composeDisplacementFields(nb::module_ &);
+void local_fitBsplineDisplacementFieldToScatteredData(nb::module_ &);
+void local_fitBsplineObjectToScatteredData(nb::module_ &);
+void local_fsl2antstransform(nb::module_ &);
+void local_getNeighborhoodMatrix(nb::module_ &);
+void local_integrateVelocityField(nb::module_ &);
+void local_invertDisplacementField(nb::module_ &);
+void local_labelOverlapMeasures(nb::module_ &);
 void local_mergeChannels(nb::module_ &);
 void local_padImage(nb::module_ &);
 void local_readImage(nb::module_ &);
 void local_readTransform(nb::module_ &);
+void local_reflectionMatrix(nb::module_ &);
+void local_reorientImage(nb::module_ &);
 void local_reorientImage2(nb::module_ &);
 void local_sliceImage(nb::module_ &);
 void local_SmoothImage(nb::module_ &);
@@ -77,13 +99,24 @@ NB_MODULE(lib, m) {
     local_antsImage(m);
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);
+    local_antsImageMutualInformation(m);
     local_antsImageUtils(m);
     local_antsTransform(m);
+    local_composeDisplacementFields(m);
     local_cropImage(m);
+    local_fitBsplineDisplacementFieldToScatteredData(m);
+    local_fitBsplineObjectToScatteredData(m);
+    local_fsl2antstransform(m);
+    local_getNeighborhoodMatrix(m);
+    local_integrateVelocityField(m);
+    local_invertDisplacementField(m);
+    local_labelOverlapMeasures(m);
     local_mergeChannels(m);
     local_padImage(m);
     local_readImage(m);
     local_readTransform(m);
+    local_reflectionMatrix(m);
+    local_reorientImage(m);
     local_reorientImage2(m);
     local_sliceImage(m);
     local_SmoothImage(m);
