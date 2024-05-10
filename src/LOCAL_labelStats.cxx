@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include "itkImage.h"
 #include "itkLabelStatisticsImageFilter.h"
@@ -8,11 +13,11 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
-using namespace py::literals;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template< unsigned int Dimension >
-py::dict labelStatsHelper(
+nb::dict labelStatsHelper(
   typename itk::Image< float, Dimension >::Pointer image,
   typename itk::Image< unsigned int, Dimension>::Pointer labelImage)
 {
@@ -112,38 +117,40 @@ py::dict labelStatsHelper(
     if ( Dimension > 3 ) t[labelcount]=comvec[ labelcount ][3];
     }
 
-  py::dict labelStats = py::dict( "LabelValue"_a=labelvals,
-                                  "Mean"_a=means,
-                                  "Min"_a=mins,
-                                  "Max"_a=maxes,
-                                  "Variance"_a=variances,
-                                  "Count"_a=counts,
-                                  "Volume"_a=volumes,
-                                  "Mass"_a=mass,
-                                  "x"_a=x,
-                                  "y"_a=y,
-                                  "z"_a=z,
-                                  "t"_a=t );
+  nb::dict labelStats;
+  labelStats["LabelValue"] = labelvals;
+  labelStats["Mean"] = means;
+  labelStats["Min"] = mins;
+  labelStats["Max"] = maxes;
+  labelStats["Variance"] = variances;
+  labelStats["Count"] = counts;
+  labelStats["Volume"] = volumes;
+  labelStats["Mass"] = mass;
+  labelStats["x"] = x;
+  labelStats["y"] = y;
+  labelStats["z"] = z;
+  labelStats["t"] = t;
+
   return (labelStats);
 }
 
 template <unsigned int Dimension>
-py::dict labelStats(py::capsule py_image,
-                    py::capsule py_labelImage)
+nb::dict labelStats(AntsImage<itk::Image<float, Dimension>> & py_image,
+                    AntsImage<itk::Image<unsigned int, Dimension>> & py_labelImage)
 { 
   typedef itk::Image<float, Dimension> FloatImageType;
   typedef itk::Image<unsigned int, Dimension> IntImageType;
   typedef typename FloatImageType::Pointer FloatImagePointerType;
   typedef typename IntImageType::Pointer IntImagePointerType;
 
-  FloatImagePointerType myimage = as<itk::Image<float, Dimension>>( py_image );
-  IntImagePointerType mylabelimage = as<itk::Image<unsigned int, Dimension>>( py_labelImage );
+
+  FloatImagePointerType myimage = py_image.ptr;
+  IntImagePointerType mylabelimage = py_labelImage.ptr;
 
   return labelStatsHelper<Dimension>( myimage, mylabelimage );
 }
 
-
-PYBIND11_MODULE(labelStats, m)
+void local_labelStats(nb::module_ &m)
 {
   m.def("labelStats2D", &labelStats<2>);
   m.def("labelStats3D", &labelStats<3>);

@@ -11,11 +11,14 @@
 #include "LOCAL_cropImage.cxx"
 #include "LOCAL_fitBsplineDisplacementFieldToScatteredData.cxx"
 #include "LOCAL_fitBsplineObjectToScatteredData.cxx"
+#include "LOCAL_fitThinPlateSplineDisplacementFieldToScatteredData.cxx"
 #include "LOCAL_fsl2antstransform.cxx"
 #include "LOCAL_getNeighborhoodMatrix.cxx"
+#include "LOCAL_histogramMatchImages.cxx"
 #include "LOCAL_integrateVelocityField.cxx"
 #include "LOCAL_invertDisplacementField.cxx"
 #include "LOCAL_labelOverlapMeasures.cxx"
+#include "LOCAL_labelStats.cxx"
 #include "LOCAL_mergeChannels.cxx"
 #include "LOCAL_padImage.cxx"
 #include "LOCAL_readImage.cxx"
@@ -25,6 +28,7 @@
 #include "LOCAL_reorientImage2.cxx"
 #include "LOCAL_sliceImage.cxx"
 #include "LOCAL_SmoothImage.cxx"
+#include "LOCAL_weingartenImageCurvature.cxx"
 
 #include "WRAP_antsAffineInitializer.cxx"
 #include "WRAP_antsApplyTransforms.cxx"
@@ -59,11 +63,14 @@ void local_cropImage(nb::module_ &);
 void local_composeDisplacementFields(nb::module_ &);
 void local_fitBsplineDisplacementFieldToScatteredData(nb::module_ &);
 void local_fitBsplineObjectToScatteredData(nb::module_ &);
+void local_fitThinPlateSplineDisplacementFieldToScatteredData(nb::module_ &);
 void local_fsl2antstransform(nb::module_ &);
 void local_getNeighborhoodMatrix(nb::module_ &);
+void local_histogramMatchImages(nb::module_ &);
 void local_integrateVelocityField(nb::module_ &);
 void local_invertDisplacementField(nb::module_ &);
 void local_labelOverlapMeasures(nb::module_ &);
+void local_labelStats(nb::module_ &);
 void local_mergeChannels(nb::module_ &);
 void local_padImage(nb::module_ &);
 void local_readImage(nb::module_ &);
@@ -73,6 +80,7 @@ void local_reorientImage(nb::module_ &);
 void local_reorientImage2(nb::module_ &);
 void local_sliceImage(nb::module_ &);
 void local_SmoothImage(nb::module_ &);
+void local_weingartenImageCurvature(nb::module_ &);
 
 void wrap_antsAffineInitializer(nb::module_ &);
 void wrap_antsApplyTransforms(nb::module_ &);
@@ -106,11 +114,14 @@ NB_MODULE(lib, m) {
     local_cropImage(m);
     local_fitBsplineDisplacementFieldToScatteredData(m);
     local_fitBsplineObjectToScatteredData(m);
+    local_fitThinPlateSplineDisplacementFieldToScatteredData(m);
     local_fsl2antstransform(m);
     local_getNeighborhoodMatrix(m);
+    local_histogramMatchImages(m);
     local_integrateVelocityField(m);
     local_invertDisplacementField(m);
     local_labelOverlapMeasures(m);
+    local_labelStats(m);
     local_mergeChannels(m);
     local_padImage(m);
     local_readImage(m);
@@ -120,6 +131,7 @@ NB_MODULE(lib, m) {
     local_reorientImage2(m);
     local_sliceImage(m);
     local_SmoothImage(m);
+    local_weingartenImageCurvature(m);
 
     wrap_antsAffineInitializer(m);
     wrap_antsApplyTransforms(m);

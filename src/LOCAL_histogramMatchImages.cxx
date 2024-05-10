@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -11,18 +16,19 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template < typename ImageType >
-py::capsule histogramMatchImage( py::capsule & antsSourceImage,
-                                 py::capsule & antsReferenceImage,
+AntsImage<ImageType> histogramMatchImage( AntsImage<ImageType> & antsSourceImage,
+                                 AntsImage<ImageType> & antsReferenceImage,
                                  unsigned int numberOfHistogramBins,
                                  unsigned int numberOfMatchPoints,
                                  bool useThresholdAtMeanIntensity )
 {
   typedef typename ImageType::Pointer ImagePointerType;
-  ImagePointerType itkSourceImage = as< ImageType >( antsSourceImage );
-  ImagePointerType itkReferenceImage = as< ImageType >( antsReferenceImage );
+  ImagePointerType itkSourceImage = antsSourceImage.ptr;
+  ImagePointerType itkReferenceImage = antsReferenceImage.ptr;
 
   typedef itk::HistogramMatchingImageFilter<ImageType, ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
@@ -37,10 +43,11 @@ py::capsule histogramMatchImage( py::capsule & antsSourceImage,
   filter->SetNumberOfMatchPoints( numberOfMatchPoints );
   filter->Update();
 
-  return wrap< ImageType >( filter->GetOutput() );
+  AntsImage<ImageType> out_ants_image = { filter->GetOutput()  };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(histogramMatchImage, m)
+void local_histogramMatchImages(nb::module_ &m)
 {
   m.def("histogramMatchImageF2", &histogramMatchImage<itk::Image<float, 2>>);
   m.def("histogramMatchImageF3", &histogramMatchImage<itk::Image<float, 3>>);

@@ -1,6 +1,12 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
+
 
 #include <exception>
 #include <vector>
@@ -13,10 +19,10 @@
 
 #include "LOCAL_antsImage.h"
 
+namespace nb = nanobind;
+using namespace nb::literals;
 
-namespace py = pybind11;
-
-py::capsule weingartenImageCurvature( py::capsule myimage,
+AntsImage<itk::Image<float, 3>> weingartenImageCurvature( AntsImage<itk::Image<float, 3>> myimage,
                                       float sigma, int opt )
 {
   typedef itk::Image<float, 3> ImageType;
@@ -25,7 +31,7 @@ py::capsule weingartenImageCurvature( py::capsule myimage,
   enum { ImageDimension = ImageType::ImageDimension };
   typedef itk::SurfaceImageCurvature<ImageType> ParamType;
   typename ParamType::Pointer Parameterizer = ParamType::New();
-  typename ImageType::Pointer input = as<ImageType>( myimage );
+  typename ImageType::Pointer input = myimage.ptr;
   typename ImageType::DirectionType imgdir = input->GetDirection();
   typename ImageType::DirectionType iddir = input->GetDirection();
   iddir.SetIdentity();
@@ -52,12 +58,14 @@ py::capsule weingartenImageCurvature( py::capsule myimage,
       }
   typename ImageType::Pointer output = Parameterizer->GetFunctionImage();
   output->SetDirection( imgdir );
-  return wrap<ImageType>( output );
+
+  AntsImage<ImageType> outImage = { output };
+  return outImage;
 
 }
 
 
-PYBIND11_MODULE(weingartenImageCurvature, m)
+void local_weingartenImageCurvature(nb::module_ &m)
 {
   m.def("weingartenImageCurvature", &weingartenImageCurvature);
 }

@@ -84,6 +84,7 @@
     "valarray": "cpp",
     "variant": "cpp",
     "*.in": "cpp",
-    "*.inc": "cpp"
+    "*.inc": "cpp",
+    "*.tmpl": "cpp"
   }
 }

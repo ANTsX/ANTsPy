@@ -1,7 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -14,16 +18,17 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template<unsigned int Dimension>
-py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
-  py::array_t<double> displacementOrigins,
-  py::array_t<double> displacements,
-  py::array_t<double> origin,
-  py::array_t<double> spacing,
-  py::array_t<unsigned int> size,
-  py::array_t<double> direction
+AntsImage<itk::VectorImage<float, Dimension>> fitThinPlateSplineVectorImageToScatteredDataHelper(
+  std::vector<std::vector<double>> displacementOrigins,
+  std::vector<std::vector<double>> displacements,
+  std::vector<double> origin,
+  std::vector<double> spacing,
+  std::vector<unsigned int> size,
+  std::vector<std::vector<double>> direction
  )
 {
   using RealType = float;
@@ -50,12 +55,12 @@ py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
 
   auto field = ITKFieldType::New();
 
-  auto originP = origin.unchecked<1>();
-  auto spacingP = spacing.unchecked<1>();
-  auto sizeP = size.unchecked<1>();
-  auto directionP = direction.unchecked<2>();
+  auto originP = origin;//.unchecked<1>();
+  auto spacingP = spacing;//.unchecked<1>();
+  auto sizeP = size;//.unchecked<1>();
+  auto directionP = direction;//.unchecked<2>();
 
-  if( originP.shape(0) == 0 || sizeP.shape(0) == 0 || spacingP.shape(0) == 0 || directionP.shape(0) == 0 )
+  if( originP.size() == 0 || sizeP.size() == 0 || spacingP.size() == 0 || directionP.size() == 0 )
     {
     throw std::invalid_argument( "Thin-plate spline domain is not specified." );
     }
@@ -68,12 +73,12 @@ py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
 
     for( unsigned int d = 0; d < Dimension; d++ )
       {
-      fieldOrigin[d] = originP(d);
-      fieldSpacing[d] = spacingP(d);
-      fieldSize[d] = sizeP(d);
+      fieldOrigin[d] = originP[d];
+      fieldSpacing[d] = spacingP[d];
+      fieldSize[d] = sizeP[d];
       for( unsigned int e = 0; e < Dimension; e++ )
         {
-        fieldDirection(d, e) = directionP(d, e);
+        fieldDirection[d][e] = directionP[d][e];
         }
       }
     field->SetRegions( fieldSize );
@@ -91,16 +96,16 @@ py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
   PointType sourcePoint;
   PointType targetPoint;
 
-  auto displacementOriginsP = displacementOrigins.unchecked<2>();
-  auto displacementsP = displacements.unchecked<2>();
-  unsigned int numberOfPoints = displacementsP.shape(0);
+  auto displacementOriginsP = displacementOrigins;//.unchecked<2>();
+  auto displacementsP = displacements;//.unchecked<2>();
+  unsigned int numberOfPoints = displacementsP.size();//.shape(0);
 
   for( unsigned int n = 0; n < numberOfPoints; n++ )
     {
     for( unsigned int d = 0; d < Dimension; d++ )
       {
-      sourcePoint[d] = displacementOriginsP(n, d);
-      targetPoint[d] = displacementOriginsP(n, d) + displacementsP(n, d);
+      sourcePoint[d] = displacementOriginsP[n][d];
+      targetPoint[d] = displacementOriginsP[n][d] + displacementsP[n][d];
       }
     sourceLandmarkContainer->InsertElement( n, sourcePoint );
     targetLandmarkContainer->InsertElement( n, targetPoint );
@@ -138,10 +143,11 @@ py::capsule fitThinPlateSplineVectorImageToScatteredDataHelper(
     antsField->SetPixel( It.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> out_ants_image = { antsField };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(fitThinPlateSplineDisplacementFieldToScatteredData, m)
+void local_fitThinPlateSplineDisplacementFieldToScatteredData(nb::module_ &m)
 {
   m.def("fitThinPlateSplineDisplacementFieldToScatteredDataD2", &fitThinPlateSplineVectorImageToScatteredDataHelper<2>);
   m.def("fitThinPlateSplineDisplacementFieldToScatteredDataD3", &fitThinPlateSplineVectorImageToScatteredDataHelper<3>);

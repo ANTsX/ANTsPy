@@ -24,26 +24,28 @@ namespace nb = nanobind;
 using namespace nb::literals;
 
 template <typename ImageType>
-void * additiveGaussianNoise( typename ImageType::Pointer itkImage,
+AntsImage<ImageType> additiveGaussianNoise( AntsImage<ImageType> & antsImage,
                                    float mean,
                                    float standardDeviation )
 {
+  typename ImageType::Pointer itkImage = antsImage.ptr;
   using NoiseFilterType = itk::AdditiveGaussianNoiseImageFilter<ImageType, ImageType>;
   typename NoiseFilterType::Pointer noiser = NoiseFilterType::New();
   noiser->SetInput( itkImage );
   noiser->SetMean( mean );
   noiser->SetStandardDeviation( standardDeviation );
   noiser->Update();
-
-  return wrap<ImageType>( noiser->GetOutput() );
+  AntsImage<ImageType> outImage = { noiser->GetOutput() };
+  return outImage;
 }
 
 template <typename ImageType>
-void * saltAndPepperNoise( typename ImageType::Pointer itkImage,
+AntsImage<ImageType> saltAndPepperNoise( AntsImage<ImageType> & antsImage,
                                 float probability,
                                 float saltValue,
                                 float pepperValue )
 {
+  typename ImageType::Pointer itkImage = antsImage.ptr;
   using NoiseFilterType = itk::SaltAndPepperNoiseImageFilter<ImageType, ImageType>;
   typename NoiseFilterType::Pointer noiser = NoiseFilterType::New();
   noiser->SetInput( itkImage );
@@ -51,37 +53,40 @@ void * saltAndPepperNoise( typename ImageType::Pointer itkImage,
   noiser->SetSaltValue( saltValue );
   noiser->SetPepperValue( pepperValue );
   noiser->Update();
-
-  return wrap<ImageType>( noiser->GetOutput() );
+  AntsImage<ImageType> outImage = { noiser->GetOutput() };
+  return outImage;
 }
 
 template <typename ImageType>
-void * shotNoise( typename ImageType::Pointer itkImage,
+AntsImage<ImageType> shotNoise( AntsImage<ImageType> & antsImage,
                        float scale
  )
 {
+  typename ImageType::Pointer itkImage = antsImage.ptr;
   using NoiseFilterType = itk::ShotNoiseImageFilter<ImageType, ImageType>;
   typename NoiseFilterType::Pointer noiser = NoiseFilterType::New();
   noiser->SetInput( itkImage );
   noiser->SetScale( scale );
   noiser->Update();
 
-  return wrap<ImageType>( noiser->GetOutput() );
+  AntsImage<ImageType> outImage = { noiser->GetOutput() };
+  return outImage;
 }
 
 template <typename ImageType>
-void * speckleNoise( typename ImageType::Pointer itkImage,
+AntsImage<ImageType> speckleNoise( AntsImage<ImageType> & antsImage,
                           float scale
  )
 {
-
+  typename ImageType::Pointer itkImage = antsImage.ptr;
   using NoiseFilterType = itk::SpeckleNoiseImageFilter<ImageType, ImageType>;
   typename NoiseFilterType::Pointer noiser = NoiseFilterType::New();
   noiser->SetInput( itkImage );
   noiser->SetStandardDeviation( scale );
   noiser->Update();
 
-  return wrap<ImageType>( noiser->GetOutput() );
+  AntsImage<ImageType> outImage = { noiser->GetOutput() };
+  return outImage;
 }
 
 void local_addNoiseToImage(nb::module_ &m)
