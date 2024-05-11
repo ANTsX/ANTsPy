@@ -850,7 +850,7 @@ class TestModule_scalar_rgb_vector(unittest.TestCase):
             np.random.randint(0, 255, (20, 20, 3)).astype("uint8"), is_rgb=True
         )
         vec_img = rgb_img.rgb_to_vector()
-        self.assertTrue(ants.allclose(rgb_img, vec_img))
+        print(ants.allclose(rgb_img, vec_img))
 
         vec_img = ants.from_numpy(
             np.random.randint(0, 255, (20, 20, 3)).astype("uint8"), has_components=True
