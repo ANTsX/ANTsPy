@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -12,11 +17,11 @@
 #include "antscore/itkSimulatedExponentialDisplacementFieldSource.h"
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
-using namespace py::literals;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template<class PrecisionType, unsigned int Dimension>
-py::capsule simulateBsplineDisplacementField(py::capsule & antsDomainImage,
+AntsImage<itk::VectorImage<PrecisionType, Dimension>> simulateBsplineDisplacementField(AntsImage<itk::Image<PrecisionType, Dimension>> & antsDomainImage,
                                              unsigned int numberOfRandomPoints,
                                              float standardDeviationDisplacementField,
                                              bool enforceStationaryBoundary,
@@ -26,7 +31,7 @@ py::capsule simulateBsplineDisplacementField(py::capsule & antsDomainImage,
   using ImageType = itk::Image<PrecisionType, Dimension>;
   using ImagePointerType = typename ImageType::Pointer;
 
-  ImagePointerType domainImage = as< ImageType >( antsDomainImage );
+  ImagePointerType domainImage = antsDomainImage.ptr;
 
   using VectorType = itk::Vector<PrecisionType, Dimension>;
   using DisplacementFieldType = itk::Image<VectorType, Dimension>;
@@ -76,11 +81,12 @@ py::capsule simulateBsplineDisplacementField(py::capsule & antsDomainImage,
     antsField->SetPixel( It.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> outImage = { antsField };
+  return outImage;
 }
 
 template<class PrecisionType, unsigned int Dimension>
-py::capsule simulateExponentialDisplacementField(py::capsule & antsDomainImage,
+AntsImage<itk::VectorImage<PrecisionType, Dimension>> simulateExponentialDisplacementField(AntsImage<itk::Image<PrecisionType, Dimension>> & antsDomainImage,
                                                  unsigned int numberOfRandomPoints,
                                                  float standardDeviationDisplacementField,
                                                  bool enforceStationaryBoundary,
@@ -89,7 +95,7 @@ py::capsule simulateExponentialDisplacementField(py::capsule & antsDomainImage,
   using ImageType = itk::Image<PrecisionType, Dimension>;
   using ImagePointerType = typename ImageType::Pointer;
 
-  ImagePointerType domainImage = as< ImageType >( antsDomainImage );
+  ImagePointerType domainImage = antsDomainImage.ptr;
 
   using VectorType = itk::Vector<PrecisionType, Dimension>;
   using DisplacementFieldType = itk::Image<VectorType, Dimension>;
@@ -132,10 +138,11 @@ py::capsule simulateExponentialDisplacementField(py::capsule & antsDomainImage,
     antsField->SetPixel( It.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> outImage = { antsField };
+  return outImage;
 }
 
-PYBIND11_MODULE(simulateDisplacementField, m)
+void local_simulateDisplacementField(nb::module_ &m)
 {
   m.def("simulateBsplineDisplacementField2D", &simulateBsplineDisplacementField<float, 2>);
   m.def("simulateBsplineDisplacementField3D", &simulateBsplineDisplacementField<float, 3>);

@@ -20,3 +20,9 @@ std::vector<AntsImage<ImageType>> splitChannels( AntsImage<VectorImageType> & an
 
 template< class ImageType, class VectorImageType >
 AntsImage<VectorImageType> mergeChannels( std::vector<AntsImage<ImageType>> imageList );
+
+template< class ImageType, class VectorImageType >
+typename VectorImageType::Pointer mergeChannels2( std::vector<AntsImage<ImageType>> imageList );
+
+template< class ImageType, class VectorImageType >
+typename VectorImageType::Pointer mergeChannels3( std::vector<AntsImage<ImageType>> imageList );

@@ -61,6 +61,95 @@ AntsImage<VectorImageType> mergeChannels( std::vector<AntsImage<ImageType>> imag
   return outImage;
 }
 
+
+template< class ImageType, class VectorImageType >
+typename VectorImageType::Pointer mergeChannels2( std::vector<AntsImage<ImageType>> imageList )
+{
+  typedef typename ImageType::Pointer       ImagePointerType;
+  typedef typename VectorImageType::Pointer VectorImagePointerType;
+
+  unsigned int nImages = imageList.size();
+
+  std::vector<ImagePointerType> images;
+  for ( unsigned int i=0; i<nImages; i++)
+  {
+    images.push_back( imageList[i].ptr );
+  }
+
+  VectorImagePointerType vectorImage = VectorImageType::New();
+  vectorImage->SetRegions( images[0]->GetLargestPossibleRegion() );
+  vectorImage->SetSpacing( images[0]->GetSpacing() );
+  vectorImage->SetOrigin( images[0]->GetOrigin() );
+  vectorImage->SetDirection( images[0]->GetDirection() );
+  vectorImage->SetNumberOfComponentsPerPixel( nImages );
+  vectorImage->AllocateInitialized();
+
+  // Fill image data
+  itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
+    vectorImage->GetLargestPossibleRegion() );
+
+  while (!it.IsAtEnd() )
+    {
+    typename VectorImageType::PixelType pix;
+    pix.SetSize( nImages );
+    for (unsigned int i=0; i<nImages; i++)
+      {
+      pix[i] = images[i]->GetPixel(it.GetIndex());
+      }
+    vectorImage->SetPixel(it.GetIndex(), pix);
+    ++it;
+    }
+
+  //return wrap<VectorImageType>( vectorImage );
+  //AntsImage<VectorImageType> outImage = { vectorImage };
+  return vectorImage;
+}
+
+template< class ImageType, class VectorImageType >
+typename VectorImageType::Pointer mergeChannels3( std::vector<AntsImage<ImageType>> imageList )
+{
+  typedef typename ImageType::Pointer       ImagePointerType;
+  typedef typename VectorImageType::Pointer VectorImagePointerType;
+
+  unsigned int nImages = imageList.size();
+
+  std::vector<ImagePointerType> images;
+  for ( unsigned int i=0; i<nImages; i++)
+  {
+    images.push_back( imageList[i].ptr );
+  }
+
+  VectorImagePointerType vectorImage = VectorImageType::New();
+  vectorImage->SetRegions( images[0]->GetLargestPossibleRegion() );
+  vectorImage->SetSpacing( images[0]->GetSpacing() );
+  vectorImage->SetOrigin( images[0]->GetOrigin() );
+  vectorImage->SetDirection( images[0]->GetDirection() );
+  //vectorImage->SetNumberOfComponentsPerPixel( nImages );
+  vectorImage->AllocateInitialized();
+
+  // Fill image data
+  itk::ImageRegionIteratorWithIndex<VectorImageType> it( vectorImage,
+    vectorImage->GetLargestPossibleRegion() );
+
+  while (!it.IsAtEnd() )
+    {
+
+    typename VectorImageType::PixelType pix;
+    //pix.SetSize( nImages );
+    for (unsigned int i=0; i<nImages; i++)
+      {
+      pix[i] = images[i]->GetPixel(it.GetIndex());
+      }
+    vectorImage->SetPixel(it.GetIndex(), pix);
+    ++it;
+    }
+
+  //return wrap<VectorImageType>( vectorImage );
+  //AntsImage<VectorImageType> outImage = { vectorImage };
+  return vectorImage;
+}
+
+
 template< class VectorImageType, class ImageType>
 std::vector<AntsImage<ImageType>> splitChannels( AntsImage<VectorImageType> & antsimage )
 {

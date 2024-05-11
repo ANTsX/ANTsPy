@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <algorithm>
 #include <vector>
@@ -22,7 +27,8 @@
 
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template <typename MetricType>
 class ANTsImageToImageMetric {
@@ -32,13 +38,13 @@ public:
     unsigned int dimension;
     std::string metrictype;
     unsigned int isVector;
-    py::capsule pointer;
+    nb::capsule pointer;
 
     template <typename MyImageType>
-    void setFixedImage( py::capsule &, bool);
+    void setFixedImage( AntsImage<MyImageType> &, bool);
 
     template <typename MyImageType>
-    void setMovingImage( py::capsule &, bool);
+    void setMovingImage(  AntsImage<MyImageType> &, bool);
 
     void setSampling(std::string, float);
     void initialize();
@@ -61,7 +67,7 @@ ANTsImageToImageMetric<MetricType> wrap_metric( const typename MetricType::Point
     antsMetric.dimension         = MetricType::FixedImageDimension;
     antsMetric.metrictype        = itkMetric->GetNameOfClass();
     antsMetric.isVector          = 0;
-    antsMetric.pointer           = py::capsule(ptr, capsuleDestructor<MetricType>);
+    antsMetric.pointer           = nb::capsule(ptr);
 
     return antsMetric;
 }
@@ -69,7 +75,7 @@ ANTsImageToImageMetric<MetricType> wrap_metric( const typename MetricType::Point
 template <typename MetricType>
 typename MetricType::Pointer as_metric( ANTsImageToImageMetric<MetricType> & metric )
 {
-    void *ptr = metric.pointer;
+    void *ptr = metric.pointer.data();
     typename MetricType::Pointer * real  = reinterpret_cast<typename MetricType::Pointer *>(ptr); // static_cast or reinterpret_cast ??
 
     return *real;
@@ -78,7 +84,7 @@ typename MetricType::Pointer as_metric( ANTsImageToImageMetric<MetricType> & met
 
 template <typename MetricType>
 template <typename MyImageType>
-void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImage,
+void ANTsImageToImageMetric< MetricType >::setFixedImage(  AntsImage<MyImageType> & antsImage,
                                                           bool isMask )
 {
   typedef typename MetricType::FixedImageType   ImageType;
@@ -88,7 +94,7 @@ void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImag
   typedef typename ImageMaskSpatialObjectType::ImageType          MaskImageType;
 
   MetricPointerType metric = as_metric< MetricType >( *this );
-  ImagePointerType image = as< ImageType >( antsImage );
+  ImagePointerType image = antsImage.ptr;
 
   if ( isMask ) {
     typename ImageMaskSpatialObjectType::Pointer mask = ImageMaskSpatialObjectType::New();
@@ -107,7 +113,7 @@ void ANTsImageToImageMetric< MetricType >::setFixedImage( py::capsule & antsImag
 
 template <typename MetricType>
 template <typename MyImageType>
-void ANTsImageToImageMetric< MetricType >::setMovingImage( py::capsule & antsImage,
+void ANTsImageToImageMetric< MetricType >::setMovingImage(  AntsImage<MyImageType> & antsImage,
                                                           bool isMask )
 {
   typedef typename MetricType::MovingImageType  ImageType;
@@ -118,7 +124,7 @@ void ANTsImageToImageMetric< MetricType >::setMovingImage( py::capsule & antsIma
 
 
   MetricPointerType metric = as_metric< MetricType >( *this );
-  ImagePointerType image = as< ImageType >( antsImage );
+  ImagePointerType image = antsImage.ptr;
 
   if ( isMask ) {
     typename ImageMaskSpatialObjectType::Pointer mask = ImageMaskSpatialObjectType::New();
@@ -318,14 +324,14 @@ ANTsImageToImageMetric< MetricBaseType > create_ants_metric(std::string pixeltyp
                                                             unsigned int dimension,
                                                             std::string metrictype,
                                                             unsigned int isVector,
-                                                            py::capsule fixed_img,
-                                                            py::capsule moving_img )
+                                                            AntsImage<itk::Image<float, Dimension>> & fixed_img,
+                                                            AntsImage<itk::Image<float, Dimension>> & moving_img )
 {
   typedef itk::Image<float, Dimension> ImageType;
   typedef typename ImageType::Pointer  ImagePointerType;
 
-  ImagePointerType fixed = as< ImageType >( fixed_img );
-  ImagePointerType moving = as< ImageType >( moving_img );
+  ImagePointerType fixed = fixed_img.ptr;
+  ImagePointerType moving = moving_img.ptr;
 
     typedef typename MetricBaseType::Pointer  MetricBasePointerType;
 

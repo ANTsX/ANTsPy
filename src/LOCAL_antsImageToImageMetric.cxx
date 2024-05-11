@@ -1,6 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <algorithm>
 #include <vector>
@@ -21,19 +26,21 @@
 
 #include "LOCAL_antsImageToImageMetric.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
+using namespace nb::literals;
+
 
 template <typename MetricType, unsigned int Dimension>
-void wrapANTsImageToImageMetric(py::module & m, std::string const & suffix) {
-    py::class_<ANTsImageToImageMetric<MetricType>, std::shared_ptr<ANTsImageToImageMetric<MetricType>>>(m, ("ANTsImageToImageMetric" + suffix).c_str())
+void wrapANTsImageToImageMetric(nb::module_ & m, std::string const & suffix) {
+    nb::class_<ANTsImageToImageMetric<MetricType>>(m, ("ANTsImageToImageMetric" + suffix).c_str())
         //.def(py::init<>())
 
         // read only properties
-        .def_readonly("precision", &ANTsImageToImageMetric<MetricType>::precision)
-        .def_readonly("metrictype", &ANTsImageToImageMetric<MetricType>::metrictype)
-        .def_readonly("dimension", &ANTsImageToImageMetric<MetricType>::dimension)
-        .def_readonly("isVector", &ANTsImageToImageMetric<MetricType>::isVector)
-        .def_readonly("pointer", &ANTsImageToImageMetric<MetricType>::pointer)
+        .def_ro("precision", &ANTsImageToImageMetric<MetricType>::precision)
+        .def_ro("metrictype", &ANTsImageToImageMetric<MetricType>::metrictype)
+        .def_ro("dimension", &ANTsImageToImageMetric<MetricType>::dimension)
+        .def_ro("isVector", &ANTsImageToImageMetric<MetricType>::isVector)
+        .def_ro("pointer", &ANTsImageToImageMetric<MetricType>::pointer)
 
         .def("setFixedImage", &ANTsImageToImageMetric<MetricType>::template setFixedImage<itk::Image<float, Dimension>>)
         .def("setMovingImage", &ANTsImageToImageMetric<MetricType>::template setMovingImage<itk::Image<float, Dimension>>)
@@ -43,7 +50,7 @@ void wrapANTsImageToImageMetric(py::module & m, std::string const & suffix) {
 
 }
 
-PYBIND11_MODULE(antsImageToImageMetric, m) {
+void local_antsImageToImageMetric(nb::module_ &m) {
     wrapANTsImageToImageMetric<itk::ImageToImageMetricv4<itk::Image<float, 2>,itk::Image<float,2>>,2>(m, "F2");
     wrapANTsImageToImageMetric<itk::ImageToImageMetricv4<itk::Image<float, 3>,itk::Image<float,3>>,3>(m, "F3");
 

@@ -530,6 +530,7 @@ class TestModule_image_similarity(unittest.TestCase):
         x = ants.image_read(ants.get_ants_data("r16"))
         y = ants.image_read(ants.get_ants_data("r30"))
         metric = ants.image_similarity(x, y, metric_type="MeanSquares")
+        self.assertTrue(metric > 0)
 
 
 class TestModule_image_to_cluster_images(unittest.TestCase):
@@ -839,7 +840,7 @@ class TestModule_scalar_rgb_vector(unittest.TestCase):
 
         # rgb_arr = img_rgb.numpy()
         # vec_arr = img_vec.numpy()
-        print(np.allclose(img.numpy(), img.numpy()))
+        self.assertTrue(np.allclose(img.numpy(), img.numpy()))
 
     def test2(self):
         import ants
@@ -849,13 +850,13 @@ class TestModule_scalar_rgb_vector(unittest.TestCase):
             np.random.randint(0, 255, (20, 20, 3)).astype("uint8"), is_rgb=True
         )
         vec_img = rgb_img.rgb_to_vector()
-        print(ants.allclose(rgb_img, vec_img))
+        self.assertTrue(ants.allclose(rgb_img, vec_img))
 
         vec_img = ants.from_numpy(
             np.random.randint(0, 255, (20, 20, 3)).astype("uint8"), has_components=True
         )
         rgb_img = vec_img.vector_to_rgb()
-        print(ants.allclose(rgb_img, vec_img))
+        self.assertTrue(ants.allclose(rgb_img, vec_img))
 
 
 class TestRandom(unittest.TestCase):

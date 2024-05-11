@@ -5,6 +5,7 @@
 #include "LOCAL_antsImageClone.cxx"
 #include "LOCAL_antsImageHeaderInfo.cxx"
 #include "LOCAL_antsImageMutualInformation.cxx"
+#include "LOCAL_antsImageToImageMetric.cxx"
 #include "LOCAL_antsImageUtils.cxx"
 #include "LOCAL_antsTransform.cxx"
 #include "LOCAL_composeDisplacementFields.cxx"
@@ -26,6 +27,8 @@
 #include "LOCAL_reflectionMatrix.cxx"
 #include "LOCAL_reorientImage.cxx"
 #include "LOCAL_reorientImage2.cxx"
+#include "LOCAL_rgbToVector.cxx"
+#include "LOCAL_simulateDisplacementField.cxx"
 #include "LOCAL_sliceImage.cxx"
 #include "LOCAL_SmoothImage.cxx"
 #include "LOCAL_weingartenImageCurvature.cxx"
@@ -57,6 +60,7 @@ void local_antsImage(nb::module_ &);
 void local_antsImageClone(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
 void local_antsImageMutualInformation(nb::module_ &);
+void local_antsImageToImageMetric(nb::module_ &);
 void local_antsImageUtils(nb::module_ &);
 void local_antsTransform(nb::module_ &);
 void local_cropImage(nb::module_ &);
@@ -78,6 +82,8 @@ void local_readTransform(nb::module_ &);
 void local_reflectionMatrix(nb::module_ &);
 void local_reorientImage(nb::module_ &);
 void local_reorientImage2(nb::module_ &);
+void local_rgbToVector(nb::module_ &);
+void local_simulateDisplacementField(nb::module_ &);
 void local_sliceImage(nb::module_ &);
 void local_SmoothImage(nb::module_ &);
 void local_weingartenImageCurvature(nb::module_ &);
@@ -108,6 +114,7 @@ NB_MODULE(lib, m) {
     local_antsImageClone(m);
     local_antsImageHeaderInfo(m);
     local_antsImageMutualInformation(m);
+    local_antsImageToImageMetric(m);
     local_antsImageUtils(m);
     local_antsTransform(m);
     local_composeDisplacementFields(m);
@@ -129,6 +136,8 @@ NB_MODULE(lib, m) {
     local_reflectionMatrix(m);
     local_reorientImage(m);
     local_reorientImage2(m);
+    local_rgbToVector(m);
+    local_simulateDisplacementField(m);
     local_sliceImage(m);
     local_SmoothImage(m);
     local_weingartenImageCurvature(m);
