@@ -28,7 +28,7 @@ $PYCMD test_core_ants_transform_io.py $@
 $PYCMD test_core_ants_metric.py $@
 
 echo "Running learn tests"
-#$PYCMD test_learn.py $@
+$PYCMD test_learn.py $@
 
 echo "Running registration tests"
 $PYCMD test_registration.py $@

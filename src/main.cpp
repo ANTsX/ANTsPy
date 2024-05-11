@@ -28,6 +28,7 @@
 #include "LOCAL_reorientImage.cxx"
 #include "LOCAL_reorientImage2.cxx"
 #include "LOCAL_rgbToVector.cxx"
+#include "LOCAL_sccaner.cxx"
 #include "LOCAL_simulateDisplacementField.cxx"
 #include "LOCAL_sliceImage.cxx"
 #include "LOCAL_SmoothImage.cxx"
@@ -83,6 +84,7 @@ void local_reflectionMatrix(nb::module_ &);
 void local_reorientImage(nb::module_ &);
 void local_reorientImage2(nb::module_ &);
 void local_rgbToVector(nb::module_ &);
+void local_sccaner(nb::module_ &);
 void local_simulateDisplacementField(nb::module_ &);
 void local_sliceImage(nb::module_ &);
 void local_SmoothImage(nb::module_ &);
@@ -137,6 +139,7 @@ NB_MODULE(lib, m) {
     local_reorientImage(m);
     local_reorientImage2(m);
     local_rgbToVector(m);
+    local_sccaner(m);
     local_simulateDisplacementField(m);
     local_sliceImage(m);
     local_SmoothImage(m);

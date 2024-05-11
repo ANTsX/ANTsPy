@@ -1,7 +1,11 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <exception>
 #include <vector>
@@ -13,15 +17,15 @@
 #include "antscore/antsSCCANObject.h"
 #include "LOCAL_antsImage.h"
 
-namespace py = pybind11;
-using namespace py::literals;
+namespace nb = nanobind;
+using namespace nb::literals;
 
 template< class ImageType, class IntType, class RealType >
-py::dict sccanCppHelper(
-  py::array_t<double> X,
-  py::array_t<double> Y,
-  py::capsule maskXimage,
-  py::capsule maskYimage,
+nb::dict sccanCppHelper(
+  std::vector<std::vector<double>> X,
+  std::vector<std::vector<double>> Y,
+  AntsImage<ImageType> & maskXimage,
+  AntsImage<ImageType> & maskYimage,
   int maskxisnull,
   int maskyisnull,
   RealType sparsenessx,
@@ -32,8 +36,8 @@ py::dict sccanCppHelper(
   IntType cthreshy,
   RealType z,
   RealType smooth,
-  std::vector<py::capsule> initializationListx,
-  std::vector<py::capsule> initializationListy,
+  std::vector<AntsImage<ImageType>> initializationListx,
+  std::vector<AntsImage<ImageType>> initializationListy,
   IntType covering,
   RealType ell1,
   IntType verbose,
@@ -54,12 +58,12 @@ py::dict sccanCppHelper(
   typename ImageType::Pointer maskx = ITK_NULLPTR;
   if (maskxisnull > 0)
   {
-    maskx = as< ImageType >( maskXimage );
+    maskx = maskXimage.ptr;
   }
   typename ImageType::Pointer masky = ITK_NULLPTR;
   if (maskyisnull > 0)
   {
-    masky = as< ImageType >( maskYimage );
+    masky = maskYimage.ptr;
   }
 
 // deal with the initializationList, if any
@@ -68,11 +72,11 @@ py::dict sccanCppHelper(
   {
     itk::ImageRegionIteratorWithIndex<ImageType> it( maskx,
       maskx->GetLargestPossibleRegion() );
-    vMatrix priorROIMatx( nImagesx , X.shape(1) );
+    vMatrix priorROIMatx( nImagesx , X[0].size() );
     priorROIMatx.fill( 0 );
     for ( unsigned int i = 0; i < nImagesx; i++ )
     {
-      typename ImageType::Pointer init = as<ImageType>( initializationListx[i] );
+      typename ImageType::Pointer init = initializationListx[i].ptr;
       unsigned long ct = 0;
       it.GoToBegin();
       while ( !it.IsAtEnd() )
@@ -95,11 +99,11 @@ py::dict sccanCppHelper(
   {
     itk::ImageRegionIteratorWithIndex<ImageType> it( masky,
       masky->GetLargestPossibleRegion() );
-    vMatrix priorROIMaty( nImagesy , Y.shape(1) );
+    vMatrix priorROIMaty( nImagesy , Y[0].size() );
     priorROIMaty.fill( 0 );
     for ( unsigned int i = 0; i < nImagesy; i++ )
     {
-      typename ImageType::Pointer init = as<ImageType>( initializationListy[i] );
+      typename ImageType::Pointer init = initializationListy[i].ptr;
       unsigned long ct = 0;
       it.GoToBegin();
       while ( !it.IsAtEnd() )
@@ -120,14 +124,31 @@ py::dict sccanCppHelper(
   sccanobj->SetPriorWeight( priorWeight );
   sccanobj->SetLambda( priorWeight );
 // cast hack from Python type to sccan type
-  std::vector<double> xdat = X.reshape({-1}).cast<std::vector<double> >();
-  const double* _xdata = &xdat[0];
-  vMatrix vnlX( _xdata , X.shape(0), X.shape(1)  );
+  //std::vector<double> xdat = X;//.reshape({-1}).cast<std::vector<double> >();
+  //const double* _xdata = &xdat[0];
+
+    vMatrix vnlX(  X.size(), X[0].size() );
+  for (int i = 0; i < X.size(); i++)
+  {
+    for (int j = 0; j < X[0].size(); j++)
+    {
+      vnlX(i,j) = X[i][j];
+    }
+  }
+
   //vnlX = vnlX.transpose();
 
-  std::vector<double> ydat = Y.reshape({-1}).cast<std::vector<double> >();
-  const double* _ydata = &ydat[0];
-  vMatrix vnlY( _ydata , Y.shape(0), Y.shape(1)  );
+  //std::vector<double> ydat = Y.reshape({-1}).cast<std::vector<double> >();
+  //const double* _ydata = &ydat[0];
+  //vMatrix vnlY( _ydata , Y.shape(0), Y.shape(1)  );
+    vMatrix vnlY(  Y.size(), Y[0].size() );
+  for (int i = 0; i < Y.size(); i++)
+  {
+    for (int j = 0; j < Y[0].size(); j++)
+    {
+      vnlY(i,j) = Y[i][j];
+    }
+  }
   //vnlY = vnlY.transpose();
 // cast hack done
   sccanobj->SetGetSmall( false  );
@@ -183,18 +204,21 @@ py::dict sccanCppHelper(
       }
     }
 
-  py::array_t<double> eanatMatpList = py::cast(eanatMatp);
-  py::array_t<double> eanatMatqList = py::cast(eanatMatq);
+  //nb::ndarray<double> eanatMatpList = nb::cast(eanatMatp);
+  //nb::ndarray<double> eanatMatqList = nb::cast(eanatMatq);
 
-  return py::dict("eig1"_a=eanatMatpList, "eig2"_a=eanatMatqList);
+     nb::dict res;
+   res["eig1"] = eanatMatp; 
+   res["eig2"] = eanatMatq;
+   return res;
 
 }
 
 template <typename ImageType>
-py::dict sccanCpp(py::array_t<double> X,
-                   py::array_t<double> Y,
-                   py::capsule maskXimage,
-                   py::capsule maskYimage,
+nb::dict sccanCpp(std::vector<std::vector<double>> X,
+                   std::vector<std::vector<double>> Y,
+                   AntsImage<ImageType> & maskXimage,
+                   AntsImage<ImageType> & maskYimage,
                    int maskxisnull,
                    int maskyisnull,
                    float sparsenessx,
@@ -205,8 +229,8 @@ py::dict sccanCpp(py::array_t<double> X,
                    unsigned int cthreshy,
                    float z,
                    float smooth,
-                   std::vector<py::capsule> initializationListx,
-                   std::vector<py::capsule> initializationListy,
+                   std::vector<AntsImage<ImageType>> initializationListx,
+                   std::vector<AntsImage<ImageType>> initializationListy,
                    float ell1,
                    unsigned int verbose,
                    float priorWeight,
@@ -243,11 +267,11 @@ py::dict sccanCpp(py::array_t<double> X,
 
 
 template< class ImageType, class IntType, class RealType >
-py::dict sccanCppHelperV2(
+nb::dict sccanCppHelperV2(
   std::vector<std::vector<double> > X,
   std::vector<std::vector<double> > Y,
-  py::capsule maskXimage,
-  py::capsule maskYimage,
+  AntsImage<ImageType> & maskXimage,
+  AntsImage<ImageType> & maskYimage,
   int maskxisnull,
   int maskyisnull,
   RealType sparsenessx,
@@ -258,8 +282,8 @@ py::dict sccanCppHelperV2(
   IntType cthreshy,
   RealType z,
   RealType smooth,
-  std::vector<py::capsule> initializationListx,
-  std::vector<py::capsule> initializationListy,
+  std::vector<AntsImage<ImageType>> initializationListx,
+  std::vector<AntsImage<ImageType>> initializationListy,
   IntType covering,
   RealType ell1,
   IntType verbose,
@@ -280,12 +304,12 @@ py::dict sccanCppHelperV2(
   typename ImageType::Pointer maskx = ITK_NULLPTR;
   if (maskxisnull > 0)
   {
-    maskx = as< ImageType >( maskXimage );
+    maskx = maskXimage.ptr;
   }
   typename ImageType::Pointer masky = ITK_NULLPTR;
   if (maskyisnull > 0)
   {
-    masky = as< ImageType >( maskYimage );
+    masky = maskYimage.ptr;
   }
 
 // deal with the initializationList, if any
@@ -298,7 +322,7 @@ py::dict sccanCppHelperV2(
     priorROIMatx.fill( 0 );
     for ( unsigned int i = 0; i < nImagesx; i++ )
     {
-      typename ImageType::Pointer init = as<ImageType>( initializationListx[i] );
+      typename ImageType::Pointer init = initializationListx[i].ptr;
       unsigned long ct = 0;
       it.GoToBegin();
       while ( !it.IsAtEnd() )
@@ -325,7 +349,7 @@ py::dict sccanCppHelperV2(
     priorROIMaty.fill( 0 );
     for ( unsigned int i = 0; i < nImagesy; i++ )
     {
-      typename ImageType::Pointer init = as<ImageType>( initializationListy[i] );
+      typename ImageType::Pointer init = initializationListy[i].ptr;
       unsigned long ct = 0;
       it.GoToBegin();
       while ( !it.IsAtEnd() )
@@ -422,18 +446,21 @@ py::dict sccanCppHelperV2(
       }
     }
 
-  py::array_t<double> eanatMatpList = py::cast(eanatMatp);
-  py::array_t<double> eanatMatqList = py::cast(eanatMatq);
+  //nb::ndarray<double> eanatMatpList = nb::cast(eanatMatp);
+  //nb::ndarray<double> eanatMatqList = nb::cast(eanatMatq);
 
-  return py::dict("eig1"_a=eanatMatpList, "eig2"_a=eanatMatqList);
+   nb::dict res;
+   res["eig1"] = eanatMatp; 
+   res["eig2"] = eanatMatq;
+   return res;
 
 }
 
 template <typename ImageType>
-py::dict sccanCppV2(std::vector<std::vector<double> > X,
+nb::dict sccanCppV2(std::vector<std::vector<double> > X,
                    std::vector<std::vector<double> >  Y,
-                   py::capsule maskXimage,
-                   py::capsule maskYimage,
+                   AntsImage<ImageType> & maskXimage,
+                   AntsImage<ImageType> & maskYimage,
                    int maskxisnull,
                    int maskyisnull,
                    float sparsenessx,
@@ -444,8 +471,8 @@ py::dict sccanCppV2(std::vector<std::vector<double> > X,
                    unsigned int cthreshy,
                    float z,
                    float smooth,
-                   std::vector<py::capsule> initializationListx,
-                   std::vector<py::capsule> initializationListy,
+                   std::vector<AntsImage<ImageType>> initializationListx,
+                   std::vector<AntsImage<ImageType>> initializationListy,
                    float ell1,
                    unsigned int verbose,
                    float priorWeight,
@@ -480,7 +507,7 @@ py::dict sccanCppV2(std::vector<std::vector<double> > X,
 
 }
 
-PYBIND11_MODULE(sccaner, m)
+void local_sccaner(nb::module_ &m)
 {
   m.def("sccanCpp2D", &sccanCpp<itk::Image<float, 2>>);
   m.def("sccanCpp3D", &sccanCpp<itk::Image<float, 3>>);
