@@ -16,6 +16,7 @@
 #include "LOCAL_fitThinPlateSplineDisplacementFieldToScatteredData.cxx"
 #include "LOCAL_fsl2antstransform.cxx"
 #include "LOCAL_getNeighborhoodMatrix.cxx"
+#include "LOCAL_hausdorffDistance.cxx"
 #include "LOCAL_histogramMatchImages.cxx"
 #include "LOCAL_integrateVelocityField.cxx"
 #include "LOCAL_invertDisplacementField.cxx"
@@ -73,6 +74,7 @@ void local_fitBsplineObjectToScatteredData(nb::module_ &);
 void local_fitThinPlateSplineDisplacementFieldToScatteredData(nb::module_ &);
 void local_fsl2antstransform(nb::module_ &);
 void local_getNeighborhoodMatrix(nb::module_ &);
+void local_hausdorffDistance(nb::module_ &);
 void local_histogramMatchImages(nb::module_ &);
 void local_integrateVelocityField(nb::module_ &);
 void local_invertDisplacementField(nb::module_ &);
@@ -129,6 +131,7 @@ NB_MODULE(lib, m) {
     local_fitThinPlateSplineDisplacementFieldToScatteredData(m);
     local_fsl2antstransform(m);
     local_getNeighborhoodMatrix(m);
+    local_hausdorffDistance(m);
     local_histogramMatchImages(m);
     local_integrateVelocityField(m);
     local_invertDisplacementField(m);

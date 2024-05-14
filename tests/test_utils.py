@@ -957,6 +957,13 @@ class TestRandom(unittest.TestCase):
         # should see original label regions preserved in dilated version
         # label N should have mean N and 0 variance
         print(ants.label_stats(labels_dilated, labels))
+        
+    def test_hausdorff_distance(self):
+        r16 = ants.image_read( ants.get_ants_data('r16') )
+        r64 = ants.image_read( ants.get_ants_data('r64') )
+        s16 = ants.kmeans_segmentation( r16, 3 )['segmentation']
+        s64 = ants.kmeans_segmentation( r64, 3 )['segmentation']
+        stats = ants.hausdorff_distance(s16, s64)
 
 
 if __name__ == "__main__":

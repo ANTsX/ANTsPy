@@ -62,7 +62,6 @@ std::string ptrstr(AntsImage<ImageType> & myPointer)
     std::stringstream ss;
     ss << (void const *)itkImage;
     std::string s = ss.str();
-    //const char * file = s.c_str();
     return s;
 }
 
