@@ -216,6 +216,11 @@ class TestModule_random(unittest.TestCase):
                                                 number_of_iterations=1,
                                                 number_of_clusters=2,
                                                 number_of_atropos_iterations=1)
+        
+    def test_anti_alias(self):
+        img = ants.image_read(ants.get_data('r16'))
+        mask = ants.get_mask(img)
+        mask_aa = ants.anti_alias(mask)
 
 if __name__ == '__main__':
     run_tests()

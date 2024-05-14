@@ -104,7 +104,7 @@ def get_center_of_mass(image):
     if image.pixeltype != 'float':
         image = image.clone('float')
 
-    libfn = utils.get_lib_fn('centerOfMass%s' % image._libsuffix)
+    libfn = utils.get_lib_fn('centerOfMass')
     com = libfn(image.pointer)
 
     return tuple(com)

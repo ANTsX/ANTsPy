@@ -530,6 +530,7 @@ class TestModule_image_similarity(unittest.TestCase):
         x = ants.image_read(ants.get_ants_data("r16"))
         y = ants.image_read(ants.get_ants_data("r30"))
         metric = ants.image_similarity(x, y, metric_type="MeanSquares")
+        self.assertTrue(metric > 0)
 
 
 class TestModule_image_to_cluster_images(unittest.TestCase):
@@ -956,6 +957,13 @@ class TestRandom(unittest.TestCase):
         # should see original label regions preserved in dilated version
         # label N should have mean N and 0 variance
         print(ants.label_stats(labels_dilated, labels))
+        
+    def test_hausdorff_distance(self):
+        r16 = ants.image_read( ants.get_ants_data('r16') )
+        r64 = ants.image_read( ants.get_ants_data('r64') )
+        s16 = ants.kmeans_segmentation( r16, 3 )['segmentation']
+        s64 = ants.kmeans_segmentation( r64, 3 )['segmentation']
+        stats = ants.hausdorff_distance(s16, s64)
 
 
 if __name__ == "__main__":

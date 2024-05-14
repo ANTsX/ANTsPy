@@ -13,7 +13,6 @@ if [[ "$TRAVIS" == "true" ]] ; then
   JTHREADS=2
 fi
 
-#cd ./src
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 itktag=4535548a8539757c5fe9d81f8de5d804cd0a384f # 2024-03-12
 # if there is a directory but no git, remove it
@@ -32,11 +31,9 @@ if [[ -d .git ]]; then
     git checkout $itktag
     rm -rf .git
 fi
+
 # go back to main dir
 cd ../
-#if [[ ! -d ../data/ ]] ; then
-#  mkdir -p ../data
-#fi
 
 echo "Dependency;GitTag" > ./data/softwareVersions.csv
 echo "ITK;${itktag}" >> ./data/softwareVersions.csv
@@ -79,4 +76,4 @@ cmake \
     -DCMAKE_VISIBILITY_INLINES_HIDDEN:BOOL=ON ../itksource/
 make -j ${j:-4}
 
-cd ../
+cd ../../

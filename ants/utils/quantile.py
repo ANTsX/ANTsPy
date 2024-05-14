@@ -180,9 +180,9 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
         pvals = res.pvalues
         bvals = res.params
         for v in range( len( modelNames ) ):
-            bValsOut[v][k] = bvals[v]
-            pValsOut[v][k] = pvals[v]
-            tValsOut[v][k] = tvals[v]
+            bValsOut[v][k] = bvals.iloc[v]
+            pValsOut[v][k] = pvals.iloc[v]
+            tValsOut[v][k] = tvals.iloc[v]
 
     bValsOutDict = { }
     tValsOutDict = { }

@@ -50,7 +50,7 @@ def crop_image(image, label_image=None, label=1):
     if label_image.pixeltype != 'float':
         label_image = label_image.clone('float')
 
-    libfn = utils.get_lib_fn('cropImageF%i' % ndim)
+    libfn = utils.get_lib_fn('cropImage')
     itkimage = libfn(image.pointer, label_image.pointer, label, 0, [], [])
     return iio.ANTsImage(pixeltype='float', dimension=ndim, 
                         components=image.components, pointer=itkimage).clone(inpixeltype)
@@ -96,7 +96,7 @@ def crop_indices(image, lowerind, upperind):
     if (image.dimension != len(lowerind)) or (image.dimension != len(upperind)):
         raise ValueError('image dimensionality and index length must match')
 
-    libfn = utils.get_lib_fn('cropImageF%i' % image.dimension)
+    libfn = utils.get_lib_fn('cropImage')
     itkimage = libfn(image.pointer, image.pointer, 1, 2, lowerind, upperind)
     ants_image = iio.ANTsImage(pixeltype='float', dimension=image.dimension,
                         components=image.components, pointer=itkimage)
@@ -139,7 +139,7 @@ def decrop_image(cropped_image, full_image):
     if full_image.pixeltype != 'float':
         full_image = full_image.clone('float')
     
-    libfn = utils.get_lib_fn('cropImageF%i' % cropped_image.dimension)
+    libfn = utils.get_lib_fn('cropImage')
     itkimage = libfn(cropped_image.pointer, full_image.pointer, 1, 1, [], [])
     ants_image = iio.ANTsImage(pixeltype='float', dimension=cropped_image.dimension,
                         components=cropped_image.components, pointer=itkimage)

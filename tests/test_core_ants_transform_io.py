@@ -31,12 +31,18 @@ class TestModule_ants_transform_io(unittest.TestCase):
         self.txs = [tx2d, tx3d]
         self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
 
-        self.matrix_offset_types = {'AffineTransform', 'CenteredAffineTransform',
-                         'Euler2DTransform', 'Euler3DTransform',
-                         'Rigid2DTransform', 'QuaternionRigidTransform',
-                         'Similarity2DTransform', 'CenteredSimilarity2DTransform',
-                         'Similarity3DTransform', 'CenteredRigid2DTransform',
-                         'CenteredEuler3DTransform', 'Rigid3DTransform'}
+        self.matrix_offset_types = ['AffineTransform', 
+                                    'CenteredAffineTransform',
+                                    'Euler2DTransform',
+                                    'Euler3DTransform',
+                                    'Rigid2DTransform',
+                                    'QuaternionRigidTransform',
+                                    'Similarity2DTransform',
+                                    'CenteredSimilarity2DTransform',
+                                    'Similarity3DTransform', 
+                                    'CenteredRigid2DTransform',
+                                    'CenteredEuler3DTransform', 
+                                    'Rigid3DTransform']
 
     def tearDown(self):
         pass
@@ -50,9 +56,9 @@ class TestModule_ants_transform_io(unittest.TestCase):
 
     def test_create_ants_transform(self):
         for mtype in self.matrix_offset_types:
-            for ptype in {'float','double'}:
-                for ndim in {2,3}:
-                    tx = ants.create_ants_transform(transform_type=mtype, precision=ptype, dimension=ndim)
+            for ptype in {'float', 'double'}:
+                for ndim in {2, 3}:
+                    ants.create_ants_transform(transform_type=mtype, precision=ptype, dimension=ndim)
 
         # supported types
         tx = ants.create_ants_transform(supported_types=True)
@@ -61,7 +67,7 @@ class TestModule_ants_transform_io(unittest.TestCase):
         translation = (3,4,5)
         tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation )
 
-        translation = np.array([3,4,5])
+        #translation = np.array([3,4,5])
         tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation )
 
         # invalid dimension
@@ -89,7 +95,25 @@ class TestModule_ants_transform_io(unittest.TestCase):
         # file doesnt exist
         with self.assertRaises(Exception):
             ants.read_transform('blah-blah.mat')
-
+            
+    def test_from_displacement(self):
+        fi = ants.image_read(ants.get_ants_data('r16') )
+        mi = ants.image_read(ants.get_ants_data('r64') )
+        fi = ants.resample_image(fi,(60,60),1,0)
+        mi = ants.resample_image(mi,(60,60),1,0) # speed up
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
+        vec = ants.image_read( mytx['fwdtransforms'][0] )
+        atx = ants.transform_from_displacement_field( vec )
+        
+    def test_to_displacement(self):
+        fi = ants.image_read(ants.get_ants_data('r16') )
+        mi = ants.image_read(ants.get_ants_data('r64') )
+        fi = ants.resample_image(fi,(60,60),1,0)
+        mi = ants.resample_image(mi,(60,60),1,0) # speed up
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
+        vec = ants.image_read( mytx['fwdtransforms'][0] )
+        atx = ants.transform_from_displacement_field( vec )
+        field = ants.transform_to_displacement_field( atx, fi )    
 
 
 if __name__ == '__main__':

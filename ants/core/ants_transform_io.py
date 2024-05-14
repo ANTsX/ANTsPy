@@ -253,7 +253,7 @@ def transform_from_displacement_field(field):
     """
     if not isinstance(field, iio.ANTsImage):
         raise ValueError("field must be ANTsImage type")
-    libfn = utils.get_lib_fn("antsTransformFromDisplacementFieldF%i" % field.dimension)
+    libfn = utils.get_lib_fn("antsTransformFromDisplacementField")
     field = field.clone("float")
     txptr = libfn(field.pointer)
     return tio.ANTsTransform(
@@ -295,7 +295,7 @@ def transform_to_displacement_field(xfrm, ref):
 
     if not xfrm.type == 'DisplacementFieldTransform':
         raise ValueError("Transform must be of DisplacementFieldTransform type")
-    libfn = utils.get_lib_fn("antsTransformToDisplacementFieldF%i" % xfrm.dimension)
+    libfn = utils.get_lib_fn("antsTransformToDisplacementField")
     field_ptr = libfn(xfrm.pointer, ref.pointer)
     return iio.ANTsImage( pixeltype=xfrm.precision,
                           dimension=xfrm.dimension,
@@ -379,5 +379,5 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    libfn = utils.get_lib_fn("writeTransform%s" % (transform._libsuffix))
+    libfn = utils.get_lib_fn("writeTransform")
     libfn(transform.pointer, filename)

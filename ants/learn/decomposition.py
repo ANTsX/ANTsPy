@@ -197,7 +197,8 @@ def sparse_decom2(inmatrix,
                         initialization_list, initialization_list2,
                         ell1, verbose,
                         prior_weight, mycoption, max_based)
-
+    outval['eig1'] = np.array(outval['eig1'])
+    outval['eig2'] = np.array(outval['eig2'])
 
     p1 = np.dot(input_matrices[0], outval['eig1'].T)
     p2 = np.dot(input_matrices[1], outval['eig2'].T)
@@ -229,6 +230,8 @@ def sparse_decom2(inmatrix,
                                 initialization_list, initialization_list2,
                                 ell1, verbose,
                                 prior_weight, mycoption, max_based)
+            outvalperm['eig1'] = np.array(outvalperm['eig1'])
+            outvalperm['eig2'] = np.array(outvalperm['eig2'])
             p1perm = np.dot(m1, outvalperm['eig1'].T)
             p2perm = np.dot(m2, outvalperm['eig2'].T)
             outcorrsperm = np.array([pearsonr(p1perm[:,i],p2perm[:,i])[0] for i in range(p1perm.shape[1])])

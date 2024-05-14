@@ -42,7 +42,7 @@ def slice_image(image, axis, idx, collapse_strategy=0):
     if image.pixeltype != 'float':
         image = image.clone('float')
 
-    libfn = utils.get_lib_fn('sliceImageF%i' % ndim)
+    libfn = utils.get_lib_fn('sliceImage')
     itkimage = libfn(image.pointer, axis, idx, collapse_strategy)
 
     return iio.ANTsImage(pixeltype='float', dimension=ndim-1, 
