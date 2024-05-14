@@ -109,20 +109,21 @@ class TestModule_ants_image_io(unittest.TestCase):
             self.assertTrue(ants.image_physical_space_consistency(img2,mask))
 
             # set with arr.ndim > 1
-            img2 = ants.make_image(mask, voxval=np.expand_dims(arr,-1))
+            img2 = ants.make_image(mask, voxval=np.expand_dims(arr.numpy(),-1))
             nptest.assert_allclose(img2.numpy(), (img*mask).numpy())
             self.assertTrue(ants.image_physical_space_consistency(img2,mask))
 
-            #with self.assertRaises(Exception):
-            #    # wrong number of non-zero voxels
-            #    img3 = ants.make_image(img, voxval=arr)
+            with self.assertRaises(Exception):
+                # wrong number of non-zero voxels
+                img3 = ants.make_image(img, voxval=np.random.randn((100)))
 
 
     def test_matrix_to_images(self):
         # def matrix_to_images(data_matrix, mask):
         for img in self.imgs:
             imgmask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-            data = img[imgmask]
+            data = img[imgmask].numpy()
+            data = data[data > 0]
             dataflat = data.reshape(1,-1)
             mat = np.vstack([dataflat,dataflat]).astype('float32')
             imglist = ants.matrix_to_images(mat, imgmask)
