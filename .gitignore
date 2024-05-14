@@ -3,6 +3,7 @@ sandbox/
 softwareVersions.csv
 ants/version.py
 version.py
+.vscode
 
 itkbuild/
 itksource/
