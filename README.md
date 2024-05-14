@@ -13,7 +13,7 @@
 
 <br>
 
-The antspy library wraps the well-established C++ biomedical image processing framework <i>[ANTs](https://github.com/antsx/ants)</i>. It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
+The ANTsPy library wraps the well-established C++ biomedical image processing framework <i>[ANTs](https://github.com/antsx/ants)</i>. It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
 
 If you are looking to train deep learning models on your medical images, you might be interested in [antspynet](https://github.com/antsx/antspy) which provides tools for training and visualizing deep learning models. ANTsPy and ANTsPyNet seamlessly integrate with the greater Python community, particularly deep learning libraries, scikit-learn, and numpy.
 
@@ -21,7 +21,7 @@ If you are looking to train deep learning models on your medical images, you mig
 
 ## Installation
 
-The easiest way to install antspy is via the latest pre-compiled binaries from PyPI.
+The easiest way to install ANTsPy is via the latest pre-compiled binaries from PyPI.
 
 ```bash
 pip install antspyx
@@ -37,7 +37,7 @@ cd antspy
 python -m pip install .
 ```
 
-Further details about installing antspy or building it from source can be found in the
+Further details about installing ANTsPy or building it from source can be found in the
 [installation tutorial](https://github.com/antsx/antspy/blob/master/tutorials/Installation.md).
 
 <br>
