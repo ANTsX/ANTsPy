@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "antspy"
-version = "0.6.0"
+version = "0.5.3"
 description = "A fast medical imaging library with comprehensive processing algorithms"
 readme = "README.md"
 requires-python = ">=3.8"
