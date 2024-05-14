@@ -12,14 +12,11 @@ find_package(Python 3.8
 # Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
 
-# TODO: make this run only if ITK + ANTs are not already built (for now: comment these 2 lines out to quickly rebuild antspy)
-# TODO: handle different OS either here or within the configure script
-# TODO: move this outside of CMakeLists.txt like in the old antspy (issue: how to run scripts from pyproject.toml?)
-
+# TODO: make this run only if ITK + ANTs are not already built
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   execute_process(COMMAND cmd /c ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.bat)
   execute_process(COMMAND cmd /c ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.bat)
-else
+else()
   execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
   execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
 endif()
