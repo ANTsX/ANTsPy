@@ -1,13 +1,6 @@
 :: Converted with the help of https://daniel-sc.github.io/bash-shell-to-bat-converter/
 :: @echo off
 
-:: clone pybind11 into library directory
-cd ants\lib
-if not exist %USERPROFILE%\pybind11\  (
-  git clone https://github.com/stnava/pybind11.git
-)
-cd ..\..
-
 echo %USERPROFILE%
 
 :: create local ~/.antspy dir and move package data to it
@@ -20,7 +13,7 @@ COPY data\* %USERPROFILE%\.antspy
 SET antsgit=https://github.com/ANTsX/ANTs.git
 SET antstag=35d9381721b143c7bbd9d5f7f4ad853406351c1c
 echo "ANTS;%antstag%" REM UNKNOWN: {"type":"Redirect","op":{"text":">>","type":"dgreat"},"file":{"text":"./data/softwareVersions.csv","type":"Word"}}
-cd ants\lib
+cd src
 echo "123"
 :: if antscore doesnt exist, create it
 if not exist "antscore\" (
