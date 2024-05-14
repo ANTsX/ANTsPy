@@ -135,10 +135,8 @@ jobs:
       - name: Get package name and version (Windows)
         if: startsWith(matrix.os, 'windows-')
         run: |
-          echo "PACKAGE_NAME=$( python -c "import toml; print(toml.load('pyproject.toml')['project']['name'])" ) | Out-File -FilePath $env:GITHUB_ENV `
-          -Append
-          echo "PACKAGE_VERSION=$( python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])" ) | Out-File -FilePath $env:GITHUB_ENV `
-          -Append
+          echo "PACKAGE_NAME=$( python -c "import toml; print(toml.load('pyproject.toml')['project']['name'])" ) | Out-File -FilePath $env:GITHUB_ENV ` -Append
+          echo "PACKAGE_VERSION=$( python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])" ) | Out-File -FilePath $env:GITHUB_ENV ` -Append
       - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
