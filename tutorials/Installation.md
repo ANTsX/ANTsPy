@@ -1,32 +1,84 @@
+## Installing specific versions
 
-## Installing ANTsPy
+We cannot store the entire history of releases because storage space on `pip` is limited. If you need an older release, you can check the [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or
+build from source.
+
+which will attempt to build from source (requires a machine with developer tools).
+
+## Recent wheels
+
+Non-release commits have wheels built automatically, which are available for download for a limited period.
+Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions). Then click on the commit for the software version you want.
+Recent commits will have wheels stored as "artifacts".
+
+Wheels are built locally like this:
+
+```
+rm -r -f build/ antspymm.egg-info/ dist/
+python3 setup.py sdist bdist_wheel
+pipx run twine upload dist/*
+```
+
+## Docker images
+
+Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). To build
+ANTsPy docker images, see the (installation tutorial)(https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md#docker-installation).
+
+## Other notes on compilation
+
+In some cases, you may need some other libraries if they are not already installed eg if cmake says something about
+a missing png library or a missing `Python.h` file.
+
+```
+sudo apt-get install libblas-dev liblapack-dev
+sudo apt-get install gfortran
+sudo apt-get install libpng-dev
+sudo apt-get install python3-dev  # for python3.x installs
+```
+
+### Build documentation
+
+```
+cd docs
+sphinx-apidoc -o source/ ../
+make html
+```
+
+## Installation methods
 
 ### Method 1: Pre-Compiled Binaries (preferred)
+
 The fastest method is to install the pre-compiled binaries for the latest
 stable, weekly release (takes ~1 min):
 
 If you have MacOS:
+
 ```bash
 pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.8/antspyx-0.1.8-cp37-cp37m-macosx_10_14_x86_64.whl
 ```
 
 If you have Linux:
+
 ```bash
 pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.2.0/antspyx-0.2.0-cp37-cp37m-linux_x86_64.whl
 ```
 
-------------------------------------------------------------------------------
+---
+
 ### Method 2: Github Master Branch
+
 If you want the latest code, you can install directly from source (takes ~45 min):
 
 ```bash
 pip install git+https://github.com/ANTsX/ANTsPy.git
 ```
+
 with an option to specify the branch or particular release by `@v0.1.6` on the end of the path.
 
-------------------------------------------------------------------------------
+---
 
 ### Method 3: PyPI Source Distribution
+
 If this doesn't work, you should install the latest stable source release from PyPI (takes ~45 min):
 
 ```bash
@@ -64,9 +116,9 @@ follow these commands:
 
 background:
 
-* follow python3.6 installation from [here](https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7)
-* create a virtual environment.
-* clone `ANTsPy`
+- follow python3.6 installation from [here](https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7)
+- create a virtual environment.
+- clone `ANTsPy`
 
 then call
 
@@ -95,7 +147,7 @@ help( ants.vol )
 help( ants.sparse_decom2 )
 ```
 
-------------------------------------------------------------------------------
+---
 
 ## Docker Installation
 
