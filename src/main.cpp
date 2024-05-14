@@ -4,6 +4,7 @@
 #include "antiAlias.cxx"
 #include "antsImage.cxx"
 #include "antsImageClone.cxx"
+#include "antsGetItem.cxx"
 #include "antsImageHeaderInfo.cxx"
 #include "antsImageMutualInformation.cxx"
 #include "antsImageToImageMetric.cxx"
@@ -62,6 +63,7 @@ void local_addNoiseToImage(nb::module_ &);
 void local_antiAlias(nb::module_ &);
 void local_antsImage(nb::module_ &);
 void local_antsImageClone(nb::module_ &);
+void local_antsGetItem(nb::module_ &);
 void local_antsImageHeaderInfo(nb::module_ &);
 void local_antsImageMutualInformation(nb::module_ &);
 void local_antsImageToImageMetric(nb::module_ &);
@@ -119,6 +121,7 @@ NB_MODULE(lib, m) {
     local_antiAlias(m);
     local_antsImage(m);
     local_antsImageClone(m);
+    local_antsGetItem(m);
     local_antsImageHeaderInfo(m);
     local_antsImageMutualInformation(m);
     local_antsImageToImageMetric(m);

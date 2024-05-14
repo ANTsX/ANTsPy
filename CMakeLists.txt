@@ -13,13 +13,13 @@ find_package(Python 3.8
 find_package(nanobind CONFIG REQUIRED)
 
 # TODO: make this run only if ITK + ANTs are not already built
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  execute_process(COMMAND cmd /c ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.bat)
-  execute_process(COMMAND cmd /c ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.bat)
-else()
-  execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
-  execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
-endif()
+#if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+#  execute_process(COMMAND cmd /c ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.bat)
+#  execute_process(COMMAND cmd /c ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.bat)
+#else()
+#  execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ITK.sh)
+#  execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/configure_ANTs.sh)
+#endif()
 
 # ITK
 set(ITK_DIR "./itkbuild")

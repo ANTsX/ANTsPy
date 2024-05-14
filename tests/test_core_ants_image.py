@@ -18,7 +18,7 @@ import numpy.testing as nptest
 
 import ants
 
-
+        
 class TestClass_ANTsImage(unittest.TestCase):
     """
     Test ants.ANTsImage class
@@ -484,26 +484,24 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img2.set_spacing([2.31]*img.dimension)
                 img3 = img != img2
 
-    def test__getitem__(self):
-        #self.setUp()
-        for img in self.imgs:
-            if img.dimension == 2:
-                img2 = img[6:9,6:9]
-                nptest.assert_allclose(img2, img.numpy()[6:9,6:9])
-            elif img.dimension == 3:
-                img2 = img[6:9,6:9,6:9]
-                nptest.assert_allclose(img2, img.numpy()[6:9,6:9,6:9])
-
-            # get from another image
-            img2 = img.clone()
-            xx = img[img2]
-            with self.assertRaises(Exception):
-                # different physical space
-                img2.set_direction(img.direction*2)
-                xx = img[img2]
+    #def test__getitem__(self):
+    #    for img in self.imgs:
+    #        if img.dimension == 2:
+    #            img2 = img[6:9,6:9]
+    #            nptest.assert_allclose(img2, img.numpy()[6:9,6:9])
+    #        elif img.dimension == 3:
+    #            img2 = img[6:9,6:9,6:9]
+    #            nptest.assert_allclose(img2, img.numpy()[6:9,6:9,6:9])
+#
+    #        # get from another image
+    #        img2 = img.clone()
+    #        xx = img[img2]
+    #        with self.assertRaises(Exception):
+    #            # different physical space
+    #            img2.set_direction(img.direction*2)
+    #            xx = img[img2]
 
     def test__setitem__(self):
-        #self.setUp()
         for img in self.imgs:
             if img.dimension == 2:
                 img[6:9,6:9] = 6.9

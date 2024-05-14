@@ -68,7 +68,7 @@ class ANTsImage(object):
         self.pixeltype = pixeltype
         self.dimension = dimension
         self.components = components
-        self.has_components = self.components > 1
+        self.has_components = self.components > 1 or 'AntsImageV' in str(type(pointer))
         self.dtype = _itk_to_npy_map[self.pixeltype]
         self.is_rgb = is_rgb
 
@@ -560,15 +560,57 @@ class ANTsImage(object):
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
-        if self._array is None:
-            self._array = self.numpy()
-
+        """
+        import ants
+        img = ants.image_read(ants.get_data('mni'))
+        img2 = img[:10,:20,:10]
+        img3 = img[:10,:20,10]
+        img3 = img[:10,10,:20]
+        """
+        if self.has_components:
+            return utils.merge_channels([
+                img[idx] for img in utils.split_channels(self)
+            ])
+        
         if isinstance(idx, ANTsImage):
-            if not image_physical_space_consistency(self, idx):
-                raise ValueError('images do not occupy same physical space')
-            return self._array.__getitem__(idx.numpy().astype('bool'))
-        else:
-            return self._array.__getitem__(idx)
+            arr = self.numpy()
+            other = idx.numpy()
+            arr[other == 0] = 0
+            return self.new_image_like(arr)
+    
+        ndim = len(idx)
+        sizes = list(self.shape)
+        starts = [0] * ndim
+        
+        for i in range(ndim):
+            ti = idx[i]
+            if isinstance(ti, slice):
+                if ti.start:
+                    starts[i] = ti.start
+                if ti.stop:
+                    sizes[i] = ti.stop - starts[i]
+                else:
+                    sizes[i] = self.shape[i] - starts[i]
+                    
+                if ti.stop and ti.start:
+                    if ti.stop < ti.start:
+                        raise Exception('Reverse indexing is not supported.')
+                
+            elif isinstance(ti, int):
+                starts[i] = ti
+                sizes[i] = 0
+                
+            if sizes[i] == 0:
+                ndim -= 1
+        
+        if ndim < 2:
+            return self.numpy().__getitem__(idx)
+        
+        libfn = utils.get_lib_fn('getItem%i' % ndim)
+        new_ptr = libfn(self.clone('float').pointer, starts, sizes)
+        new_image = ANTsImage(pixeltype='float', dimension=ndim, 
+                              components=self.components, pointer=new_ptr)
+        return new_image.clone(self.pixeltype)
 
 
     def __setitem__(self, idx, value):
@@ -582,16 +624,19 @@ class ANTsImage(object):
 
     def __repr__(self):
         if self.dimension == 3:
-            s = 'ANTsImage ({})\n'.format(self.orientation)
+            s = 'ANTsImage - {} ({})\n'.format(self.orientation, self.pixeltype)
         else:
-            s = 'ANTsImage\n'
+            s = 'ANTsImage ({})\n'.format(self.pixeltype)
+        
+        if self.has_components:
+            s = s + '     {:<10} : {} [x{}]\n'.format('Dimensions', self.shape, self.components)
+        else:
+            s = s + '     {:<10} : {}\n'.format('Dimensions', self.shape)
+        
         s = s +\
-            '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
-            '\t {:<10} : {}{}\n'.format('Components', self.components, ' (RGB)' if 'RGB' in self._libsuffix else '')+\
-            '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
-            '\t {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
-            '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
-            '\t {:<10} : {}\n'.format('Direction', np.round(self.direction.flatten(),4))
+            '     {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
+            '     {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
+            '     {:<10} : {}\n'.format('Direction', tuple(np.round(self.direction.flatten(),4)))
         return s
 
 if HAS_PY3:
