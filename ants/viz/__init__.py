@@ -1,4 +1,3 @@
-from .create_tiled_mosaic import create_tiled_mosaic
 
 from .plot import plot
 from .movie import movie
