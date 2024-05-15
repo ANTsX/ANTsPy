@@ -112,7 +112,7 @@ PyBuffer<TImage>
 
   for( unsigned int i = 0; i < dimension; ++i )
     {
-    item = PySequence_FAST_GET_ITEM(shapeseq,i);
+    item = PySequence_Fast_GET_ITEM(shapeseq,i);
     size[i] = (SizeValueType)PyLong_AsLong(item);
     sizeFortran[dimension - 1 - i] = (SizeValueType)PyLong_AsLong(item);
     numberOfPixels *= size[i];

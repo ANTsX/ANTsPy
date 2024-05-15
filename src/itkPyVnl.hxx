@@ -96,7 +96,7 @@ PyVnl<TElement>
   shapeseq   = PySequence_Fast(obj, "expected sequence");
   dimension  = PySequence_Size(obj);
 
-  item = PySequence_FAST_GET_ITEM(shapeseq,0);// Only one dimension
+  item = PySequence_Fast_GET_ITEM(shapeseq,0);// Only one dimension
   numberOfElements = (size_t)PyLong_AsLong(item);
 
   len = numberOfElements*elementSize;
@@ -187,7 +187,7 @@ PyVnl<TElement>
 
   for( unsigned int i = 0; i < 2; ++i )
     {
-    item = PySequence_FAST_GET_ITEM(shapeseq,i);
+    item = PySequence_Fast_GET_ITEM(shapeseq,i);
     size[i] = (unsigned int)PyLong_AsLong(item);
     numberOfElements *= size[i];
     }
