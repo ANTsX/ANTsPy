@@ -64,11 +64,6 @@ jobs:
 
           # macOS on Intel 64-bit
           - os: macos-12
-            python: '3.8'
-            cibw_python: 38
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-12
             python: '3.9'
             cibw_python: 39
             arch: x86_64
