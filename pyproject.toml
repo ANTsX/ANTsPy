@@ -39,9 +39,6 @@ minimum-version = "0.4"
 # Setuptools-style build caching in a local directory
 build-dir = "build/{wheel_tag}"
 
-# Build stable ABI wheels for CPython 3.12+
-wheel.py-api = "cp311"
-
 cmake.args = []
 
 wheel.packages = ["ants"]
@@ -54,9 +51,3 @@ build-verbosity = 1
 test-command = "pytest {project}/tests"
 test-requires = "pytest"
 
-# Don't test Python 3.8 wheels on macOS/arm64
-test-skip="cp38-macosx_*:arm64"
-
-# Needed for full C++17 support
-[tool.cibuildwheel.macos.environment]
-MACOSX_DEPLOYMENT_TARGET = "10.14"
