@@ -57,6 +57,7 @@ cmake \
     -DITK_BUILD_DEFAULT_MODULES:BOOL=OFF \
     -DKWSYS_USE_MD5:BOOL=ON \
     -DITK_WRAPPING:BOOL=OFF \
+    -DModule_ITKColormap=ON \
     -DModule_MGHIO:BOOL=ON \
     -DModule_ITKDeprecated:BOOL=OFF \
     -DModule_ITKReview:BOOL=ON \
