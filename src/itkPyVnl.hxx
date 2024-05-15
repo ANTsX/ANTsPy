@@ -18,10 +18,6 @@
 #ifndef itkPyVnl_hxx
 #define itkPyVnl_hxx
 
-#if PYTHON_MINOR_VERSION == 12
-  #define PySequence_FAST_GET_ITEM PySequence_GetItem
-#endif
-
 #include "itkPyVnl.h"
 #include <stdexcept>
 

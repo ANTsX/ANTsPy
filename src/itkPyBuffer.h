@@ -30,9 +30,6 @@
 #undef _XOPEN_SOURCE
 // For Python 2.7 hypot bug, see https://bugs.python.org/issue11566
 //#include "PatchedPython27pyconfig.h"
-#if PYTHON_MINOR_VERSION == 12
-  #define PySequence_FAST_GET_ITEM PySequence_GetItem
-#endif
 #include <Python.h>
 
 namespace itk

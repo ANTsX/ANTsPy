@@ -6,8 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Try to import all Python components potentially needed by nanobind
 find_package(Python 3.8
-  REQUIRED COMPONENTS Interpreter Development.Module
-  OPTIONAL_COMPONENTS Development.SABIModule)
+  REQUIRED COMPONENTS Interpreter Development.Module)
 
 # Import nanobind through CMake's find_package mechanism
 find_package(nanobind CONFIG REQUIRED)
@@ -43,7 +42,6 @@ target_link_libraries(imageMathUtilities ${ITK_LIBRARIES})
                                  
 nanobind_add_module(
   lib
-  STABLE_ABI
   NB_STATIC
   src/main.cpp
   src/antscore/antsAffineInitializer.cxx
