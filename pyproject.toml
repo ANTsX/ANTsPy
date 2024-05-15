@@ -54,6 +54,3 @@ build-verbosity = 1
 test-command = "pytest {project}/tests"
 test-requires = "pytest"
 
-[tool.cibuildwheel.macos.environment]
-MACOSX_DEPLOYMENT_TARGET = "10.14"
-
