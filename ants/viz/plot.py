@@ -328,9 +328,10 @@ def plot(
 
             if overlay is not None:
                 ov_arr = overlay.numpy()
+                mask = ov_arr == 0
+                mask = np.ma.masked_where(mask == 0, mask)
+                ov_arr = np.ma.masked_array(ov_arr, mask)
                 ov_arr = rotate90_matrix(ov_arr)
-                if ov_arr.dtype not in ["uint8", "uint32"]:
-                    ov_arr = np.ma.masked_where(ov_arr == 0, ov_arr)
 
             fig = plt.figure()
             if title is not None:
@@ -375,8 +376,9 @@ def plot(
                 if reorient:
                     overlay = overlay.reorient_image2("LAI")
                 ov_arr = overlay.numpy()
-                if ov_arr.dtype not in ["uint8", "uint32"]:
-                    ov_arr = np.ma.masked_where(ov_arr == 0, ov_arr)
+                mask = ov_arr == 0
+                mask = np.ma.masked_where(mask == 0, mask)
+                ov_arr = np.ma.masked_array(ov_arr, mask)
                 ov_arr = np.rollaxis(ov_arr, axis)
 
             if slices is None:
