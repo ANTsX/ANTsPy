@@ -94,7 +94,7 @@ class TestClass_AntsImageIndexing(unittest.TestCase):
         img_v2 = img_v[:10,:10]
         
         self.assertTrue(ants.allclose(img2, ants.split_channels(img_v2)[0]))
-#
+
     def test_2d_vector_multi(self):
         img = ants.image_read(ants.get_data('r16'))
         img2 = img[:10,:10]

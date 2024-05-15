@@ -196,15 +196,11 @@ def make_image(
     -------
     ANTsImage
     """
-    if isinstance(voxval, iio.ANTsImage):
-        voxval = voxval.numpy()
-        
     if isinstance(imagesize, iio.ANTsImage):
         img = imagesize.clone()
         sel = imagesize > 0
         if voxval.ndim > 1:
             voxval = voxval.flatten()
-            voxval = voxval[voxval > 0]
         if (len(voxval) == int((sel > 0).sum())) or (len(voxval) == 0):
             img[sel] = voxval
         else:
@@ -321,7 +317,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     def listfunc(x):
         if np.sum(np.array(x.shape) - np.array(mask.shape)) != 0:
             x = reg.resample_image_to_target(x, mask, 2)
-        return x.numpy()[mask.numpy().astype('bool')]
+        return x[mask]
 
     if mask is None:
         mask = utils.get_mask(image_list[0])
@@ -338,8 +334,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
                 utils.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
             )
         else:
-            tmp_val = listfunc(img)
-            data_matrix[i, :] = tmp_val.flatten()
+            data_matrix[i, :] = listfunc(img)
     return data_matrix
 
 
