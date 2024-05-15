@@ -20,6 +20,10 @@
 
 #include "itkPyBuffer.h"
 
+#if PYTHON_MINOR_VERSION == 12
+  #define PySequence_FAST_GET_ITEM PySequence_GetItem
+#endif
+
 namespace itk
 {
 
@@ -112,7 +116,7 @@ PyBuffer<TImage>
 
   for( unsigned int i = 0; i < dimension; ++i )
     {
-    item = PySequence_GetItem(shapeseq,i);
+    item = PySequence_FAST_GET_ITEM(shapeseq,i);
     size[i] = (SizeValueType)PyLong_AsLong(item);
     sizeFortran[dimension - 1 - i] = (SizeValueType)PyLong_AsLong(item);
     numberOfPixels *= size[i];
