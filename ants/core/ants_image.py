@@ -614,6 +614,9 @@ class ANTsImage(object):
 
     def __setitem__(self, idx, value):
         arr = self.view()
+        if isinstance(value, ANTsImage):
+            value = value.numpy()
+            
         if isinstance(idx, ANTsImage):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
