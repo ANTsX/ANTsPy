@@ -20,10 +20,6 @@ jobs:
 
           # Windows 64-bit
           - os: windows-latest
-            python: '3.8'
-            cibw_python: 38
-            platform_id: win_amd64
-          - os: windows-latest
             python: '3.9'
             cibw_python: 39
             platform_id: win_amd64
