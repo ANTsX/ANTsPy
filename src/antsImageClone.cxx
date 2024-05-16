@@ -63,8 +63,6 @@ void local_antsImageClone(nb::module_ &m) {
     m.def("antsImageCloneD2", &antsImageClone<itk::Image<float,2>,itk::Image<double,2>>);
     m.def("antsImageCloneD2", &antsImageClone<itk::Image<double,2>,itk::Image<double,2>>);
 
-    m.def("antsImageCloneRGBUC2", &antsImageClone<itk::Image<itk::RGBPixel<unsigned char>,2>,itk::Image<itk::RGBPixel<unsigned char>,2>>);
-
     // dim = 3
 
     m.def("antsImageCloneUC3", &antsImageClone<itk::Image<unsigned char,3>,itk::Image<unsigned char,3>>);
@@ -87,7 +85,6 @@ void local_antsImageClone(nb::module_ &m) {
     m.def("antsImageCloneD3", &antsImageClone<itk::Image<float,3>,itk::Image<double,3>>);
     m.def("antsImageCloneD3", &antsImageClone<itk::Image<double,3>,itk::Image<double,3>>);
 
-    m.def("antsImageCloneRGBUC3", &antsImageClone<itk::Image<itk::RGBPixel<unsigned char>,3>,itk::Image<itk::RGBPixel<unsigned char>,3>>);
 
     // dim = 4
 
@@ -111,5 +108,4 @@ void local_antsImageClone(nb::module_ &m) {
     m.def("antsImageCloneD4", &antsImageClone<itk::Image<float,4>,itk::Image<double,4>>);
     m.def("antsImageCloneD4", &antsImageClone<itk::Image<double,4>,itk::Image<double,4>>);
 
-    m.def("antsImageCloneRGBUC4", &antsImageClone<itk::Image<itk::RGBPixel<unsigned char>,4>,itk::Image<itk::RGBPixel<unsigned char>,4>>);
 }

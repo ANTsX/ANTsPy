@@ -235,7 +235,7 @@ def plot(
     # need this hack because of a weird NaN warning from matplotlib with overlays
     warnings.simplefilter("ignore")
 
-    if (image.pixeltype not in {"float", "double"}) or (image.is_rgb):
+    if image.pixeltype not in {"float", "double"}:
         scale = False  # turn off scaling if image is discrete
 
     # handle `overlay` argument
@@ -495,9 +495,8 @@ def plot(
 
     ## multi-channel images ##
     elif image.components > 1:
-        if not image.is_rgb:
-            if not image.components == 3:
-                raise ValueError("Multi-component images only supported if they have 3 components")
+        if not image.components == 3:
+            raise ValueError("Multi-component images only supported if they have 3 components")
 
         img_arr = image.numpy()
         img_arr = img_arr / img_arr.max()

@@ -91,10 +91,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("ptrstr",  &ptrstr<itk::VectorImage<double,2>>);
     m.def("ptrstr",  &ptrstr<itk::VectorImage<double,3>>);
     m.def("ptrstr",  &ptrstr<itk::VectorImage<double,4>>);
-    m.def("ptrstr", &ptrstr<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("ptrstr", &ptrstr<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("ptrstr", &ptrstr<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("ptrstr", &ptrstr<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getShape",  &getShape<itk::Image<unsigned char,2>>);
     m.def("getShape",  &getShape<itk::Image<unsigned char,3>>);
@@ -120,10 +116,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("getShape",  &getShape<itk::VectorImage<double,2>>);
     m.def("getShape",  &getShape<itk::VectorImage<double,3>>);
     m.def("getShape",  &getShape<itk::VectorImage<double,4>>);
-    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("getShape", &getShape<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getOrigin",  &getOrigin<itk::Image<unsigned char,2>>);
     m.def("getOrigin",  &getOrigin<itk::Image<unsigned char,3>>);
@@ -149,10 +141,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("getOrigin",  &getOrigin<itk::VectorImage<double,2>>);
     m.def("getOrigin",  &getOrigin<itk::VectorImage<double,3>>);
     m.def("getOrigin",  &getOrigin<itk::VectorImage<double,4>>);
-    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("getOrigin", &getOrigin<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("setOrigin",  &setOrigin<itk::Image<unsigned char,2>>);
     m.def("setOrigin",  &setOrigin<itk::Image<unsigned char,3>>);
@@ -178,10 +166,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("setOrigin",  &setOrigin<itk::VectorImage<double,2>>);
     m.def("setOrigin",  &setOrigin<itk::VectorImage<double,3>>);
     m.def("setOrigin",  &setOrigin<itk::VectorImage<double,4>>);
-    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("setOrigin", &setOrigin<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getSpacing",  &getSpacing<itk::Image<unsigned char,2>>);
     m.def("getSpacing",  &getSpacing<itk::Image<unsigned char,3>>);
@@ -207,10 +191,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("getSpacing",  &getSpacing<itk::VectorImage<double,2>>);
     m.def("getSpacing",  &getSpacing<itk::VectorImage<double,3>>);
     m.def("getSpacing",  &getSpacing<itk::VectorImage<double,4>>);
-    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("getSpacing", &getSpacing<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("setSpacing",  &setSpacing<itk::Image<unsigned char,2>>);
     m.def("setSpacing",  &setSpacing<itk::Image<unsigned char,3>>);
@@ -236,10 +216,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("setSpacing",  &setSpacing<itk::VectorImage<double,2>>);
     m.def("setSpacing",  &setSpacing<itk::VectorImage<double,3>>);
     m.def("setSpacing",  &setSpacing<itk::VectorImage<double,4>>);
-    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("setSpacing", &setSpacing<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("getDirection",  &getDirection<itk::Image<unsigned char,2>>);
     m.def("getDirection",  &getDirection<itk::Image<unsigned char,3>>);
@@ -265,10 +241,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("getDirection",  &getDirection<itk::VectorImage<double,2>>);
     m.def("getDirection",  &getDirection<itk::VectorImage<double,3>>);
     m.def("getDirection",  &getDirection<itk::VectorImage<double,4>>);
-    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("getDirection", &getDirection<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("setDirection",  &setDirection<itk::Image<unsigned char,2>>);
     m.def("setDirection",  &setDirection<itk::Image<unsigned char,3>>);
@@ -294,10 +266,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("setDirection",  &setDirection<itk::VectorImage<double,2>>);
     m.def("setDirection",  &setDirection<itk::VectorImage<double,3>>);
     m.def("setDirection",  &setDirection<itk::VectorImage<double,4>>);
-    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("setDirection", &setDirection<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("toFile",  &toFile<itk::Image<unsigned char,2>>);
     m.def("toFile",  &toFile<itk::Image<unsigned char,3>>);
@@ -323,10 +291,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("toFile",  &toFile<itk::VectorImage<double,2>>);
     m.def("toFile",  &toFile<itk::VectorImage<double,3>>);
     m.def("toFile",  &toFile<itk::VectorImage<double,4>>);
-    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("toFile", &toFile<itk::Image<itk::RGBPixel<float>,3>>);
 
     m.def("toNumpy",  &toNumpy<itk::Image<unsigned char,2>>);
     m.def("toNumpy",  &toNumpy<itk::Image<unsigned char,3>>);
@@ -352,10 +316,6 @@ void local_antsImage(nb::module_ &m) {
     m.def("toNumpy",  &toNumpy<itk::VectorImage<double,2>>);
     m.def("toNumpy",  &toNumpy<itk::VectorImage<double,3>>);
     m.def("toNumpy",  &toNumpy<itk::VectorImage<double,4>>);
-    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("toNumpy", &toNumpy<itk::Image<itk::RGBPixel<float>,3>>);
 
     nb::class_<AntsImage<itk::Image<unsigned char,2>>>(m, "AntsImageUC2");
     nb::class_<AntsImage<itk::Image<unsigned char,3>>>(m, "AntsImageUC3");
@@ -381,8 +341,4 @@ void local_antsImage(nb::module_ &m) {
     nb::class_<AntsImage<itk::VectorImage<double,2>>>(m, "AntsImageVD2");
     nb::class_<AntsImage<itk::VectorImage<double,3>>>(m, "AntsImageVD3");
     nb::class_<AntsImage<itk::VectorImage<double,4>>>(m, "AntsImageVD4");
-    nb::class_<AntsImage<itk::Image<itk::RGBPixel<unsigned char>,2>>>(m, "AntsImageRGBUC2");
-    nb::class_<AntsImage<itk::Image<itk::RGBPixel<unsigned char>,3>>>(m, "AntsImageRGBUC3");
-    nb::class_<AntsImage<itk::Image<itk::RGBPixel<float>,2>>>(m, "AntsImageRGBF2");
-    nb::class_<AntsImage<itk::Image<itk::RGBPixel<float>,3>>>(m, "AntsImageRGBF3");
 }

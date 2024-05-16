@@ -44,7 +44,7 @@ _npy_to_itk_map = {
 
 class ANTsImage(object):
 
-    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None, is_rgb=False):
+    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None):
         """
         Initialize an ANTsImage
 
@@ -70,13 +70,9 @@ class ANTsImage(object):
         self.components = components
         self.has_components = self.components > 1
         self.dtype = _itk_to_npy_map[self.pixeltype]
-        self.is_rgb = is_rgb
 
         self._pixelclass = 'vector' if self.has_components else 'scalar'
         self._shortpclass = 'V' if self._pixelclass == 'vector' else ''
-        if is_rgb:
-            self._pixelclass = 'rgb'
-            self._shortpclass = 'RGB'
 
         self._libsuffix = '%s%s%i' % (self._shortpclass, utils.short_ptype(self.pixeltype), self.dimension)
 
@@ -213,10 +209,7 @@ class ANTsImage(object):
         -------
         ndarray
         """
-        if self.is_rgb:
-            img = self.rgb_to_vector()
-        else:
-            img = self
+        img = self
         dtype = img.dtype
         shape = img.shape[::-1]
         if img.has_components or (single_components == True):
@@ -273,7 +266,7 @@ class ANTsImage(object):
         if pixeltype not in _supported_ptypes:
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
-        if self.has_components and (not self.is_rgb):
+        if self.has_components:
             comp_imgs = utils.split_channels(self)
             comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
             return utils.merge_channels(comp_imgs_cloned)
@@ -287,7 +280,6 @@ class ANTsImage(object):
             return ANTsImage(pixeltype=pixeltype,
                             dimension=self.dimension,
                             components=self.components,
-                            is_rgb=self.is_rgb,
                             pointer=pointer_cloned)
 
     # pythonic alias for `clone` is `copy`

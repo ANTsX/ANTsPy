@@ -225,7 +225,6 @@ void local_mergeChannels(nb::module_ &m) {
   m.def("splitChannels", &splitChannels<itk::VectorImage<double, 2>, itk::Image<double, 2> >);
   m.def("splitChannels", &splitChannels<itk::VectorImage<double, 3>, itk::Image<double, 3> >);
   m.def("splitChannels", &splitChannels<itk::VectorImage<double, 4>, itk::Image<double, 4> >);
-  m.def("splitChannels", &splitChannels<itk::Image<itk::RGBPixel<unsigned char>, 2>, itk::Image<unsigned char, 2> >);
 
 
 }

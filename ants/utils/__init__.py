@@ -79,7 +79,6 @@ from .quantile import (ilr,
            get_average_of_timeseries,
            compcor,
            bandpass_filter_matrix )
-from .scalar_rgb_vector import (rgb_to_vector, vector_to_rgb, scalar_to_rgb)
 from .simulate_displacement_field import simulate_displacement_field
 from .slice_image import slice_image
 from .smooth_image import smooth_image

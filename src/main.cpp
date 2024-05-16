@@ -29,7 +29,6 @@
 #include "reflectionMatrix.cxx"
 #include "reorientImage.cxx"
 #include "reorientImage2.cxx"
-#include "rgbToVector.cxx"
 #include "sccaner.cxx"
 #include "simulateDisplacementField.cxx"
 #include "sliceImage.cxx"
@@ -44,7 +43,6 @@
 #include "WRAP_Atropos.cxx"
 #include "WRAP_AverageAffineTransform.cxx"
 #include "WRAP_AverageAffineTransformNoRigid.cxx"
-#include "WRAP_ConvertScalarImageToRGB.cxx"
 #include "WRAP_CreateJacobianDeterminantImage.cxx"
 #include "WRAP_DenoiseImage.cxx"
 #include "WRAP_iMath.cxx"
@@ -88,7 +86,6 @@ void local_readTransform(nb::module_ &);
 void local_reflectionMatrix(nb::module_ &);
 void local_reorientImage(nb::module_ &);
 void local_reorientImage2(nb::module_ &);
-void local_rgbToVector(nb::module_ &);
 void local_sccaner(nb::module_ &);
 void local_simulateDisplacementField(nb::module_ &);
 void local_sliceImage(nb::module_ &);
@@ -103,7 +100,6 @@ void wrap_antsRegistration(nb::module_ &);
 void wrap_Atropos(nb::module_ &);
 void wrap_AverageAffineTransform(nb::module_ &);
 void wrap_AverageAffineTransformNoRigid(nb::module_ &);
-void wrap_ConvertScalarImageToRGB(nb::module_ &);
 void wrap_CreateJacobianDeterminantImage(nb::module_ &);
 void wrap_DenoiseImage(nb::module_ &);
 void wrap_iMath(nb::module_ &);
@@ -146,7 +142,6 @@ NB_MODULE(lib, m) {
     local_reflectionMatrix(m);
     local_reorientImage(m);
     local_reorientImage2(m);
-    local_rgbToVector(m);
     local_sccaner(m);
     local_simulateDisplacementField(m);
     local_sliceImage(m);
@@ -161,7 +156,6 @@ NB_MODULE(lib, m) {
     wrap_Atropos(m);
     wrap_AverageAffineTransform(m);
     wrap_AverageAffineTransformNoRigid(m);
-    wrap_ConvertScalarImageToRGB(m);
     wrap_CreateJacobianDeterminantImage(m);
     wrap_DenoiseImage(m);
     wrap_iMath(m);

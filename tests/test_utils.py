@@ -822,43 +822,6 @@ class TestModule_weingarten_image_curvature(unittest.TestCase):
         imagecurv2 = ants.weingarten_image_curvature(image2)
 
 
-class TestModule_scalar_rgb_vector(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test1(self):
-        import ants
-        import numpy as np
-
-        # this fails because ConvertScalarImageToRGB is not wrapped
-        img = ants.image_read(ants.get_data("r16"), pixeltype="unsigned char")
-        # img_rgb = img.scalar_to_rgb()
-        # img_vec = img_rgb.rgb_to_vector()
-
-        # rgb_arr = img_rgb.numpy()
-        # vec_arr = img_vec.numpy()
-        print(np.allclose(img.numpy(), img.numpy()))
-
-    def test2(self):
-        import ants
-        import numpy as np
-
-        rgb_img = ants.from_numpy(
-            np.random.randint(0, 255, (20, 20, 3)).astype("uint8"), is_rgb=True
-        )
-        vec_img = rgb_img.rgb_to_vector()
-        print(ants.allclose(rgb_img, vec_img))
-
-        vec_img = ants.from_numpy(
-            np.random.randint(0, 255, (20, 20, 3)).astype("uint8"), has_components=True
-        )
-        rgb_img = vec_img.vector_to_rgb()
-        print(ants.allclose(rgb_img, vec_img))
-
-
 class TestRandom(unittest.TestCase):
     def setUp(self):
         pass

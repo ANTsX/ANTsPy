@@ -78,10 +78,6 @@ void local_readImage(nb::module_ &m) {
     m.def("imageReadVD2", &imageRead<itk::VectorImage<double,2>>);
     m.def("imageReadVD3", &imageRead<itk::VectorImage<double,3>>);
     m.def("imageReadVD4", &imageRead<itk::VectorImage<double,4>>);
-    m.def("imageReadRGBUC2", &imageRead<itk::Image<itk::RGBPixel<unsigned char>,2>>);
-    m.def("imageReadRGBUC3", &imageRead<itk::Image<itk::RGBPixel<unsigned char>,3>>);
-    m.def("imageReadRGBF2", &imageRead<itk::Image<itk::RGBPixel<float>,2>>);
-    m.def("imageReadRGBF3", &imageRead<itk::Image<itk::RGBPixel<float>,3>>);
 
 
     m.def("fromNumpyUC2", &fromNumpy<itk::Image<unsigned char,2>>);

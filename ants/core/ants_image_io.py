@@ -97,18 +97,16 @@ def from_numpy(
         image with given data and any given information
     """
     data = data.astype("float32") if data.dtype.name == "float64" else data
-    img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
+    img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components)
     return img
 
 
 def _from_numpy(
-    data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
+    data, origin=None, spacing=None, direction=None, has_components=False
 ):
     """
     Internal function for creating an ANTsImage
     """
-    if is_rgb:
-        has_components = True
     ndim = data.ndim
     if has_components:
         ndim -= 1
@@ -150,8 +148,6 @@ def _from_numpy(
             tmp_img._ndarr = arrays[i]
             ants_images.append(tmp_img)
         ants_image = utils.merge_channels(ants_images)
-        if is_rgb:
-            ants_image = ants_image.vector_to_rgb()
     return ants_image
 
 
@@ -519,14 +515,12 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         pclass = hinfo["pixelclass"]
         ndim = hinfo["nDimensions"]
         ncomp = hinfo["nComponents"]
-        is_rgb = False
         if pclass == "rgb":
             pclass = "vector"
         if pclass == "rgba":
             pclass = "vector"
         if pclass == "symmetric_second_rank_tensor":
             pclass = "vector"
-#        is_rgb = True if pclass == "rgb" else False
         if dimension is not None:
             ndim = dimension
 
@@ -551,8 +545,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
             pixeltype=ptype,
             dimension=ndim,
             components=ncomp,
-            pointer=itk_pointer,
-            is_rgb=is_rgb,
+            pointer=itk_pointer
         )
 
         if pixeltype is not None:
