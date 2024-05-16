@@ -14,14 +14,14 @@
 namespace nb = nanobind;
 using namespace nb::literals;
 
-template <typename ImageType, unsigned int ndim>
-AntsImage<itk::Image<float, ndim>> getItem( AntsImage<ImageType> & antsImage, 
+template <typename ImageType, class PixelType, unsigned int ndim>
+AntsImage<itk::Image<PixelType, ndim>> getItem( AntsImage<ImageType> & antsImage, 
                               std::vector<unsigned long> starts, 
                               std::vector<unsigned long> sizes )
 {
     typename ImageType::Pointer image = antsImage.ptr;
 
-    using OutImageType = itk::Image<float, ndim>;
+    using OutImageType = itk::Image<PixelType, ndim>;
 
     typename ImageType::IndexType desiredStart;
     typename ImageType::SizeType desiredSize;
@@ -48,10 +48,31 @@ AntsImage<itk::Image<float, ndim>> getItem( AntsImage<ImageType> & antsImage,
 
 
 void local_antsGetItem(nb::module_ &m) {
-    m.def("getItem2",   &getItem<itk::Image<float,2>, 2>);
-    m.def("getItem2",   &getItem<itk::Image<float,3>, 2>);
-    m.def("getItem2",   &getItem<itk::Image<float,4>, 2>);
-    m.def("getItem3",   &getItem<itk::Image<float,3>, 3>);
-    m.def("getItem3",   &getItem<itk::Image<float,4>, 3>);
-    m.def("getItem4",   &getItem<itk::Image<float,4>, 4>);
+    m.def("getItem2",   &getItem<itk::Image<float,2>, float, 2>);
+    m.def("getItem2",   &getItem<itk::Image<float,3>, float, 2>);  
+    m.def("getItem2",   &getItem<itk::Image<float,4>, float, 2>);  
+    m.def("getItem3",   &getItem<itk::Image<float,3>, float, 3>);  
+    m.def("getItem3",   &getItem<itk::Image<float,4>, float, 3>);  
+    m.def("getItem4",   &getItem<itk::Image<float,4>, float, 4>);  
+    
+    m.def("getItem2",   &getItem<itk::Image<unsigned char,2>, unsigned char, 2>);
+    m.def("getItem2",   &getItem<itk::Image<unsigned char,3>, unsigned char, 2>);
+    m.def("getItem2",   &getItem<itk::Image<unsigned char,4>, unsigned char, 2>);
+    m.def("getItem3",   &getItem<itk::Image<unsigned char,3>, unsigned char, 3>);
+    m.def("getItem3",   &getItem<itk::Image<unsigned char,4>, unsigned char, 3>);
+    m.def("getItem4",   &getItem<itk::Image<unsigned char,4>, unsigned char, 4>);
+
+    m.def("getItem2",   &getItem<itk::Image<unsigned int,2>, unsigned int, 2>);
+    m.def("getItem2",   &getItem<itk::Image<unsigned int,3>, unsigned int, 2>);
+    m.def("getItem2",   &getItem<itk::Image<unsigned int,4>, unsigned int, 2>);
+    m.def("getItem3",   &getItem<itk::Image<unsigned int,3>, unsigned int, 3>);
+    m.def("getItem3",   &getItem<itk::Image<unsigned int,4>, unsigned int, 3>);
+    m.def("getItem4",   &getItem<itk::Image<unsigned int,4>, unsigned int, 4>);
+
+    m.def("getItem2",   &getItem<itk::Image<double,2>, double, 2>);
+    m.def("getItem2",   &getItem<itk::Image<double,3>, double, 2>);
+    m.def("getItem2",   &getItem<itk::Image<double,4>, double, 2>);
+    m.def("getItem3",   &getItem<itk::Image<double,3>, double, 3>);
+    m.def("getItem3",   &getItem<itk::Image<double,4>, double, 3>);
+    m.def("getItem4",   &getItem<itk::Image<double,4>, double, 4>);
 }

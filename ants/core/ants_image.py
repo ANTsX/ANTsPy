@@ -587,13 +587,6 @@ class ANTsImage(object):
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
-        """
-        import ants
-        img = ants.image_read(ants.get_data('mni'))
-        img2 = img[:10,:20,:10]
-        img3 = img[:10,:20,10]
-        img3 = img[:10,10,:20]
-        """
         if self.has_components:
             return utils.merge_channels([
                 img[idx] for img in utils.split_channels(self)
@@ -633,10 +626,10 @@ class ANTsImage(object):
             return self.numpy().__getitem__(idx)
         
         libfn = utils.get_lib_fn('getItem%i' % ndim)
-        new_ptr = libfn(self.clone('float').pointer, starts, sizes)
-        new_image = ANTsImage(pixeltype='float', dimension=ndim, 
+        new_ptr = libfn(self.pointer, starts, sizes)
+        new_image = ANTsImage(pixeltype=self.pixeltype, dimension=ndim, 
                               components=self.components, pointer=new_ptr)
-        return new_image.clone(self.pixeltype)
+        return new_image
 
 
     def __setitem__(self, idx, value):
@@ -653,19 +646,16 @@ class ANTsImage(object):
 
     def __repr__(self):
         if self.dimension == 3:
-            s = 'ANTsImage - {} ({})\n'.format(self.orientation, self.pixeltype)
+            s = 'ANTsImage ({})\n'.format(self.orientation)
         else:
-            s = 'ANTsImage ({})\n'.format(self.pixeltype)
-        
-        if self.has_components:
-            s = s + '     {:<10} : {} [x{}]\n'.format('Dimensions', self.shape, self.components)
-        else:
-            s = s + '     {:<10} : {}\n'.format('Dimensions', self.shape)
-        
+            s = 'ANTsImage\n'
         s = s +\
-            '     {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
-            '     {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
-            '     {:<10} : {}\n'.format('Direction', tuple(np.round(self.direction.flatten(),4)))
+            '\t {:<10} : {} ({})\n'.format('Pixel Type', self.pixeltype, self.dtype)+\
+            '\t {:<10} : {}{}\n'.format('Components', self.components, ' (RGB)' if 'RGB' in self._libsuffix else '')+\
+            '\t {:<10} : {}\n'.format('Dimensions', self.shape)+\
+            '\t {:<10} : {}\n'.format('Spacing', tuple([round(s,4) for s in self.spacing]))+\
+            '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
+            '\t {:<10} : {}\n'.format('Direction', np.round(self.direction.flatten(),4))
         return s
 
 if HAS_PY3:
