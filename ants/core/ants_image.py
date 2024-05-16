@@ -573,10 +573,9 @@ class ANTsImage(object):
             ])
         
         if isinstance(idx, ANTsImage):
-            arr = self.numpy()
-            other = idx.numpy()
-            arr[other == 0] = 0
-            return self.new_image_like(arr)
+            if not image_physical_space_consistency(self, idx):
+                raise ValueError('images do not occupy same physical space')
+            return self.numpy().__getitem__(idx.numpy().astype('bool'))
     
         ndim = len(idx)
         sizes = list(self.shape)
@@ -615,6 +614,9 @@ class ANTsImage(object):
 
     def __setitem__(self, idx, value):
         arr = self.view()
+        if isinstance(value, ANTsImage):
+            value = value.numpy()
+            
         if isinstance(idx, ANTsImage):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')

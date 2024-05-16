@@ -94,7 +94,7 @@ class TestClass_AntsImageIndexing(unittest.TestCase):
         img_v2 = img_v[:10,:10]
         
         self.assertTrue(ants.allclose(img2, ants.split_channels(img_v2)[0]))
-#
+
     def test_2d_vector_multi(self):
         img = ants.image_read(ants.get_data('r16'))
         img2 = img[:10,:10]
@@ -105,6 +105,54 @@ class TestClass_AntsImageIndexing(unittest.TestCase):
         self.assertTrue(ants.allclose(img2, ants.split_channels(img_v2)[0]))
         self.assertTrue(ants.allclose(img2, ants.split_channels(img_v2)[1]))
         self.assertTrue(ants.allclose(img2, ants.split_channels(img_v2)[2]))
+        
+    def test_setting_3d(self):
+        img = ants.image_read(ants.get_data('mni'))
+        img2d = img[100,:,:]
+        
+        # setting a sub-image with an image
+        img2 = img + 10
+        img2[100,:,:] = img2d
+        
+        self.assertFalse(ants.allclose(img, img2))
+        self.assertTrue(ants.allclose(img2d, img2[100,:,:]))
+        
+        # setting a sub-image with an array
+        img2 = img + 10
+        img2[100,:,:] = img2d.numpy()
+        
+        self.assertFalse(ants.allclose(img, img2))
+        self.assertTrue(ants.allclose(img2d, img2[100,:,:]))
+        
+    def test_setting_2d(self):
+        img = ants.image_read(ants.get_data('r16'))
+        img2d = img[100,:]
+        
+        # setting a sub-image with an image
+        img2 = img + 10
+        img2[100,:] = img2d
+        
+        self.assertFalse(ants.allclose(img, img2))
+        self.assertTrue(np.allclose(img2d, img2[100,:]))
+        
+        
+    def test_setting_2d_sub_image(self):
+        img = ants.image_read(ants.get_data('r16'))
+        img2d = img[10:30,10:30]
+        
+        # setting a sub-image with an image
+        img2 = img + 10
+        img2[10:30,10:30] = img2d
+        
+        self.assertFalse(ants.allclose(img, img2))
+        self.assertTrue(ants.allclose(img2d, img2[10:30,10:30]))
+        
+        # setting a sub-image with an array
+        img2 = img + 10
+        img2[10:30,10:30] = img2d.numpy()
+        
+        self.assertFalse(ants.allclose(img, img2))
+        self.assertTrue(ants.allclose(img2d, img2[10:30,10:30]))
         
 
 if __name__ == '__main__':

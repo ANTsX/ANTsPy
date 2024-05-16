@@ -43,7 +43,7 @@ def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
         temp = np.zeros(list(d)+[10])
         for k in range(1,7):
             voxvals = image[:d[0],:d[1]]
-            temp[:d[0],:d[1],k] = voxvals
+            temp[:d[0],:d[1],k] = voxvals.numpy()
         temp = core.from_numpy(temp)
         myspc = image.spacing
         myspc = list(myspc) + [min(myspc)]
