@@ -26,6 +26,24 @@ class TestClass_AntsImageIndexing(unittest.TestCase):
     def tearDown(self):
         pass
     
+    def test_pixeltype_2d(self):
+        img = ants.image_read(ants.get_data('r16'))
+        for ptype in ['unsigned char', 'unsigned int', 'float', 'double']:
+            img = img.clone(ptype)
+            self.assertEqual(img.pixeltype, ptype)
+            img2 = img[:10,:10]
+            self.assertEqual(img2.pixeltype, ptype)
+            
+    def test_pixeltype_3d(self):
+        img = ants.image_read(ants.get_data('mni'))
+        for ptype in ['unsigned char', 'unsigned int', 'float', 'double']:
+            img = img.clone(ptype)
+            self.assertEqual(img.pixeltype, ptype)
+            img2 = img[:10,:10,:10]
+            self.assertEqual(img2.pixeltype, ptype)
+            img3 = img[:10,:10,10]
+            self.assertEqual(img3.pixeltype, ptype)
+    
     def test_2d(self):
         img = ants.image_read(ants.get_data('r16'))
         
