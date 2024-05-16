@@ -3,7 +3,7 @@ __all__ = ['slice_image']
 
 import math
 
-from ..core import ants_image as iio
+from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 
@@ -45,7 +45,6 @@ def slice_image(image, axis, idx, collapse_strategy=0):
     libfn = utils.get_lib_fn('sliceImage')
     itkimage = libfn(image.pointer, axis, idx, collapse_strategy)
 
-    return iio.ANTsImage(pixeltype='float', dimension=ndim-1, 
-                         components=image.components, pointer=itkimage).clone(inpixeltype)
+    return iio2.from_pointer(itkimage).clone(inpixeltype)
 
 

@@ -101,8 +101,7 @@ def rgb_to_vector(image):
     idim = image.dimension
     libfn = utils.get_lib_fn('RgbToVector%i' % idim)
     new_ptr = libfn(image.pointer)
-    new_img = iio.ANTsImage(pixeltype=image.pixeltype, dimension=image.dimension, 
-                            components=3, pointer=new_ptr, is_rgb=False)
+    new_img = iio2.from_pointer(new_ptr)
     return new_img
 
 
@@ -132,7 +131,6 @@ def vector_to_rgb(image):
     idim = image.dimension
     libfn = utils.get_lib_fn('VectorToRgb%i' % idim)
     new_ptr = libfn(image.pointer)
-    new_img = iio.ANTsImage(pixeltype=image.pixeltype, dimension=image.dimension, 
-                            components=3, pointer=new_ptr, is_rgb=True)
+    new_img = iio2.from_pointer(new_ptr)
     return new_img
 

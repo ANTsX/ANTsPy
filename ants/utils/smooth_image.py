@@ -6,7 +6,7 @@ __all__ = ['smooth_image']
 import math
 
 from .. import utils
-from ..core import ants_image as iio
+from ..core import ants_image as iio, ants_image_io as iio2
 
 
 
@@ -26,8 +26,7 @@ def _smooth_image_helper(image, sigma, sigma_in_physical_coordinates=True, FWHM=
 
     smooth_image_fn = utils.get_lib_fn('SmoothImage')
     outimage = smooth_image_fn(image_float.pointer, sigma, sigma_in_physical_coordinates, max_kernel_width)
-    ants_outimage = iio.ANTsImage(pixeltype='float', dimension=image.dimension,
-                                components=image.components, pointer=outimage)
+    ants_outimage = iio2.from_pointer(outimage)
     return ants_outimage
 
 

@@ -10,7 +10,7 @@ __all__ = [
 import os
 import numpy as np
 
-from . import ants_image as iio
+from . import ants_image as iio, ants_image_io as iio2
 from . import ants_transform as tio
 from .. import utils
 
@@ -297,10 +297,7 @@ def transform_to_displacement_field(xfrm, ref):
         raise ValueError("Transform must be of DisplacementFieldTransform type")
     libfn = utils.get_lib_fn("antsTransformToDisplacementField")
     field_ptr = libfn(xfrm.pointer, ref.pointer)
-    return iio.ANTsImage( pixeltype=xfrm.precision,
-                          dimension=xfrm.dimension,
-                          components=xfrm.dimension,
-                          pointer=field_ptr)
+    return iio2.from_pointer(field_ptr)
 
 def read_transform(filename, precision="float"):
     """

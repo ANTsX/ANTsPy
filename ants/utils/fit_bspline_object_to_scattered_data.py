@@ -2,7 +2,7 @@ __all__ = ["fit_bspline_object_to_scattered_data"]
 
 import numpy as np
 
-from ..core import ants_image as iio
+from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 
@@ -183,8 +183,6 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     if parametric_dimension == 1:
         return np.array(bspline_object)
     else:
-        bspline_image = iio.ANTsImage(pixeltype='float',
-          dimension=parametric_dimension, components=data_dimension,
-          pointer=bspline_object).clone('float')
+        bspline_image = iio2.from_pointer(bspline_object).clone('float')
         return bspline_image
 

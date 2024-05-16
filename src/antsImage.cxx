@@ -96,6 +96,19 @@ void local_antsImage(nb::module_ &m) {
     m.def("ptrstr", &ptrstr<itk::Image<itk::RGBPixel<float>,2>>);
     m.def("ptrstr", &ptrstr<itk::Image<itk::RGBPixel<float>,3>>);
 
+    m.def("getComponents", &getComponents<itk::VectorImage<unsigned char,2>>);
+    m.def("getComponents", &getComponents<itk::VectorImage<unsigned char,3>>);
+    m.def("getComponents", &getComponents<itk::VectorImage<unsigned char,4>>);
+    m.def("getComponents", &getComponents<itk::VectorImage<unsigned int,2>>);
+    m.def("getComponents", &getComponents<itk::VectorImage<unsigned int,3>>);
+    m.def("getComponents", &getComponents<itk::VectorImage<unsigned int,4>>);
+    m.def("getComponents",  &getComponents<itk::VectorImage<float,2>>);
+    m.def("getComponents",  &getComponents<itk::VectorImage<float,3>>);
+    m.def("getComponents",  &getComponents<itk::VectorImage<float,4>>);
+    m.def("getComponents",  &getComponents<itk::VectorImage<double,2>>);
+    m.def("getComponents",  &getComponents<itk::VectorImage<double,3>>);
+    m.def("getComponents",  &getComponents<itk::VectorImage<double,4>>);
+
     m.def("getShape",  &getShape<itk::Image<unsigned char,2>>);
     m.def("getShape",  &getShape<itk::Image<unsigned char,3>>);
     m.def("getShape",  &getShape<itk::Image<unsigned char,4>>);
