@@ -6,6 +6,6 @@ from .utils import *
 from .segmentation import *
 from .registration import *
 from .learn import *
-from .viz import *
+from .plotting import *
 
 from . import contrib

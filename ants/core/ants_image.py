@@ -10,7 +10,8 @@ __all__ = ['ANTsImage',
            'get_spacing',
            'image_physical_space_consistency',
            'image_type_cast',
-           'allclose']
+           'allclose',
+           'is_image']
 
 import os
 
@@ -25,7 +26,7 @@ except:
 
 import inspect
 
-from .. import registration, segmentation, utils, viz
+from .. import registration, segmentation, utils, plotting
 from . import ants_image_io as iio2
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
@@ -614,9 +615,9 @@ if HAS_PY3:
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 
-    for k, v in viz.__dict__.items():
+    for k, v in plotting.__dict__.items():
         if callable(v):
-            args = inspect.getfullargspec(getattr(viz,k)).args
+            args = inspect.getfullargspec(getattr(plotting,k)).args
             if (len(args) > 0) and (args[0] in {'img','image'}):
                 setattr(ANTsImage, k, partialmethod(v))
 
@@ -815,3 +816,6 @@ def allclose(image1, image2):
     Check if two images have the same array values
     """
     return np.allclose(image1.numpy(), image2.numpy())
+
+def is_image(image):
+    return isinstance(image, ANTsImage)

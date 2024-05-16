@@ -28,7 +28,8 @@ from .ants_image import (
     get_spacing,
     image_physical_space_consistency,
     image_type_cast,
-    allclose
+    allclose,
+    is_image
 )
 
 from .ants_metric_io import (

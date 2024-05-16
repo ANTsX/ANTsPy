@@ -2,36 +2,97 @@
 Functions for plotting ants images
 """
 
-
 __all__ = [
     "plot"
 ]
 
-import fnmatch
 import math
 import os
 import warnings
 
 from matplotlib import gridspec
 import matplotlib.pyplot as plt
-import matplotlib.patheffects as path_effects
-import matplotlib.lines as mlines
-import matplotlib.patches as patches
-import matplotlib.mlab as mlab
-import matplotlib.animation as animation
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-
 
 import numpy as np
+import ants
 
-from .. import registration as reg
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from ..core import ants_transform as tio
-from ..core import ants_transform_io as tio2
+def plot(image, overlay=None, axis=0, nslices=12, domain=None, reorient=True, filename=None, **kwargs):
+    """
+    Visualize any type of ANTsImage with optional overlay.
+    """
+    params = {'blend': False,
+              'alpha': 1,
+              'cmap': "Greys_r",
+              'overlay_cmap': "turbo",
+              'overlay_alpha': 0.9,
+              'vminol': None,
+              'vmaxol': None,
+              'cbar': False,
+              'cbar_length': 0.8,
+              'cbar_dx': 0.0,
+              'cbar_vertical': True,
+              'axis': 0,
+              'nslices': 12,
+              'slices': None,
+              'ncol': None,
+              'slice_buffer': None,
+              'black_bg': True,
+              'bg_thresh_quant': 0.01,
+              'bg_val_quant': 0.99,
+              'domain_image_map': None,
+              'crop': False,
+              'scale': False,
+              'reverse': False,
+              'title': None,
+              'title_fontsize': 20,
+              'title_dx': 0.0,
+              'title_dy': 0.0,
+              'filename': None,
+              'dpi': 500,
+              'figsize': 1.5,
+              'reorient': True,
+              'resample': True}
+    
+    for key, val in kwargs.items():
+        params[key] = val
+    
+    if not ants.is_image(image):
+        raise Exception('Only ANTsImage types can be plotted.')
 
+    if image.has_components:
+        raise Exception('Only ANTsImage types without components can be plotted.')
+    
+    # handle domain
+    if domain:
+        if not ants.is_image(domain):
+            raise Exception('The domain argument must be an ANTsImage type.')
+        tx = ants.new_ants_transform(
+            precision="float",
+            transform_type="AffineTransform",
+            dimension=image.dimension,
+        )
+        image = ants.apply_ants_transform_to_image(tx, image, domain)
+        if overlay is not None:
+            overlay = ants.apply_ants_transform_to_image(
+                tx, overlay, domain, interpolation="nearestNeighbor"
+            )
+    
+    if image.dimension == 2:
+        plot_2d(image, overlay, params)
+    elif image.dimension == 3:
+        plot_3d(image, overlay, axis, nslices)
+    else:
+        raise Exception('Only 2D and 3D ANTsImage types can be plotted.')
+    
+    return
 
-def plot(
+def plot_2d(image, overlay, params):
+    pass
+
+def plot_3d(image, overlay, axis, nslices):
+    pass
+
+def plot2(
     image,
     overlay=None,
     blend=False,
@@ -224,8 +285,8 @@ def plot(
 
     # handle `image` argument
     if isinstance(image, str):
-        image = iio2.image_read(image)
-    if not isinstance(image, iio.ANTsImage):
+        image = image_read(image)
+    if not isinstance(image, ANTsImage):
         raise ValueError("image argument must be an ANTsImage")
 
     if np.all(np.equal(image.numpy(), 0.0)):
@@ -245,14 +306,14 @@ def plot(
         if vmaxol is None:
             vmaxol = overlay.max()
         if isinstance(overlay, str):
-            overlay = iio2.image_read(overlay)
-        if not isinstance(overlay, iio.ANTsImage):
+            overlay = image_read(overlay)
+        if not isinstance(overlay, ANTsImage):
             raise ValueError("overlay argument must be an ANTsImage")
         if overlay.components > 1:
             raise ValueError("overlay cannot have more than one voxel component")
 
-        if not iio.image_physical_space_consistency(image, overlay):
-            overlay = reg.resample_image_to_target(overlay, image, interp_type="nearestNeighbor")
+        if not image_physical_space_consistency(image, overlay):
+            overlay = resample_image_to_target(overlay, image, interp_type="nearestNeighbor")
 
         if blend:
             if alpha == 1:
@@ -263,15 +324,15 @@ def plot(
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
-        if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(
+        if isinstance(domain_image_map, ANTsImage):
+            tx = new_ants_transform(
                 precision="float",
                 transform_type="AffineTransform",
                 dimension=image.dimension,
             )
-            image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
+            image = apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(
+                overlay = apply_ants_transform_to_image(
                     tx, overlay, domain_image_map, interpolation="nearestNeighbor"
                 )
         elif isinstance(domain_image_map, (list, tuple)):
@@ -280,13 +341,13 @@ def plot(
                 raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
-            if not isinstance(dimg, iio.ANTsImage):
+            if not isinstance(dimg, ANTsImage):
                 raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
-            image = reg.apply_transforms(dimg, image, transform_list=tx)
+            image = apply_transforms(dimg, image, transform_list=tx)
             if overlay is not None:
-                overlay = reg.apply_transforms(
+                overlay = apply_transforms(
                     dimg, overlay, transform_list=tx, interpolator="linear"
                 )
 
