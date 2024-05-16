@@ -4,7 +4,7 @@ __all__ = ['weingarten_image_curvature']
 import numpy as np
 
 from .. import core
-from ..core import ants_image as iio
+from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 
@@ -60,8 +60,7 @@ def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
 
     libfn = utils.get_lib_fn('weingartenImageCurvature')
     mykout = libfn(temp.pointer, sigma, optnum)
-    mykout = iio.ANTsImage(pixeltype=image.pixeltype, dimension=3,
-                            components=image.components, pointer=mykout)
+    mykout = iio2.from_pointer(mykout)
     if image.dimension == 3:
         return mykout
     elif image.dimension == 2:

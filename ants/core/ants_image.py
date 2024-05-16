@@ -44,46 +44,73 @@ _npy_to_itk_map = {
 
 class ANTsImage(object):
 
-    def __init__(self, pixeltype='float', dimension=3, components=1, pointer=None, is_rgb=False):
+    def __init__(self, pointer):
         """
-        Initialize an ANTsImage
+        Initialize an ANTsImage.
+        
+        Creating an ANTsImage requires a pointer to an underlying ITK image that
+        is stored via a nanobind class wrapping a AntsImage struct.
 
         Arguments
         ---------
-        pixeltype : string
-            ITK pixeltype of image
-
-        dimension : integer
-            number of image dimension. Does NOT include components dimension
-
-        components : integer
-            number of pixel components in the image
-
-        pointer : py::capsule (optional)
-            pybind11 capsule holding the pointer to the underlying ITK image object
+        pointer : nb::class
+            nanobind class wrapping the struct holding the pointer to the underlying ITK image object
 
         """
-        ## Attributes which cant change without creating a new ANTsImage object
         self.pointer = pointer
-        self.pixeltype = pixeltype
-        self.dimension = dimension
-        self.components = components
-        self.has_components = self.components > 1
-        self.dtype = _itk_to_npy_map[self.pixeltype]
-        self.is_rgb = is_rgb
-
-        self._pixelclass = 'vector' if self.has_components else 'scalar'
-        self._shortpclass = 'V' if self._pixelclass == 'vector' else ''
-        if is_rgb:
-            self._pixelclass = 'rgb'
-            self._shortpclass = 'RGB'
-
-        self._libsuffix = '%s%s%i' % (self._shortpclass, utils.short_ptype(self.pixeltype), self.dimension)
-
-        self.shape = tuple(utils.get_lib_fn('getShape')(self.pointer))
-        self.physical_shape = tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
-
         self._array = None
+
+    @property
+    def _libsuffix(self):
+        return str(type(self.pointer)).split('AntsImage')[-1].split("'")[0]
+    
+    @property
+    def shape(self):
+        return tuple(utils.get_lib_fn('getShape')(self.pointer))
+    
+    @property
+    def physical_shape(self):
+        return tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
+    
+    @property
+    def is_rgb(self):
+        return 'RGB' in self._libsuffix
+    
+    @property
+    def has_components(self):
+        suffix = self._libsuffix
+        return suffix.startswith('V') or suffix.startswith('RGB')
+    
+    @property
+    def components(self):
+        if not self.has_components:
+            return 1
+        
+        libfn = utils.get_lib_fn('getComponents')
+        return libfn(self.pointer)
+        
+    @property
+    def pixeltype(self):
+        ptype = self._libsuffix[:-1]
+        if self.has_components:
+            if self.is_rgb:
+                ptype = ptype[3:]
+            else:
+                ptype = ptype[1:]
+        
+        ptype_map = {'UC': 'unsigned char',
+                     'UI': 'unsigned int',
+                     'F': 'float',
+                     'D': 'double'}
+        return ptype_map[ptype]
+    
+    @property
+    def dtype(self):
+        return _itk_to_npy_map[self.pixeltype]
+    
+    @property
+    def dimension(self):
+        return int(self._libsuffix[-1])
 
     @property
     def spacing(self):
@@ -284,11 +311,7 @@ class ANTsImage(object):
             fn_suffix = '%s%i' % (p2_short,ndim)
             libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
             pointer_cloned = libfn(self.pointer)
-            return ANTsImage(pixeltype=pixeltype,
-                            dimension=self.dimension,
-                            components=self.components,
-                            is_rgb=self.is_rgb,
-                            pointer=pointer_cloned)
+            return iio2.from_pointer(pointer_cloned)
 
     # pythonic alias for `clone` is `copy`
     copy = clone

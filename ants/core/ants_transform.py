@@ -16,7 +16,7 @@ __all__ = ['ANTsTransform',
            'transform_index_to_physical_point',
            'transform_physical_point_to_index']
 
-from . import ants_image as iio
+from . import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 
@@ -188,10 +188,7 @@ class ANTsTransform(object):
         reference = reference.clone(image.pixeltype)
 
         img_ptr = tform_fn(self.pointer, image.pointer, reference.pointer, interpolation)
-        return iio.ANTsImage(pixeltype=image.pixeltype,
-                            dimension=image.dimension,
-                            components=image.components,
-                            pointer=img_ptr)
+        return iio2.from_pointer(img_ptr)
 
     def __repr__(self):
         s = "ANTsTransform\n" +\

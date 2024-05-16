@@ -50,8 +50,7 @@ def histogram_match_image(source_image, reference_image, number_of_histogram_bin
     libfn = utils.get_lib_fn('histogramMatchImageF%i' % ndim)
     itkimage = libfn(source_image.pointer, reference_image.pointer, number_of_histogram_bins, number_of_match_points, use_threshold_at_mean_intensity)
 
-    new_image = iio.ANTsImage(pixeltype='float', dimension=ndim, 
-                         components=source_image.components, pointer=itkimage).clone(inpixeltype)
+    new_image = iio2.from_pointer(itkimage).clone(inpixeltype)
     return new_image
 
 

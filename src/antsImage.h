@@ -90,6 +90,13 @@ std::list<int> getShape( AntsImage<ImageType> & myPointer )
 
 
 template <typename ImageType>
+int getComponents( AntsImage<ImageType> & myPointer )
+{
+    typename ImageType::Pointer image = myPointer.ptr;
+    return image->GetNumberOfComponentsPerPixel();
+}
+
+template <typename ImageType>
 std::vector<double> getOrigin( AntsImage<ImageType> & myPointer )
 {
     typename ImageType::Pointer image = myPointer.ptr;

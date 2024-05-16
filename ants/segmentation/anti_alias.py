@@ -40,5 +40,4 @@ def anti_alias(image):
 
     libfn = utils.get_lib_fn('antiAlias%s' % image._libsuffix)
     new_ptr = libfn(image.pointer)
-    return iio.ANTsImage(pixeltype='float', dimension=image.dimension, 
-                         components=image.components, pointer=new_ptr)
+    return iio2.from_pointer(new_ptr)

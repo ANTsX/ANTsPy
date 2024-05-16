@@ -1,7 +1,7 @@
 
 __all__ = ['integrate_velocity_field']
 
-from ..core import ants_image as iio
+from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 
@@ -42,8 +42,7 @@ def integrate_velocity_field(velocity_field,
     integrated_field = libfn(velocity_field.pointer, lower_integration_bound,
         upper_integration_bound, number_of_integration_steps)
 
-    new_image = iio.ANTsImage(pixeltype='float', dimension=(velocity_field.dimension-1),
-                         components=(velocity_field.dimension-1), pointer=integrated_field).clone('float')
+    new_image = iio2.from_pointer(integrated_field).clone('float')
     return new_image
 
 

@@ -3,6 +3,7 @@ Image IO
 """
 
 __all__ = [
+    'from_pointer',
     "image_header_info",
     "image_clone",
     "image_read",
@@ -66,6 +67,9 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
             _image_read_dict[itype][p][d] = "imageRead%s%s%i" % (ita, pa, d)
 
 
+def from_pointer(pointer):
+    return iio.ANTsImage(pointer)
+    
 def from_numpy(
     data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
 ):
@@ -128,9 +132,7 @@ def _from_numpy(
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
-        ants_image = iio.ANTsImage(
-            pixeltype=ptype, dimension=ndim, components=1, pointer=itk_image
-        )
+        ants_image = from_pointer(itk_image)
         ants_image.set_origin(origin)
         ants_image.set_spacing(spacing)
         ants_image.set_direction(direction)
@@ -141,9 +143,7 @@ def _from_numpy(
         ants_images = []
         for i in range(len(arrays)):
             tmp_ptr = libfn(arrays[i], data_shape[::-1])
-            tmp_img = iio.ANTsImage(
-                pixeltype=ptype, dimension=ndim, components=1, pointer=tmp_ptr
-            )
+            tmp_img = from_pointer(tmp_ptr)
             tmp_img.set_origin(origin)
             tmp_img.set_spacing(spacing)
             tmp_img.set_direction(direction)
@@ -547,13 +547,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
 
-        ants_image = iio.ANTsImage(
-            pixeltype=ptype,
-            dimension=ndim,
-            components=ncomp,
-            pointer=itk_pointer,
-            is_rgb=is_rgb,
-        )
+        ants_image = from_pointer(itk_pointer)
 
         if pixeltype is not None:
             ants_image = ants_image.clone(pixeltype)

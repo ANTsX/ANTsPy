@@ -11,7 +11,7 @@ from tempfile import mktemp
 
 from . import apply_transforms
 from .. import utils
-from ..core import ants_image as iio
+from ..core import ants_image as iio, ants_image_io as iio2
 
 
 _possible_orientations = ['RIP','LIP',  'RSP',  'LSP',  'RIA',  'LIA',
@@ -72,8 +72,7 @@ def reorient_image2(image, orientation='RAS'):
      libfn = utils.get_lib_fn('reorientImage2')
      itkimage = libfn(image.pointer, orientation)
 
-     new_img = iio.ANTsImage(pixeltype='float', dimension=ndim,
-                          components=image.components, pointer=itkimage)#.clone(inpixeltype)
+     new_img = iio2.from_pointer(itkimage)
      if inpixeltype != 'float':
          new_img = new_img.clone(inpixeltype)
      return new_img
