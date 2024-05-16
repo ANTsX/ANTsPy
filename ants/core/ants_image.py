@@ -560,13 +560,6 @@ class ANTsImage(object):
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
-        """
-        import ants
-        img = ants.image_read(ants.get_data('mni'))
-        img2 = img[:10,:20,:10]
-        img3 = img[:10,:20,10]
-        img3 = img[:10,10,:20]
-        """
         if self.has_components:
             return utils.merge_channels([
                 img[idx] for img in utils.split_channels(self)
@@ -606,10 +599,10 @@ class ANTsImage(object):
             return self.numpy().__getitem__(idx)
         
         libfn = utils.get_lib_fn('getItem%i' % ndim)
-        new_ptr = libfn(self.clone('float').pointer, starts, sizes)
-        new_image = ANTsImage(pixeltype='float', dimension=ndim, 
+        new_ptr = libfn(self.pointer, starts, sizes)
+        new_image = ANTsImage(pixeltype=self.pixeltype, dimension=ndim, 
                               components=self.components, pointer=new_ptr)
-        return new_image.clone(self.pixeltype)
+        return new_image
 
 
     def __setitem__(self, idx, value):
