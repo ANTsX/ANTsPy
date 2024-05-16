@@ -9,7 +9,7 @@ import os
 import numpy as np
 
 from .. import utils
-from . import ants_image as iio
+from ..core import ants_image as iio
 from . import ants_metric as mio
 
 

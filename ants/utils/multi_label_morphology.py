@@ -5,7 +5,9 @@ Morphology operations on multi-label ANTsImage types
 __all__ = ['multi_label_morphology']
 
 import numpy as np
+from ants.decorators import image_method
 
+@image_method
 def multi_label_morphology(image, operation, radius, dilation_mask=None, label_list=None, force=False):
     """
     Morphology on multi label images.

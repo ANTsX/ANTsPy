@@ -17,16 +17,10 @@ import os
 import numpy as np
 import pandas as pd
 
-try:
-    from functools import partialmethod
-    HAS_PY3 = True
-except:
-    HAS_PY3 = False
-
+from functools import partialmethod
 import inspect
 
-from .. import registration, segmentation, utils, viz
-from . import ants_image_io as iio2
+from ants import lib
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
@@ -66,7 +60,7 @@ class ANTsImage(object):
     
     @property
     def shape(self):
-        return tuple(utils.get_lib_fn('getShape')(self.pointer))
+        return tuple(lib.getShape(self.pointer))
     
     @property
     def physical_shape(self):
@@ -86,8 +80,7 @@ class ANTsImage(object):
         if not self.has_components:
             return 1
         
-        libfn = utils.get_lib_fn('getComponents')
-        return libfn(self.pointer)
+        return lib.getComponents(self.pointer)
         
     @property
     def pixeltype(self):
@@ -121,8 +114,7 @@ class ANTsImage(object):
         -------
         tuple
         """
-        libfn = utils.get_lib_fn('getSpacing')
-        return tuple(libfn(self.pointer))
+        return tuple(lib.getSpacing(self.pointer))
 
     def set_spacing(self, new_spacing):
         """
@@ -143,8 +135,7 @@ class ANTsImage(object):
         if len(new_spacing) != self.dimension:
             raise ValueError('must give a spacing value for each dimension (%i)' % self.dimension)
 
-        libfn = utils.get_lib_fn('setSpacing')
-        libfn(self.pointer, new_spacing)
+        lib.setSpacing(self.pointer, new_spacing)
 
     @property
     def origin(self):
@@ -155,8 +146,7 @@ class ANTsImage(object):
         -------
         tuple
         """
-        libfn = utils.get_lib_fn('getOrigin')
-        return tuple(libfn(self.pointer))
+        return tuple(lib.getOrigin(self.pointer))
 
     def set_origin(self, new_origin):
         """
@@ -177,8 +167,7 @@ class ANTsImage(object):
         if len(new_origin) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        libfn = utils.get_lib_fn('setOrigin')
-        libfn(self.pointer, new_origin)
+        lib.setOrigin(self.pointer, new_origin)
 
     @property
     def direction(self):
@@ -189,8 +178,7 @@ class ANTsImage(object):
         -------
         tuple
         """
-        libfn = utils.get_lib_fn('getDirection')
-        return np.array(libfn(self.pointer)).reshape(self.dimension,self.dimension)
+        return np.array(lib.getDirection(self.pointer)).reshape(self.dimension,self.dimension)
 
     def set_direction(self, new_direction):
         """
@@ -214,8 +202,7 @@ class ANTsImage(object):
         if len(new_direction) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        libfn = utils.get_lib_fn('setDirection')
-        libfn(self.pointer, new_direction)
+        lib.setDirection(self.pointer, new_direction)
 
     @property
     def orientation(self):
@@ -248,8 +235,7 @@ class ANTsImage(object):
         shape = img.shape[::-1]
         if img.has_components or (single_components == True):
             shape = list(shape) + [img.components]
-        libfn = utils.get_lib_fn('toNumpy')
-        memview = libfn(img.pointer)
+        memview = lib.toNumpy(img.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
     def numpy(self, single_components=False):
@@ -272,50 +258,6 @@ class ANTsImage(object):
             array = np.rollaxis(array, 0, self.dimension+1)
         return array
 
-    def clone(self, pixeltype=None):
-        """
-        Create a copy of the given ANTsImage with the same data and info, possibly with
-        a different data type for the image data. Only supports casting to
-        uint8 (unsigned char), uint32 (unsigned int), float32 (float), and float64 (double)
-
-        Arguments
-        ---------
-        dtype: string (optional)
-            if None, the dtype will be the same as the cloned ANTsImage. Otherwise,
-            the data will be cast to this type. This can be a numpy type or an ITK
-            type.
-            Options:
-                'unsigned char' or 'uint8',
-                'unsigned int' or 'uint32',
-                'float' or 'float32',
-                'double' or 'float64'
-
-        Returns
-        -------
-        ANTsImage
-        """
-        if pixeltype is None:
-            pixeltype = self.pixeltype
-
-        if pixeltype not in _supported_ptypes:
-            raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
-
-        if self.has_components and (not self.is_rgb):
-            comp_imgs = utils.split_channels(self)
-            comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-            return utils.merge_channels(comp_imgs_cloned)
-        else:
-            p1_short = utils.short_ptype(self.pixeltype)
-            p2_short = utils.short_ptype(pixeltype)
-            ndim = self.dimension
-            fn_suffix = '%s%i' % (p2_short,ndim)
-            libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
-            pointer_cloned = libfn(self.pointer)
-            return iio2.from_pointer(pointer_cloned)
-
-    # pythonic alias for `clone` is `copy`
-    copy = clone
-
     def astype(self, dtype):
         """
         Cast & clone an ANTsImage to a given numpy datatype.
@@ -332,35 +274,6 @@ class ANTsImage(object):
         pixeltype = _npy_to_itk_map[dtype]
         return self.clone(pixeltype)
 
-    def new_image_like(self, data):
-        """
-        Create a new ANTsImage with the same header information, but with
-        a new image array.
-
-        Arguments
-        ---------
-        data : ndarray or py::capsule
-            New array or pointer for the image.
-            It must have the same shape as the current
-            image data.
-
-        Returns
-        -------
-        ANTsImage
-        """
-        if not isinstance(data, np.ndarray):
-            raise ValueError('data must be a numpy array')
-        if not self.has_components:
-            if data.shape != self.shape:
-                raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
-        else:
-            if (data.shape[-1] != self.components) or (data.shape[:-1] != self.shape):
-                raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
-
-        return iio2.from_numpy(data, origin=self.origin,
-            spacing=self.spacing, direction=self.direction,
-            has_components=self.has_components)
-
     def to_file(self, filename):
         """
         Write the ANTsImage to file
@@ -371,8 +284,7 @@ class ANTsImage(object):
             filepath to which the image will be written
         """
         filename = os.path.expanduser(filename)
-        libfn = utils.get_lib_fn('toFile')
-        libfn(self.pointer, filename)
+        lib.toFile(self.pointer, filename)
     to_filename = to_file
 
     def apply(self, fn):
@@ -617,42 +529,6 @@ class ANTsImage(object):
             '\t {:<10} : {}\n'.format('Direction', np.round(self.direction.flatten(),4))
         return s
 
-if HAS_PY3:
-    # Set partial class methods for any functions which take an ANTsImage as the first argument
-    for k, v in utils.__dict__.items():
-        if callable(v):
-            args = inspect.getfullargspec(getattr(utils,k)).args
-            if (len(args) > 0) and (args[0] in {'img','image','cropped_image'}):
-                setattr(ANTsImage, k, partialmethod(v))
-
-    for k, v in registration.__dict__.items():
-        if callable(v):
-            args = inspect.getfullargspec(getattr(registration,k)).args
-            if (len(args) > 0) and (args[0] in {'img','image'}):
-                setattr(ANTsImage, k, partialmethod(v))
-
-    for k, v in segmentation.__dict__.items():
-        if callable(v):
-            args = inspect.getfullargspec(getattr(segmentation,k)).args
-            if (len(args) > 0) and (args[0] in {'img','image'}):
-                setattr(ANTsImage, k, partialmethod(v))
-
-    for k, v in viz.__dict__.items():
-        if callable(v):
-            args = inspect.getfullargspec(getattr(viz,k)).args
-            if (len(args) > 0) and (args[0] in {'img','image'}):
-                setattr(ANTsImage, k, partialmethod(v))
-
-
-class Dictlist(dict):
-    def __setitem__(self, key, value):
-        try:
-            self[key]
-        except KeyError:
-            super(Dictlist, self).__setitem__(key, [])
-        self[key].append(value)
-
-
 def copy_image_info(reference, target):
     """
     Copy origin, direction, and spacing from one antsImage to another
@@ -838,3 +714,16 @@ def allclose(image1, image2):
     Check if two images have the same array values
     """
     return np.allclose(image1.numpy(), image2.numpy())
+
+
+from functools import wraps # This convenience func preserves name and docstring
+
+def image_method():
+    def decorator(func):
+        @wraps(func) 
+        def wrapper(self, *args, **kwargs): 
+            return func(self, *args, **kwargs)
+        setattr(ANTsImage, func.__name__, wrapper)
+        # Note we are not binding func, but wrapper which accepts self but does exactly the same as func
+        return func # returning func means func can still be used normally
+    return decorator

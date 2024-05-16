@@ -6,9 +6,11 @@ __all__ = ['resample_image',
 
 import os
 
+from ants.decorators import image_method
 from ..core import ants_image as iio
 from .. import utils
 
+@image_method
 def resample_image(image, resample_params, use_voxels=False, interp_type=1):
     """
     Resample image by spacing or number of voxels with

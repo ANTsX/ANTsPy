@@ -6,11 +6,13 @@ __all__ = ['crop_image',
            'decrop_image']
 
 
-from .get_mask import get_mask
+from ants.decorators import image_method
+from ..utils.get_mask import get_mask
 from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 
+@image_method
 def crop_image(image, label_image=None, label=1):
     """
     Use a label image to crop a smaller ANTsImage from within a larger ANTsImage
@@ -55,6 +57,7 @@ def crop_image(image, label_image=None, label=1):
     return iio2.from_pointer(itkimage).clone(inpixeltype)
 
 
+@image_method
 def crop_indices(image, lowerind, upperind):
     """
     Create a proper ANTsImage sub-image by indexing the image with indices. 
@@ -102,7 +105,7 @@ def crop_indices(image, lowerind, upperind):
         ants_image = ants_image.clone(inpixeltype)
     return ants_image
 
-
+@image_method
 def decrop_image(cropped_image, full_image):
     """
     The inverse function for `ants.crop_image`

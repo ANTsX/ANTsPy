@@ -5,7 +5,7 @@ __all__ = ['make_points_image']
 import math
 import numpy as np
 
-from ..core import ants_transform as tio
+from ..transforms import ants_transform as tio
 from .. import utils
 
 def make_points_image(pts, mask, radius=5):

@@ -3,10 +3,11 @@ __all__ = ['slice_image']
 
 import math
 
+from ants.decorators import image_method
 from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
-
+@image_method
 def slice_image(image, axis, idx, collapse_strategy=0):
     """
     Slice an image.

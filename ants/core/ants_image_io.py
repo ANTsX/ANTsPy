@@ -26,8 +26,9 @@ import json
 import numpy as np
 import warnings
 
+from ants.decorators import image_method
 from . import ants_image as iio
-from .. import utils
+from .. import utils, core
 from .. import registration as reg
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
@@ -641,3 +642,77 @@ def image_write(image, filename, ri=False):
 
     if ri:
         return image
+
+@image_method
+def clone(self, pixeltype=None):
+    """
+    Create a copy of the given ANTsImage with the same data and info, possibly with
+    a different data type for the image data. Only supports casting to
+    uint8 (unsigned char), uint32 (unsigned int), float32 (float), and float64 (double)
+
+    Arguments
+    ---------
+    dtype: string (optional)
+        if None, the dtype will be the same as the cloned ANTsImage. Otherwise,
+        the data will be cast to this type. This can be a numpy type or an ITK
+        type.
+        Options:
+            'unsigned char' or 'uint8',
+            'unsigned int' or 'uint32',
+            'float' or 'float32',
+            'double' or 'float64'
+
+    Returns
+    -------
+    ANTsImage
+    """
+    if pixeltype is None:
+        pixeltype = self.pixeltype
+
+    if pixeltype not in _supported_ptypes:
+        raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
+
+    if self.has_components and (not self.is_rgb):
+        comp_imgs = utils.split_channels(self)
+        comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
+        return utils.merge_channels(comp_imgs_cloned)
+    else:
+        p1_short = utils.short_ptype(self.pixeltype)
+        p2_short = utils.short_ptype(pixeltype)
+        ndim = self.dimension
+        fn_suffix = '%s%i' % (p2_short,ndim)
+        libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
+        pointer_cloned = libfn(self.pointer)
+        return from_pointer(pointer_cloned)
+        
+copy = clone
+
+@image_method
+def new_image_like(self, data):
+    """
+    Create a new ANTsImage with the same header information, but with
+    a new image array.
+
+    Arguments
+    ---------
+    data : ndarray or py::capsule
+        New array or pointer for the image.
+        It must have the same shape as the current
+        image data.
+
+    Returns
+    -------
+    ANTsImage
+    """
+    if not isinstance(data, np.ndarray):
+        raise ValueError('data must be a numpy array')
+    if not self.has_components:
+        if data.shape != self.shape:
+            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
+    else:
+        if (data.shape[-1] != self.components) or (data.shape[:-1] != self.shape):
+            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
+
+    return from_numpy(data, origin=self.origin,
+        spacing=self.spacing, direction=self.direction,
+        has_components=self.has_components)

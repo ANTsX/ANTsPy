@@ -5,6 +5,7 @@ __all__ = ['smooth_image']
 
 import math
 
+from ants.decorators import image_method
 from .. import utils
 from ..core import ants_image as iio, ants_image_io as iio2
 
@@ -30,6 +31,7 @@ def _smooth_image_helper(image, sigma, sigma_in_physical_coordinates=True, FWHM=
     return ants_outimage
 
 
+@image_method
 def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, max_kernel_width=32):
     """
     Smooth an image

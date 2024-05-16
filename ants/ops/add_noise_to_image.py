@@ -1,8 +1,10 @@
 __all__ = ["add_noise_to_image"]
 
 from .. import utils
+from ants.decorators import image_method
 from ..core import ants_image as iio, ants_image_io as iio2
 
+@image_method
 def add_noise_to_image(image,
                        noise_model,
                        noise_parameters

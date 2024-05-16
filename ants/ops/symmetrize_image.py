@@ -4,12 +4,13 @@ __all__ = ['symmetrize_image']
 
 from tempfile import mktemp
 
+from ants.decorators import image_method
 from .reflect_image import reflect_image
-from .interface import registration
-from .apply_transforms import apply_transforms
+from ..registration.interface import registration
+from ..registration.apply_transforms import apply_transforms
 from ..core import ants_image_io as iio
 
-
+@image_method
 def symmetrize_image(image):
     """
     Use registration and reflection to make an image symmetric

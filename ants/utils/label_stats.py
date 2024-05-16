@@ -2,9 +2,10 @@ __all__ = ["label_stats"]
 
 import pandas as pd
 
+from ants.decorators import image_method
 from .. import utils
 
-
+@image_method
 def label_stats(image, label_image):
     """
     Get label statistics from image

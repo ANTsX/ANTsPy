@@ -4,11 +4,12 @@ __all__ = ['reflect_image']
 
 from tempfile import mktemp
 
+from ants.decorators import image_method
 from .. import utils
-from .interface import registration
-from .apply_transforms import apply_transforms
+from ..registration.interface import registration
+from ..registration.apply_transforms import apply_transforms
 
-
+@image_method
 def reflect_image(image, axis=None, tx=None, metric='mattes'):
     """
     Reflect an image along an axis

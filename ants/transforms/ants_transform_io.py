@@ -10,7 +10,7 @@ __all__ = [
 import os
 import numpy as np
 
-from . import ants_image as iio, ants_image_io as iio2
+from ..core import ants_image as iio, ants_image_io as iio2
 from . import ants_transform as tio
 from .. import utils
 

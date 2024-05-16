@@ -4,6 +4,7 @@
 __all__ = ['merge_channels',
            'split_channels']
 
+from ants.decorators import image_method
 from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
@@ -47,7 +48,7 @@ def merge_channels(image_list):
     
     return iio2.from_pointer(image_ptr)
 
-
+@image_method
 def split_channels(image):
     """
     Split channels of a multi-channel ANTsImage into a collection

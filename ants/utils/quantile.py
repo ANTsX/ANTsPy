@@ -19,10 +19,11 @@ from sklearn import linear_model
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+from ants.decorators import image_method
 from .. import utils
 from .. import core
 
-
+@image_method
 def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
     """
     Rank transform the intensity of the input image with or without masking.
@@ -199,7 +200,7 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
         'tValues': tValsOutDict }
 
 
-
+@image_method
 def quantile(image, q, nonzero=True):
     """
     Get the quantile values from an ANTsImage
@@ -263,7 +264,6 @@ def regress_components( data, components, remove_mean=True ):
         datahat = components[:, 1:].dot(betas[1:, ...])
     regressed_data = data - datahat
     return regressed_data
-
 
 
 def get_average_of_timeseries( image, idx=None ):

@@ -31,13 +31,13 @@ from .ants_image import (
     allclose
 )
 
-from .ants_metric_io import (
+from ..metrics.ants_metric_io import (
     new_ants_metric,
     create_ants_metric,
     supported_metrics
 )
 
-from .ants_transform_io import (
+from ..transforms.ants_transform_io import (
     create_ants_transform,
     new_ants_transform,
     read_transform,
@@ -46,7 +46,7 @@ from .ants_transform_io import (
     transform_to_displacement_field
 )
 
-from .ants_transform import (
+from ..transforms.ants_transform import (
     ANTsTransform,
     set_ants_transform_parameters,
     get_ants_transform_parameters,

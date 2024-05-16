@@ -16,7 +16,7 @@ __all__ = ['ANTsTransform',
            'transform_index_to_physical_point',
            'transform_physical_point_to_index']
 
-from . import ants_image as iio, ants_image_io as iio2
+from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
 

@@ -5,7 +5,7 @@ ANTs ImageToImageMetric class
 __all__ = []
 
 
-from . import ants_image as iio
+from ..core import ants_image as iio
 
 
 class ANTsImageToImageMetric(object):

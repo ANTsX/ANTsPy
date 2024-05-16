@@ -1,10 +1,11 @@
 __all__ = ["denoise_image"]
 
+from ants.decorators import image_method
 from .. import utils
-from . import process_args as pargs
-from .get_mask import get_mask
+from ..utils import process_args as pargs
+from ..utils.get_mask import get_mask
 
-
+@image_method
 def denoise_image(
     image, mask=None, shrink_factor=1, p=1, r=3, noise_model="Rician", v=0
 ):

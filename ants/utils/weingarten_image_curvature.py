@@ -3,11 +3,12 @@ __all__ = ['weingarten_image_curvature']
 
 import numpy as np
 
+from ants.decorators import image_method
 from .. import core
 from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
-
+@image_method
 def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
     """
     Uses the weingarten map to estimate image mean or gaussian curvature

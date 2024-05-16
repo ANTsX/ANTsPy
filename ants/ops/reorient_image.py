@@ -9,7 +9,8 @@ __all__ = ['get_orientation',
 import numpy as np
 from tempfile import mktemp
 
-from . import apply_transforms
+from ants.decorators import image_method
+from ..registration import apply_transforms
 from .. import utils
 from ..core import ants_image as iio, ants_image_io as iio2
 
@@ -25,7 +26,7 @@ _possible_orientations = ['RIP','LIP',  'RSP',  'LSP',  'RIA',  'LIA',
 def get_possible_orientations():
     return _possible_orientations
 
-
+@image_method
 def get_orientation(image):
     direction = image.direction
 
@@ -51,7 +52,7 @@ def get_orientation(image):
                 orientation.append('I')
     return ''.join(orientation)
 
-
+@image_method
 def reorient_image2(image, orientation='RAS'):
      """
      Reorient an image.
@@ -77,6 +78,7 @@ def reorient_image2(image, orientation='RAS'):
          new_img = new_img.clone(inpixeltype)
      return new_img
      
+@image_method
 def get_center_of_mass(image):
     """
     Compute an image center of mass in physical space which is defined

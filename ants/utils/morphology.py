@@ -3,8 +3,10 @@
 
 __all__ = ['morphology']
 
+from ants.decorators import image_method
 from .iMath import iMath
 
+@image_method
 def morphology(image, operation, radius, mtype='binary', value=1,
                shape='ball', radius_is_parametric=False, thickness=1,
                lines=3, include_center=False):

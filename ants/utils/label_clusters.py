@@ -5,7 +5,7 @@ __all__ = ['label_clusters']
 
 from .. import utils
 from .process_args import _int_antsProcessArguments
-from .threshold_image import threshold_image
+from ..ops.threshold_image import threshold_image
 
 
 def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fully_connected=False):

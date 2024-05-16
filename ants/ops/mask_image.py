@@ -1,9 +1,11 @@
 __all__ = ['mask_image']
 
 import numpy as np
+
+from ants.decorators import image_method
 from .threshold_image import threshold_image
 
-
+@image_method
 def mask_image(image, mask, level=1, binarize=False):
     """
     Mask an input image by a mask image.  If the mask image has multiple labels,

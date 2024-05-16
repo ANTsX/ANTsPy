@@ -3,10 +3,11 @@ __all__ = ['pad_image']
 
 import math
 
+from ants.decorators import image_method
 from ..core import ants_image as iio, ants_image_io as iio2
 from .. import utils
 
-
+@image_method
 def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False):
     """
     Pad an image to have the given shape or to be isotropic.

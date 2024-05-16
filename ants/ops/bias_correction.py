@@ -1,14 +1,16 @@
 __all__ = ["n3_bias_field_correction", "n3_bias_field_correction2", "n4_bias_field_correction", "abp_n4"]
 
 
-from . import process_args as pargs
-from .get_mask import get_mask
-from .iMath import iMath
+from ..utils import process_args as pargs
+from ..utils.get_mask import get_mask
+from ..utils.iMath import iMath
+
+from ants.decorators import image_method
 
 from ..core import ants_image as iio
 from .. import utils
 
-
+@image_method
 def n3_bias_field_correction(image, downsample_factor=3):
     """
     N3 Bias Field Correction
@@ -40,6 +42,7 @@ def n3_bias_field_correction(image, downsample_factor=3):
     libfn(processed_args)
     return outimage
 
+@image_method
 def n3_bias_field_correction2(
     image,
     mask=None,
@@ -160,6 +163,7 @@ def n3_bias_field_correction2(
     else:
         return outimage
 
+@image_method
 def n4_bias_field_correction(
     image,
     mask=None,
@@ -278,7 +282,7 @@ def n4_bias_field_correction(
     else:
         return outimage
 
-
+@image_method
 def abp_n4(image, intensity_truncation=(0.025, 0.975, 256), mask=None, usen3=False):
     """
     Truncate outlier intensities and bias correct with the N4 algorithm.

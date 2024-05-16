@@ -4,9 +4,11 @@ import os
 from tempfile import mkstemp
 import numpy as np
 import nibabel as nib
+
+from ants.decorators import image_method
 from ..core import ants_image_io as iio2
 
-
+@image_method
 def to_nibabel(image):
     """
     Convert an ANTsImage to a Nibabel image

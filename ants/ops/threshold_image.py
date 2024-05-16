@@ -3,10 +3,11 @@
 
 __all__ = ['threshold_image']
 
-from .process_args import _int_antsProcessArguments
+from ants.decorators import image_method
+from ..utils.process_args import _int_antsProcessArguments
 from .. import utils
 
-
+@image_method
 def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0, binary=True):
     """
     Converts a scalar image into a binary image by thresholding operations

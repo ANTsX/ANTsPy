@@ -4,12 +4,12 @@ import numpy as np
 import os
 from tempfile import mktemp
 
-from .reflect_image import reflect_image
+from ..ops.reflect_image import reflect_image
 from .interface import registration
 from .apply_transforms import apply_transforms
-from .resample_image import resample_image_to_target
+from ..ops.resample_image import resample_image_to_target
 from ..core import ants_image_io as iio
-from ..core import ants_transform_io as tio
+from ..transforms import ants_transform_io as tio
 from .. import utils
 
 def build_template(

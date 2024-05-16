@@ -2,8 +2,8 @@
 
 __all__ = ['image_similarity']
 
-from ..core import ants_metric as mio
-from ..core import ants_metric_io as mio2
+from ..metrics import ants_metric as mio
+from ..metrics import ants_metric_io as mio2
 
 def image_similarity(fixed_image, moving_image, metric_type='MeanSquares',
                     fixed_mask=None, moving_mask=None,

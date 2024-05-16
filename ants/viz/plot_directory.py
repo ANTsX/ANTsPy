@@ -28,8 +28,8 @@ from .plot import plot
 from .. import registration as reg
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
-from ..core import ants_transform as tio
-from ..core import ants_transform_io as tio2
+from ..transforms import ants_transform as tio
+from ..transforms import ants_transform_io as tio2
 
 def plot_directory(
     directory,
