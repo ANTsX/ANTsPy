@@ -72,6 +72,12 @@ Resources for learning about ANTsPy can be found in the [tutorials](https://gith
 
 <br>
 
+## Contributing
+
+If you have a question, feature request, or bug report the best way to get help is by posting an issue on the GitHub page. We welcome and are thankful for new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/master/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
+
+<br>
+
 ## References
 
 The main references can be found at the main [ANTs](https://github.com/ANTsX/ANTs#boilerplate-ants) repo. A Google Scholar search also reveals plenty of explanation of methods and evaluation results by [the community](https://scholar.google.com/scholar?start=0&q=advanced+normalization+tools+ants+image+registration&hl=en&as_sdt=0,40) and by [ourselves](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C40&q=advanced+normalization+tools+ants+image+registration+-avants+-tustison&btnG=).
