@@ -16,6 +16,8 @@ from . import apply_transforms_to_points
 from .. import utils, ops
 from ..core import ants_image as iio
 from .. import core, ops
+
+import ants
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
@@ -406,8 +408,8 @@ def registration(
     moving = moving.clone("float")
     fixed = fixed.clone("float")
     # NOTE: this may be better for general purpose applications: TBD
-#    moving = ops.iMath( moving.clone("float"), "Normalize" )
-#    fixed = ops.iMath( fixed.clone("float"), "Normalize" )
+#    moving = ants.iMath( moving.clone("float"), "Normalize" )
+#    fixed = ants.iMath( fixed.clone("float"), "Normalize" )
     warpedfixout = moving.clone()
     warpedmovout = fixed.clone()
     f = get_pointer_string(fixed)
@@ -1479,12 +1481,12 @@ def motion_correction(
     nTimePoints = ishape[idim - 1]
     if fixed is None:
         wt = 1.0 / nTimePoints
-        fixed = utils.slice_image(image, axis=idim - 1, idx=0) * 0
+        fixed = ants.slice_image(image, axis=idim - 1, idx=0) * 0
         for k in range(nTimePoints):
-            temp = utils.slice_image(image, axis=idim - 1, idx=k)
-            fixed = fixed + ops.iMath(temp,"Normalize") * wt
+            temp = ants.slice_image(image, axis=idim - 1, idx=k)
+            fixed = fixed + ants.iMath(temp,"Normalize") * wt
     if mask is None:
-        mask = ops.get_mask(fixed)
+        mask = ants.get_mask(fixed)
         useMask=None
     else:
         useMask=mask
@@ -1497,8 +1499,8 @@ def motion_correction(
     myrad = np.ones(idim - 1).astype(int).tolist()
     mask1vals = np.zeros(int(mask.sum()))
     mask1vals[round(len(mask1vals) / 2)] = 1
-    mask1 = core.make_image(mask, mask1vals)
-    myoffsets = utils.get_neighborhood_in_mask(
+    mask1 = ants.make_image(mask, mask1vals)
+    myoffsets = ants.get_neighborhood_in_mask(
         mask1, mask1, radius=myrad, spatial_info=True
     )["offsets"]
 
@@ -1519,8 +1521,8 @@ def motion_correction(
         if verbose and mycount == counter:
             counter = counter + 10
             print(mycount, end="%.", flush=True)
-        temp = utils.slice_image(image, axis=idim - 1, idx=k)
-        temp = ops.iMath(temp, "Normalize")
+        temp = ants.slice_image(image, axis=idim - 1, idx=k)
+        temp = ants.iMath(temp, "Normalize")
         if temp.numpy().var() > 0:
             if outprefix != "":
                 outprefixloc = outprefix + "_" + str.zfill( str(k), 5 ) + "_"
@@ -1545,7 +1547,7 @@ def motion_correction(
             FD[k] = (fdptsTxIminus1 - fdptsTxI).abs().mean().sum()
             motion_parameters.append(myreg["fwdtransforms"])
             mywarped = apply_transforms( fixed,
-                utils.slice_image(image, axis=idim - 1, idx=k),
+                ants.slice_image(image, axis=idim - 1, idx=k),
                 myreg["fwdtransforms"] )
             motion_corrected.append(mywarped)
         else:
@@ -1555,7 +1557,7 @@ def motion_correction(
     if verbose:
         print("Done")
     return {
-        "motion_corrected": utils.list_to_ndimage(image, motion_corrected),
+        "motion_corrected": ants.list_to_ndimage(image, motion_corrected),
         "motion_parameters": motion_parameters,
         "FD": FD,
     }

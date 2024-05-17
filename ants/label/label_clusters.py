@@ -3,8 +3,7 @@
 
 __all__ = ['label_clusters']
 
-from .. import utils
-from ..ops.threshold_image import threshold_image
+import ants
 from ants.internal import get_lib_fn, process_arguments
 
 def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fully_connected=False):
@@ -43,7 +42,7 @@ def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fu
     >>> timageFace = ants.label_clusters( image, 10, 128, 150, False )
     """
     dim = image.dimension
-    clust = threshold_image(image, min_thresh, max_thresh)
+    clust = ants.threshold_image(image, min_thresh, max_thresh)
     temp = int(fully_connected)
     args = [dim, clust, clust, min_cluster_size, temp]
     processed_args = process_arguments(args)

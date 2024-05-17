@@ -19,8 +19,7 @@ from sklearn import linear_model
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-from .. import utils, ops
-from .. import core
+import ants
 
 
 def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
@@ -56,15 +55,15 @@ def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
     if mask is not None:
         fir = rankdata( (x*mask).numpy(), method=method )
     elif mask is None and get_mask == True:
-        mask = ops.get_mask( x )
+        mask = ants.get_mask( x )
         fir = rankdata( (x*mask).numpy(), method=method )
     else:
         fir = rankdata( x.numpy(), method=method )
     fir = fir - 1
     fir = fir.reshape( x.shape )
-    rimg = core.from_numpy( fir.astype(float)  )
-    rimg = ops.iMath(rimg,"Normalize")
-    core.copy_image_info( x, rimg )
+    rimg = ants.from_numpy( fir.astype(float)  )
+    rimg = ants.iMath(rimg,"Normalize")
+    ants.copy_image_info( x, rimg )
     if mask is not None:
         rimg = rimg * mask
     return( rimg )
@@ -273,10 +272,10 @@ def get_average_of_timeseries( image, idx=None ):
     imagedim = image.dimension
     if idx is None:
         idx = range( image.shape[ imagedim - 1 ] )
-    i0 = utils.slice_image( image, axis=image.dimension-1, idx=idx[0] ) * 0
+    i0 = ants.slice_image( image, axis=image.dimension-1, idx=idx[0] ) * 0
     wt = 1.0 / len( idx )
     for k in idx:
-        i0 = i0 + utils.slice_image( image, axis=image.dimension-1, idx=k ) * wt
+        i0 = i0 + ants.slice_image( image, axis=image.dimension-1, idx=k ) * wt
     return( i0 )
 
 def bandpass_filter_matrix( matrix,
@@ -424,13 +423,13 @@ def compcor( boldImage, ncompcor=4, quantile=0.975, mask=None, filter_type=False
     #    threshold_std = quantile( stdM, quantile )
         return { 'tSTD': stdM, 'threshold_std': threshold_std}
     if mask is None:
-        temp = utils.slice_image( boldImage, axis=boldImage.dimension-1, idx=0 )
-        mask = ops.get_mask( temp )
-    imagematrix = core.timeseries_to_matrix( boldImage, mask )
+        temp = ants.slice_image( boldImage, axis=boldImage.dimension-1, idx=0 )
+        mask = ants.get_mask( temp )
+    imagematrix = ants.timeseries_to_matrix( boldImage, mask )
     temp = compute_tSTD( imagematrix, quantile, 0 )
-    tsnrmask = core.make_image( mask,  temp['tSTD'] )
-    tsnrmask = ops.threshold_image( tsnrmask, temp['threshold_std'], temp['tSTD'].max() )
-    M = core.timeseries_to_matrix( boldImage, tsnrmask )
+    tsnrmask = ants.make_image( mask,  temp['tSTD'] )
+    tsnrmask = ants.threshold_image( tsnrmask, temp['threshold_std'], temp['tSTD'].max() )
+    M = ants.timeseries_to_matrix( boldImage, tsnrmask )
     components = None
     basis = np.array([])
     if filter_type in ('polynomial', False):

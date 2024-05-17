@@ -4,13 +4,11 @@ import numpy as np
 import os
 from tempfile import mktemp
 
-from ..ops.reflect_image import reflect_image
+import ants
 from .registration import registration
 from .apply_transforms import apply_transforms
-from ..ops.resample_image import resample_image_to_target
 from ..core import ants_image_io as iio
 from ..core import ants_transform_io as tio
-from .. import utils, ops
 
 def build_template(
     initial_template=None,
@@ -78,7 +76,7 @@ def build_template(
         initial_template = image_list[0] * 0
         for i in range(len(image_list)):
             temp = image_list[i] * weights[i]
-            temp = resample_image_to_target(temp, initial_template)
+            temp = ants.resample_image_to_target(temp, initial_template)
             initial_template = initial_template + temp
 
     xavg = initial_template.clone()
@@ -102,9 +100,9 @@ def build_template(
                 xavgNew = xavgNew + w1["warpedmovout"] * weights[k]
 
         if useNoRigid:
-            avgaffine = utils.average_affine_transform_no_rigid(affinelist)
+            avgaffine = ants.average_affine_transform_no_rigid(affinelist)
         else:
-            avgaffine = utils.average_affine_transform(affinelist)
+            avgaffine = ants.average_affine_transform(affinelist)
         afffn = mktemp(suffix=".mat")
         tio.write_transform(avgaffine, afffn)
 
@@ -123,7 +121,7 @@ def build_template(
             
         os.remove(afffn)
         if blending_weight is not None:
-            xavg = xavg * blending_weight + ops.iMath(xavg, "Sharpen") * (
+            xavg = xavg * blending_weight + ants.iMath(xavg, "Sharpen") * (
                 1.0 - blending_weight
             )
 

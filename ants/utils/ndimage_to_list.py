@@ -8,7 +8,7 @@ import numpy as np
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import utils
-
+import ants
 
 def list_to_ndimage( image, image_list ):
     """
@@ -104,7 +104,7 @@ def ndimage_to_list(image):
     subdim = image.shape[ 0:subdimension ]
     imagelist = []
     for i in range( nSections ):
-        img = utils.slice_image( image, axis = subdimension, idx = i )
+        img = ants.slice_image( image, axis = subdimension, idx = i )
         iio.set_spacing( img, subspacing )
         iio.set_origin( img, suborigin )
         iio.set_direction( img, subdirection )

@@ -1,8 +1,7 @@
 
 __all__ = ['functional_lung_segmentation']
 
-from .. import core
-from .. import utils
+import ants
 from .. import segmentation
 
 def functional_lung_segmentation(image,
@@ -103,7 +102,7 @@ def functional_lung_segmentation(image,
         if verbose == True:
             print("Outer iteration: ", i, " out of ", number_of_atropos_n4_iterations)
 
-        preprocessed_image = core.image_clone(image)
+        preprocessed_image = ants.image_clone(image)
 
         quantiles = (preprocessed_image.quantile(0.0), preprocessed_image.quantile(0.995))
         preprocessed_image[preprocessed_image < quantiles[0]] = quantiles[0]
@@ -113,11 +112,11 @@ def functional_lung_segmentation(image,
             print("Outer: bias correction.")
 
         if bias_correction.lower() == "n4":
-            preprocessed_image = utils.n4_bias_field_correction(preprocessed_image,
+            preprocessed_image = ants.n4_bias_field_correction(preprocessed_image,
                 mask=mask, shrink_factor=2, convergence={'iters': [50, 50, 50, 50], 'tol': 0.0000000001},
                 spline_param=200, return_bias_field=False, weight_mask=weight_mask, verbose=verbose)
         elif bias_correction.lower == "n3":
-            preprocessed_image = utils.n3_bias_field_correction(preprocessed_image, downsample_factor=2)
+            preprocessed_image = ants.n3_bias_field_correction(preprocessed_image, downsample_factor=2)
 
         preprocessed_image = ((preprocessed_image - preprocessed_image.min())
                               /(preprocessed_image.max() - preprocessed_image.min()))

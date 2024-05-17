@@ -23,6 +23,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 import numpy as np
+import ants
 
 from .. import registration as reg, ops
 from ..core import ants_image as iio
@@ -235,7 +236,7 @@ def plot_ortho(
             raise ValueError("Overlay image must have 3 dimensions!")
 
         if not iio.image_physical_space_consistency(image, overlay):
-            overlay = ops.resample_image_to_target(overlay, image, interp_type="linear")
+            overlay = ants.resample_image_to_target(overlay, image, interp_type="linear")
 
     if blend:
         if alpha == 1:

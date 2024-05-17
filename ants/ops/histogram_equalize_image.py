@@ -2,6 +2,7 @@ __all__ = ['histogram_equalize_image']
 
 import numpy as np
 
+import ants
 from ants.decorators import image_method
 from .. import core
 
@@ -37,8 +38,8 @@ def histogram_equalize_image(image, number_of_histogram_bins=256):
                               ( image_array_equalized.max() - image_array_equalized.min() ) )
     image_array_equalized = image_array_equalized * ( image_array.max() - image_array.min() ) + image_array.min()
 
-    image_equalized = core.from_numpy(image_array_equalized)
+    image_equalized = ants.from_numpy(image_array_equalized)
 
-    return core.copy_image_info(image, image_equalized)
+    return ants.copy_image_info(image, image_equalized)
 
 

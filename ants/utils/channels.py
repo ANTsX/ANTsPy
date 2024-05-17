@@ -9,6 +9,7 @@ from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
 from ants.internal import get_lib_fn
+from ants.decorators import image_method
 
 
 def merge_channels(image_list):
@@ -50,7 +51,7 @@ def merge_channels(image_list):
     
     return iio2.from_pointer(image_ptr)
 
-
+@image_method
 def split_channels(image):
     """
     Split channels of a multi-channel ANTsImage into a collection

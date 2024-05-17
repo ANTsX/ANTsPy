@@ -3,15 +3,16 @@ __all__ = ["fit_transform_to_paired_points", "fit_time_varying_transform_to_poin
 import numpy as np
 import time
 
+import ants
 from ..core import ants_transform_io as txio
 from ..core import ants_image_io as iio2
-from . import fit_bspline_displacement_field
-from . import fit_bspline_object_to_scattered_data
-from . import fit_thin_plate_spline_displacement_field
-from . import integrate_velocity_field
+from .fit_bspline_displacement_field import fit_bspline_displacement_field
+from .fit_bspline_object_to_scattered_data import fit_bspline_object_to_scattered_data
+from .fit_thin_plate_spline_displacement_field import fit_thin_plate_spline_displacement_field
+from .integrate_velocity_field import integrate_velocity_field
 from ..ops import smooth_image
-from . import compose_displacement_fields
-from . import invert_displacement_field
+from .compose_displacement_fields import compose_displacement_fields
+from .invert_displacement_field import invert_displacement_field
 
 def convergence_monitoring(values, window_size=10):
      if len(values) >= window_size:
@@ -340,7 +341,7 @@ def fit_transform_to_paired_points(moving_points,
             if verbose:
                 start_time = time.time()
 
-            update_field_fixed_to_middle = fit_bspline_displacement_field(
+            update_field_fixed_to_middle = ants.fit_bspline_displacement_field(
               displacement_origins=updated_fixed_points,
               displacements=updated_moving_points - updated_fixed_points,
               displacement_weights=displacement_weights,

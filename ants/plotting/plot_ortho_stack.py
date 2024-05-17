@@ -23,7 +23,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 import numpy as np
-
+import ants
 from .. import registration as reg, ops
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
@@ -128,13 +128,13 @@ def plot_ortho_stack(
                 raise ValueError("Overlay image must have 3 dimensions!")
 
             if not iio.image_physical_space_consistency(images[i], overlays[i]):
-                overlays[i] = ops.resample_image_to_target(
+                overlays[i] = ants.resample_image_to_target(
                     overlays[i], images[i], interp_type="linear"
                 )
 
     for i in range(1, n_images):
         if not iio.image_physical_space_consistency(images[0], images[i]):
-            images[i] = ops.resample_image_to_target(
+            images[i] = ants.resample_image_to_target(
                 images[0], images[i], interp_type="linear"
             )
 

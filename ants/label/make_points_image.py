@@ -5,6 +5,7 @@ __all__ = ['make_points_image']
 import math
 import numpy as np
 
+import ants
 from ..core import ants_transform as tio
 from .. import utils
 
@@ -59,4 +60,4 @@ def make_points_image(pts, mask, radius=5):
                 powers_lblimg[idx[0],idx[1],idx[2]] = r + 1
             elif (dim == 2):
                 powers_lblimg[idx[0],idx[1]] = r + 1
-    return utils.morphology( powers_lblimg, 'dilate', radius, 'grayscale' )
+    return ants.morphology( powers_lblimg, 'dilate', radius, 'grayscale' )

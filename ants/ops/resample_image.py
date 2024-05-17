@@ -9,6 +9,7 @@ import os
 from ants.decorators import image_method
 from ants.internal import get_lib_fn, process_arguments
 
+import ants
 from ..core import ants_image as iio
 from .. import utils
 
@@ -60,7 +61,7 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
         outimage = outimage.clone(image.pixeltype)
         return outimage
     else:
-        images = utils.split_channels(image)
+        images = ants.split_channels(image)
         new_images = []
         for image in images:
             inimage = image.clone('float')
@@ -73,7 +74,7 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
             libfn(processed_args)
             outimage = outimage.clone(image.pixeltype)
             new_images.append(outimage)
-        outimage = utils.merge_channels(new_images)
+        outimage = ants.merge_channels(new_images)
         return outimage
 
 @image_method

@@ -3,7 +3,7 @@ from tempfile import mktemp
 
 import numpy as np
 
-from .. import utils, ops
+import ants
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import registration as reg
@@ -81,12 +81,12 @@ def average_images( x, normalize=True, mask=None, imagetype=0, sum_image_thresho
         if verbose and k % 20 == 0:
             print( str(k)+'...', end='',flush=True)
         locimg = gli( x[k], normalize )
-        temp = ops.resample_image_to_target( locimg, avg, interp_type='linear', imagetype=imagetype )
+        temp = ants.resample_image_to_target( locimg, avg, interp_type='linear', imagetype=imagetype )
         avg = avg + temp
         if mask is not None:
-            fgmask = ops.threshold_image(temp,'Otsu',1)
+            fgmask = ants.threshold_image(temp,'Otsu',1)
             if mask > 0:
-                fgmask = utils.morphology(fgmask,"close",mask)
+                fgmask = ants.morphology(fgmask,"close",mask)
             sumimg = sumimg + fgmask
 
     if return_sum_image:

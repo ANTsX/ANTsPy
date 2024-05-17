@@ -3,6 +3,7 @@ __all__ = ['weingarten_image_curvature']
 
 import numpy as np
 
+import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
@@ -48,7 +49,7 @@ def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
         for k in range(1,7):
             voxvals = image[:d[0],:d[1]]
             temp[:d[0],:d[1],k] = voxvals
-        temp = core.from_numpy(temp)
+        temp = ants.from_numpy(temp)
         myspc = image.spacing
         myspc = list(myspc) + [min(myspc)]
         temp.set_spacing(myspc)
@@ -68,5 +69,5 @@ def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
     if image.dimension == 3:
         return mykout
     elif image.dimension == 2:
-        subarr = core.from_numpy(mykout.numpy()[:,:,4])
-        return core.copy_image_info(image, subarr)
+        subarr = ants.from_numpy(mykout.numpy()[:,:,4])
+        return ants.copy_image_info(image, subarr)

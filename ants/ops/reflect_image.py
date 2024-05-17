@@ -4,10 +4,8 @@ __all__ = ['reflect_image']
 
 from tempfile import mktemp
 
+import ants
 from ants.decorators import image_method
-from .. import utils
-from ..registration.registration import registration
-from ..registration.apply_transforms import apply_transforms
 from ants.internal import get_lib_fn
 
 @image_method
@@ -55,10 +53,10 @@ def reflect_image(image, axis=None, tx=None, metric='mattes'):
     libfn(image.pointer, axis, rflct)
 
     if tx is not None:
-        rfi = registration(image, image, type_of_transform=tx,
+        rfi = ants.registration(image, image, type_of_transform=tx,
                             syn_metric=metric, outprefix=mktemp(),
                             initial_transform=rflct)
         return rfi
     else:
-        return apply_transforms(image, image, rflct)
+        return ants.apply_transforms(image, image, rflct)
 

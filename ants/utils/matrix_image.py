@@ -14,9 +14,8 @@ import json
 import numpy as np
 import warnings
 
-
+import ants
 from ..core import ants_image as iio
-from .. import utils, core, ops
 from .. import registration as reg
 
 
@@ -53,7 +52,7 @@ def matrix_to_timeseries(image, matrix, mask=None):
     if mask is None:
         mask = temp[0] * 0 + 1
     temp = matrix_to_images(matrix, mask)
-    newImage = utils.list_to_ndimage(image, temp)
+    newImage = ants.list_to_ndimage(image, temp)
     iio.copy_image_info(image, newImage)
     return newImage
 
@@ -150,11 +149,11 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
 
     def listfunc(x):
         if np.sum(np.array(x.shape) - np.array(mask.shape)) != 0:
-            x = ops.resample_image_to_target(x, mask, 2)
+            x = ants.resample_image_to_target(x, mask, 2)
         return x[mask]
 
     if mask is None:
-        mask = ops.get_mask(image_list[0])
+        mask = ants.get_mask(image_list[0])
 
     num_images = len(image_list)
     mask_arr = mask.numpy() >= epsilon
@@ -165,7 +164,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     for i, img in enumerate(image_list):
         if do_smooth:
             data_matrix[i, :] = listfunc(
-                ops.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
+                ants.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
             )
         else:
             data_matrix[i, :] = listfunc(img)
@@ -202,7 +201,7 @@ def timeseries_to_matrix(image, mask=None):
     >>> img = ants.make_image( (10,10,10,5 ) )
     >>> mat = ants.timeseries_to_matrix( img )
     """
-    temp = utils.ndimage_to_list(image)
+    temp = ants.ndimage_to_list(image)
     if mask is None:
         mask = temp[0] * 0 + 1
     return image_list_to_matrix(temp, mask)

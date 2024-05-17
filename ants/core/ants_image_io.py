@@ -18,6 +18,7 @@ import json
 import numpy as np
 import warnings
 
+import ants
 from ants.internal import get_lib_fn, short_ptype
 from ants.decorators import image_method
 from . import ants_image as iio
@@ -143,7 +144,7 @@ def _from_numpy(
             tmp_img.set_direction(direction)
             tmp_img._ndarr = arrays[i]
             ants_images.append(tmp_img)
-        ants_image = utils.merge_channels(ants_images)
+        ants_image = ants.merge_channels(ants_images)
         if is_rgb:
             ants_image = ants_image.vector_to_rgb()
     return ants_image
@@ -478,9 +479,9 @@ def clone(self, pixeltype=None):
         raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
     if self.has_components and (not self.is_rgb):
-        comp_imgs = utils.split_channels(self)
+        comp_imgs = ants.split_channels(self)
         comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-        return utils.merge_channels(comp_imgs_cloned)
+        return ants.merge_channels(comp_imgs_cloned)
     else:
         p1_short = short_ptype(self.pixeltype)
         p2_short = short_ptype(pixeltype)

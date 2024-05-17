@@ -7,6 +7,7 @@ from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import core
 from .. import utils
+import ants
 from ants.internal import get_lib_fn
 
 
@@ -118,7 +119,7 @@ def fit_bspline_displacement_field(displacement_field=None,
             raise ValueError("If the displacement field is not specified, one must fully specify the input physical domain.")
 
     if displacement_field is not None and displacement_weight_image is None:
-        displacement_weight_image = core.make_image(displacement_field.shape, voxval=1,
+        displacement_weight_image = ants.make_image(displacement_field.shape, voxval=1,
             spacing=displacement_field.spacing, origin=displacement_field.origin,
             direction=displacement_field.direction, has_components=False, pixeltype='float')
 

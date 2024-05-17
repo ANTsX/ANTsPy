@@ -4,6 +4,7 @@ __all__ = ['apply_transforms','apply_transforms_to_points']
 
 import os
 
+import ants
 from ants.internal import get_lib_fn, process_arguments
 
 from .. import core
@@ -290,7 +291,7 @@ def apply_transforms_to_points( dim, points, transformlist,
         pointsSub = points[['x','y','z']]
     if dim == 4:
         pointsSub = points[['x','y','z','t']]
-    pointImage = core.make_image( pointsSub.shape, pointsSub.values.flatten())
+    pointImage = ants.make_image( pointsSub.shape, pointsSub.values.flatten())
     pointsOut = pointImage.clone()
     args = ['-d', dim,
             '-i', pointImage,

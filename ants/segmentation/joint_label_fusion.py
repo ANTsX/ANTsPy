@@ -14,8 +14,8 @@ import glob
 import re
 import math
 
-from .. import utils, ops
-from ..core import ants_image as iio
+import ants
+
 from ..core import ants_image_io as iio2
 from .. import registration
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
@@ -483,17 +483,17 @@ def local_joint_label_fusion(
             probability map image for each label
 
     """
-    myregion = utils.mask_image(initial_label, initial_label, which_labels)
+    myregion = ants.mask_image(initial_label, initial_label, which_labels)
     if myregion.max() == 0:
-        myregion = ops.threshold_image(initial_label, 1, math.inf)
+        myregion = ants.threshold_image(initial_label, 1, math.inf)
 
-    myregionb = ops.threshold_image(myregion, 1, math.inf)
-    myregionAroundRegion = ops.iMath(myregionb, "MD", submask_dilation)
+    myregionb = ants.threshold_image(myregion, 1, math.inf)
+    myregionAroundRegion = ants.iMath(myregionb, "MD", submask_dilation)
     if target_mask is not None:
         myregionAroundRegion = myregionAroundRegion * target_mask
-    croppedImage = utils.crop_image(target_image, myregionAroundRegion)
-    croppedMask = utils.crop_image(myregionAroundRegion, myregionAroundRegion)
-    mycroppedregion = utils.crop_image(myregion, myregionAroundRegion)
+    croppedImage = ants.crop_image(target_image, myregionAroundRegion)
+    croppedMask = ants.crop_image(myregionAroundRegion, myregionAroundRegion)
+    mycroppedregion = ants.crop_image(myregion, myregionAroundRegion)
     croppedmappedImages = []
     croppedmappedSegs = []
     if verbose is True:
@@ -505,7 +505,7 @@ def local_joint_label_fusion(
 
         if verbose is True:
             print( "local-seg-tx: " + local_mask_transform )
-        libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
+        libregion = ants.mask_image(label_list[k], label_list[k], which_labels)
         initMap = registration.registration(
             mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric=aff_metric, aff_iterations=aff_iterations, verbose=False
         )["fwdtransforms"]
