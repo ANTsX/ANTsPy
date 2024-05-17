@@ -11,7 +11,6 @@ import re
 import pandas as pd
 import itertools
 
-from ants.decorators import image_method
 from . import apply_transforms
 from . import apply_transforms_to_points
 from .. import utils
@@ -19,7 +18,7 @@ from ..core import ants_image as iio
 from .. import core
 
 
-@image_method
+
 def registration(
     fixed,
     moving,

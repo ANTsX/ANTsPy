@@ -74,7 +74,7 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
         outimage = utils.merge_channels(new_images)
         return outimage
 
-
+@image_method
 def resample_image_to_target(image, target, interp_type='linear', imagetype=0, verbose=False, **kwargs):
     """
     Resample image by using another image as target reference.

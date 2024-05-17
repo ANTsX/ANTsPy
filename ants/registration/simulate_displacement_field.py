@@ -2,13 +2,13 @@ __all__ = ["simulate_displacement_field"]
 
 import numpy as np
 
-from ants.decorators import image_method
+
 from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
 
 
-@image_method
+
 def simulate_displacement_field(domain_image, 
                                 field_type="bspline", 
                                 number_of_random_points=1000, 

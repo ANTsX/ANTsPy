@@ -4,7 +4,6 @@ __all__ = ['create_warped_grid']
 
 import numpy as np
 
-from ants.decorators import image_method
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .apply_transforms import apply_transforms
@@ -17,7 +16,7 @@ def create_grid_source(size=(250, 250),
                        pixeltype='float'):
     pass
 
-@image_method
+
 def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True, True),
                        fixed_reference_image=None, transform=None, foreground=1, background=0):
     """

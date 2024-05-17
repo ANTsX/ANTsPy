@@ -31,6 +31,7 @@ __all__ = ['iMath',
            'iMath_propagate_labels_through_mask']
 
 
+from ants.decorators import image_method
 from ..internal import _int_antsProcessArguments
 from .. import utils
 
@@ -67,6 +68,7 @@ def multiply_images(image1, image2):
     return image1 * image2
 
 
+@image_method
 def iMath(image, operation, *args):
     """
     Perform various (often mathematical) operations on the input image/s.

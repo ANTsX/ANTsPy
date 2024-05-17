@@ -2,10 +2,9 @@ __all__ = ["label_overlap_measures"]
 
 import pandas as pd
 
-from ants.decorators import image_method
 from .. import utils
 
-@image_method
+
 def label_overlap_measures(source_image, target_image):
     """
     Get overlap measures from two label images (e.g., Dice)

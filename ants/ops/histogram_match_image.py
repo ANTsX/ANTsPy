@@ -4,13 +4,14 @@ __all__ = ['histogram_match_image',
 
 import numpy as np
 
+from ants.decorators import image_method
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import utils
 
 from ..utils import fit_bspline_object_to_scattered_data
 
-
+@image_method
 def histogram_match_image(source_image, reference_image, number_of_histogram_bins=255, number_of_match_points=64, use_threshold_at_mean_intensity=False):
     """
     Histogram match source image to reference image.
@@ -53,7 +54,7 @@ def histogram_match_image(source_image, reference_image, number_of_histogram_bin
     new_image = iio2.from_pointer(itkimage).clone(inpixeltype)
     return new_image
 
-
+@image_method
 def histogram_match_image2(source_image, reference_image, 
                            source_mask=None, reference_mask=None,
                            match_points=64,

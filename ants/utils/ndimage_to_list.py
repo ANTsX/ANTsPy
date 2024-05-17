@@ -4,12 +4,12 @@ __all__ = ['ndimage_to_list',
 
 import numpy as np
 
-from ants.decorators import image_method
+
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import utils
 
-@image_method
+
 def list_to_ndimage( image, image_list ):
     """
     Merge list of multiple scalar ANTsImage types of dimension into one
@@ -64,8 +64,6 @@ def list_to_ndimage( image, image_list ):
 
 
 
-
-@image_method
 def ndimage_to_list(image):
     """
     Split a n dimensional ANTsImage into a list

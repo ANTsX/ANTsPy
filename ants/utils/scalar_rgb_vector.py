@@ -7,12 +7,11 @@ from tempfile import mktemp
 
 import numpy as np
 
-from ants.decorators import image_method
 from .. import utils
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
-@image_method
+
 def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_file=None, 
                   min_input=None, max_input=None, min_rgb_output=None, max_rgb_output=None,
                   vtk_lookup_table=None):
@@ -75,7 +74,6 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
     else:
         os.remove(tmpimgfile)
 
-@image_method
 def rgb_to_vector(image):
     """
     Convert an RGB ANTsImage to a Vector ANTsImage
@@ -106,7 +104,6 @@ def rgb_to_vector(image):
     return new_img
 
 
-@image_method
 def vector_to_rgb(image):
     """
     Convert an Vector ANTsImage to a RGB ANTsImage

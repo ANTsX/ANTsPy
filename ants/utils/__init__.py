@@ -59,7 +59,7 @@ from ..label.labels_to_matrix import labels_to_matrix
 from ..ops.mask_image import mask_image
 from .mni2tal import mni2tal
 from ..ops.morphology import morphology
-from ..ops.multi_label_morphology import multi_label_morphology
+from ..label.multi_label_morphology import multi_label_morphology
 from .ndimage_to_list import (ndimage_to_list,
            list_to_ndimage)
 from ..ops.pad_image import pad_image
@@ -83,7 +83,7 @@ from ..registration.simulate_displacement_field import simulate_displacement_fie
 from ..ops.slice_image import slice_image
 from ..ops.smooth_image import smooth_image
 from ..ops.threshold_image import threshold_image
-from ..math.weingarten_image_curvature import weingarten_image_curvature
+from ..ops.weingarten_image_curvature import weingarten_image_curvature
 from .average_transform import average_affine_transform, average_affine_transform_no_rigid
 from ..math.averaging import average_images
 
