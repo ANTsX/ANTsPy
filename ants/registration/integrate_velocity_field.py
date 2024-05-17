@@ -1,7 +1,7 @@
 
 __all__ = ['integrate_velocity_field']
 
-from ..io import ants_image_io as iio2
+from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
 

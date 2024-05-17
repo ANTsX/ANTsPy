@@ -9,8 +9,8 @@ import os
 import numpy as np
 
 from .. import utils
-from ..core import ants_image as iio
-from ..core import ants_metric as mio
+from . import ants_image as iio
+from . import ants_metric as mio
 
 
 _supported_metrics = {'MeanSquares',

@@ -4,7 +4,7 @@ __all__ = ['pad_image']
 import math
 
 from ants.decorators import image_method
-from ..io import ants_image_io as iio2
+from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
 

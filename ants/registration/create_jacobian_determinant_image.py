@@ -6,7 +6,7 @@ __all__ = ['create_jacobian_determinant_image','deformation_gradient']
 from tempfile import mktemp
 
 from ..core import ants_image as iio
-from ..io import ants_image_io as iio2
+from ..core import ants_image_io as iio2
 
 from .. import utils
 

@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ..io import ants_image_io as iio2
+from . import ants_image_io as iio2
 
 __all__ = ['ANTsTransform',
            'set_ants_transform_parameters',

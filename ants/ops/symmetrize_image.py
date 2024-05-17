@@ -8,7 +8,7 @@ from ants.decorators import image_method
 from .reflect_image import reflect_image
 from ..registration.interface import registration
 from ..registration.apply_transforms import apply_transforms
-from ..io import ants_image_io as iio
+from ..core import ants_image_io as iio
 
 @image_method
 def symmetrize_image(image):

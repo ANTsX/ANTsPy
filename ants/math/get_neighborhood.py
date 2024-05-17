@@ -6,7 +6,7 @@ import numpy as np
 
 from .. import utils
 from ..core import ants_image as iio
-from ..io import ants_image_io as iio2
+from ..core import ants_image_io as iio2
 
 
 def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,

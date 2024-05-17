@@ -5,7 +5,7 @@ from tempfile import mkstemp
 import numpy as np
 
 from ants.decorators import image_method
-from ..io import ants_image_io as iio2
+from ..core import ants_image_io as iio2
 
 
 def nifti_to_ants( nib_image ):

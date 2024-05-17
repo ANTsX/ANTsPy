@@ -8,8 +8,8 @@ from ..ops.reflect_image import reflect_image
 from .interface import registration
 from .apply_transforms import apply_transforms
 from ..ops.resample_image import resample_image_to_target
-from ..io import ants_image_io as iio
-from ..io import ants_transform_io as tio
+from ..core import ants_image_io as iio
+from ..core import ants_transform_io as tio
 from .. import utils
 
 def build_template(

@@ -2,7 +2,7 @@ __all__ = ["fit_bspline_displacement_field"]
 
 import numpy as np
 
-from ..io import ants_image_io as iio2
+from ..core import ants_image_io as iio2
 
 from ..core import ants_image as iio
 from .. import core

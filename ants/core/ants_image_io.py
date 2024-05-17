@@ -27,7 +27,7 @@ import numpy as np
 import warnings
 
 from ants.decorators import image_method
-from ..core import ants_image as iio
+from . import ants_image as iio
 from .. import utils, core
 from .. import registration as reg
 

@@ -12,8 +12,8 @@ import numpy as np
 
 from . import ants_image_io as iio2
 
-from ..core import ants_image as iio
-from ..core import ants_transform as tio
+from . import ants_image as iio
+from . import ants_transform as tio
 from .. import utils
 
 
