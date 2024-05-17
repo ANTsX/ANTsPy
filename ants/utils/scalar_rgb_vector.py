@@ -10,7 +10,7 @@ import numpy as np
 from ants.decorators import image_method
 from .. import utils
 from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
+from ..io import ants_image_io as iio2
 
 @image_method
 def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_file=None, 

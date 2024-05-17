@@ -6,7 +6,7 @@ import numpy as np
 
 from ants.decorators import image_method
 from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
+from ..io import ants_image_io as iio2
 from .. import utils
 
 @image_method

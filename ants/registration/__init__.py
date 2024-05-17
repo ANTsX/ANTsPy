@@ -7,7 +7,7 @@ from .create_jacobian_determinant_image import deformation_gradient
 from .create_warped_grid import create_warped_grid
 from .fsl2antstransform import fsl2antstransform
 from .make_points_image import make_points_image
-from ..metrics.metrics import image_mutual_information
+from ..math.metrics import image_mutual_information
 from ..ops.reflect_image import reflect_image
 from ..ops.reorient_image import (get_orientation,
            reorient_image2,

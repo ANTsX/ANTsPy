@@ -5,7 +5,7 @@ Apply anti-alias filter on a binary ANTsImage
 __all__ = ['anti_alias']
 
 from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
+from ..io import ants_image_io as iio2
 from .. import utils
 
 

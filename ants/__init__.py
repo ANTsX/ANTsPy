@@ -2,12 +2,12 @@
 __version__ = '0.5.3'
 
 from .core import *
-from .utils import *
-from .metrics import *
-from .transforms import *
-from .segmentation import *
-#from .registration import *
+from .io import *
+from .label import *
 from .learn import *
-from .viz import *
-
-from . import contrib
+from .math import *
+from .ops import *
+from .plotting import *
+from .registration import *
+from .segmentation import *
+from .utils import *

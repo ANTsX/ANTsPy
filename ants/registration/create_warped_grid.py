@@ -6,7 +6,7 @@ import numpy as np
 
 from ants.decorators import image_method
 from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
+from ..io import ants_image_io as iio2
 from .apply_transforms import apply_transforms
 
 def create_grid_source(size=(250, 250),

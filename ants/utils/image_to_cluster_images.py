@@ -4,7 +4,7 @@ __all__ = ['image_to_cluster_images']
 import numpy as np
 
 from ..core import ants_image as iio
-from .label_clusters import label_clusters
+from ..labels.label_clusters import label_clusters
 
 def image_to_cluster_images(image, min_cluster_size=50, min_thresh=1e-06, max_thresh=1):
     """

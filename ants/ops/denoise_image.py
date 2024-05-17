@@ -2,8 +2,8 @@ __all__ = ["denoise_image"]
 
 from ants.decorators import image_method
 from .. import utils
-from ..utils import process_args as pargs
-from ..utils.get_mask import get_mask
+from .. import internal as pargs
+from ..segmentation.get_mask import get_mask
 
 @image_method
 def denoise_image(

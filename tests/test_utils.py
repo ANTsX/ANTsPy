@@ -548,39 +548,6 @@ class TestModule_image_to_cluster_images(unittest.TestCase):
         image_cluster_list = ants.image_to_cluster_images(image)
 
 
-class TestModule_impute(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_impute_example(self):
-        data = np.random.randn(7, 10)
-        data[2, 3] = np.nan
-        data[3, 5] = np.nan
-        # need fancyimpute to run this
-        # data_imputed = ants.impute(data, 'mean')
-
-        for itype in {
-            "KNN",
-            "BiScaler",
-            "SoftImpute",
-            "IterativeSVD",
-            "mean",
-            "median",
-        }:
-            data = np.random.randn(7, 10)
-            data[2, 3] = np.nan
-            data[3, 5] = np.nan
-            # data_imputed = ants.impute(data, itype)
-
-        data = np.random.randn(7, 10)
-        data[2, 3] = np.nan
-        data[3, 5] = np.nan
-        # data_imputed = ants.impute(data, method='constant', value=12.)
-
-
 class TestModule_label_clusters(unittest.TestCase):
     def setUp(self):
         pass
@@ -924,12 +891,6 @@ class TestRandom(unittest.TestCase):
         avg1=ants.average_images(x1)
         avg2=ants.average_images(x1,mask=0)
         avg3=ants.average_images(x1,mask=1,normalize=True)
-        
-    def test_impute(self):
-        data = np.random.randn(4,10)
-        data[2,3] = np.nan
-        data[3,5] = np.nan
-        data_imputed = ants.impute(data, 'mean')
         
     def test_n3_2(self):
         image = ants.image_read( ants.get_ants_data('r16') )

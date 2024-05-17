@@ -3,8 +3,8 @@ __all__ = ["fit_transform_to_paired_points", "fit_time_varying_transform_to_poin
 import numpy as np
 import time
 
-from ..transforms import ants_transform_io as txio
-from ..core import ants_image_io as iio2
+from ..io import ants_transform_io as txio
+from ..io import ants_image_io as iio2
 from ..utils import fit_bspline_displacement_field
 from ..utils import fit_bspline_object_to_scattered_data
 from ..utils import fit_thin_plate_spline_displacement_field

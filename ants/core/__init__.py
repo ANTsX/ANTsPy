@@ -1,5 +1,5 @@
 
-from .ants_image_io import (
+from ..io.ants_image_io import (
     image_header_info,
     image_clone,
     image_read,
@@ -31,13 +31,13 @@ from .ants_image import (
     allclose
 )
 
-from ..metrics.ants_metric_io import (
+from ..io.ants_metric_io import (
     new_ants_metric,
     create_ants_metric,
     supported_metrics
 )
 
-from ..transforms.ants_transform_io import (
+from ..io.ants_transform_io import (
     create_ants_transform,
     new_ants_transform,
     read_transform,
@@ -46,7 +46,7 @@ from ..transforms.ants_transform_io import (
     transform_to_displacement_field
 )
 
-from ..transforms.ants_transform import (
+from .ants_transform import (
     ANTsTransform,
     set_ants_transform_parameters,
     get_ants_transform_parameters,

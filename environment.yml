@@ -1,15 +1,14 @@
 # TODO: pin dependency versions
 name: antspy
 dependencies:
-- pandas
-- pyyaml
-- numpy
-- scikit-image
-- scikit-learn
-- statsmodels
-- matplotlib
-- Pillow
-- pip
-- pip:
-  - nibabel
-  - webcolors
+  - pandas
+  - pyyaml
+  - numpy
+  - scikit-image
+  - scikit-learn
+  - statsmodels
+  - matplotlib
+  - Pillow
+  - pip
+  - pip:
+      - webcolors

@@ -4,7 +4,7 @@
 __all__ = ['threshold_image']
 
 from ants.decorators import image_method
-from ..utils.process_args import _int_antsProcessArguments
+from ..internal import _int_antsProcessArguments
 from .. import utils
 
 @image_method

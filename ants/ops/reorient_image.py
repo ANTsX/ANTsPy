@@ -10,9 +10,10 @@ import numpy as np
 from tempfile import mktemp
 
 from ants.decorators import image_method
+from ..io import ants_image_io as iio2
 from ..registration import apply_transforms
 from .. import utils
-from ..core import ants_image as iio, ants_image_io as iio2
+from ..core import ants_image as iio
 
 
 _possible_orientations = ['RIP','LIP',  'RSP',  'LSP',  'RIA',  'LIA',

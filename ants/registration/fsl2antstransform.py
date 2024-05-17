@@ -3,7 +3,7 @@
 __all__ = ['fsl2antstransform']
 
 from .. import utils
-from ..transforms import ants_transform as tio
+from ..core import ants_transform as tio
 
 def fsl2antstransform(matrix, reference, moving):
     """

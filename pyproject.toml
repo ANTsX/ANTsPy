@@ -24,7 +24,6 @@ dependencies = [
     "webcolors",
     "matplotlib",
     "Pillow",
-    "nibabel",
     "requests"
 ]
 

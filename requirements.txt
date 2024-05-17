@@ -7,4 +7,3 @@ statsmodels
 webcolors
 matplotlib
 Pillow
-nibabel
