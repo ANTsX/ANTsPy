@@ -3,7 +3,6 @@ Image IO
 """
 
 __all__ = [
-    'from_pointer',
     "image_header_info",
     "image_clone",
     "image_read",
@@ -21,9 +20,6 @@ import warnings
 import ants
 from ants.internal import get_lib_fn, short_ptype
 from ants.decorators import image_method
-from . import ants_image as iio
-from .. import utils, core
-from .. import registration as reg
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
 _supported_ptypes = {"unsigned char", "unsigned int", "float", "double"}
@@ -60,10 +56,6 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
             ita = _image_type_map[itype]
             pa = _ptype_type_map[p]
             _image_read_dict[itype][p][d] = "imageRead%s%s%i" % (ita, pa, d)
-
-
-def from_pointer(pointer):
-    return iio.ANTsImage(pointer)
     
 def from_numpy(
     data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
@@ -127,7 +119,7 @@ def _from_numpy(
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
-        ants_image = from_pointer(itk_image)
+        ants_image = ants.from_pointer(itk_image)
         ants_image.set_origin(origin)
         ants_image.set_spacing(spacing)
         ants_image.set_direction(direction)
@@ -138,7 +130,7 @@ def _from_numpy(
         ants_images = []
         for i in range(len(arrays)):
             tmp_ptr = libfn(arrays[i], data_shape[::-1])
-            tmp_img = from_pointer(tmp_ptr)
+            tmp_img = ants.from_pointer(tmp_ptr)
             tmp_img.set_origin(origin)
             tmp_img.set_spacing(spacing)
             tmp_img.set_direction(direction)
@@ -191,7 +183,7 @@ def make_image(
     -------
     ANTsImage
     """
-    if isinstance(imagesize, iio.ANTsImage):
+    if ants.is_image(imagesize):
         img = imagesize.clone()
         sel = imagesize > 0
         if voxval.ndim > 1:
@@ -354,7 +346,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         libfn = get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
 
-        ants_image = from_pointer(itk_pointer)
+        ants_image = ants.from_pointer(itk_pointer)
 
         if pixeltype is not None:
             ants_image = ants_image.clone(pixeltype)
@@ -489,7 +481,7 @@ def clone(self, pixeltype=None):
         fn_suffix = '%s%i' % (p2_short,ndim)
         libfn = get_lib_fn('antsImageClone%s'%fn_suffix)
         pointer_cloned = libfn(self.pointer)
-        return from_pointer(pointer_cloned)
+        return ants.from_pointer(pointer_cloned)
         
 copy = clone
 

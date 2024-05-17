@@ -25,11 +25,9 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 import ants
 from ants.decorators import image_method
-from .. import registration as reg, ops
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from ..core import ants_transform as tio
-from ..core import ants_transform_io as tio2
+
+
+
 
 @image_method
 def plot(
@@ -225,8 +223,8 @@ def plot(
 
     # handle `image` argument
     if isinstance(image, str):
-        image = iio2.image_read(image)
-    if not isinstance(image, iio.ANTsImage):
+        image = ants.image_read(image)
+    if not ants.is_image(image):
         raise ValueError("image argument must be an ANTsImage")
 
     if np.all(np.equal(image.numpy(), 0.0)):
@@ -246,13 +244,13 @@ def plot(
         if vmaxol is None:
             vmaxol = overlay.max()
         if isinstance(overlay, str):
-            overlay = iio2.image_read(overlay)
-        if not isinstance(overlay, iio.ANTsImage):
+            overlay = ants.image_read(overlay)
+        if not ants.is_image(overlay):
             raise ValueError("overlay argument must be an ANTsImage")
         if overlay.components > 1:
             raise ValueError("overlay cannot have more than one voxel component")
 
-        if not iio.image_physical_space_consistency(image, overlay):
+        if not ants.image_physical_space_consistency(image, overlay):
             overlay = ants.resample_image_to_target(overlay, image, interp_type="nearestNeighbor")
 
         if blend:
@@ -264,15 +262,15 @@ def plot(
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
-        if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(
+        if ants.is_image(domain_image_map):
+            tx = ants.new_ants_transform(
                 precision="float",
                 transform_type="AffineTransform",
                 dimension=image.dimension,
             )
-            image = tio.apply_ants_transform_to_image(tx, image, domain_image_map)
+            image = ants.apply_ants_transform_to_image(tx, image, domain_image_map)
             if overlay is not None:
-                overlay = tio.apply_ants_transform_to_image(
+                overlay = ants.apply_ants_transform_to_image(
                     tx, overlay, domain_image_map, interpolation="nearestNeighbor"
                 )
         elif isinstance(domain_image_map, (list, tuple)):
@@ -281,13 +279,13 @@ def plot(
                 raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
-            if not isinstance(dimg, iio.ANTsImage):
+            if not ants.is_image(dimg):
                 raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
-            image = reg.apply_transforms(dimg, image, transform_list=tx)
+            image = ants.apply_transforms(dimg, image, transform_list=tx)
             if overlay is not None:
-                overlay = reg.apply_transforms(
+                overlay = ants.apply_transforms(
                     dimg, overlay, transform_list=tx, interpolator="linear"
                 )
 

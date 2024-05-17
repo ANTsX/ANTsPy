@@ -9,9 +9,6 @@ from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
 import ants
-from ..core import ants_image_io as iio2
-from .. import utils
-from ..core import ants_image as iio
 
 
 @image_method
@@ -64,7 +61,7 @@ def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, m
 
         smooth_image_fn = get_lib_fn('SmoothImage')
         outimage = smooth_image_fn(image_float.pointer, sigma, sigma_in_physical_coordinates, max_kernel_width)
-        ants_outimage = iio2.from_pointer(outimage)
+        ants_outimage = ants.from_pointer(outimage)
         return ants_outimage
     else:
         imagelist = ants.split_channels(image)

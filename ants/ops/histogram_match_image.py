@@ -4,13 +4,10 @@ __all__ = ['histogram_match_image',
 
 import numpy as np
 
+import ants
 from ants.decorators import image_method
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from .. import utils
 from ants.internal import get_lib_fn
 
-from ..registration import fit_bspline_object_to_scattered_data
 
 @image_method
 def histogram_match_image(source_image, reference_image, number_of_histogram_bins=255, number_of_match_points=64, use_threshold_at_mean_intensity=False):
@@ -52,7 +49,7 @@ def histogram_match_image(source_image, reference_image, number_of_histogram_bin
     libfn = get_lib_fn('histogramMatchImageF%i' % ndim)
     itkimage = libfn(source_image.pointer, reference_image.pointer, number_of_histogram_bins, number_of_match_points, use_threshold_at_mean_intensity)
 
-    new_image = iio2.from_pointer(itkimage).clone(inpixeltype)
+    new_image = ants.from_pointer(itkimage).clone(inpixeltype)
     return new_image
 
 @image_method
@@ -133,7 +130,7 @@ def histogram_match_image2(source_image, reference_image,
     transform_domain_origin = source_masked_min
     transform_domain_spacing = (source_masked_max - transform_domain_origin) / (transform_domain_size - 1)
 
-    bspline_histogram_transform = fit_bspline_object_to_scattered_data(scattered_data,
+    bspline_histogram_transform = ants.fit_bspline_object_to_scattered_data(scattered_data,
         parametric_data, [transform_domain_origin], [transform_domain_spacing], [transform_domain_size],
         data_weights=None, is_parametric_dimension_closed=None, number_of_fitting_levels=8, 
         mesh_size=1, spline_order=3)
@@ -149,7 +146,7 @@ def histogram_match_image2(source_image, reference_image,
         xfrm = alpha * (bspline_histogram_transform[i+1] - bspline_histogram_transform[i]) + bspline_histogram_transform[i]
         transformed_source_array[indices] = intensities + xfrm
 
-    transformed_source_image = iio2.from_numpy(transformed_source_array, origin=source_image.origin,
+    transformed_source_image = ants.from_numpy(transformed_source_array, origin=source_image.origin,
         spacing=source_image.spacing, direction=source_image.direction)
     transformed_source_image[source_mask == 0] = source_image[source_mask == 0]
 

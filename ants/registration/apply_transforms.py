@@ -7,10 +7,6 @@ import os
 import ants
 from ants.internal import get_lib_fn, process_arguments
 
-from .. import core
-from ..core import ants_image as iio
-from .. import utils
-
 
 def apply_transforms(fixed, moving, transformlist,
                      interpolator='linear', imagetype=0,
@@ -113,7 +109,7 @@ def apply_transforms(fixed, moving, transformlist,
     output_pixel_type = 'float' if singleprecision else 'double'
 
     if not isinstance(fixed, str):
-        if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
+        if ants.is_image(fixed) and ants.is_image(moving):
             for tl_path in transformlist:
                 if not os.path.exists(tl_path):
                     raise Exception('Transform %s does not exist' % tl_path)

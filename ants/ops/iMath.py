@@ -32,7 +32,6 @@ __all__ = ['iMath',
 
 from ants.internal import get_lib_fn, process_arguments
 from ants.decorators import image_method
-from .. import utils
 
 _iMathOps = {'FillHoles',
             'GetLargestComponent',

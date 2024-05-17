@@ -4,11 +4,12 @@ __all__ = ['get_neighborhood_in_mask',
 
 import numpy as np
 
-from .. import utils
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from ants.internal import get_lib_fn, get_pointer_string
+import ants
 
+from ants.internal import get_lib_fn
+from ants.decorators import image_method
+
+@image_method
 def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
                             boundary_condition=None, spatial_info=False, get_gradient=False):
     """
@@ -84,9 +85,9 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
     >>> mask = ants.get_mask(r16)
     >>> mat = ants.get_neighborhood_in_mask(r16, mask, radius=(2,2))
     """
-    if not isinstance(image, iio.ANTsImage):
+    if not ants.is_image(image):
         raise ValueError('image must be ANTsImage type')
-    if not isinstance(mask, iio.ANTsImage):
+    if not ants.is_image(mask):
         raise ValueError('mask must be ANTsImage type')
     if isinstance(radius, (int, float)):
         radius = [radius]*image.dimension
@@ -162,7 +163,7 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
     >>> radius = (3,3)
     >>> retval = ants.get_neighborhood_at_voxel(img, center, radius)
     """
-    if not isinstance(image, iio.ANTsImage):
+    if not ants.is_image(image):
         raise ValueError('image must be ANTsImage type')
 
     if (not isinstance(center, (tuple,list))) or (len(center) != image.dimension):

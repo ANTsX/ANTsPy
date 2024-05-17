@@ -1,18 +1,19 @@
 
 
-__all__ = ['rgb_to_vector', 'vector_to_rgb', 'scalar_to_rgb']
+__all__ = ['rgb_to_vector', 
+           'vector_to_rgb', 
+           'scalar_to_rgb']
 
 import os
 from tempfile import mktemp
 
 import numpy as np
 
-from .. import utils
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
+import ants
 from ants.internal import get_lib_fn, process_arguments
+from ants.decorators import image_method
 
-
+@image_method
 def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_file=None, 
                   min_input=None, max_input=None, min_rgb_output=None, max_rgb_output=None,
                   vtk_lookup_table=None):
@@ -38,7 +39,7 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
     args = 'imageDimension inputImage outputImage mask colormap'.split(' ')
     args[0] = image.dimension
 
-    if isinstance(image, iio.ANTsImage):
+    if ants.is_image(image):
         tmpimgfile = mktemp(suffix='.nii.gz')
         image.to_file(tmpimgfile)
     elif isinstance(image, str):
@@ -66,7 +67,7 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
     libfn(processed_args)
 
     if file_is_temp:
-        outimg = iio2.image_read(filename, pixeltype=None)
+        outimg = ants.image_read(filename, pixeltype=None)
         # clean up temp files
         os.remove(filename)
         os.remove(tmpimgfile)
@@ -75,6 +76,7 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
     else:
         os.remove(tmpimgfile)
 
+@image_method
 def rgb_to_vector(image):
     """
     Convert an RGB ANTsImage to a Vector ANTsImage
@@ -101,10 +103,10 @@ def rgb_to_vector(image):
     idim = image.dimension
     libfn = get_lib_fn('RgbToVector%i' % idim)
     new_ptr = libfn(image.pointer)
-    new_img = iio2.from_pointer(new_ptr)
+    new_img = ants.from_pointer(new_ptr)
     return new_img
 
-
+@image_method
 def vector_to_rgb(image):
     """
     Convert an Vector ANTsImage to a RGB ANTsImage
@@ -131,6 +133,6 @@ def vector_to_rgb(image):
     idim = image.dimension
     libfn = get_lib_fn('VectorToRgb%i' % idim)
     new_ptr = libfn(image.pointer)
-    new_img = iio2.from_pointer(new_ptr)
+    new_img = ants.from_pointer(new_ptr)
     return new_img
 

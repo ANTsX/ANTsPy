@@ -2,8 +2,8 @@ __all__ = ["label_overlap_measures"]
 
 import pandas as pd
 
-from .. import utils
-from ants.internal import get_lib_fn, get_pointer_string
+
+from ants.internal import get_lib_fn
 
 def label_overlap_measures(source_image, target_image):
     """

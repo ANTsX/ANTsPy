@@ -4,7 +4,7 @@ __all__ = ['label_image_centroids']
 
 import numpy as np
 
-from ..core import ants_transform as tio
+
 
 
 def label_image_centroids(image, physical=False, convex=True, verbose=False):
@@ -81,7 +81,7 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
     centroids = np.vstack([xc,yc,zc]).T
 
     #if physical:
-    #    centroids = tio.transform_index_to_physical_point(image, centroids)
+    #    centroids = ants.transform_index_to_physical_point(image, centroids)
 
     return {
         'labels': mylabels,

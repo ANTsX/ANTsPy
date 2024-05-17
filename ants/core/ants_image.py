@@ -1,7 +1,6 @@
 
 
-__all__ = ['ANTsImage',
-           'copy_image_info',
+__all__ = ['copy_image_info',
            'set_origin',
            'get_origin',
            'set_direction',
@@ -10,7 +9,9 @@ __all__ = ['ANTsImage',
            'get_spacing',
            'image_physical_space_consistency',
            'image_type_cast',
-           'allclose']
+           'allclose',
+           'is_image',
+           'from_pointer']
 
 import os
 
@@ -20,7 +21,8 @@ import pandas as pd
 from functools import partialmethod
 import inspect
 
-from ants import lib
+import ants
+from ants.internal import get_lib_fn
 
 _supported_ptypes = {'unsigned char', 'unsigned int', 'float', 'double'}
 _supported_dtypes = {'uint8', 'uint32', 'float32', 'float64'}
@@ -60,7 +62,7 @@ class ANTsImage(object):
     
     @property
     def shape(self):
-        return tuple(lib.getShape(self.pointer))
+        return tuple(get_lib_fn('getShape')(self.pointer))
     
     @property
     def physical_shape(self):
@@ -80,7 +82,7 @@ class ANTsImage(object):
         if not self.has_components:
             return 1
         
-        return lib.getComponents(self.pointer)
+        return get_lib_fn('getComponents')(self.pointer)
         
     @property
     def pixeltype(self):
@@ -114,7 +116,7 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return tuple(lib.getSpacing(self.pointer))
+        return tuple(get_lib_fn('getSpacing')(self.pointer))
 
     def set_spacing(self, new_spacing):
         """
@@ -135,7 +137,7 @@ class ANTsImage(object):
         if len(new_spacing) != self.dimension:
             raise ValueError('must give a spacing value for each dimension (%i)' % self.dimension)
 
-        lib.setSpacing(self.pointer, new_spacing)
+        get_lib_fn('setSpacing')(self.pointer, new_spacing)
 
     @property
     def origin(self):
@@ -146,7 +148,7 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return tuple(lib.getOrigin(self.pointer))
+        return tuple(get_lib_fn('getOrigin')(self.pointer))
 
     def set_origin(self, new_origin):
         """
@@ -167,7 +169,7 @@ class ANTsImage(object):
         if len(new_origin) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        lib.setOrigin(self.pointer, new_origin)
+        get_lib_fn('setOrigin')(self.pointer, new_origin)
 
     @property
     def direction(self):
@@ -178,7 +180,7 @@ class ANTsImage(object):
         -------
         tuple
         """
-        return np.array(lib.getDirection(self.pointer)).reshape(self.dimension,self.dimension)
+        return np.array(get_lib_fn('getDirection')(self.pointer)).reshape(self.dimension,self.dimension)
 
     def set_direction(self, new_direction):
         """
@@ -202,7 +204,7 @@ class ANTsImage(object):
         if len(new_direction) != self.dimension:
             raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
 
-        lib.setDirection(self.pointer, new_direction)
+        get_lib_fn('setDirection')(self.pointer, new_direction)
 
     @property
     def orientation(self):
@@ -235,7 +237,7 @@ class ANTsImage(object):
         shape = img.shape[::-1]
         if img.has_components or (single_components == True):
             shape = list(shape) + [img.components]
-        memview = lib.toNumpy(img.pointer)
+        memview = get_lib_fn('toNumpy')(img.pointer)
         return np.asarray(memview).view(dtype = dtype).reshape(shape).view(np.ndarray).T
 
     def numpy(self, single_components=False):
@@ -284,7 +286,7 @@ class ANTsImage(object):
             filepath to which the image will be written
         """
         filename = os.path.expanduser(filename)
-        lib.toFile(self.pointer, filename)
+        get_lib_fn('toFile')(self.pointer, filename)
     to_filename = to_file
 
     def apply(self, fn):
@@ -361,7 +363,7 @@ class ANTsImage(object):
     def __add__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -374,7 +376,7 @@ class ANTsImage(object):
     def __sub__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -385,7 +387,7 @@ class ANTsImage(object):
     def __rsub__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -396,7 +398,7 @@ class ANTsImage(object):
     def __mul__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -409,7 +411,7 @@ class ANTsImage(object):
     def __truediv__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -420,7 +422,7 @@ class ANTsImage(object):
     def __pow__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -431,7 +433,7 @@ class ANTsImage(object):
     def __gt__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -442,7 +444,7 @@ class ANTsImage(object):
     def __ge__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -453,7 +455,7 @@ class ANTsImage(object):
     def __lt__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -464,7 +466,7 @@ class ANTsImage(object):
     def __le__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -475,7 +477,7 @@ class ANTsImage(object):
     def __eq__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -486,7 +488,7 @@ class ANTsImage(object):
     def __ne__(self, other):
         this_array = self.numpy()
 
-        if isinstance(other, ANTsImage):
+        if is_image(other):
             if not image_physical_space_consistency(self, other):
                 raise ValueError('images do not occupy same physical space')
             other = other.numpy()
@@ -498,17 +500,16 @@ class ANTsImage(object):
         if self._array is None:
             self._array = self.numpy()
 
-        if isinstance(idx, ANTsImage):
+        if is_image(idx):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
             return self._array.__getitem__(idx.numpy().astype('bool'))
         else:
             return self._array.__getitem__(idx)
 
-
     def __setitem__(self, idx, value):
         arr = self.view()
-        if isinstance(idx, ANTsImage):
+        if is_image(idx):
             if not image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
             arr.__setitem__(idx.numpy().astype('bool'), value)
@@ -628,7 +629,7 @@ def image_physical_space_consistency(image1, image2, tolerance=1e-2, datatype=Fa
 
     img1 = images[0]
     for img2 in images[1:]:
-        if (not isinstance(img1, ANTsImage)) or (not isinstance(img2, ANTsImage)):
+        if (not ants.is_image(img1)) or (not ants.is_image(img2)):
             raise ValueError('Both images must be of class `AntsImage`')
 
         # image dimension check
@@ -714,3 +715,9 @@ def allclose(image1, image2):
     Check if two images have the same array values
     """
     return np.allclose(image1.numpy(), image2.numpy())
+
+def is_image(object):
+    return isinstance(object, ANTsImage)
+
+def from_pointer(pointer):
+    return ANTsImage(pointer)

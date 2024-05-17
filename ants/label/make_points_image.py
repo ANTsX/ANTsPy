@@ -6,8 +6,6 @@ import math
 import numpy as np
 
 import ants
-from ..core import ants_transform as tio
-from .. import utils
 
 def make_points_image(pts, mask, radius=5):
     """
@@ -51,7 +49,7 @@ def make_points_image(pts, mask, radius=5):
 
     for r in range(npts):
         pt = pts[r,:]
-        idx = tio.transform_physical_point_to_index(mask, pt.tolist() ).astype(int)
+        idx = ants.transform_physical_point_to_index(mask, pt.tolist() ).astype(int)
         in_image=True
         for kk in range(mask.dimension):
             in_image = in_image and idx[kk] >= 0 and idx[kk] < mask.shape[kk]

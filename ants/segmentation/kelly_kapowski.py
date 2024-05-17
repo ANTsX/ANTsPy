@@ -4,8 +4,7 @@ Kelly Kapowski algorithm with computing cortical thickness
 
 __all__ = ['kelly_kapowski']
 
-from ..core import ants_image as iio
-from .. import utils
+import ants
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
@@ -61,7 +60,7 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
                                     w=segs['probabilityimages'][2], its=45,
                                     r=0.5, m=1)
     """
-    if isinstance(s, iio.ANTsImage):
+    if ants.is_image(s):
         s = s.clone('unsigned int')
 
     d = s.dimension

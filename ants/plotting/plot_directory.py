@@ -24,12 +24,8 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import numpy as np
 
-from .plot import plot
-from .. import registration as reg
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from ..core import ants_transform as tio
-from ..core import ants_transform_io as tio2
+import ants
+
 
 def plot_directory(
     directory,
@@ -98,7 +94,7 @@ def plot_directory(
                 fname = fname.replace(".png", "%s.png" % save_suffix)
                 fname = "%s%s" % (save_prefix, fname)
                 save_fname = os.path.join(root, fname)
-                img = iio2.image_read(load_fname)
+                img = ants.image_read(load_fname)
 
                 if axis is None:
                     axis_range = [i for i in range(img.dimension)]
@@ -109,7 +105,7 @@ def plot_directory(
                     for axis_idx in axis_range:
                         filename = save_fname.replace(".png", "_axis%i.png" % axis_idx)
                         ncol = int(math.sqrt(img.shape[axis_idx]))
-                        plot(
+                        ants.plot(
                             img,
                             axis=axis_idx,
                             nslices=img.shape[axis_idx],
@@ -119,4 +115,4 @@ def plot_directory(
                         )
                 else:
                     filename = save_fname
-                    plot(img, filename=filename, **kwargs)
+                    ants.plot(img, filename=filename, **kwargs)

@@ -4,8 +4,6 @@ dependencies:
   - pandas
   - pyyaml
   - numpy
-  - scikit-image
-  - scikit-learn
   - statsmodels
   - matplotlib
   - Pillow

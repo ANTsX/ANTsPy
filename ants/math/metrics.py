@@ -4,9 +4,10 @@
 __all__ = ['image_mutual_information']
 
 
-from .. import utils
+from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
+@image_method
 def image_mutual_information(image1, image2):
     """
     Compute mutual information between two ANTsImage types

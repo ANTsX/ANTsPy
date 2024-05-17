@@ -2,11 +2,6 @@ __all__ = ["fit_bspline_displacement_field"]
 
 import numpy as np
 
-from ..core import ants_image_io as iio2
-
-from ..core import ants_image as iio
-from .. import core
-from .. import utils
 import ants
 from ants.internal import get_lib_fn
 
@@ -202,6 +197,6 @@ def fit_bspline_displacement_field(displacement_field=None,
                               enforce_stationary_boundary, estimate_inverse, rasterize_points)
 
 
-    bspline_displacement_field = iio2.from_pointer(bspline_field).clone('float')
+    bspline_displacement_field = ants.from_pointer(bspline_field).clone('float')
     return bspline_displacement_field
 

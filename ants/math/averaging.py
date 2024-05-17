@@ -4,9 +4,6 @@ from tempfile import mktemp
 import numpy as np
 
 import ants
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from .. import registration as reg
 
 __all__ = ['average_images']
 ########################
@@ -58,7 +55,7 @@ def average_images( x, normalize=True, mask=None, imagetype=0, sum_image_thresho
 
     def gli( y, normalize=False ):
         if isinstance(y,str):
-            y=iio2.image_read(y)
+            y=ants.image_read(y)
         if normalize:
             y=y/y.mean()
         return y

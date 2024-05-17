@@ -2,8 +2,7 @@ __all__ = ["label_stats"]
 
 import pandas as pd
 
-from .. import utils
-from ants.internal import get_lib_fn, get_pointer_string
+from ants.internal import get_lib_fn
 
 def label_stats(image, label_image):
     """

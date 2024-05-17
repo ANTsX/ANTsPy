@@ -3,8 +3,7 @@ __all__ = ['image_to_cluster_images']
 
 import numpy as np
 
-from ..core import ants_image as iio
-from .label_clusters import label_clusters
+import ants
 
 def image_to_cluster_images(image, min_cluster_size=50, min_thresh=1e-06, max_thresh=1):
     """
@@ -37,10 +36,10 @@ def image_to_cluster_images(image, min_cluster_size=50, min_thresh=1e-06, max_th
     >>> image = ants.threshold_image(image, 1, 1e15)
     >>> image_cluster_list = ants.image_to_cluster_images(image)
     """
-    if not isinstance(image, iio.ANTsImage):
+    if not ants.is_image(image):
         raise ValueError('image must be ANTsImage type')
 
-    clust = label_clusters(image, min_cluster_size, min_thresh, max_thresh)
+    clust = ants.label_clusters(image, min_cluster_size, min_thresh, max_thresh)
     labs = np.unique(clust[clust > 0])
 
     clustlist = []

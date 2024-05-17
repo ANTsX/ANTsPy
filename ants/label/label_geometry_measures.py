@@ -5,7 +5,6 @@ from tempfile import mktemp
 import pandas as pd
 import numpy as np
 
-from .. import utils
 from ants.internal import get_lib_fn, process_arguments
 
 def label_geometry_measures(label_image, intensity_image=None):

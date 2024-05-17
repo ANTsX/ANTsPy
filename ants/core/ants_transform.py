@@ -1,9 +1,3 @@
-
-
-import numpy as np
-
-from . import ants_image_io as iio2
-
 __all__ = ['ANTsTransform',
            'set_ants_transform_parameters',
            'get_ants_transform_parameters',
@@ -18,9 +12,10 @@ __all__ = ['ANTsTransform',
            'transform_index_to_physical_point',
            'transform_physical_point_to_index']
 
+import numpy as np
+
+import ants
 from ants.internal import get_lib_fn, short_ptype
-from . import ants_image as iio
-from .. import utils
 
 
 class ANTsTransform(object):
@@ -191,7 +186,7 @@ class ANTsTransform(object):
         reference = reference.clone(image.pixeltype)
 
         img_ptr = tform_fn(self.pointer, image.pointer, reference.pointer, interpolation)
-        return iio2.from_pointer(img_ptr)
+        return ants.from_pointer(img_ptr)
 
     def __repr__(self):
         s = "ANTsTransform\n" +\
@@ -447,7 +442,7 @@ def transform_index_to_physical_point(image, index):
     >>> img = ants.make_image((10,10),np.random.randn(100))
     >>> pt = ants.transform_index_to_physical_point(img, (2,2))
     """
-    if not isinstance(image, iio.ANTsImage):
+    if not ants.is_image(image):
         raise ValueError('image must be ANTsImage type')
 
     if isinstance(index, np.ndarray):
@@ -495,7 +490,7 @@ def transform_physical_point_to_index(image, point):
     >>> img.set_spacing((2,2))
     >>> idx2 = ants.transform_physical_point_to_index(img, (4,4))
     """
-    if not isinstance(image, iio.ANTsImage):
+    if not ants.is_image(image):
         raise ValueError('image must be ANTsImage type')
 
     if isinstance(point, np.ndarray):

@@ -1,11 +1,10 @@
 __all__ = ["get_centroids"]
 
 import numpy as np
+import ants
+from ants.decorators import image_method
 
-from ..label.label_clusters import label_clusters
-from ..label.label_stats import label_stats
-
-
+@image_method
 def get_centroids(image, clustparam=0):
     """
     Reduces a variate/statistical/network image to a set of centroids
@@ -35,10 +34,10 @@ def get_centroids(image, clustparam=0):
     """
     imagedim = image.dimension
     if clustparam > 0:
-        mypoints = label_clusters(image, clustparam, max_thresh=1e15)
+        mypoints = ants.label_clusters(image, clustparam, max_thresh=1e15)
     if clustparam == 0:
         mypoints = image.clone()
-    mypoints = label_stats(mypoints, mypoints)
+    mypoints = ants.label_stats(mypoints, mypoints)
     nonzero = mypoints[["LabelValue"]] > 0
     mypoints = mypoints[nonzero["LabelValue"]]
     mypoints = mypoints.iloc[:, :]

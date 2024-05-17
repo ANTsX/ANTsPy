@@ -15,8 +15,6 @@ import numpy as np
 import warnings
 
 import ants
-from ..core import ants_image as iio
-from .. import registration as reg
 
 
 def matrix_to_timeseries(image, matrix, mask=None):
@@ -53,7 +51,7 @@ def matrix_to_timeseries(image, matrix, mask=None):
         mask = temp[0] * 0 + 1
     temp = matrix_to_images(matrix, mask)
     newImage = ants.list_to_ndimage(image, temp)
-    iio.copy_image_info(image, newImage)
+    ants.copy_image_info(image, newImage)
     return newImage
 
 

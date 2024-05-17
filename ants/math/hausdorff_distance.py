@@ -1,8 +1,9 @@
 __all__ = ["hausdorff_distance"]
 
-from .. import utils
+from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
+@image_method
 def hausdorff_distance(image1, image2):
     """
     Get Hausdorff distance between non-zero pixels in two images

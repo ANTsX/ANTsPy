@@ -10,8 +10,6 @@ from ants.decorators import image_method
 from ants.internal import get_lib_fn, process_arguments
 
 import ants
-from ..core import ants_image as iio
-from .. import utils
 
 @image_method
 def resample_image(image, resample_params, use_voxels=False, interp_type=1):
@@ -147,7 +145,7 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
     args = [fixed, moving, transformlist, interpolator]
 
     if not isinstance(fixed, str):
-        if isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage):
+        if ants.is_image(fixed) and ants.is_image(moving):
             inpixeltype = fixed.pixeltype
             warpedmovout = moving.clone()
             f = fixed

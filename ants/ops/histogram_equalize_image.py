@@ -4,7 +4,6 @@ import numpy as np
 
 import ants
 from ants.decorators import image_method
-from .. import core
 
 @image_method
 def histogram_equalize_image(image, number_of_histogram_bins=256):

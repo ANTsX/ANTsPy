@@ -1,9 +1,8 @@
 __all__ = ["add_noise_to_image"]
 
-from ..core import ants_image_io as iio2
-from .. import utils
+
+import ants
 from ants.decorators import image_method
-from ..core import ants_image as iio
 from ants.internal import get_lib_fn
 
 @image_method
@@ -51,7 +50,7 @@ def add_noise_to_image(image,
 
         libfn = get_lib_fn("additiveGaussianNoise")
         noise = libfn(image.pointer, noise_parameters[0], noise_parameters[1])
-        output_image = iio2.from_pointer(noise).clone('float')
+        output_image = ants.from_pointer(noise).clone('float')
         return output_image
     elif noise_model == 'saltandpepper':
         if len(noise_parameters) != 3:
@@ -59,7 +58,7 @@ def add_noise_to_image(image,
 
         libfn = get_lib_fn("saltAndPepperNoise")
         noise = libfn(image.pointer, noise_parameters[0], noise_parameters[1], noise_parameters[2])
-        output_image = iio2.from_pointer(noise).clone('float')
+        output_image = ants.from_pointer(noise).clone('float')
         return output_image
     elif noise_model == 'shot':
         if not isinstance(noise_parameters, (int, float)):
@@ -67,7 +66,7 @@ def add_noise_to_image(image,
 
         libfn = get_lib_fn("shotNoise")
         noise = libfn(image.pointer, noise_parameters)
-        output_image = iio2.from_pointer(noise).clone('float')
+        output_image = ants.from_pointer(noise).clone('float')
         return output_image
     elif noise_model == 'speckle':
         if not isinstance(noise_parameters, (int, float)):
@@ -75,7 +74,7 @@ def add_noise_to_image(image,
 
         libfn = get_lib_fn("speckleNoise")
         noise = libfn(image.pointer, noise_parameters)
-        output_image = iio2.from_pointer(noise).clone('float')
+        output_image = ants.from_pointer(noise).clone('float')
         return output_image
     else:
         raise ValueError("Unknown noise model.")    

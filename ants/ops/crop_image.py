@@ -6,11 +6,8 @@ __all__ = ['crop_image',
            'decrop_image']
 
 
+import ants
 from ants.decorators import image_method
-from ..core import ants_image_io as iio2
-from .get_mask import get_mask
-from ..core import ants_image as iio
-from .. import utils
 from ants.internal import get_lib_fn
 
 @image_method
@@ -48,14 +45,14 @@ def crop_image(image, label_image=None, label=1):
         image = image.clone('float')
 
     if label_image is None:
-        label_image = get_mask(image)
+        label_image = ants.get_mask(image)
 
     if label_image.pixeltype != 'float':
         label_image = label_image.clone('float')
 
     libfn = get_lib_fn('cropImage')
     itkimage = libfn(image.pointer, label_image.pointer, label, 0, [], [])
-    return iio2.from_pointer(itkimage).clone(inpixeltype)
+    return ants.from_pointer(itkimage).clone(inpixeltype)
 
 
 @image_method
@@ -101,7 +98,7 @@ def crop_indices(image, lowerind, upperind):
 
     libfn = get_lib_fn('cropImage')
     itkimage = libfn(image.pointer, image.pointer, 1, 2, lowerind, upperind)
-    ants_image = iio2.from_pointer(itkimage)
+    ants_image = ants.from_pointer(itkimage)
     if inpixeltype != 'float':
         ants_image = ants_image.clone(inpixeltype)
     return ants_image
@@ -143,7 +140,7 @@ def decrop_image(cropped_image, full_image):
     
     libfn = get_lib_fn('cropImage')
     itkimage = libfn(cropped_image.pointer, full_image.pointer, 1, 1, [], [])
-    ants_image = iio2.from_pointer(itkimage)
+    ants_image = ants.from_pointer(itkimage)
     if inpixeltype != 'float':
         ants_image = ants_image.clone(inpixeltype)
 

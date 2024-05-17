@@ -2,11 +2,7 @@
 ANTs ImageToImageMetric class
 """
 
-__all__ = []
-
-
-from . import ants_image as iio
-
+import ants
 
 class ANTsImageToImageMetric(object):
     """
@@ -49,7 +45,7 @@ class ANTsImageToImageMetric(object):
         """
         Set Fixed ANTsImage for metric
         """
-        if not isinstance(image, iio.ANTsImage):
+        if not ants.is_image(image):
             raise ValueError('image must be ANTsImage type')
 
         if image.dimension != self.dimension:
@@ -62,7 +58,7 @@ class ANTsImageToImageMetric(object):
         """
         Set Fixed ANTsImage Mask for metric
         """
-        if not isinstance(image, iio.ANTsImage):
+        if not ants.is_image(image):
             raise ValueError('image must be ANTsImage type')
 
         if image.dimension != self.dimension:
@@ -75,7 +71,7 @@ class ANTsImageToImageMetric(object):
         """
         Set Moving ANTsImage for metric
         """
-        if not isinstance(image, iio.ANTsImage):
+        if not ants.is_image(image):
             raise ValueError('image must be ANTsImage type')
 
         if image.dimension != self.dimension:
@@ -88,7 +84,7 @@ class ANTsImageToImageMetric(object):
         """
         Set Fixed ANTsImage Mask for metric
         """
-        if not isinstance(image, iio.ANTsImage):
+        if not ants.is_image(image):
             raise ValueError('image must be ANTsImage type')
 
         if image.dimension != self.dimension:

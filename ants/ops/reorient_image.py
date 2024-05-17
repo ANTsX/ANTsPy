@@ -9,13 +9,10 @@ __all__ = ['get_orientation',
 import numpy as np
 from tempfile import mktemp
 
+import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
-from ..core import ants_image_io as iio2
-from ..registration import apply_transforms
-from .. import utils
-from ..core import ants_image as iio
 
 
 _possible_orientations = ['RIP','LIP',  'RSP',  'LSP',  'RIA',  'LIA',
@@ -76,7 +73,7 @@ def reorient_image2(image, orientation='RAS'):
      libfn = get_lib_fn('reorientImage2')
      itkimage = libfn(image.pointer, orientation)
 
-     new_img = iio2.from_pointer(itkimage)
+     new_img = ants.from_pointer(itkimage)
      if inpixeltype != 'float':
          new_img = new_img.clone(inpixeltype)
      return new_img

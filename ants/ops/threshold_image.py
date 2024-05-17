@@ -4,10 +4,7 @@
 __all__ = ['threshold_image']
 
 from ants.decorators import image_method
-from ants.internal import get_lib_fn
-
-from ants.internal import process_arguments
-from .. import utils
+from ants.internal import get_lib_fn, process_arguments
 
 @image_method
 def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0, binary=True):

@@ -8,11 +8,9 @@ import numpy as np
 from scipy.stats import pearsonr
 import pandas as pd
 from pandas import DataFrame
-from sklearn import linear_model
 import statsmodels.api as sm
 
 import ants
-from ..core import ants_image as iio
 from ants.internal import get_lib_fn, get_pointer_string
 
 def sparse_decom2(inmatrix,
@@ -142,7 +140,7 @@ def sparse_decom2(inmatrix,
 
     idim = 3
 
-    if isinstance(inmask[0], iio.ANTsImage):
+    if ants.is_image(inmask[0]):
         maskx = inmask[0].clone('float')
         idim = inmask[0].dimension
         hasmaskx = 1
@@ -154,7 +152,7 @@ def sparse_decom2(inmatrix,
         maskx = ants.make_image([1]*idim, pixeltype='float')
         hasmaskx = -1
 
-    if isinstance(inmask[1], iio.ANTsImage):
+    if ants.is_image(inmask[1]):
         masky = inmask[1].clone('float')
         idim = inmask[1].dimension
         hasmasky = 1
@@ -294,7 +292,7 @@ def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smooth
     >>> mat = np.random.randn(4,100).astype('float32')
     >>> init = ants.initialize_eigenanatomy(mat)
     """
-    if isinstance(initmat, iio.ANTsImage):
+    if ants.is_image(initmat):
         # create initmat from each of the unique labels
         if mask is not None:
             selectvec = mask > 0

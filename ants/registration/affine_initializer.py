@@ -4,7 +4,6 @@ __all__ = ['affine_initializer']
 import warnings
 from tempfile import mktemp
 
-from .. import utils
 from ants.internal import get_lib_fn, process_arguments
 
 

@@ -1,5 +1,3 @@
-
-
 from functools import wraps
 from ants.core.ants_image import ANTsImage
 

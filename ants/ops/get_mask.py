@@ -3,13 +3,10 @@
 
 __all__ = ['get_mask']
 
-from ..core import ants_image as iio
-from .threshold_image import threshold_image
-from ..label.label_clusters import label_clusters
-from .iMath import iMath
-from .. import utils
+import ants
+from ants.decorators import image_method
 
-
+@image_method
 def get_mask(image, low_thresh=None, high_thresh=None, cleanup=2):
     """
     Get a binary mask image from the given image after thresholding
@@ -48,7 +45,7 @@ def get_mask(image, low_thresh=None, high_thresh=None, cleanup=2):
     >>> mask = ants.get_mask(image)
     """
     cleanup = int(cleanup)
-    if isinstance(image, iio.ANTsImage):
+    if ants.is_image(image):
         if image.pixeltype != 'float':
             image = image.clone('float')
 
@@ -57,22 +54,22 @@ def get_mask(image, low_thresh=None, high_thresh=None, cleanup=2):
     if high_thresh is None:
         high_thresh = image.max()
 
-    mask_image = threshold_image(image, low_thresh, high_thresh)
+    mask_image = ants.threshold_image(image, low_thresh, high_thresh)
     if cleanup > 0:
-        mask_image = iMath(mask_image, 'ME', cleanup)
-        mask_image = iMath(mask_image, 'GetLargestComponent')
-        mask_image = iMath(mask_image, 'MD', cleanup)
-        mask_image = iMath(mask_image, 'FillHoles').threshold_image( 1, 2 )
+        mask_image = ants.iMath(mask_image, 'ME', cleanup)
+        mask_image = ants.iMath(mask_image, 'GetLargestComponent')
+        mask_image = ants.iMath(mask_image, 'MD', cleanup)
+        mask_image = ants.iMath(mask_image, 'FillHoles').threshold_image( 1, 2 )
         while ((mask_image.min() == mask_image.max()) and (cleanup > 0)):
             cleanup = cleanup - 1
-            mask_image = threshold_image(image, low_thresh, high_thresh)
+            mask_image = ants.threshold_image(image, low_thresh, high_thresh)
             if cleanup > 0:
-                mask_image = iMath(mask_image, 'ME', cleanup)
-                mask_image = iMath(mask_image, 'MD', cleanup)
-                mask_image = iMath(mask_image, 'FillHoles').threshold_image( 1, 2 )
+                mask_image = ants.iMath(mask_image, 'ME', cleanup)
+                mask_image = ants.iMath(mask_image, 'MD', cleanup)
+                mask_image = ants.iMath(mask_image, 'FillHoles').threshold_image( 1, 2 )
 
             #if cleanup == 0:
-            #    clustlab = label_clusters(mask_image, 1)
-            #    mask_image = threshold_image(clustlab, 1, 1)
+            #    clustlab = ants.label_clusters(mask_image, 1)
+            #    mask_image = ants.threshold_image(clustlab, 1, 1)
 
     return mask_image

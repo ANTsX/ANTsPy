@@ -3,9 +3,7 @@ __all__ = ["nifti_to_ants"]
 import os
 from tempfile import mkstemp
 import numpy as np
-
-from ..core import ants_image_io as iio2
-
+import ants
 
 def nifti_to_ants( nib_image ):
     """
@@ -34,7 +32,7 @@ def nifti_to_ants( nib_image ):
     direction = np.diag(np.ones(ndim))
     direction[:3, :3] = q_form[:3, :3] / spacing[:3]
 
-    ants_img = iio2.from_numpy(
+    ants_img = ants.from_numpy(
         data = nib_image.get_data().astype( np.float ),
         origin = origin.tolist(),
         spacing = spacing.tolist(),

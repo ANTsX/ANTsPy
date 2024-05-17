@@ -24,11 +24,9 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import numpy as np
 import ants
-from .. import registration as reg, ops
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from ..core import ants_transform as tio
-from ..core import ants_transform_io as tio2
+
+
+
 
 def plot_ortho_stack(
     images,
@@ -107,8 +105,8 @@ def plot_ortho_stack(
     # handle `image` argument
     for i in range(n_images):
         if isinstance(images[i], str):
-            images[i] = iio2.image_read(images[i])
-        if not isinstance(images[i], iio.ANTsImage):
+            images[i] = ants.image_read(images[i])
+        if not ants.is_image(images[i]):
             raise ValueError("image argument must be an ANTsImage")
         if images[i].dimension != 3:
             raise ValueError("Input image must have 3 dimensions!")
@@ -119,21 +117,21 @@ def plot_ortho_stack(
     for i in range(n_images):
         if overlays[i] is not None:
             if isinstance(overlays[i], str):
-                overlays[i] = iio2.image_read(overlays[i])
-            if not isinstance(overlays[i], iio.ANTsImage):
+                overlays[i] = ants.image_read(overlays[i])
+            if not ants.is_image(overlays[i]):
                 raise ValueError("overlay argument must be an ANTsImage")
             if overlays[i].components > 1:
                 raise ValueError("overlays[i] cannot have more than one voxel component")
             if overlays[i].dimension != 3:
                 raise ValueError("Overlay image must have 3 dimensions!")
 
-            if not iio.image_physical_space_consistency(images[i], overlays[i]):
+            if not ants.image_physical_space_consistency(images[i], overlays[i]):
                 overlays[i] = ants.resample_image_to_target(
                     overlays[i], images[i], interp_type="linear"
                 )
 
     for i in range(1, n_images):
-        if not iio.image_physical_space_consistency(images[0], images[i]):
+        if not ants.image_physical_space_consistency(images[0], images[i]):
             images[i] = ants.resample_image_to_target(
                 images[0], images[i], interp_type="linear"
             )
@@ -190,17 +188,17 @@ def plot_ortho_stack(
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
-        if isinstance(domain_image_map, iio.ANTsImage):
-            tx = tio2.new_ants_transform(
+        if ants.is_image(domain_image_map):
+            tx = ants.new_ants_transform(
                 precision="float", transform_type="AffineTransform", dimension=3
             )
             for i in range(n_images):
-                images[i] = tio.apply_ants_transform_to_image(
+                images[i] = ants.apply_ants_transform_to_image(
                     tx, images[i], domain_image_map
                 )
 
                 if overlays[i] is not None:
-                    overlays[i] = tio.apply_ants_transform_to_image(
+                    overlays[i] = ants.apply_ants_transform_to_image(
                         tx, overlays[i], domain_image_map, interpolation="linear"
                     )
         elif isinstance(domain_image_map, (list, tuple)):
@@ -209,14 +207,14 @@ def plot_ortho_stack(
                 raise ValueError("domain_image_map list or tuple must have length == 2")
 
             dimg = domain_image_map[0]
-            if not isinstance(dimg, iio.ANTsImage):
+            if not ants.is_image(dimg):
                 raise ValueError("domain_image_map first entry should be ANTsImage")
 
             tx = domain_image_map[1]
             for i in range(n_images):
-                images[i] = reg.apply_transforms(dimg, images[i], transform_list=tx)
+                images[i] = ants.apply_transforms(dimg, images[i], transform_list=tx)
                 if overlays[i] is not None:
-                    overlays[i] = reg.apply_transforms(
+                    overlays[i] = ants.apply_transforms(
                         dimg, overlays[i], transform_list=tx, interpolator="linear"
                     )
 

@@ -5,10 +5,7 @@ __all__ = ['create_jacobian_determinant_image','deformation_gradient']
 
 from tempfile import mktemp
 
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-
-from .. import utils
+import ants
 from ants.internal import get_lib_fn, process_arguments
 
 
@@ -58,13 +55,13 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
              Z = np.matmul(Z, reflection_matrix)
          return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
     if not py_based:
-        if isinstance(warp_image, iio.ANTsImage):
+        if ants.is_image(warp_image):
             txuse = mktemp(suffix='.nii.gz')
-            iio2.image_write(warp_image, txuse)
+            ants.image_write(warp_image, txuse)
         else:
             txuse = warp_image
-            warp_image=iio2.image_read(txuse)
-        if not isinstance(warp_image, iio.ANTsImage):
+            warp_image=ants.image_read(txuse)
+        if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
         writtenimage = mktemp(suffix='.nrrd')
         dimage = warp_image.split_channels()[0].clone('double')
@@ -74,7 +71,7 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         processed_args = process_arguments(args2)
         libfn = get_lib_fn('CreateJacobianDeterminantImage')
         libfn(processed_args)
-        dg = iio2.image_read(writtenimage) 
+        dg = ants.image_read(writtenimage) 
         if to_rotation:
             newshape = tshp + (dim,dim)
             dg = np.reshape( dg.numpy(), newshape )
@@ -83,13 +80,13 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
                 dg[i]=polar_decomposition( dg[i] )['Z']
             newshape = tshp + (dim*dim,)
             dg = np.reshape( dg, newshape )
-            dg = iio2.from_numpy( dg, has_components=True )
-            dg = iio.copy_image_info( dimage, dg )
+            dg = ants.from_numpy( dg, has_components=True )
+            dg = ants.copy_image_info( dimage, dg )
         import os
         os.remove( writtenimage )
         return dg
     if py_based:
-        if not isinstance(warp_image, iio.ANTsImage):
+        if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
         dim = warp_image.dimension
         warpnp=warp_image.numpy()
@@ -119,8 +116,8 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
                 dg[i]=polar_decomposition( dg[i] )['Z']
         newshape = tshp + (dim*dim,)
         dg = np.reshape( dg, newshape )
-        dg = iio2.from_numpy( dg, has_components=True )
-        dg = iio.copy_image_info( warp_image, dg )
+        dg = ants.from_numpy( dg, has_components=True )
+        dg = ants.copy_image_info( warp_image, dg )
     return dg
 
 
@@ -160,9 +157,9 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     >>> jac = ants.create_jacobian_determinant_image(fi,mytx['fwdtransforms'][0],1)
     """
     dim = domain_image.dimension
-    if isinstance(tx, iio.ANTsImage):
+    if ants.is_image(tx):
         txuse = mktemp(suffix='.nii.gz')
-        iio2.image_write(tx, txuse)
+        ants.image_write(tx, txuse)
     else:
         txuse = tx
     #args = [dim, txuse, do_log]

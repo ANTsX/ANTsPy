@@ -4,17 +4,7 @@ __all__ = ['create_warped_grid']
 
 import numpy as np
 
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from .apply_transforms import apply_transforms
-
-def create_grid_source(size=(250, 250),
-                       sigma=(0.5, 0.5),
-                       grid_spacing=(5.0, 5.0),
-                       grid_offset=(0.0, 0.0),
-                       spacing=(0.2, 0.2),
-                       pixeltype='float'):
-    pass
+import ants
 
 
 def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True, True),
@@ -66,7 +56,7 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
     >>> mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
                             transform=mytx['fwdtransforms'], fixed_reference_image=fi )
     """
-    if isinstance(image, iio.ANTsImage):
+    if ants.is_image(image):
         if len(grid_directions) != image.dimension:
             grid_directions = [True]*image.dimension
         garr = image.numpy() * 0 + foreground
@@ -76,7 +66,7 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
         if len(grid_directions) != len(image):
             grid_directions = [True]*len(image)
         garr = np.zeros(image) + foreground
-        image = iio2.from_numpy(garr)
+        image = ants.from_numpy(garr)
 
     idim = garr.ndim
     gridw = grid_width
@@ -109,7 +99,7 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
     gimage = image.new_image_like(garr)
 
     if (transform is not None) and (fixed_reference_image is not None):
-        return apply_transforms( fixed=fixed_reference_image, moving=gimage,
+        return ants.apply_transforms( fixed=fixed_reference_image, moving=gimage,
                                transformlist=transform ) 
     else:
         return gimage

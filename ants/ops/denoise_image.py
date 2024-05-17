@@ -1,9 +1,7 @@
 __all__ = ["denoise_image"]
 
-from ants.decorators import image_method
-from .. import utils
 
-from .get_mask import get_mask
+from ants.decorators import image_method
 from ants.internal import get_lib_fn, process_arguments
 
 @image_method

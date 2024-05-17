@@ -6,7 +6,6 @@ from tempfile import mktemp
 
 import ants
 from ants.decorators import image_method
-from ..core import ants_image_io as iio
 
 @image_method
 def symmetrize_image(image):
@@ -40,9 +39,9 @@ def symmetrize_image(image):
         nada1 = ants.apply_transforms(image, image, w1['fwdtransforms'], compose=w1['fwdtransforms'][0])
         nada2 = ants.apply_transforms(image, image, w2['fwdtransforms'], compose=w2['fwdtransforms'][0])
 
-        wavg = (iio.image_read(nada1) + iio.image_read(nada2)) * (-0.5)
+        wavg = (ants.image_read(nada1) + ants.image_read(nada2)) * (-0.5)
         wavgfn = mktemp(suffix='.nii.gz')
-        iio.image_write(wavg, wavgfn)
+        ants.image_write(wavg, wavgfn)
         xavg = ants.apply_transforms(image, imageavg, wavgfn)
 
     return xavg

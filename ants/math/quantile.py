@@ -15,12 +15,11 @@ from scipy.stats import pearsonr
 from scipy.stats import rankdata
 import pandas as pd
 from pandas import DataFrame
-from sklearn import linear_model
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 import ants
-
+from ants.decorators import image_method
 
 def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
     """
@@ -198,7 +197,7 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
         'tValues': tValsOutDict }
 
 
-
+@image_method
 def quantile(image, q, nonzero=True):
     """
     Get the quantile values from an ANTsImage

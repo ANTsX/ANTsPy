@@ -2,7 +2,6 @@
 __all__ = ['functional_lung_segmentation']
 
 import ants
-from .. import segmentation
 
 def functional_lung_segmentation(image,
                                  mask=None,
@@ -143,7 +142,7 @@ def functional_lung_segmentation(image,
         atropos_verbose = 0
         if verbose == True:
             atropos_verbose = 1
-        atropos_output = segmentation.atropos(preprocessed_image, x=mask, i=atropos_initialization,
+        atropos_output = ants.atropos(preprocessed_image, x=mask, i=atropos_initialization,
             m=mrf_parameters, c=iterations, priorweight=0.0, v=atropos_verbose, p=posterior_formulation)
 
         weight_mask = generate_pure_tissue_n4_weight_mask(atropos_output['probabilityimages'][1:number_of_clusters])

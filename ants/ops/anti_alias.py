@@ -4,9 +4,7 @@ Apply anti-alias filter on a binary ANTsImage
 
 __all__ = ['anti_alias']
 
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from .. import utils
+import ants
 from ants.internal import get_lib_fn
 
 
@@ -41,4 +39,4 @@ def anti_alias(image):
 
     libfn = get_lib_fn('antiAlias%s' % image._libsuffix)
     new_ptr = libfn(image.pointer)
-    return iio2.from_pointer(new_ptr)
+    return ants.from_pointer(new_ptr)

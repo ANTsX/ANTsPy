@@ -3,7 +3,7 @@ __all__ = ['labels_to_matrix']
 
 import numpy as np
 
-from ..core import ants_image as iio
+import ants
 
 
 def labels_to_matrix(image, mask, target_labels=None, missing_val=np.nan):
@@ -43,7 +43,7 @@ def labels_to_matrix(image, mask, target_labels=None, missing_val=np.nan):
     >>> labs = ants.kmeans_segmentation(fi,3)['segmentation']
     >>> labmat = ants.labels_to_matrix(labs, mask)
     """
-    if (not isinstance(image, iio.ANTsImage)) or (not isinstance(mask, iio.ANTsImage)):
+    if (not ants.is_image(image)) or (not ants.is_image(mask)):
         raise ValueError('image and mask must be ANTsImage types')
 
     vec = image[mask > 0]

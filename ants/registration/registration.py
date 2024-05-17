@@ -11,12 +11,6 @@ import re
 import pandas as pd
 import itertools
 
-from . import apply_transforms
-from . import apply_transforms_to_points
-from .. import utils, ops
-from ..core import ants_image as iio
-from .. import core, ops
-
 import ants
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
@@ -244,7 +238,7 @@ def registration(
         else:
             return 0
 
-    if not (isinstance(fixed, iio.ANTsImage) and isinstance(moving, iio.ANTsImage)):
+    if not (ants.is_image(fixed) and ants.is_image(moving)):
         raise ValueError("Fixed and moving images must be ANTsImage objects")
 
     if type_of_transform == "":
@@ -1534,11 +1528,11 @@ def motion_correction(
                 myreg = registration(
                     fixed, temp, type_of_transform=type_of_transform, mask=useMask, **kwargs
                 )
-            fdptsTxI = apply_transforms_to_points(
+            fdptsTxI = ants.apply_transforms_to_points(
                 idim - 1, fdpts, myreg["fwdtransforms"]
             )
             if k > 0 and motion_parameters[k - 1] != "NA":
-                fdptsTxIminus1 = apply_transforms_to_points(
+                fdptsTxIminus1 = ants.apply_transforms_to_points(
                     idim - 1, fdpts, motion_parameters[k - 1]
                 )
             else:
@@ -1546,7 +1540,7 @@ def motion_correction(
             # take the absolute value, then the mean across columns, then the sum
             FD[k] = (fdptsTxIminus1 - fdptsTxI).abs().mean().sum()
             motion_parameters.append(myreg["fwdtransforms"])
-            mywarped = apply_transforms( fixed,
+            mywarped = ants.apply_transforms( fixed,
                 ants.slice_image(image, axis=idim - 1, idx=k),
                 myreg["fwdtransforms"] )
             motion_corrected.append(mywarped)

@@ -8,10 +8,8 @@ __all__ = ['new_ants_metric',
 import os
 import numpy as np
 
-from .. import utils
-from . import ants_image as iio
-from . import ants_metric as mio
-from ants.internal import get_lib_fn, get_pointer_string
+import ants
+from ants.internal import get_lib_fn
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
@@ -31,7 +29,7 @@ def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     libfn = get_lib_fn('new_ants_metricF%i'%dimension)
     itk_tx = libfn(precision, dimension, metric_type)
 
-    ants_metric = mio.ANTsImageToImageMetric(itk_tx)
+    ants_metric = ants.ANTsImageToImageMetric(itk_tx)
     return ants_metric
 
 
@@ -73,13 +71,13 @@ def create_ants_metric(fixed,
     if (dimension < 2) or (dimension > 4):
         raise ValueError('unsupported dimension %i' % dimension)
 
-    if not isinstance(moving, iio.ANTsImage):
+    if not ants.is_image(moving):
         raise ValueError('invalid moving image')
 
     if moving.dimension != dimension:
         raise ValueError('Fixed and Moving images must have same dimension')
 
-    if not isinstance(fixed, iio.ANTsImage):
+    if not ants.is_image(fixed):
         raise ValueError('invalid fixed image')
 
     fixed = fixed.clone('float')
@@ -88,14 +86,14 @@ def create_ants_metric(fixed,
     libfn = get_lib_fn('create_ants_metricF%i' % dimension)
     metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
-    ants_metric = mio.ANTsImageToImageMetric(metric)
+    ants_metric = ants.ANTsImageToImageMetric(metric)
     ants_metric.set_fixed_image(fixed)
     ants_metric.set_moving_image(moving)
 
-    if isinstance(fixed_mask, iio.ANTsImage):
+    if ants.is_image(fixed_mask):
         ants_metric.set_fixed_mask(fixed_mask)
 
-    if isinstance(moving_mask, iio.ANTsImage):
+    if ants.is_image(moving_mask):
         ants_metric.set_moving_mask(moving_mask)
 
     ants_metric.set_sampling(sampling_strategy, sampling_percentage)

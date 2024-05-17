@@ -1,12 +1,8 @@
 __all__ = ["n3_bias_field_correction", "n3_bias_field_correction2", "n4_bias_field_correction", "abp_n4"]
 
-from .get_mask import get_mask
-from .iMath import iMath
-
+import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
-from ..core import ants_image as iio
-from .. import utils
 
 @image_method
 def n3_bias_field_correction(image, downsample_factor=3):
@@ -131,7 +127,7 @@ def n3_bias_field_correction2(
         )
 
     if weight_mask is not None:
-        if not isinstance(weight_mask, iio.ANTsImage):
+        if not ants.is_image(weight_mask):
             raise ValueError("Weight Image must be an antsImage")
 
     outimage = image.clone("float")
@@ -250,7 +246,7 @@ def n4_bias_field_correction(
         )
 
     if weight_mask is not None:
-        if not isinstance(weight_mask, iio.ANTsImage):
+        if not ants.is_image(weight_mask):
             raise ValueError("Weight Image must be an antsImage")
 
     outimage = image.clone("float")
@@ -315,7 +311,7 @@ def abp_n4(image, intensity_truncation=(0.025, 0.975, 256), mask=None, usen3=Fal
         len(intensity_truncation) != 3
     ):
         raise ValueError("intensity_truncation must be list/tuple with 3 values")
-    outimage = iMath(
+    outimage = ants.iMath(
         image,
         "TruncateIntensity",
         intensity_truncation[0],

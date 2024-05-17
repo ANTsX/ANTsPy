@@ -11,11 +11,8 @@ __all__ = [
 import os
 import numpy as np
 
-from . import ants_image_io as iio2
+import ants
 from ants.internal import get_lib_fn, short_ptype
-from . import ants_image as iio
-from . import ants_transform as tio
-from .. import utils
 
 
 def new_ants_transform(
@@ -39,7 +36,7 @@ def new_ants_transform(
         "newAntsTransform%s%i" % (short_ptype(precision), dimension)
     )
     itk_tx = libfn(precision, dimension, transform_type)
-    ants_tx = tio.ANTsTransform(
+    ants_tx = ants.ANTsTransform(
         precision=precision,
         dimension=dimension,
         transform_type=transform_type,
@@ -203,7 +200,7 @@ def create_ants_transform(
     if displacement_field is not None:
         # raise ValueError('Displacement field transform not currently supported')
         itk_tx = transform_from_displacement_field(displacement_field)
-        return tio.ants_transform(itk_tx)
+        return ants.ants_transform(itk_tx)
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     libfn = get_lib_fn(
@@ -220,7 +217,7 @@ def create_ants_transform(
         parameters,
         fixed_parameters,
     )
-    return tio.ANTsTransform(
+    return ants.ANTsTransform(
         precision=precision,
         dimension=dimension,
         transform_type=transform_type,
@@ -254,12 +251,12 @@ def transform_from_displacement_field(field):
     >>> vec = ants.image_read( mytx['fwdtransforms'][0] )
     >>> atx = ants.transform_from_displacement_field( vec )
     """
-    if not isinstance(field, iio.ANTsImage):
+    if not ants.is_image(field):
         raise ValueError("field must be ANTsImage type")
     libfn = get_lib_fn("antsTransformFromDisplacementField")
     field = field.clone("float")
     txptr = libfn(field.pointer)
-    return tio.ANTsTransform(
+    return ants.ANTsTransform(
         precision="float",
         dimension=field.dimension,
         transform_type="DisplacementFieldTransform",
@@ -300,7 +297,7 @@ def transform_to_displacement_field(xfrm, ref):
         raise ValueError("Transform must be of DisplacementFieldTransform type")
     libfn = get_lib_fn("antsTransformToDisplacementField")
     field_ptr = libfn(xfrm.pointer, ref.pointer)
-    return iio2.from_pointer(field_ptr)
+    return ants.from_pointer(field_ptr)
 
 def read_transform(filename, precision="float"):
     """
@@ -344,7 +341,7 @@ def read_transform(filename, precision="float"):
     )
     itk_tx = libfn3(filename, dimensionUse, precision)
 
-    return tio.ANTsTransform(
+    return ants.ANTsTransform(
         precision=precision,
         dimension=dimensionUse,
         transform_type=transform_type,
@@ -426,6 +423,6 @@ def fsl2antstransform(matrix, reference, moving):
                     moving.pointer,
                     1)
 
-    return tio.ANTsTransform(precision='float', dimension=reference.dimension, 
+    return ants.ANTsTransform(precision='float', dimension=reference.dimension, 
                              transform_type='AffineTransform', pointer=tx_ptr)
 

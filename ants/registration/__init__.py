@@ -4,6 +4,9 @@ from .build_template import *
 from .compose_displacement_fields import *
 from .create_jacobian_determinant_image import *
 from .create_warped_grid import *
+from .fit_bspline_displacement_field import *
+from .fit_bspline_object_to_scattered_data import *
+from .fit_thin_plate_spline_displacement_field import *
 from .integrate_velocity_field import *
 from .invert_displacement_field import *
 from .landmark_transforms import *

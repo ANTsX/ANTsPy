@@ -7,11 +7,6 @@ import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
-from ..core import ants_image_io as iio2
-from .. import core
-from ..core import ants_image as iio
-from .. import utils
-
 @image_method
 def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
     """
@@ -65,7 +60,7 @@ def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
 
     libfn = get_lib_fn('weingartenImageCurvature')
     mykout = libfn(temp.pointer, sigma, optnum)
-    mykout = iio2.from_pointer(mykout)
+    mykout = ants.from_pointer(mykout)
     if image.dimension == 3:
         return mykout
     elif image.dimension == 2:

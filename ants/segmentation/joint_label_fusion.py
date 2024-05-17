@@ -15,9 +15,6 @@ import re
 import math
 
 import ants
-
-from ..core import ants_image_io as iio2
-from .. import registration
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
@@ -268,7 +265,7 @@ def joint_label_fusion(
     probimgs = []
 #    print( os.system("ls -l "+probsout[0]) )
     for idx in range(len(probsout)):
-        probimgs.append(iio2.image_read(probsout[idx]))
+        probimgs.append(ants.image_read(probsout[idx]))
 
     #    if len(probsout) != (len(inlabs)) and max_lab_plus_one == False:
     #        warnings.warn("Length of output probabilities != length of unique input labels")
@@ -280,7 +277,7 @@ def joint_label_fusion(
         segmentation_numbers[i] = int(segnum)
 
     if max_lab_plus_one == False:
-        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+        segmat = ants.images_to_matrix(probimgs, target_image_mask)
         finalsegvec = segmat.argmax(axis=0)
         finalsegvec2 = finalsegvec.copy()
         # mapfinalsegvec to original labels
@@ -288,7 +285,7 @@ def joint_label_fusion(
             temp = str.split(probsout[i], "prob")
             segnum = temp[len(temp) - 1].split(".nii.gz")[0]
             finalsegvec2[finalsegvec == i] = segnum
-        outimg = iio2.make_image(target_image_mask, finalsegvec2)
+        outimg = ants.make_image(target_image_mask, finalsegvec2)
 
         return {
             "segmentation": outimg,
@@ -310,7 +307,7 @@ def joint_label_fusion(
         del probsout[matchings_indices[0]]
         del segmentation_numbers[matchings_indices[0]]
 
-        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+        segmat = ants.images_to_matrix(probimgs, target_image_mask)
 
         finalsegvec = segmat.argmax(axis=0)
         finalsegvec2 = finalsegvec.copy()
@@ -320,19 +317,19 @@ def joint_label_fusion(
             segnum = temp[len(temp) - 1].split(".nii.gz")[0]
             finalsegvec2[finalsegvec == i] = segnum
 
-        outimg = iio2.make_image(target_image_mask, finalsegvec2)
+        outimg = ants.make_image(target_image_mask, finalsegvec2)
 
         # next decide what is "background" based on the sum of the first k labels vs the prob of the last one
         firstK = probimgs[0] * 0
         for i in range(len(probsout)):
             firstK = firstK + probimgs[i]
 
-        segmat = iio2.images_to_matrix([background_prob, firstK], target_image_mask)
+        segmat = ants.images_to_matrix([background_prob, firstK], target_image_mask)
         bkgsegvec = segmat.argmax(axis=0)
-        outimg = outimg * iio2.make_image(target_image_mask, bkgsegvec)
+        outimg = outimg * ants.make_image(target_image_mask, bkgsegvec)
 
         return {
-            "segmentation": outimg * iio2.make_image(target_image_mask, bkgsegvec),
+            "segmentation": outimg * ants.make_image(target_image_mask, bkgsegvec),
             "segmentation_raw": outimg,
             "intensity": outimgi,
             "probabilityimages": probimgs,
@@ -506,12 +503,12 @@ def local_joint_label_fusion(
         if verbose is True:
             print( "local-seg-tx: " + local_mask_transform )
         libregion = ants.mask_image(label_list[k], label_list[k], which_labels)
-        initMap = registration.registration(
+        initMap = ants.registration(
             mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric=aff_metric, aff_iterations=aff_iterations, verbose=False
         )["fwdtransforms"]
         if verbose is True:
             print( "local-img-tx: " + type_of_transform )
-        localReg = registration.registration(
+        localReg = ants.registration(
             croppedImage,
             atlas_list[k],
             reg_iterations=reg_iterations,
@@ -524,10 +521,10 @@ def local_joint_label_fusion(
             initial_transform=initMap[0],
             verbose=False,
         )
-        transformedImage = registration.apply_transforms(
+        transformedImage = ants.apply_transforms(
             croppedImage, atlas_list[k], localReg["fwdtransforms"]
         )
-        transformedLabels = registration.apply_transforms(
+        transformedLabels = ants.apply_transforms(
             croppedImage,
             label_list[k],
             localReg["fwdtransforms"],

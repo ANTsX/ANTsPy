@@ -4,10 +4,6 @@ __all__ = ['ndimage_to_list',
 
 import numpy as np
 
-
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from .. import utils
 import ants
 
 def list_to_ndimage( image, image_list ):
@@ -41,17 +37,17 @@ def list_to_ndimage( image, image_list ):
     components = len(image_list)
 
     for imageL in image_list:
-        if not isinstance(imageL, iio.ANTsImage):
+        if not ants.is_image(imageL):
             raise ValueError('list may only contain ANTsImage objects')
         if image.pixeltype != inpixeltype:
             raise ValueError('all images must have the same pixeltype')
 
     dimensionout = ( *image_list[0].shape, len( image_list )  )
-    newImage = iio2.make_image(
+    newImage = ants.make_image(
       dimensionout,
-      spacing = iio.get_spacing( image ),
-      origin = iio.get_origin( image ),
-      direction = iio.get_direction( image ),
+      spacing = ants.get_spacing( image ),
+      origin = ants.get_origin( image ),
+      direction = ants.get_direction( image ),
       pixeltype = inpixeltype
       )
     # FIXME - should implement paste image filter from ITK
@@ -96,18 +92,18 @@ def ndimage_to_list(image):
     imageShape = image.shape
     nSections = imageShape[ dimension - 1 ]
     subdimension = dimension - 1
-    suborigin = iio.get_origin( image )[0:subdimension]
-    subspacing = iio.get_spacing( image )[0:subdimension]
+    suborigin = ants.get_origin( image )[0:subdimension]
+    subspacing = ants.get_spacing( image )[0:subdimension]
     subdirection = np.eye( subdimension )
     for i in range( subdimension ):
-        subdirection[i,:] = iio.get_direction( image )[i,0:subdimension]
+        subdirection[i,:] = ants.get_direction( image )[i,0:subdimension]
     subdim = image.shape[ 0:subdimension ]
     imagelist = []
     for i in range( nSections ):
         img = ants.slice_image( image, axis = subdimension, idx = i )
-        iio.set_spacing( img, subspacing )
-        iio.set_origin( img, suborigin )
-        iio.set_direction( img, subdirection )
+        ants.set_spacing( img, subspacing )
+        ants.set_origin( img, suborigin )
+        ants.set_direction( img, subdirection )
         imagelist.append( img )
 
     return imagelist
