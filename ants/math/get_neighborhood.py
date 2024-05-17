@@ -1,6 +1,6 @@
 
 __all__ = ['get_neighborhood_in_mask',
-            'get_neighborhood_at_voxel']
+           'get_neighborhood_at_voxel']
 
 import numpy as np
 

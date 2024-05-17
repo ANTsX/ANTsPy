@@ -9,7 +9,8 @@ __all__ = [
     "dicom_read",
     "image_write",
     "make_image",
-    "from_numpy"
+    "from_numpy",
+    "new_image_like"
 ]
 
 import os

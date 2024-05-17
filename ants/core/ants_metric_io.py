@@ -10,6 +10,7 @@ import numpy as np
 
 import ants
 from ants.internal import get_lib_fn
+from ants.core.ants_metric import ANTsImageToImageMetric
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
@@ -29,7 +30,7 @@ def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     libfn = get_lib_fn('new_ants_metricF%i'%dimension)
     itk_tx = libfn(precision, dimension, metric_type)
 
-    ants_metric = ants.ANTsImageToImageMetric(itk_tx)
+    ants_metric = ANTsImageToImageMetric(itk_tx)
     return ants_metric
 
 
@@ -86,7 +87,7 @@ def create_ants_metric(fixed,
     libfn = get_lib_fn('create_ants_metricF%i' % dimension)
     metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
-    ants_metric = ants.ANTsImageToImageMetric(metric)
+    ants_metric = ANTsImageToImageMetric(metric)
     ants_metric.set_fixed_image(fixed)
     ants_metric.set_moving_image(moving)
 

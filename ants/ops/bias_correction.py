@@ -1,4 +1,7 @@
-__all__ = ["n3_bias_field_correction", "n3_bias_field_correction2", "n4_bias_field_correction", "abp_n4"]
+__all__ = ["n3_bias_field_correction",
+           "n3_bias_field_correction2", 
+           "n4_bias_field_correction",
+           "abp_n4"]
 
 import ants
 from ants.decorators import image_method

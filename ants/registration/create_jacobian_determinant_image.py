@@ -1,7 +1,8 @@
 
  
 
-__all__ = ['create_jacobian_determinant_image','deformation_gradient']
+__all__ = ['create_jacobian_determinant_image',
+           'deformation_gradient']
 
 from tempfile import mktemp
 

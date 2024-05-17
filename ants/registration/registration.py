@@ -1,7 +1,8 @@
 """
 ANTsPy Registration
 """
-__all__ = ["registration", "motion_correction"]
+__all__ = ["registration", 
+           "motion_correction"]
 
 import os
 import numpy as np

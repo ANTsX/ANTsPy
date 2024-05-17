@@ -5,7 +5,8 @@ import os
 import ants
 from ants.internal import get_lib_fn, process_arguments
 
-__all__ = ['average_affine_transform', 'average_affine_transform_no_rigid']
+__all__ = ['average_affine_transform', 
+           'average_affine_transform_no_rigid']
 
 
 def _average_affine_transform_driver(transformlist, referencetransform=None, funcname="AverageAffineTransform"):

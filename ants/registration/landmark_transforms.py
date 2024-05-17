@@ -1,4 +1,5 @@
-__all__ = ["fit_transform_to_paired_points", "fit_time_varying_transform_to_point_sets"]
+__all__ = ["fit_transform_to_paired_points", 
+           "fit_time_varying_transform_to_point_sets"]
 
 import numpy as np
 import time
