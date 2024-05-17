@@ -253,6 +253,10 @@ def transform_from_displacement_field(field):
     """
     if not isinstance(field, iio.ANTsImage):
         raise ValueError("field must be ANTsImage type")
+    if field.dimension < 2 or field.dimension > 3:
+        raise ValueError("Unsupported displacement field dimension: %i" % field.dimension)
+    if field.components != field.dimension:
+        raise ValueError("Displacement field must have same number of components as the image dimension")
     libfn = utils.get_lib_fn("antsTransformFromDisplacementField")
     field = field.clone("float")
     txptr = libfn(field.pointer)
