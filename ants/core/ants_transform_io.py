@@ -375,6 +375,9 @@ def write_transform(transform, filename):
     >>> ants.write_transform(tx, '~/desktop/tx.mat')
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
+    if not isinstance(transform, tio.ANTsTransform):
+        raise Exception('Only ANTsTransform instances can be written to file. Check that you are not passing in a filepath to a saved transform.')
+    
     filename = os.path.expanduser(filename)
     libfn = utils.get_lib_fn("writeTransform")
     libfn(transform.pointer, filename)
