@@ -113,7 +113,11 @@ class TestModule_ants_transform_io(unittest.TestCase):
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
         vec = ants.image_read( mytx['fwdtransforms'][0] )
         atx = ants.transform_from_displacement_field( vec )
-        field = ants.transform_to_displacement_field( atx, fi )    
+        field = ants.transform_to_displacement_field( atx, fi )   
+        
+    def test_catch_error(self):
+        with self.assertRaises(Exception):
+            ants.write_transform(123, 'test.mat') 
 
 
 if __name__ == '__main__':
