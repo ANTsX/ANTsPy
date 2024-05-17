@@ -3,8 +3,8 @@
 
 __all__ = ['morphology']
 
+import ants
 from ants.decorators import image_method
-from .iMath import iMath
 
 @image_method
 def morphology(image, operation, radius, mtype='binary', value=1,
@@ -85,35 +85,35 @@ def morphology(image, operation, radius, mtype='binary', value=1,
     if (mtype == 'binary'):
         if (operation == 'dilate'):
             if (sFlag == 5):
-                ret = iMath(image, 'MD', radius, value, sFlag, lines)
+                ret = ants.iMath(image, 'MD', radius, value, sFlag, lines)
             else:
-                ret = iMath(image, 'MD', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = ants.iMath(image, 'MD', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         elif (operation == 'erode'):
             if (sFlag == 5):
-                ret = iMath(image, 'ME', radius, value, sFlag, lines)
+                ret = ants.iMath(image, 'ME', radius, value, sFlag, lines)
             else:
-                ret = iMath(image, 'ME', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = ants.iMath(image, 'ME', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         elif (operation == 'open'):
             if (sFlag == 5):
-                ret = iMath(image, 'MO', radius, value, sFlag, lines)
+                ret = ants.iMath(image, 'MO', radius, value, sFlag, lines)
             else:
-                ret = iMath(image, 'MO', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = ants.iMath(image, 'MO', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         elif (operation == 'close'):
             if (sFlag == 5):
-                ret = iMath(image, 'MC', radius, value, sFlag, lines)
+                ret = ants.iMath(image, 'MC', radius, value, sFlag, lines)
             else:
-                ret = iMath(image, 'MC', radius, value, sFlag, radius_is_parametric, thickness, include_center)
+                ret = ants.iMath(image, 'MC', radius, value, sFlag, radius_is_parametric, thickness, include_center)
         else:
             raise ValueError('Invalid morphology operation')
     elif (mtype == 'grayscale'):
         if (operation == 'dilate'):
-            ret = iMath(image, 'GD', radius)
+            ret = ants.iMath(image, 'GD', radius)
         elif (operation == 'erode'):
-            ret = iMath(image, 'GE', radius)
+            ret = ants.iMath(image, 'GE', radius)
         elif (operation == 'open'):
-            ret = iMath(image, 'GO', radius)
+            ret = ants.iMath(image, 'GO', radius)
         elif (operation == 'close'):
-            ret = iMath(image, 'GC', radius)
+            ret = ants.iMath(image, 'GC', radius)
         else:
             raise ValueError('Invalid morphology operation')
     else:
