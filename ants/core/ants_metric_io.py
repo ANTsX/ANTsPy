@@ -11,7 +11,7 @@ import numpy as np
 from .. import utils
 from . import ants_image as iio
 from . import ants_metric as mio
-
+from ants.internal import get_lib_fn, get_pointer_string
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
@@ -28,7 +28,7 @@ def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     if metric_type not in _supported_metrics:
         raise ValueError('metric_type must be one of %s' % _supported_metrics)
 
-    libfn = utils.get_lib_fn('new_ants_metricF%i'%dimension)
+    libfn = get_lib_fn('new_ants_metricF%i'%dimension)
     itk_tx = libfn(precision, dimension, metric_type)
 
     ants_metric = mio.ANTsImageToImageMetric(itk_tx)
@@ -85,7 +85,7 @@ def create_ants_metric(fixed,
     fixed = fixed.clone('float')
     moving = moving.clone('float')
 
-    libfn = utils.get_lib_fn('create_ants_metricF%i' % dimension)
+    libfn = get_lib_fn('create_ants_metricF%i' % dimension)
     metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
     ants_metric = mio.ANTsImageToImageMetric(metric)

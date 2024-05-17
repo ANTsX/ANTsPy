@@ -6,6 +6,7 @@ from ..core import ants_image_io as iio2
 
 from ..core import ants_image as iio
 from .. import utils
+from ants.internal import get_lib_fn
 
 
 def fit_bspline_object_to_scattered_data(scattered_data,
@@ -175,7 +176,7 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     if len(data_weights) != parametric_data.shape[0]:
         raise ValueError("The number of weights is not the same as the number of points.")
 
-    libfn = utils.get_lib_fn("fitBsplineObjectToScatteredDataP%iD%i" % (parametric_dimension, data_dimension))
+    libfn = get_lib_fn("fitBsplineObjectToScatteredDataP%iD%i" % (parametric_dimension, data_dimension))
     bspline_object = libfn(scattered_data.tolist(), parametric_data.tolist(), data_weights.tolist(),
                            parametric_domain_origin, parametric_domain_spacing,
                            parametric_domain_size, is_parametric_dimension_closed.tolist(),

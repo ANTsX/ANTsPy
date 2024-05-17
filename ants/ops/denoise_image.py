@@ -2,8 +2,9 @@ __all__ = ["denoise_image"]
 
 from ants.decorators import image_method
 from .. import utils
-from .. import internal as pargs
-from ..segmentation.get_mask import get_mask
+
+from .get_mask import get_mask
+from ants.internal import get_lib_fn, process_arguments
 
 @image_method
 def denoise_image(
@@ -79,7 +80,7 @@ def denoise_image(
             "v": v,
         }
 
-    processed_args = pargs._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn("DenoiseImage")
+    processed_args = process_arguments(myargs)
+    libfn = get_lib_fn("DenoiseImage")
     libfn(processed_args)
     return outimage.clone(inpixeltype)

@@ -4,6 +4,8 @@ __all__ = ['slice_image']
 import math
 
 from ants.decorators import image_method
+from ants.internal import get_lib_fn
+
 from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
@@ -44,7 +46,7 @@ def slice_image(image, axis, idx, collapse_strategy=0):
     if image.pixeltype != 'float':
         image = image.clone('float')
 
-    libfn = utils.get_lib_fn('sliceImage')
+    libfn = get_lib_fn('sliceImage')
     itkimage = libfn(image.pointer, axis, idx, collapse_strategy)
 
     return iio2.from_pointer(itkimage).clone(inpixeltype)

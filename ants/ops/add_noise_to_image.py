@@ -4,6 +4,7 @@ from ..core import ants_image_io as iio2
 from .. import utils
 from ants.decorators import image_method
 from ..core import ants_image as iio
+from ants.internal import get_lib_fn
 
 @image_method
 def add_noise_to_image(image,
@@ -48,7 +49,7 @@ def add_noise_to_image(image,
         if len(noise_parameters) != 2:
             raise ValueError("Incorrect number of parameters.")
 
-        libfn = utils.get_lib_fn("additiveGaussianNoise")
+        libfn = get_lib_fn("additiveGaussianNoise")
         noise = libfn(image.pointer, noise_parameters[0], noise_parameters[1])
         output_image = iio2.from_pointer(noise).clone('float')
         return output_image
@@ -56,7 +57,7 @@ def add_noise_to_image(image,
         if len(noise_parameters) != 3:
             raise ValueError("Incorrect number of parameters.")
 
-        libfn = utils.get_lib_fn("saltAndPepperNoise")
+        libfn = get_lib_fn("saltAndPepperNoise")
         noise = libfn(image.pointer, noise_parameters[0], noise_parameters[1], noise_parameters[2])
         output_image = iio2.from_pointer(noise).clone('float')
         return output_image
@@ -64,7 +65,7 @@ def add_noise_to_image(image,
         if not isinstance(noise_parameters, (int, float)):
             raise ValueError("Incorrect parameter specification.")
 
-        libfn = utils.get_lib_fn("shotNoise")
+        libfn = get_lib_fn("shotNoise")
         noise = libfn(image.pointer, noise_parameters)
         output_image = iio2.from_pointer(noise).clone('float')
         return output_image
@@ -72,7 +73,7 @@ def add_noise_to_image(image,
         if not isinstance(noise_parameters, (int, float)):
             raise ValueError("Incorrect parameter specification.")
 
-        libfn = utils.get_lib_fn("speckleNoise")
+        libfn = get_lib_fn("speckleNoise")
         noise = libfn(image.pointer, noise_parameters)
         output_image = iio2.from_pointer(noise).clone('float')
         return output_image

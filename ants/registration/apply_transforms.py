@@ -4,6 +4,7 @@ __all__ = ['apply_transforms','apply_transforms_to_points']
 
 import os
 
+from ants.internal import get_lib_fn, process_arguments
 
 from .. import core
 from ..core import ants_image as iio
@@ -167,14 +168,14 @@ def apply_transforms(fixed, moving, transformlist,
                         '-n', interpolator]
                 args = args + mytx
 
-            myargs = utils._int_antsProcessArguments(args)
+            myargs = process_arguments(args)
 
             myverb = int(verbose)
             if verbose:
                 print(myargs)
 
             processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(int(singleprecision)), '-e', str(imagetype), '-f', str(defaultvalue)]
-            libfn = utils.get_lib_fn('antsApplyTransforms')
+            libfn = get_lib_fn('antsApplyTransforms')
             libfn(processed_args)
 
             if compose is None:
@@ -189,8 +190,8 @@ def apply_transforms(fixed, moving, transformlist,
             return 1
     else:
         args = args + ['-z', str(1), '--float', str(int(singleprecision)), '-e', imagetype, '-f', defaultvalue]
-        processed_args = utils._int_antsProcessArguments(args)
-        libfn = utils.get_lib_fn('antsApplyTransforms')
+        processed_args = process_arguments(args)
+        libfn = get_lib_fn('antsApplyTransforms')
         libfn(processed_args)
 
 
@@ -295,14 +296,14 @@ def apply_transforms_to_points( dim, points, transformlist,
             '-i', pointImage,
             '-o', pointsOut ]
     args = args + mytx
-    myargs = utils._int_antsProcessArguments(args)
+    myargs = process_arguments(args)
 
     myverb = int(verbose)
     if verbose:
         print(myargs)
 
     processed_args = myargs + [ '-f', str(1), '--precision', str(0)]
-    libfn = utils.get_lib_fn('antsApplyTransformsToPoints')
+    libfn = get_lib_fn('antsApplyTransformsToPoints')
     libfn(processed_args)
     mynp = pointsOut.numpy()
     pointsOutDF = points.copy()

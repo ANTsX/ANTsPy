@@ -18,6 +18,7 @@ import json
 import numpy as np
 import warnings
 
+from ants.internal import get_lib_fn, short_ptype
 from ants.decorators import image_method
 from . import ants_image as iio
 from .. import utils, core
@@ -121,7 +122,7 @@ def _from_numpy(
     if direction is None:
         direction = np.eye(ndim)
 
-    libfn = utils.get_lib_fn("fromNumpy%s%i" % (_ntype_type_map[dtype], ndim))
+    libfn = get_lib_fn("fromNumpy%s%i" % (_ntype_type_map[dtype], ndim))
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
@@ -235,7 +236,7 @@ def image_header_info(filename):
     if not os.path.exists(filename):
         raise Exception("filename does not exist")
 
-    libfn = utils.get_lib_fn("antsImageHeaderInfo")
+    libfn = get_lib_fn("antsImageHeaderInfo")
     retval = libfn(filename)
     retval["dimensions"] = tuple(retval["dimensions"])
     retval["origin"] = tuple([round(o, 4) for o in retval["origin"]])
@@ -349,7 +350,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         if (ndim < 2) or (ndim > 4):
             raise ValueError("Found %i-dimensional image - not supported!" % ndim)
 
-        libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
+        libfn = get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
 
         ants_image = from_pointer(itk_pointer)
@@ -481,11 +482,11 @@ def clone(self, pixeltype=None):
         comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
         return utils.merge_channels(comp_imgs_cloned)
     else:
-        p1_short = utils.short_ptype(self.pixeltype)
-        p2_short = utils.short_ptype(pixeltype)
+        p1_short = short_ptype(self.pixeltype)
+        p2_short = short_ptype(pixeltype)
         ndim = self.dimension
         fn_suffix = '%s%i' % (p2_short,ndim)
-        libfn = utils.get_lib_fn('antsImageClone%s'%fn_suffix)
+        libfn = get_lib_fn('antsImageClone%s'%fn_suffix)
         pointer_cloned = libfn(self.pointer)
         return from_pointer(pointer_cloned)
         

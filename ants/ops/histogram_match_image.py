@@ -8,8 +8,9 @@ from ants.decorators import image_method
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import utils
+from ants.internal import get_lib_fn
 
-from ..utils import fit_bspline_object_to_scattered_data
+from ..registration import fit_bspline_object_to_scattered_data
 
 @image_method
 def histogram_match_image(source_image, reference_image, number_of_histogram_bins=255, number_of_match_points=64, use_threshold_at_mean_intensity=False):
@@ -48,7 +49,7 @@ def histogram_match_image(source_image, reference_image, number_of_histogram_bin
     if reference_image.pixeltype != 'float':
         reference_image = reference_image.clone('float')
 
-    libfn = utils.get_lib_fn('histogramMatchImageF%i' % ndim)
+    libfn = get_lib_fn('histogramMatchImageF%i' % ndim)
     itkimage = libfn(source_image.pointer, reference_image.pointer, number_of_histogram_bins, number_of_match_points, use_threshold_at_mean_intensity)
 
     new_image = iio2.from_pointer(itkimage).clone(inpixeltype)

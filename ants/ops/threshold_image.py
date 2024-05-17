@@ -4,7 +4,9 @@
 __all__ = ['threshold_image']
 
 from ants.decorators import image_method
-from ..internal import _int_antsProcessArguments
+from ants.internal import get_lib_fn
+
+from ants.internal import process_arguments
 from .. import utils
 
 @image_method
@@ -52,8 +54,8 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0,
     dim = image.dimension
     outimage = image.clone()
     args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
-    processed_args = _int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn('ThresholdImage')
+    processed_args = process_arguments(args)
+    libfn = get_lib_fn('ThresholdImage')
     libfn(processed_args)
     if binary:
         return outimage

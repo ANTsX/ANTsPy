@@ -10,6 +10,8 @@ import numpy as np
 from tempfile import mktemp
 
 from ants.decorators import image_method
+from ants.internal import get_lib_fn
+
 from ..core import ants_image_io as iio2
 from ..registration import apply_transforms
 from .. import utils
@@ -71,7 +73,7 @@ def reorient_image2(image, orientation='RAS'):
      if image.pixeltype != 'float':
          image = image.clone('float')
 
-     libfn = utils.get_lib_fn('reorientImage2')
+     libfn = get_lib_fn('reorientImage2')
      itkimage = libfn(image.pointer, orientation)
 
      new_img = iio2.from_pointer(itkimage)
@@ -106,7 +108,7 @@ def get_center_of_mass(image):
     if image.pixeltype != 'float':
         image = image.clone('float')
 
-    libfn = utils.get_lib_fn('centerOfMass')
+    libfn = get_lib_fn('centerOfMass')
     com = libfn(image.pointer)
 
     return tuple(com)

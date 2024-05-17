@@ -1,6 +1,7 @@
-from .. import utils, core, transforms
+from .. import utils, core
 from tempfile import mktemp
 import os
+from ants.internal import get_lib_fn, process_arguments
 
 __all__ = ['average_affine_transform', 'average_affine_transform_no_rigid']
 
@@ -21,17 +22,17 @@ def _average_affine_transform_driver(transformlist, referencetransform=None, fun
     # aren't files
     
     # load one of the transforms to figure out the dimension
-    tf = transforms.read_transform(transformlist[0])
+    tf = core.read_transform(transformlist[0])
     if referencetransform is None:
         args = [tf.dimension, res_temp_file] + transformlist
     else:
         args = [tf.dimension, res_temp_file] + ['-R',  referencetransform] + transformlist
-    pargs = utils._int_antsProcessArguments(args)
+    pargs = process_arguments(args)
     print(pargs)
-    libfun = utils.get_lib_fn(funcname)
+    libfun = get_lib_fn(funcname)
     status = libfun(pargs)
 
-    res = transforms.read_transform(res_temp_file)
+    res = core.read_transform(res_temp_file)
     os.remove(res_temp_file)
     return res
 

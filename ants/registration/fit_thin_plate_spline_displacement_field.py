@@ -7,6 +7,7 @@ from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import core
 from .. import utils
+from ants.internal import get_lib_fn
 
 
 def fit_thin_plate_spline_displacement_field(displacement_origins=None,
@@ -100,7 +101,7 @@ def fit_thin_plate_spline_displacement_field(displacement_origins=None,
         direction = np.empty((0, 0))
 
     tps_field = None
-    libfn = utils.get_lib_fn("fitThinPlateSplineDisplacementFieldToScatteredDataD%i" % (dimensionality))
+    libfn = get_lib_fn("fitThinPlateSplineDisplacementFieldToScatteredDataD%i" % (dimensionality))
     tps_field = libfn(displacement_origins, displacements, origin, spacing, size, direction)
 
     tps_displacement_field = iio2.from_pointer(tps_field).clone('float')

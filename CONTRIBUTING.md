@@ -74,7 +74,7 @@ The general workflow for wrapping a library calls involves the following steps:
 
 - write a wrapper python function (e.g. `def atropos(...)`)
 - build up a list or dictionary of string argument names as in ANTs
-- pass those raw arguments through the function `utils._int_antsProcessArguments(args)`
+- pass those raw arguments through the function `process_arguments(args)`
 - pass those processed arguments into the library call (e.g. `lib.Atropos(processed_args)`).
 
 ## Writing custom code for antspy

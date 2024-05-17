@@ -7,6 +7,7 @@ from ants.decorators import image_method
 from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
+from ants.internal import get_lib_fn
 
 @image_method
 def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False):
@@ -71,7 +72,7 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
                 lower_pad_vals.append(math.floor(p/2))
                 upper_pad_vals.append(math.ceil(p/2))
 
-    libfn = utils.get_lib_fn('padImage')
+    libfn = get_lib_fn('padImage')
     itkimage = libfn(image.pointer, lower_pad_vals, upper_pad_vals, value)
 
     new_image = iio2.from_pointer(itkimage).clone(inpixeltype)

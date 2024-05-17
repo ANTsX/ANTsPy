@@ -13,10 +13,10 @@ import itertools
 
 from . import apply_transforms
 from . import apply_transforms_to_points
-from .. import utils
+from .. import utils, ops
 from ..core import ants_image as iio
-from .. import core
-
+from .. import core, ops
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
 def registration(
@@ -234,8 +234,8 @@ def registration(
     >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = 'antsRegistrationSyN[s]' )
     """
     if isinstance(fixed, list) and (moving is None):
-        processed_args = utils._int_antsProcessArguments(fixed)
-        libfn = utils.get_lib_fn("antsRegistration")
+        processed_args = process_arguments(fixed)
+        libfn = get_lib_fn("antsRegistration")
         reg_exit = libfn(processed_args)
         if (reg_exit != 0):
             raise RuntimeError(f"Registration failed with error code {reg_exit}")
@@ -406,23 +406,23 @@ def registration(
     moving = moving.clone("float")
     fixed = fixed.clone("float")
     # NOTE: this may be better for general purpose applications: TBD
-#    moving = utils.iMath( moving.clone("float"), "Normalize" )
-#    fixed = utils.iMath( fixed.clone("float"), "Normalize" )
+#    moving = ops.iMath( moving.clone("float"), "Normalize" )
+#    fixed = ops.iMath( fixed.clone("float"), "Normalize" )
     warpedfixout = moving.clone()
     warpedmovout = fixed.clone()
-    f = utils.get_pointer_string(fixed)
-    m = utils.get_pointer_string(moving)
-    wfo = utils.get_pointer_string(warpedfixout)
-    wmo = utils.get_pointer_string(warpedmovout)
+    f = get_pointer_string(fixed)
+    m = get_pointer_string(moving)
+    wfo = get_pointer_string(warpedfixout)
+    wmo = get_pointer_string(warpedmovout)
     if mask is not None:
         mask_binary = mask != 0
-        f_mask_str = utils.get_pointer_string(mask_binary)
+        f_mask_str = get_pointer_string(mask_binary)
     else:
         f_mask_str = "NA"
 
     if moving_mask is not None:
         moving_mask_binary = moving_mask != 0
-        m_mask_str = utils.get_pointer_string(moving_mask_binary)
+        m_mask_str = get_pointer_string(moving_mask_binary)
     else:
         m_mask_str = "NA"
 
@@ -685,10 +685,10 @@ def registration(
             for kk in range(len(multivariate_extras)):
                 metrics.append("-m")
                 metricname = multivariate_extras[kk][0]
-                metricfixed = utils.get_pointer_string(
+                metricfixed = get_pointer_string(
                     multivariate_extras[kk][1]
                 )
-                metricmov = utils.get_pointer_string(
+                metricmov = get_pointer_string(
                     multivariate_extras[kk][2]
                 )
                 metricWeight = multivariate_extras[kk][3]
@@ -1258,10 +1258,10 @@ def registration(
             for kk in range(len(multivariate_extras)):
                 syn_stage.append("--metric")
                 metricname = multivariate_extras[kk][0]
-                metricfixed = utils.get_pointer_string(
+                metricfixed = get_pointer_string(
                     multivariate_extras[kk][1]
                 )
-                metricmov = utils.get_pointer_string(
+                metricmov = get_pointer_string(
                     multivariate_extras[kk][2]
                 )
                 metricWeight = multivariate_extras[kk][3]
@@ -1350,8 +1350,8 @@ def registration(
         args.append("-v")
         args.append("1")
 
-    processed_args = utils._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn("antsRegistration")
+    processed_args = process_arguments(args)
+    libfn = get_lib_fn("antsRegistration")
     if verbose:
         print("antsRegistration " + ' '.join(processed_args))
     reg_exit = libfn(processed_args)
@@ -1482,9 +1482,9 @@ def motion_correction(
         fixed = utils.slice_image(image, axis=idim - 1, idx=0) * 0
         for k in range(nTimePoints):
             temp = utils.slice_image(image, axis=idim - 1, idx=k)
-            fixed = fixed + utils.iMath(temp,"Normalize") * wt
+            fixed = fixed + ops.iMath(temp,"Normalize") * wt
     if mask is None:
-        mask = utils.get_mask(fixed)
+        mask = ops.get_mask(fixed)
         useMask=None
     else:
         useMask=mask
@@ -1520,7 +1520,7 @@ def motion_correction(
             counter = counter + 10
             print(mycount, end="%.", flush=True)
         temp = utils.slice_image(image, axis=idim - 1, idx=k)
-        temp = utils.iMath(temp, "Normalize")
+        temp = ops.iMath(temp, "Normalize")
         if temp.numpy().var() > 0:
             if outprefix != "":
                 outprefixloc = outprefix + "_" + str.zfill( str(k), 5 ) + "_"

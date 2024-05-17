@@ -7,7 +7,7 @@ import numpy as np
 from .. import utils
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
-
+from ants.internal import get_lib_fn, get_pointer_string
 
 def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
                             boundary_condition=None, spatial_info=False, get_gradient=False):
@@ -99,7 +99,7 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
     elif boundary_condition == 'mean':
         boundary = 2
     
-    libfn = utils.get_lib_fn('getNeighborhoodMatrix%s' % image._libsuffix)
+    libfn = get_lib_fn('getNeighborhoodMatrix%s' % image._libsuffix)
     retvals = libfn(image.pointer, 
                     mask.pointer, 
                     list(radius),
@@ -173,7 +173,7 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
 
     radius = [int((k-1)/2) for k in kernel]
 
-    libfn = utils.get_lib_fn('getNeighborhood%s' % image._libsuffix)
+    libfn = get_lib_fn('getNeighborhood%s' % image._libsuffix)
     retvals = libfn(image.pointer, 
                     list(center), 
                     list(kernel), 

@@ -14,10 +14,11 @@ import glob
 import re
 import math
 
-from .. import utils
+from .. import utils, ops
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import registration
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
 def joint_label_fusion(
@@ -206,12 +207,12 @@ def joint_label_fusion(
         outimg = label_list[1].clone(segpixtype)
         outimgi = target_image * 0
 
-        outimg_ptr = utils.get_pointer_string(outimg)
-        outimgi_ptr = utils.get_pointer_string(outimgi)
+        outimg_ptr = get_pointer_string(outimg)
+        outimgi_ptr = get_pointer_string(outimgi)
         outs = "[%s,%s,%s]" % (outimg_ptr, outimgi_ptr, probs)
     else:
         outimgi = target_image * 0
-        outs = utils.get_pointer_string(outimgi)
+        outs = get_pointer_string(outimgi)
 
     mymask = mymask.clone(segpixtype)
     if (not isinstance(rad, (tuple, list))) or (len(rad) == 1):
@@ -252,9 +253,9 @@ def joint_label_fusion(
             castseg = label_list[k].clone(segpixtype)
             myargs["l-MULTINAME-%i" % kct] = castseg
 
-    myprocessedargs = utils._int_antsProcessArguments(myargs)
+    myprocessedargs = process_arguments(myargs)
 
-    libfn = utils.get_lib_fn("antsJointFusion")
+    libfn = get_lib_fn("antsJointFusion")
     rval = libfn(myprocessedargs)
     if rval != 0:
         print("Warning: Non-zero return from antsJointFusion")
@@ -484,10 +485,10 @@ def local_joint_label_fusion(
     """
     myregion = utils.mask_image(initial_label, initial_label, which_labels)
     if myregion.max() == 0:
-        myregion = utils.threshold_image(initial_label, 1, math.inf)
+        myregion = ops.threshold_image(initial_label, 1, math.inf)
 
-    myregionb = utils.threshold_image(myregion, 1, math.inf)
-    myregionAroundRegion = utils.iMath(myregionb, "MD", submask_dilation)
+    myregionb = ops.threshold_image(myregion, 1, math.inf)
+    myregionAroundRegion = ops.iMath(myregionb, "MD", submask_dilation)
     if target_mask is not None:
         myregionAroundRegion = myregionAroundRegion * target_mask
     croppedImage = utils.crop_image(target_image, myregionAroundRegion)

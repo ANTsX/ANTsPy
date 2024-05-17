@@ -3,8 +3,7 @@
 __all__ = [
     "get_pointer_string",
     "short_ptype",
-    "_ptrstr",
-    "_int_antsProcessArguments",
+    "process_arguments",
     "get_lib_fn",
 ]
 
@@ -27,17 +26,11 @@ def get_lib_fn(string):
     return getattr(lib, string)
 
 
-def _ptrstr(pointer):
-    """ get string representation of a py::capsule (aka pointer) """
-    libfn = get_lib_fn("ptrstr")
-    return libfn(pointer)
-
-
 def get_pointer_string(image):
-    return _ptrstr(image.pointer)
+    return lib.ptrstr(image.pointer)
 
 
-def _int_antsProcessArguments(args):
+def process_arguments(args):
     """
     Needs to be better validated.
     """
@@ -55,11 +48,11 @@ def _int_antsProcessArguments(args):
                     p_args.append("-%s" % argname)
 
                 if isinstance(argval, iio.ANTsImage):
-                    p_args.append(_ptrstr(argval.pointer))
+                    p_args.append(get_pointer_string(argval))
                 elif isinstance(argval, list):
                     for av in argval:
                         if isinstance(av, iio.ANTsImage):
-                            av = _ptrstr(av.pointer)
+                            av = get_pointer_string(av)
                         elif str(arg) == "True":
                             av = str(1)
                         elif str(arg) == "False":
@@ -71,7 +64,7 @@ def _int_antsProcessArguments(args):
     elif isinstance(args, list):
         for arg in args:
             if isinstance(arg, iio.ANTsImage):
-                pointer_string = _ptrstr(arg.pointer)
+                pointer_string = get_pointer_string(arg)
                 p_arg = pointer_string
             elif arg is None:
                 pass

@@ -4,14 +4,15 @@ __all__ = [
     "read_transform",
     "write_transform",
     "transform_from_displacement_field",
-    "transform_to_displacement_field"
+    "transform_to_displacement_field",
+    "fsl2antstransform"
 ]
 
 import os
 import numpy as np
 
 from . import ants_image_io as iio2
-
+from ants.internal import get_lib_fn, short_ptype
 from . import ants_image as iio
 from . import ants_transform as tio
 from .. import utils
@@ -34,8 +35,8 @@ def new_ants_transform(
     >>> import ants
     >>> tx = ants.new_ants_transform()
     """
-    libfn = utils.get_lib_fn(
-        "newAntsTransform%s%i" % (utils.short_ptype(precision), dimension)
+    libfn = get_lib_fn(
+        "newAntsTransform%s%i" % (short_ptype(precision), dimension)
     )
     itk_tx = libfn(precision, dimension, transform_type)
     ants_tx = tio.ANTsTransform(
@@ -205,8 +206,8 @@ def create_ants_transform(
         return tio.ants_transform(itk_tx)
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
-    libfn = utils.get_lib_fn(
-        "matrixOffset%s%i" % (utils.short_ptype(precision), dimension)
+    libfn = get_lib_fn(
+        "matrixOffset%s%i" % (short_ptype(precision), dimension)
     )
     itk_tx = libfn(
         transform_type,
@@ -255,7 +256,7 @@ def transform_from_displacement_field(field):
     """
     if not isinstance(field, iio.ANTsImage):
         raise ValueError("field must be ANTsImage type")
-    libfn = utils.get_lib_fn("antsTransformFromDisplacementField")
+    libfn = get_lib_fn("antsTransformFromDisplacementField")
     field = field.clone("float")
     txptr = libfn(field.pointer)
     return tio.ANTsTransform(
@@ -297,7 +298,7 @@ def transform_to_displacement_field(xfrm, ref):
 
     if not xfrm.type == 'DisplacementFieldTransform':
         raise ValueError("Transform must be of DisplacementFieldTransform type")
-    libfn = utils.get_lib_fn("antsTransformToDisplacementField")
+    libfn = get_lib_fn("antsTransformToDisplacementField")
     field_ptr = libfn(xfrm.pointer, ref.pointer)
     return iio2.from_pointer(field_ptr)
 
@@ -332,14 +333,14 @@ def read_transform(filename, precision="float"):
         raise ValueError("filename does not exist!")
 
     # intentionally ignore dimension
-    libfn1 = utils.get_lib_fn("getTransformDimensionFromFile")
+    libfn1 = get_lib_fn("getTransformDimensionFromFile")
     dimensionUse = libfn1(filename)
 
-    libfn2 = utils.get_lib_fn("getTransformNameFromFile")
+    libfn2 = get_lib_fn("getTransformNameFromFile")
     transform_type = libfn2(filename)
 
-    libfn3 = utils.get_lib_fn(
-        "readTransform%s%i" % (utils.short_ptype(precision), dimensionUse)
+    libfn3 = get_lib_fn(
+        "readTransform%s%i" % (short_ptype(precision), dimensionUse)
     )
     itk_tx = libfn3(filename, dimensionUse, precision)
 
@@ -378,5 +379,53 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     filename = os.path.expanduser(filename)
-    libfn = utils.get_lib_fn("writeTransform")
+    libfn = get_lib_fn("writeTransform")
     libfn(transform.pointer, filename)
+
+def fsl2antstransform(matrix, reference, moving):
+    """
+    Convert an FSL linear transform to an antsrTransform
+    
+    ANTsR function: `fsl2antsrtransform`
+
+    Arguments
+    ---------
+    matrix : ndarray/list
+        4x4 matrix of transform parameters
+
+    reference : ANTsImage
+        target image
+
+    moving : ANTsImage
+        moving image
+
+    Returns
+    -------
+    ANTsTransform
+
+    Examples
+    --------
+    >>> import ants
+    >>> import numpy as np
+    >>> fslmat = np.zeros((4,4))
+    >>> np.fill_diagonal(fslmat, 1)
+    >>> img = ants.image_read(ants.get_ants_data('ch2'))
+    >>> tx = ants.fsl2antstransform(fslmat, img, img)
+    """
+    if reference.dimension != 3:
+        raise ValueError('reference image must be 3 dimensions')
+
+    if reference.pixeltype != 'float':
+        reference = reference.clone('float')
+    if moving.pixeltype != 'float':
+        moving = moving.clone('float')
+
+    libfn = get_lib_fn('fsl2antstransformF3')
+    tx_ptr = libfn(list(matrix), 
+                    reference.pointer,
+                    moving.pointer,
+                    1)
+
+    return tio.ANTsTransform(precision='float', dimension=reference.dimension, 
+                             transform_type='AffineTransform', pointer=tx_ptr)
+

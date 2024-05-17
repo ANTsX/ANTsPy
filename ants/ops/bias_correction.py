@@ -1,12 +1,10 @@
 __all__ = ["n3_bias_field_correction", "n3_bias_field_correction2", "n4_bias_field_correction", "abp_n4"]
 
-
-from .. import internal as pargs
-from ..segmentation.get_mask import get_mask
+from .get_mask import get_mask
 from .iMath import iMath
 
 from ants.decorators import image_method
-
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 from ..core import ants_image as iio
 from .. import utils
 
@@ -37,8 +35,8 @@ def n3_bias_field_correction(image, downsample_factor=3):
     """
     outimage = image.clone()
     args = [image.dimension, image, outimage, downsample_factor]
-    processed_args = pargs._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn("N3BiasFieldCorrection")
+    processed_args = process_arguments(args)
+    libfn = get_lib_fn("N3BiasFieldCorrection")
     libfn(processed_args)
     return outimage
 
@@ -138,8 +136,8 @@ def n3_bias_field_correction2(
 
     outimage = image.clone("float")
     outbiasfield = image.clone("float")
-    i = utils.get_pointer_string(outimage)
-    b = utils.get_pointer_string(outbiasfield)
+    i = get_pointer_string(outimage)
+    b = get_pointer_string(outbiasfield)
     output = "[%s,%s]" % (i, b)
 
     kwargs = {
@@ -155,8 +153,8 @@ def n3_bias_field_correction2(
         "v": int(verbose),
     }
 
-    processed_args = pargs._int_antsProcessArguments(kwargs)
-    libfn = utils.get_lib_fn("N3BiasFieldCorrection")
+    processed_args = process_arguments(kwargs)
+    libfn = get_lib_fn("N3BiasFieldCorrection")
     libfn(processed_args)
     if return_bias_field == True:
         return outbiasfield
@@ -257,8 +255,8 @@ def n4_bias_field_correction(
 
     outimage = image.clone("float")
     outbiasfield = image.clone("float")
-    i = utils.get_pointer_string(outimage)
-    b = utils.get_pointer_string(outbiasfield)
+    i = get_pointer_string(outimage)
+    b = get_pointer_string(outbiasfield)
     output = "[%s,%s]" % (i, b)
 
     kwargs = {
@@ -274,8 +272,8 @@ def n4_bias_field_correction(
         "v": int(verbose),
     }
 
-    processed_args = pargs._int_antsProcessArguments(kwargs)
-    libfn = utils.get_lib_fn("N4BiasFieldCorrection")
+    processed_args = process_arguments(kwargs)
+    libfn = get_lib_fn("N4BiasFieldCorrection")
     libfn(processed_args)
     if return_bias_field == True:
         return outbiasfield

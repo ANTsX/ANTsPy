@@ -6,6 +6,7 @@ import numpy as np
 from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import utils
+from ants.internal import get_lib_fn
 
 
 
@@ -74,14 +75,14 @@ def simulate_displacement_field(domain_image,
         if isinstance(number_of_control_points, int) == True:
             number_of_control_points = np.repeat(number_of_control_points, image_dimension)
 
-        libfn = utils.get_lib_fn("simulateBsplineDisplacementField%iD" % image_dimension)
+        libfn = get_lib_fn("simulateBsplineDisplacementField%iD" % image_dimension)
         field = libfn(domain_image.pointer, number_of_random_points, sd_noise, 
                       enforce_stationary_boundary, number_of_fitting_levels, number_of_control_points)
         bspline_field = iio2.from_pointer(field).clone('float')
         return bspline_field
 
     elif field_type == 'exponential':
-        libfn = utils.get_lib_fn("simulateExponentialDisplacementField%iD" % image_dimension)
+        libfn = get_lib_fn("simulateExponentialDisplacementField%iD" % image_dimension)
         field = libfn(domain_image.pointer, number_of_random_points, sd_noise, 
                       enforce_stationary_boundary, sd_smoothing)
         exp_field = iio2.from_pointer(field).clone('float')

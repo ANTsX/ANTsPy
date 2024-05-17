@@ -4,6 +4,8 @@ __all__ = ['weingarten_image_curvature']
 import numpy as np
 
 from ants.decorators import image_method
+from ants.internal import get_lib_fn
+
 from ..core import ants_image_io as iio2
 from .. import core
 from ..core import ants_image as iio
@@ -60,7 +62,7 @@ def weingarten_image_curvature(image, sigma=1.0, opt='mean'):
     if opt == 'characterize':
         optnum = 5
 
-    libfn = utils.get_lib_fn('weingartenImageCurvature')
+    libfn = get_lib_fn('weingartenImageCurvature')
     mykout = libfn(temp.pointer, sigma, optnum)
     mykout = iio2.from_pointer(mykout)
     if image.dimension == 3:

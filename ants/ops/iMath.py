@@ -30,9 +30,8 @@ __all__ = ['iMath',
            'iMath_sharpen',
            'iMath_propagate_labels_through_mask']
 
-
+from ants.internal import get_lib_fn, process_arguments
 from ants.decorators import image_method
-from ..internal import _int_antsProcessArguments
 from .. import utils
 
 _iMathOps = {'FillHoles',
@@ -102,9 +101,9 @@ def iMath(image, operation, *args):
     imagedim = image.dimension
     outimage = image.clone()
     args = [imagedim, outimage, operation, image] + [a for a in args]
-    processed_args = _int_antsProcessArguments(args)
+    processed_args = process_arguments(args)
 
-    libfn = utils.get_lib_fn('iMath')
+    libfn = get_lib_fn('iMath')
     libfn(processed_args)
     return outimage
 image_math = iMath

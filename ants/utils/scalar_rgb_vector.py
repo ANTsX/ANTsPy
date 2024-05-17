@@ -10,6 +10,7 @@ import numpy as np
 from .. import utils
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
+from ants.internal import get_lib_fn, process_arguments
 
 
 def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_file=None, 
@@ -60,8 +61,8 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
         vtk_lookup_table = mktemp(suffix='.csv')
         args.append('vtkLookupTable=%s' % vtk_lookup_table)
     
-    processed_args = utils._int_antsProcessArguments(args)
-    libfn = utils.get_lib_fn('ConvertScalarImageToRGB')
+    processed_args = process_arguments(args)
+    libfn = get_lib_fn('ConvertScalarImageToRGB')
     libfn(processed_args)
 
     if file_is_temp:
@@ -98,7 +99,7 @@ def rgb_to_vector(image):
     if image.pixeltype != 'unsigned char':
         image = image.clone('unsigned char')
     idim = image.dimension
-    libfn = utils.get_lib_fn('RgbToVector%i' % idim)
+    libfn = get_lib_fn('RgbToVector%i' % idim)
     new_ptr = libfn(image.pointer)
     new_img = iio2.from_pointer(new_ptr)
     return new_img
@@ -128,7 +129,7 @@ def vector_to_rgb(image):
     if image.pixeltype != 'unsigned char':
         image = image.clone('unsigned char')
     idim = image.dimension
-    libfn = utils.get_lib_fn('VectorToRgb%i' % idim)
+    libfn = get_lib_fn('VectorToRgb%i' % idim)
     new_ptr = libfn(image.pointer)
     new_img = iio2.from_pointer(new_ptr)
     return new_img

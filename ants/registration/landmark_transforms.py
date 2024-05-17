@@ -5,13 +5,13 @@ import time
 
 from ..core import ants_transform_io as txio
 from ..core import ants_image_io as iio2
-from ..utils import fit_bspline_displacement_field
-from ..utils import fit_bspline_object_to_scattered_data
-from ..utils import fit_thin_plate_spline_displacement_field
-from ..utils import integrate_velocity_field
-from ..utils import smooth_image
-from ..utils import compose_displacement_fields
-from ..utils import invert_displacement_field
+from . import fit_bspline_displacement_field
+from . import fit_bspline_object_to_scattered_data
+from . import fit_thin_plate_spline_displacement_field
+from . import integrate_velocity_field
+from ..ops import smooth_image
+from . import compose_displacement_fields
+from . import invert_displacement_field
 
 def convergence_monitoring(values, window_size=10):
      if len(values) >= window_size:

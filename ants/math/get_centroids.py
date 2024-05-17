@@ -2,7 +2,7 @@ __all__ = ["get_centroids"]
 
 import numpy as np
 
-from ..labels.label_clusters import label_clusters
+from ..label.label_clusters import label_clusters
 from ..label.label_stats import label_stats
 
 

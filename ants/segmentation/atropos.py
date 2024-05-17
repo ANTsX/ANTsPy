@@ -13,6 +13,7 @@ from tempfile import mktemp
 
 from ..core import ants_image_io as iio2
 from .. import utils
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
 def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
@@ -101,7 +102,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         outimg = a.clone('unsigned int')
 
     mydim = outimg.dimension
-    outs = '[%s,%s]' % (utils._ptrstr(outimg.pointer), probs)
+    outs = '[%s,%s]' % (get_pointer_string(outimg), probs)
     mymask = x.clone('unsigned int')
 
     if (not isinstance(a, (list,tuple))) or (len(a) == 1):
@@ -134,8 +135,8 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         for aa_idx, aa in enumerate(a):
             myargs['a-MULTINAME-%i'%aa_idx] = aa
 
-    processed_args = utils._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn('Atropos')
+    processed_args = process_arguments(myargs)
+    libfn = get_lib_fn('Atropos')
     retval = libfn(processed_args)
 
     if retval != 0:

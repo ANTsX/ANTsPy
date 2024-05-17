@@ -11,10 +11,10 @@ from pandas import DataFrame
 from sklearn import linear_model
 import statsmodels.api as sm
 
-from .. import core
-from .. import utils
+import ants
+from .. import core, utils, ops
 from ..core import ants_image as iio
-
+from ants.internal import get_lib_fn, get_pointer_string
 
 def sparse_decom2(inmatrix,
                     inmask=(None, None),
@@ -176,15 +176,15 @@ def sparse_decom2(inmatrix,
 
     if idim == 2:
         if version == 1:
-            sccancpp_fn = utils.get_lib_fn('sccanCpp2D')
+            sccancpp_fn = get_lib_fn('sccanCpp2D')
         elif version == 2:
-            sccancpp_fn = utils.get_lib_fn('sccanCpp2DV2')
+            sccancpp_fn = get_lib_fn('sccanCpp2DV2')
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
     elif idim ==3:
         if version == 1:
-            sccancpp_fn = utils.get_lib_fn('sccanCpp3D')
+            sccancpp_fn = get_lib_fn('sccanCpp3D')
         elif version == 2:
-            sccancpp_fn = utils.get_lib_fn('sccanCpp3DV2')
+            sccancpp_fn = get_lib_fn('sccanCpp3DV2')
             input_matrices = (input_matrices[0].tolist(), input_matrices[1].tolist())
 
     outval = sccancpp_fn(input_matrices[0], input_matrices[1],
@@ -313,9 +313,9 @@ def initialize_eigenanatomy(initmat, mask=None, initlabels=None, nreps=1, smooth
         temp = np.zeros((len(ulabs), nvox))
 
         for x in range(len(ulabs)):
-            timg = utils.threshold_image(initmat, ulabs[x]-1e-4, ulabs[x]+1e-4)
+            timg = ops.threshold_image(initmat, ulabs[x]-1e-4, ulabs[x]+1e-4)
             if smoothing > 0:
-                timg = utils.smooth_image(timg, smoothing)
+                timg = ops.smooth_image(timg, smoothing)
             temp[x,:] = timg[selectvec]
         initmat = temp
 
@@ -384,12 +384,12 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
     if isinstance(img_list, np.ndarray):
         mydata = img_list
     elif isinstance(img_list, (tuple, list)):
-        mydata = core.image_list_to_matrix(img_list, mask)
+        mydata = ants.image_list_to_matrix(img_list, mask)
 
     if (smooth > 0):
         for i in range(mydata.shape[0]):
             temp_img = core.make_image(mask, mydata[i,:], pixeltype='float')
-            temp_img = utils.smooth_image(temp_img, smooth, sigma_in_physical_coordinates=True)
+            temp_img = ops.smooth_image(temp_img, smooth, sigma_in_physical_coordinates=True)
             mydata[i,:] = temp_img[mask >= 0.5]
 
     segids = np.argmax(np.abs(mydata), axis=0)+1
@@ -398,9 +398,9 @@ def eig_seg(mask, img_list, apply_segmentation_to_images=False, cthresh=0, smoot
 
     if cthresh > 0:
         for kk in range(int(maskseg.max())):
-            timg = utils.threshold_image(maskseg, kk, kk)
+            timg = ops.threshold_image(maskseg, kk, kk)
             timg = utils.label_clusters(timg, cthresh)
-            timg = utils.threshold_image(timg, 1, 1e15) * float(kk)
+            timg = ops.threshold_image(timg, 1, 1e15) * float(kk)
             maskseg[maskseg == kk] = timg[maskseg == kk]
 
     if (apply_segmentation_to_images) and (not isinstance(img_list, np.ndarray)):

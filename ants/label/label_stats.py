@@ -3,7 +3,7 @@ __all__ = ["label_stats"]
 import pandas as pd
 
 from .. import utils
-
+from ants.internal import get_lib_fn, get_pointer_string
 
 def label_stats(image, label_image):
     """
@@ -35,7 +35,7 @@ def label_stats(image, label_image):
     image_float = image.clone("float")
     label_image_int = label_image.clone("unsigned int")
 
-    libfn = utils.get_lib_fn("labelStats%iD" % image.dimension)
+    libfn = get_lib_fn("labelStats%iD" % image.dimension)
     df = libfn(image_float.pointer, label_image_int.pointer)
     df = pd.DataFrame(df)
     df.sort_values(by=["LabelValue"], inplace=True)

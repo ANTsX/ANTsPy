@@ -253,7 +253,7 @@ def rescale_image(image, min_val, max_val):
     image = image.clone('float')
 
     # get function from its name
-    lib_fn = utils.get_lib_fn('rescaleAntsImage%s' % (image._libsuffix))
+    lib_fn = get_lib_fn('rescaleAntsImage%s' % (image._libsuffix))
 
     # apply the function to my image
     # remember this function returns a py::capsule

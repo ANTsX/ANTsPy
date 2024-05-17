@@ -9,6 +9,7 @@ from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 
 from .. import utils
+from ants.internal import get_lib_fn, process_arguments
 
 
 def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
@@ -70,8 +71,8 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         dim = dimage.dimension
         tshp = dimage.shape
         args2 = [dim, txuse, writtenimage, int(0), int(0), int(1)]
-        processed_args = utils._int_antsProcessArguments(args2)
-        libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
+        processed_args = process_arguments(args2)
+        libfn = get_lib_fn('CreateJacobianDeterminantImage')
         libfn(processed_args)
         dg = iio2.image_read(writtenimage) 
         if to_rotation:
@@ -167,8 +168,8 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     #args = [dim, txuse, do_log]
     dimage = domain_image.clone('double')
     args2 = [dim, txuse, dimage, int(do_log), int(geom)]
-    processed_args = utils._int_antsProcessArguments(args2)
-    libfn = utils.get_lib_fn('CreateJacobianDeterminantImage')
+    processed_args = process_arguments(args2)
+    libfn = get_lib_fn('CreateJacobianDeterminantImage')
     libfn(processed_args)
     jimage = args2[2].clone('float')
     

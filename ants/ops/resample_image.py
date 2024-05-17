@@ -7,6 +7,8 @@ __all__ = ['resample_image',
 import os
 
 from ants.decorators import image_method
+from ants.internal import get_lib_fn, process_arguments
+
 from ..core import ants_image as iio
 from .. import utils
 
@@ -52,8 +54,8 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
         rsampar = 'x'.join([str(rp) for rp in resample_params])
 
         args = [image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
-        processed_args = utils._int_antsProcessArguments(args)
-        libfn = utils.get_lib_fn('ResampleImage')
+        processed_args = process_arguments(args)
+        libfn = get_lib_fn('ResampleImage')
         libfn(processed_args)
         outimage = outimage.clone(image.pixeltype)
         return outimage
@@ -66,8 +68,8 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
             rsampar = 'x'.join([str(rp) for rp in resample_params])
 
             args = [image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
-            processed_args = utils._int_antsProcessArguments(args)
-            libfn = utils.get_lib_fn('ResampleImage')
+            processed_args = process_arguments(args)
+            libfn = get_lib_fn('ResampleImage')
             libfn(processed_args)
             outimage = outimage.clone(image.pixeltype)
             new_images.append(outimage)
@@ -162,12 +164,12 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
                 mycompo = '[%s,1]' % tfn
                 args = ['-d', fixed.dimension, '-i', m, '-o', mycompo, '-r', f, '-n', interpolator] + mytx
 
-            myargs = utils._int_antsProcessArguments(args)
+            myargs = process_arguments(args)
 
             myverb = int(verbose)
 
             processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(1), '-e', str(imagetype)]
-            libfn = utils.get_lib_fn('antsApplyTransforms')
+            libfn = get_lib_fn('antsApplyTransforms')
             libfn(processed_args)
 
             if compose is None:
@@ -181,5 +183,5 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
             return 1
     else:
         processed_args = myargs + ['-z', str(1), '--float', str(1), '-e', str(imagetype)]
-        libfn = utils.get_lib_fn('antsApplyTransforms')
+        libfn = get_lib_fn('antsApplyTransforms')
         libfn(processed_args)

@@ -1,7 +1,7 @@
 __all__ = ["hausdorff_distance"]
 
 from .. import utils
-
+from ants.internal import get_lib_fn
 
 def hausdorff_distance(image1, image2):
     """
@@ -33,7 +33,7 @@ def hausdorff_distance(image1, image2):
     image1_int = image1.clone("unsigned int")
     image2_int = image2.clone("unsigned int")
 
-    libfn = utils.get_lib_fn("hausdorffDistance%iD" % image1_int.dimension)
+    libfn = get_lib_fn("hausdorffDistance%iD" % image1_int.dimension)
     d = libfn(image1_int.pointer, image2_int.pointer)
 
     return d

@@ -3,7 +3,7 @@ __all__ = ["label_overlap_measures"]
 import pandas as pd
 
 from .. import utils
-
+from ants.internal import get_lib_fn, get_pointer_string
 
 def label_overlap_measures(source_image, target_image):
     """
@@ -35,7 +35,7 @@ def label_overlap_measures(source_image, target_image):
     source_image_int = source_image.clone("unsigned int")
     target_image_int = target_image.clone("unsigned int")
 
-    libfn = utils.get_lib_fn("labelOverlapMeasures%iD" % source_image_int.dimension)
+    libfn = get_lib_fn("labelOverlapMeasures%iD" % source_image_int.dimension)
     df = libfn(source_image_int.pointer, target_image_int.pointer)
     df = pd.DataFrame(df)
     df.Label[0] = "All"

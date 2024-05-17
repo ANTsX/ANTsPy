@@ -7,6 +7,7 @@ from ..core import ants_image_io as iio2
 from ..core import ants_image as iio
 from .. import core
 from .. import utils
+from ants.internal import get_lib_fn
 
 
 def fit_bspline_displacement_field(displacement_field=None,
@@ -186,14 +187,14 @@ def fit_bspline_displacement_field(displacement_field=None,
 
     bspline_field = None
     if displacement_field is not None:
-        libfn = utils.get_lib_fn("fitBsplineDisplacementFieldD%i" % (dimensionality))
+        libfn = get_lib_fn("fitBsplineDisplacementFieldD%i" % (dimensionality))
         bspline_field = libfn(displacement_field.pointer, displacement_weight_image.pointer,
                               displacement_origins, displacements, displacement_weights,
                               origin, spacing, size, direction,
                               number_of_fitting_levels, number_of_control_points, spline_order,
                               enforce_stationary_boundary, estimate_inverse)
     elif displacement_field is None and displacements is not None:
-        libfn = utils.get_lib_fn("fitBsplineDisplacementFieldToScatteredDataD%i" % (dimensionality))
+        libfn = get_lib_fn("fitBsplineDisplacementFieldToScatteredDataD%i" % (dimensionality))
         bspline_field = libfn(displacement_origins, displacements, displacement_weights,
                               origin, spacing, size, direction,
                               number_of_fitting_levels, number_of_control_points, spline_order,

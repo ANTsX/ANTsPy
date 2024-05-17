@@ -4,7 +4,8 @@
 __all__ = ['kmeans_segmentation']
 
 from .atropos import atropos
-from .. import utils
+from .. import utils, ops
+import ants
 
 def kmeans_segmentation(image, k, kmask=None, mrf=0.1):
     """
@@ -38,10 +39,10 @@ def kmeans_segmentation(image, k, kmask=None, mrf=0.1):
     >>> seg = ants.kmeans_segmentation(fi, 3)
     """
     dim = image.dimension
-    kmimage = utils.iMath(image, 'Normalize')
+    kmimage = ants.iMath(image, 'Normalize')
     if kmask is None:
-        kmask = utils.get_mask(kmimage, 0.01, 1, cleanup=2)
-    kmask = utils.iMath(kmask, 'FillHoles').threshold_image(1,2)
+        kmask = ops.get_mask(kmimage, 0.01, 1, cleanup=2)
+    kmask = ants.iMath(kmask, 'FillHoles').threshold_image(1,2)
     nhood = 'x'.join(['1']*dim)
     mrf = '[%s,%s]' % (str(mrf), nhood)
     kmimage = atropos(a = kmimage, m = mrf, c = '[5,0]', i = 'kmeans[%s]'%(str(k)), x = kmask)

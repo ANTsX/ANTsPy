@@ -19,7 +19,7 @@ from sklearn import linear_model
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-from .. import utils
+from .. import utils, ops
 from .. import core
 
 
@@ -56,14 +56,14 @@ def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
     if mask is not None:
         fir = rankdata( (x*mask).numpy(), method=method )
     elif mask is None and get_mask == True:
-        mask = utils.get_mask( x )
+        mask = ops.get_mask( x )
         fir = rankdata( (x*mask).numpy(), method=method )
     else:
         fir = rankdata( x.numpy(), method=method )
     fir = fir - 1
     fir = fir.reshape( x.shape )
     rimg = core.from_numpy( fir.astype(float)  )
-    rimg = utils.iMath(rimg,"Normalize")
+    rimg = ops.iMath(rimg,"Normalize")
     core.copy_image_info( x, rimg )
     if mask is not None:
         rimg = rimg * mask
@@ -425,11 +425,11 @@ def compcor( boldImage, ncompcor=4, quantile=0.975, mask=None, filter_type=False
         return { 'tSTD': stdM, 'threshold_std': threshold_std}
     if mask is None:
         temp = utils.slice_image( boldImage, axis=boldImage.dimension-1, idx=0 )
-        mask = utils.get_mask( temp )
+        mask = ops.get_mask( temp )
     imagematrix = core.timeseries_to_matrix( boldImage, mask )
     temp = compute_tSTD( imagematrix, quantile, 0 )
     tsnrmask = core.make_image( mask,  temp['tSTD'] )
-    tsnrmask = utils.threshold_image( tsnrmask, temp['threshold_std'], temp['tSTD'].max() )
+    tsnrmask = ops.threshold_image( tsnrmask, temp['threshold_std'], temp['tSTD'].max() )
     M = core.timeseries_to_matrix( boldImage, tsnrmask )
     components = None
     basis = np.array([])

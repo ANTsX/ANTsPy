@@ -5,12 +5,12 @@ import os
 from tempfile import mktemp
 
 from ..ops.reflect_image import reflect_image
-from .interface import registration
+from .registration import registration
 from .apply_transforms import apply_transforms
 from ..ops.resample_image import resample_image_to_target
 from ..core import ants_image_io as iio
 from ..core import ants_transform_io as tio
-from .. import utils
+from .. import utils, ops
 
 def build_template(
     initial_template=None,
@@ -123,7 +123,7 @@ def build_template(
             
         os.remove(afffn)
         if blending_weight is not None:
-            xavg = xavg * blending_weight + utils.iMath(xavg, "Sharpen") * (
+            xavg = xavg * blending_weight + ops.iMath(xavg, "Sharpen") * (
                 1.0 - blending_weight
             )
 

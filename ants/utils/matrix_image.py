@@ -15,8 +15,8 @@ import numpy as np
 import warnings
 
 
-from . import ants_image as iio
-from .. import utils, core
+from ..core import ants_image as iio
+from .. import utils, core, ops
 from .. import registration as reg
 
 
@@ -150,11 +150,11 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
 
     def listfunc(x):
         if np.sum(np.array(x.shape) - np.array(mask.shape)) != 0:
-            x = reg.resample_image_to_target(x, mask, 2)
+            x = ops.resample_image_to_target(x, mask, 2)
         return x[mask]
 
     if mask is None:
-        mask = utils.get_mask(image_list[0])
+        mask = ops.get_mask(image_list[0])
 
     num_images = len(image_list)
     mask_arr = mask.numpy() >= epsilon
@@ -165,7 +165,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     for i, img in enumerate(image_list):
         if do_smooth:
             data_matrix[i, :] = listfunc(
-                utils.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
+                ops.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
             )
         else:
             data_matrix[i, :] = listfunc(img)

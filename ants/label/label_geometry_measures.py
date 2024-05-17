@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 from .. import utils
-
+from ants.internal import get_lib_fn, process_arguments
 
 def label_geometry_measures(label_image, intensity_image=None):
     """
@@ -38,8 +38,8 @@ def label_geometry_measures(label_image, intensity_image=None):
     outcsv = mktemp(suffix='.csv')
 
     veccer = [label_image.dimension, label_image, intensity_image, outcsv]
-    veccer_processed = utils._int_antsProcessArguments(veccer)
-    libfn = utils.get_lib_fn('LabelGeometryMeasures')
+    veccer_processed = process_arguments(veccer)
+    libfn = get_lib_fn('LabelGeometryMeasures')
     pp = libfn(veccer_processed)
     pp = pd.read_csv(outcsv)
     pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')

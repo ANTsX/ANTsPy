@@ -7,6 +7,7 @@ __all__ = ['anti_alias']
 from ..core import ants_image as iio
 from ..core import ants_image_io as iio2
 from .. import utils
+from ants.internal import get_lib_fn
 
 
 def anti_alias(image):
@@ -38,6 +39,6 @@ def anti_alias(image):
             image = (image - image.max()) / (image.max() - image.min())
         image = image.clone('unsigned char')
 
-    libfn = utils.get_lib_fn('antiAlias%s' % image._libsuffix)
+    libfn = get_lib_fn('antiAlias%s' % image._libsuffix)
     new_ptr = libfn(image.pointer)
     return iio2.from_pointer(new_ptr)

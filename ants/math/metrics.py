@@ -5,7 +5,7 @@ __all__ = ['image_mutual_information']
 
 
 from .. import utils
-
+from ants.internal import get_lib_fn
 
 def image_mutual_information(image1, image2):
     """
@@ -38,5 +38,5 @@ def image_mutual_information(image1, image2):
     if image1.dimension != image2.dimension:
         raise ValueError('Both images must have same dimension')
 
-    libfn = utils.get_lib_fn('antsImageMutualInformation%iD' % image1.dimension)
+    libfn = get_lib_fn('antsImageMutualInformation%iD' % image1.dimension)
     return libfn(image1.pointer, image2.pointer)
