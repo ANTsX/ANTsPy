@@ -336,7 +336,7 @@ def read_transform(filename, precision="float"):
         raise ValueError("filename does not exist!")
 
     if filename.endswith('.nii') or filename.endswith('.nii.gz'):
-        return transform_from_displacement_field(iio2.image_read(filename))
+        return transform_from_displacement_field(ants.image_read(filename))
 
     libfn1 = get_lib_fn("getTransformDimensionFromFile")
     dimensionUse = libfn1(filename)
