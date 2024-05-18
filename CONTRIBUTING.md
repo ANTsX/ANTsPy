@@ -123,7 +123,7 @@ The general workflow for wrapping a library calls involves the following steps:
 
 <br />
 
-## Add C++ / ITK code
+## Adding C++ / ITK code
 
 You can write any kind of custom code to process antspy images. The underlying image is ITK so the AntsImage class holds a pointer to the underlying ITK object in the in the property `self.pointer`.
 
