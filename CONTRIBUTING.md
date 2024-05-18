@@ -13,6 +13,8 @@ This guide tells you everything you need to know about ANTsPy to add or change a
 
 The first two sections and the last section should be read by everyone, but the other sections can be skipped depending on your goal.
 
+<br />
+
 ## Project structure
 
 The ANTsPy project consists of multiple folders which are listed and explained here.
@@ -40,6 +42,8 @@ The library is built using [scikit-build](https://scikit-build.readthedocs.io/en
 
 The `pyproject.toml` file is the central location for steering the build process. If you need to change the way the library is built, that's the best place to start.
 
+<br />
+
 ## Setting up a dev environment
 
 To start developing, you need to build a development copy of ANTsPy. This process is the same as developing for any python package.
@@ -62,6 +66,8 @@ When you run `python -m pip install .` or `python -m pip install -e .` to instal
 2. ANTs is cloned from `scripts/configure_ANTs.sh`
 3. The C++ files from the `src` directory are used to build the antspy library files
 4. The antspy python package is built as normal
+
+<br />
 
 ## Wrapping ANTs functions
 
@@ -115,6 +121,8 @@ The general workflow for wrapping a library calls involves the following steps:
 - pass those raw arguments through the function `process_arguments(args)`
 - pass those processed arguments into the library call (e.g. `lib.Atropos(processed_args)`).
 
+<br />
+
 ## Add C++ / ITK code
 
 You can write any kind of custom code to process antspy images. The underlying image is ITK so the AntsImage class holds a pointer to the underlying ITK object in the in the property `self.pointer`.
@@ -137,7 +145,7 @@ Now, say you wrapped this code and wanted to call it from python. You wouldn't p
 the Python ANTsImage object directly, you would pass in the `self.pointer` attribute which
 contains the ITK image pointer.
 
-### Example 1 - getOrigin
+### Example - getOrigin
 
 Let's do a full example where we get the origin of a Python AntsImage from the underlying ITK image.
 
@@ -269,6 +277,8 @@ AntsImage<OutImageType> someFunction( AntsImage<InImageType> antsImage )
 }
 ```
 
+<br />
+
 ## Adding Python code
 
 If you want to add custom Python code that calls other ANTsPy functions or the wrapped code, there are a few things to know. The `label_clusters` function provides a good example to show how to do so.
@@ -313,6 +323,8 @@ from ants.decorators import image_method
 ```
 
 With those three imports, you can call any internal Python function or any C++ function (wrapped or custom).
+
+<br />
 
 ## Running tests
 
