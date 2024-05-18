@@ -13,13 +13,15 @@
 
 <br>
 
-The ANTsPy library wraps the well-established C++ biomedical image processing framework <i>[ANTs](https://github.com/antsx/ants)</i>. It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
+The ANTsPy library wraps the well-established C++ biomedical image processing framework [ANTs](https://github.com/antsx/ants). It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
 
-If you are looking to train deep learning models on your medical images, you might be interested in [antspynet](https://github.com/antsx/antspy) which provides tools for training and visualizing deep learning models. ANTsPy and ANTsPyNet seamlessly integrate with the greater Python community, particularly deep learning libraries, scikit-learn, and numpy.
+If you are looking to train deep learning models on medical imaging datasets, you might be interested in [ANTsPyNet](https://github.com/antsx/antspy) which provides tools for training and visualizing deep learning models.
 
 <br>
 
 ## Installation
+
+### Pre-compiled binaries
 
 The easiest way to install ANTsPy is via the latest pre-compiled binaries from PyPI.
 
@@ -28,8 +30,12 @@ pip install antspyx
 ```
 
 Because of limited storage space, pip binaries are not available for every combination of python
-version and platform. If we do not have releases for your platform, you can check the
-[Github Releases page](https://github.com/antsx/antspy/releases) or build from source:
+version and platform. If we do not have releases for your platform on PyPI, you can check the
+[Releases](https://github.com/antsx/antspy/releases) page for archived binaries.
+
+### Building from source
+
+In some scenarios, it can make sense to build from source. In general, you can build ANTsPy as you would any other Python package.
 
 ```
 git clone https://github.com/antsx/antspy
@@ -38,7 +44,7 @@ python -m pip install .
 ```
 
 Further details about installing ANTsPy or building it from source can be found in the
-[installation tutorial](https://github.com/antsx/antspy/blob/master/tutorials/Installation.md).
+[Installation Tutorial](https://github.com/antsx/antspy/blob/master/tutorials/Installation.md).
 
 <br>
 
@@ -48,7 +54,7 @@ Here is an example of reading in an image, using various utility functions such 
 
 ```python
 import ants
-img   = ants.image_read(get_data("r16"))
+img   = ants.image_read(ants.get_data("r16"))
 img   = ants.resample_image(img, (64,64), 1, 0 )
 mask  = ants.get_mask(img)
 segs1 = ants.atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask)
@@ -58,23 +64,21 @@ segs1 = ants.atropos(a=img, m='[0.2,1x1]', c='[2,0]', i='kmeans[3]', x=mask)
 
 ## Tutorials
 
-Resources for learning about ANTsPy can be found in the [tutorials](https://github.com/ANTsX/ANTsPy/tree/master/tutorials) folder. An overview of the available tutorials is presented below.
+Resources for learning about ANTsPy can be found in the [tutorials](https://github.com/ANTsX/ANTsPy/tree/master/tutorials) folder. A selection of especially useful tutorials is presented below.
 
-- [Basic overview](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/tutorial_5min.md)
+- Basic overview [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/tutorial_5min.md)]
+- Composite registrations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)]
+- Multi-metric registration [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistration/MultiMetricRegistration.ipynb)]
+- Image math operations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/iMath_help.ipynb)]
+- Wrapping ITK code [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/UsingITK.ipynb)]
 
-- [Composite registrations](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)
-
-- [Multi-metric registration](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistration/MultiMetricRegistration.ipynb)
-
-- [Image math operations](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/iMath_help.ipynb)
-
-- [Wrapping ITK code](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/UsingITK.ipynb)
+More tutorials can be found in the [ANTs](https://github.com/ANTsX/ANTs) repository.
 
 <br>
 
 ## Contributing
 
-If you have a question, feature request, or bug report the best way to get help is by posting an issue on the GitHub page. We welcome and are thankful for new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/master/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
+If you have a question, feature request, or bug report the best way to get help is by posting an issue on the GitHub page. We welcome any new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/master/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
 
 <br>
 

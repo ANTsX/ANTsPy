@@ -1,10 +1,48 @@
-# ANTsPy Contributors Guide
+# Guide to contributing to ANTsPy
 
-This guide tells you everything you need to know to set up the development workflow that will allow you to contribute code to antspy.
+ANTsPy is a Python library that primarily wraps the ANTs C++ library, but also contains a lot of custom C++ and Python code. There are a decent amount of moving parts to get to familiar with before being able to contribute, but we've done our best to make the process easy.
 
-## Installing ANTsPy Development Environment
+This guide tells you everything you need to know about ANTsPy to add or change any code in the project. The guide is composed of the following sections.
 
-To start developing, you need to install a development copy of ANTsPy. This follows the same steps as developing any python package.
+- Project structure
+- Setting up a dev environment
+- Wrapping ANTs functions
+- Adding C++ / ITK code
+- Adding Python code
+- Running tests
+
+The first two sections and the last section should be read by everyone, but the other sections can be skipped depending on your goal.
+
+## Project structure
+
+The ANTsPy project consists of multiple folders which are listed and explained here.
+
+- **.github/** : contains all GitHub actions
+- **ants/** : contains the Python code for the library
+- **data/** : contains any data (images) included with the installed library
+- **docs/** : contains the structure for building the library documentation
+- **scripts/** : contains scripts to build / clone ITK and ANTs during installation
+- **src/** : contains the C++ code for the library
+- **tests/** : contains all tests
+- **tutorials/** contains all .md and .ipynb tutorials
+
+If you are adding code to the library, the three folders you'll care about most are `ants/` (to add Python code), `src/` (to add C++ code), and `tests/` (to add tests).
+
+### Nanobind
+
+The C++ code is wrapped using [nanobind](https://nanobind.readthedocs.io/en/latest/). It is basically an updated version of pybind11 that makes it easy to call C++ functions from Python. Having a basic understanding of nanobind can help in some scenarios, but it's not strictly necessary.
+
+The `CMakeLists.txt` file and the `src/main.cpp` file contains most of the information for determining how nanobind wraps and builds the C++ files in the project.
+
+### Scikit-build
+
+The library is built using [scikit-build](https://scikit-build.readthedocs.io/en/latest/), which is a modern alternative to `setup.py` files for projects that include C++ code.
+
+The `pyproject.toml` file is the central location for steering the build process. If you need to change the way the library is built, that's the best place to start.
+
+## Setting up a dev environment
+
+To start developing, you need to build a development copy of ANTsPy. This process is the same as developing for any python package.
 
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
@@ -12,11 +50,11 @@ cd ANTsPy
 python -m pip install -v -e .
 ```
 
-Notice the `-v` flag to have a verbose output so you can follow the build process that can take ~45 minutes. Then there is also the `-e` flag that will build the antspy package in such a way that any changes to the python code will be automatically detected when you restart your python terminal without having to build the package again.
+Notice the `-v` flag to have a verbose output so you can follow the build process that can take 30 - 45 minutes. Then there is also the `-e` flag that will build the library in such a way that any changes to the Python code will be automatically detected when you restart your python terminal without having to build the package again.
 
-Any changes to C++ code will require you to run that last line (`python -m pip install -v -e .`) again to rebuild the compiled libraries.
+Any changes to C++ code will require you to run that last line (`python -m pip install -v -e .`) again to rebuild the compiled libraries. However, it should not take more than a couple of minutes if you've only made minor changes or additions.
 
-## What happens when I install ANTsPy?
+### What happens when you install ANTsPy
 
 When you run `python -m pip install .` or `python -m pip install -e .` to install antspy from source, the CMakeLists.txt file is run. Refer there if you want to change any part of the install process. Briefly, it performs the following steps:
 
@@ -25,7 +63,7 @@ When you run `python -m pip install .` or `python -m pip install -e .` to instal
 3. The C++ files from the `src` directory are used to build the antspy library files
 4. The antspy python package is built as normal
 
-## Wrapping core ANTs functions
+## Wrapping ANTs functions
 
 Wrapping an ANTs function is easy since pybind11 implicitly casts between python and C++ standard types, allowing you to directly interface with C++ code. Here's an example:
 
@@ -77,7 +115,7 @@ The general workflow for wrapping a library calls involves the following steps:
 - pass those raw arguments through the function `process_arguments(args)`
 - pass those processed arguments into the library call (e.g. `lib.Atropos(processed_args)`).
 
-## Writing custom code for antspy
+## Add C++ / ITK code
 
 You can write any kind of custom code to process antspy images. The underlying image is ITK so the AntsImage class holds a pointer to the underlying ITK object in the in the property `self.pointer`.
 
@@ -167,22 +205,20 @@ Finally, we create a wrapper function in python file `get_origin.py`. Notice tha
 
 ```python
 
-from ants import lib # use relative import e.g. "from .. import lib" in package code
+from ants.decorators import image_method
+from ants.internal import get_lib_fn
 
+@image_method
 def get_origin(img):
-    idim = img.dimension
-    ptype = img.pixeltype
+    libfn = get_lib_fn('getOrigin')
+    origin = libfn(img.pointer)
 
-    # call function - NOTE how we pass in `img.pointer`, not `img` directly
-    origin = lib.getOrigin(img.pointer)
-
-    # return as tuple
     return tuple(origin)
 ```
 
 And that's it! For more other return types, you should refer to the nanobind docs.
 
-## Wrapping an ITK image for antspy
+### Wrapping an ITK image
 
 In the previous section, we saw how easy it is to cast from AntsImage to ITK Image by calling `antsImage.ptr`. It is also easy to go the other way and wrap an ITK image as an AntsImage.
 
@@ -232,7 +268,52 @@ AntsImage<OutImageType> someFunction( AntsImage<InImageType> antsImage )
 }
 ```
 
-## Running Tests
+## Adding Python code
+
+If you want to add custom Python code that calls other ANTsPy functions or the wrapped code, there are a few things to know. The `label_clusters` function provides a good example to show how to do so.
+
+```python
+import ants
+from ants.internal import get_lib_fn, process_arguments
+from ants.decorators import image_method
+
+@image_method
+def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fully_connected=False):
+    """
+    This will give a unique ID to each connected
+    component 1 through N of size > min_cluster_size
+    """
+    dim = image.dimension
+    clust = ants.threshold_image(image, min_thresh, max_thresh)
+    temp = int(fully_connected)
+    args = [dim, clust, clust, min_cluster_size, temp]
+    processed_args = process_arguments(args)
+    libfn = get_lib_fn('LabelClustersUniquely')
+    libfn(processed_args)
+    return clust
+```
+
+First, notice the imports at the top. You generally need three imports. First, you need to import the library so that all other internal functions (such as `ants.threshold_image`) are available.
+
+```python
+import ants
+```
+
+Next, you need import a few functions from `ants.internal` that let you get a function from the compiled C++ library (`get_lib_fn`) and that let you combined arguments into the format ANTs expects (`process_arguments`). Note that `process_arguments` is only needed if you are called a wrapped ANTs function.
+
+```python
+from ants.internal import get_lib_fn, process_arguments
+```
+
+Finally, you should import `image_method` from `ants.decorators`. This decorator lets you attach a function to the ANTsImage class so that the function can be chained to the image. This is why you can call `image.dosomething()` instead of only `ants.dosomething(image)`.
+
+```python
+from ants.decorators import image_method
+```
+
+With those three imports, you can call any internal Python function or any C++ function (wrapped or custom).
+
+## Running tests
 
 All tests can be executed by running the following command from the main directory:
 
