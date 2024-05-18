@@ -164,7 +164,7 @@ std::vector getOrigin( AntsImage<ImageType> antsImage )
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType itkImage = antsImage.ptr;
 
-    // do everything else as normal with ITK Imaeg
+    // do everything else as normal with ITK Image
     typename ImageType::PointType origin = image->GetOrigin();
     unsigned int ndim = ImageType::GetImageDimension();
 
@@ -184,6 +184,7 @@ void getOrigin(nb::module_ &m)
     m.def("getOrigin", &getOrigin<itk::Image<unsigned char,3>>);
     m.def("getOrigin", &getOrigin<itk::Image<float,2>>);
     m.def("getOrigin", &getOrigin<itk::Image<float,3>>);
+    // ...
 }
 
 ```
@@ -216,7 +217,7 @@ def get_origin(img):
     return tuple(origin)
 ```
 
-And that's it! For more other return types, you should refer to the nanobind docs.
+And that's it! More details about how to write Python code for ANTsPy is presented below. For other return types, consult the nanobind docs. However, most C++ types will be automatically converted to the corresponding Python types - both arguments and return values.
 
 ### Wrapping an ITK image
 
