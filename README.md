@@ -120,6 +120,9 @@ img = ants.image_read(ants.get_data('mni')) # 3D image
 img = ants.smooth_image(img, 2)
 img = ants.resample_image(img, (3,3,3))
 img = ants.pad_image(img, pad_width=(4,4,4))
+
+# chaining operations is possible
+img = img.smooth_image(2).resample_image((3,3,3)).pad_image(pad_width=(4,4,4))
 ```
 
 And if you ever need to convert to or from numpy, it is straight-forward to do so.
