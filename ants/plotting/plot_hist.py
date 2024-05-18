@@ -23,9 +23,9 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 import numpy as np
+from ants.decorators import image_method
 
-
-
+@image_method
 def plot_hist(
     image,
     threshold=0.0,

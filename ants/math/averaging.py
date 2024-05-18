@@ -6,7 +6,8 @@ import numpy as np
 import ants
 
 __all__ = ['average_images']
-########################
+
+
 def average_images( x, normalize=True, mask=None, imagetype=0, sum_image_threshold=3, return_sum_image=False, verbose=False ):
     """
     average a list of images

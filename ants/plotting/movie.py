@@ -23,7 +23,9 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 import numpy as np
+from ants.decorators import image_method
 
+@image_method
 def movie(image, filename=None, writer=None, fps=30):
     """
     Create and save a movie - mp4, gif, etc - of the various

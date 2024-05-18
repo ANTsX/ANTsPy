@@ -7,7 +7,6 @@ from tempfile import mktemp
 from ants.internal import get_lib_fn, process_arguments
 
 
-
 def affine_initializer(fixed_image, moving_image, search_factor=20,
                         radian_fraction=0.1, use_principal_axis=False, 
                         local_search_iterations=10, mask=None, txfn=None ):

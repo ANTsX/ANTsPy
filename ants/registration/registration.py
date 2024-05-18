@@ -15,7 +15,6 @@ import itertools
 import ants
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
-
 def registration(
     fixed,
     moving,

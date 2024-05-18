@@ -9,6 +9,7 @@ from .crop_image import (crop_image,
                          decrop_image)
 from .denoise_image import denoise_image
 from .get_mask import get_mask
+from .image_type_cast import image_type_cast
 from .histogram_equalize_image import histogram_equalize_image
 from .histogram_match_image import histogram_match_image, histogram_match_image2
 from .iMath import (iMath,

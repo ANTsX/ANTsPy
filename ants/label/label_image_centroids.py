@@ -4,9 +4,10 @@ __all__ = ['label_image_centroids']
 
 import numpy as np
 
+from ants.decorators import image_method
 
 
-
+@image_method
 def label_image_centroids(image, physical=False, convex=True, verbose=False):
     """
     Converts a label image to coordinates summarizing their positions

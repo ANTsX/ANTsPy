@@ -1,5 +1,6 @@
 from .affine_initializer import affine_initializer
 from .apply_transforms import apply_transforms, apply_transforms_to_points
+from .average_transform import average_affine_transform, average_affine_transform_no_rigid
 from .build_template import build_template
 from .compose_displacement_fields import compose_displacement_fields
 from .create_jacobian_determinant_image import create_jacobian_determinant_image, deformation_gradient

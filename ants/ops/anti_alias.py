@@ -6,8 +6,9 @@ __all__ = ['anti_alias']
 
 import ants
 from ants.internal import get_lib_fn
+from ants.decorators import image_method
 
-
+@image_method
 def anti_alias(image):
     """
     Apply Anti-Alias filter to a binary image

@@ -4,7 +4,9 @@ import pandas as pd
 
 
 from ants.internal import get_lib_fn
+from ants.decorators import image_method
 
+@image_method
 def label_overlap_measures(source_image, target_image):
     """
     Get overlap measures from two label images (e.g., Dice)

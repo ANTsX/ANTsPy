@@ -4,8 +4,9 @@ __all__ = ['labels_to_matrix']
 import numpy as np
 
 import ants
+from ants.decorators import image_method
 
-
+@image_method
 def labels_to_matrix(image, mask, target_labels=None, missing_val=np.nan):
     """
     Convert a labeled image to an n x m binary matrix where n = number of voxels

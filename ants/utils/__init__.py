@@ -1,5 +1,5 @@
-from .average_transform import average_affine_transform, average_affine_transform_no_rigid
 from .channels import merge_channels, split_channels
+from .consistency import image_physical_space_consistency, allclose
 from .get_ants_data import get_ants_data, get_data
 from .matrix_image import (matrix_to_images,
                            images_from_matrix,

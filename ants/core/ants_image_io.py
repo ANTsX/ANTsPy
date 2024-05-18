@@ -404,7 +404,7 @@ def dicom_read(directory, pixeltype="float"):
     slices = np.stack(slices, axis=-1)
     return from_numpy(slices, origin=origin, spacing=spacing, direction=direction)
 
-
+@image_method
 def image_write(image, filename, ri=False):
     """
     Write an ANTsImage to file

@@ -122,7 +122,7 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
 
     return retvals
 
-
+@image_method
 def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False):
     """
     Get a hypercube neighborhood at a voxel. Get the values in a local 

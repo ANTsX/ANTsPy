@@ -21,13 +21,9 @@ import matplotlib.mlab as mlab
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-
 import numpy as np
 import ants
 from ants.decorators import image_method
-
-
-
 
 @image_method
 def plot(

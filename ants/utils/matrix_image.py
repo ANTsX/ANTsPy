@@ -15,8 +15,9 @@ import numpy as np
 import warnings
 
 import ants
+from ants.decorators import image_method
 
-
+@image_method
 def matrix_to_timeseries(image, matrix, mask=None):
     """
     converts a matrix to a ND image.
@@ -172,7 +173,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
 image_list_to_matrix = images_to_matrix
 matrix_from_images = images_to_matrix
 
-
+@image_method
 def timeseries_to_matrix(image, mask=None):
     """
     Convert a timeseries image into a matrix.

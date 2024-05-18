@@ -4,7 +4,9 @@ __all__ = ['image_to_cluster_images']
 import numpy as np
 
 import ants
+from ants.decorators import image_method
 
+@image_method
 def image_to_cluster_images(image, min_cluster_size=50, min_thresh=1e-06, max_thresh=1):
     """
     Converts an image to several independent images.

@@ -6,7 +6,9 @@ import pandas as pd
 import numpy as np
 
 from ants.internal import get_lib_fn, process_arguments
+from ants.decorators import image_method
 
+@image_method
 def label_geometry_measures(label_image, intensity_image=None):
     """
     Wrapper for the ANTs funtion labelGeometryMeasures

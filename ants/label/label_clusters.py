@@ -5,7 +5,9 @@ __all__ = ['label_clusters']
 
 import ants
 from ants.internal import get_lib_fn, process_arguments
+from ants.decorators import image_method
 
+@image_method
 def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fully_connected=False):
     """
     This will give a unique ID to each connected 
