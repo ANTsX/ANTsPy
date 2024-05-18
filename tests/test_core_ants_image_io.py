@@ -187,11 +187,13 @@ class TestModule_ants_image_io(unittest.TestCase):
                 mask2 = ants.from_numpy(np.random.randn(*s))
                 mask2 = mask2 > mask2.mean()
                 imgmat = ants.images_to_matrix(imglist, mask=mask2)
+                self.assertTrue(imgmat.shape[0] == len(imglist))
+                self.assertTrue(imgmat.shape[1] == (mask2>0).sum())
 
     def timeseries_to_matrix(self):
         img = ants.make_image( (10,10,10,5 ) )
         mat = ants.timeseries_to_matrix( img )
-        
+
         img = ants.make_image( (10,10,10,5 ) )
         mask = ants.ndimage_to_list( img )[0] * 0
         mask[ 4:8, 4:8, 4:8 ] = 1

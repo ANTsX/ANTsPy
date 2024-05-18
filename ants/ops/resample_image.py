@@ -90,7 +90,7 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
         image to resample
 
     target : ANTsImage
-        image of reference, the output will be in this space
+        image of reference, the output will be in this space and will have this pixel type
 
     interp_type : string
         Choice of interpolator. Supports partial matching.

@@ -28,7 +28,8 @@ def apply_transforms(fixed, moving, transformlist,
     Arguments
     ---------
     fixed : ANTsImage
-        fixed image defining domain into which the moving image is transformed.
+        fixed image defining domain into which the moving image is transformed. The output
+        will also have the pixel type of this image.
 
     moving : AntsImage
         moving image to be mapped to fixed space.
