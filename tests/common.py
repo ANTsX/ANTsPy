@@ -12,4 +12,4 @@ from copy import deepcopy
 def run_tests():
     import faulthandler
     faulthandler.enable()
-    unittest.main(vebosity=2))
+    unittest.main(verbosity=2)
