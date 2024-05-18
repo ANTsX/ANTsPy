@@ -4,8 +4,8 @@ Kelly Kapowski algorithm with computing cortical thickness
 
 __all__ = ['kelly_kapowski']
 
-from ..core import ants_image as iio
-from .. import utils
+import ants
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
 def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kwargs):
@@ -60,13 +60,13 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
                                     w=segs['probabilityimages'][2], its=45,
                                     r=0.5, m=1)
     """
-    if isinstance(s, iio.ANTsImage):
+    if ants.is_image(s):
         s = s.clone('unsigned int')
 
     d = s.dimension
     outimg = g.clone() * 0.0
     kellargs = {'d': d,
-                's': "[{},{},{}]".format(utils.get_pointer_string(s),gm_label,wm_label),
+                's': "[{},{},{}]".format(get_pointer_string(s),gm_label,wm_label),
                 'g': g,
                 'w': w,
                 'c': "[{}]".format(its),
@@ -76,9 +76,9 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
     for k, v in kwargs.items():
         kellargs[k] = v
 
-    processed_kellargs = utils._int_antsProcessArguments(kellargs)
+    processed_kellargs = process_arguments(kellargs)
 
-    libfn = utils.get_lib_fn('KellyKapowski')
+    libfn = get_lib_fn('KellyKapowski')
     libfn(processed_kellargs)
 
     # Check thickness is not still all zeros

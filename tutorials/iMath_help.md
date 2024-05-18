@@ -78,7 +78,7 @@ f =
   {     2 alpha M_0 [ exp( - w R_{1a} ) - exp( -w (     au + w ) R_{1a}) ]     } 
     Usage        : pCASL 3D/4D_TimeSeries.nii.gz parameter_list.txt 
  PASLQuantifyCBF : Outputs a 3D CBF image in ml/100g/min from a magnetization ratio image
-    Usage        : PASLQuantifyCBF mag_ratio.nii.gz [TI1=700] [TI2=1900] [T1blood=1664] [Lambda=0.9] [Alpha=0.95] [SliceDelay-45] 
+    Usage        : PASLQuantifyCBF mag_raants.nii.gz [TI1=700] [TI2=1900] [T1blood=1664] [Lambda=0.9] [Alpha=0.95] [SliceDelay-45] 
 
 Tensor Operations:
   4DTensorTo3DTensor    : Outputs a 3D_DT_Image with the same information. 

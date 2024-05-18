@@ -132,8 +132,6 @@ To use the toolkit, you then need to install dependencies:
  pip3.6 install numpy
  pip3.6 install pandas
  pip3.6 install pillow
- pip3.6 install sklearn
- pip3.6 install scikit-image
  pip3.6 install webcolors
  pip3.6 install plotly
  pip3.6 install matplotlib

@@ -18,13 +18,10 @@ dependencies = [
     "pandas",
     "pyyaml",
     "numpy",
-    "scikit-image",
-    "scikit-learn",
     "statsmodels",
     "webcolors",
     "matplotlib",
     "Pillow",
-    "nibabel",
     "requests"
 ]
 

@@ -14,10 +14,8 @@ import glob
 import re
 import math
 
-from .. import utils
-from ..core import ants_image as iio
-from ..core import ants_image_io as iio2
-from .. import registration
+import ants
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
 def joint_label_fusion(
@@ -206,12 +204,12 @@ def joint_label_fusion(
         outimg = label_list[1].clone(segpixtype)
         outimgi = target_image * 0
 
-        outimg_ptr = utils.get_pointer_string(outimg)
-        outimgi_ptr = utils.get_pointer_string(outimgi)
+        outimg_ptr = get_pointer_string(outimg)
+        outimgi_ptr = get_pointer_string(outimgi)
         outs = "[%s,%s,%s]" % (outimg_ptr, outimgi_ptr, probs)
     else:
         outimgi = target_image * 0
-        outs = utils.get_pointer_string(outimgi)
+        outs = get_pointer_string(outimgi)
 
     mymask = mymask.clone(segpixtype)
     if (not isinstance(rad, (tuple, list))) or (len(rad) == 1):
@@ -252,9 +250,9 @@ def joint_label_fusion(
             castseg = label_list[k].clone(segpixtype)
             myargs["l-MULTINAME-%i" % kct] = castseg
 
-    myprocessedargs = utils._int_antsProcessArguments(myargs)
+    myprocessedargs = process_arguments(myargs)
 
-    libfn = utils.get_lib_fn("antsJointFusion")
+    libfn = get_lib_fn("antsJointFusion")
     rval = libfn(myprocessedargs)
     if rval != 0:
         print("Warning: Non-zero return from antsJointFusion")
@@ -267,7 +265,7 @@ def joint_label_fusion(
     probimgs = []
 #    print( os.system("ls -l "+probsout[0]) )
     for idx in range(len(probsout)):
-        probimgs.append(iio2.image_read(probsout[idx]))
+        probimgs.append(ants.image_read(probsout[idx]))
 
     #    if len(probsout) != (len(inlabs)) and max_lab_plus_one == False:
     #        warnings.warn("Length of output probabilities != length of unique input labels")
@@ -279,7 +277,7 @@ def joint_label_fusion(
         segmentation_numbers[i] = int(segnum)
 
     if max_lab_plus_one == False:
-        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+        segmat = ants.images_to_matrix(probimgs, target_image_mask)
         finalsegvec = segmat.argmax(axis=0)
         finalsegvec2 = finalsegvec.copy()
         # mapfinalsegvec to original labels
@@ -287,7 +285,7 @@ def joint_label_fusion(
             temp = str.split(probsout[i], "prob")
             segnum = temp[len(temp) - 1].split(".nii.gz")[0]
             finalsegvec2[finalsegvec == i] = segnum
-        outimg = iio2.make_image(target_image_mask, finalsegvec2)
+        outimg = ants.make_image(target_image_mask, finalsegvec2)
 
         return {
             "segmentation": outimg,
@@ -309,7 +307,7 @@ def joint_label_fusion(
         del probsout[matchings_indices[0]]
         del segmentation_numbers[matchings_indices[0]]
 
-        segmat = iio2.images_to_matrix(probimgs, target_image_mask)
+        segmat = ants.images_to_matrix(probimgs, target_image_mask)
 
         finalsegvec = segmat.argmax(axis=0)
         finalsegvec2 = finalsegvec.copy()
@@ -319,19 +317,19 @@ def joint_label_fusion(
             segnum = temp[len(temp) - 1].split(".nii.gz")[0]
             finalsegvec2[finalsegvec == i] = segnum
 
-        outimg = iio2.make_image(target_image_mask, finalsegvec2)
+        outimg = ants.make_image(target_image_mask, finalsegvec2)
 
         # next decide what is "background" based on the sum of the first k labels vs the prob of the last one
         firstK = probimgs[0] * 0
         for i in range(len(probsout)):
             firstK = firstK + probimgs[i]
 
-        segmat = iio2.images_to_matrix([background_prob, firstK], target_image_mask)
+        segmat = ants.images_to_matrix([background_prob, firstK], target_image_mask)
         bkgsegvec = segmat.argmax(axis=0)
-        outimg = outimg * iio2.make_image(target_image_mask, bkgsegvec)
+        outimg = outimg * ants.make_image(target_image_mask, bkgsegvec)
 
         return {
-            "segmentation": outimg * iio2.make_image(target_image_mask, bkgsegvec),
+            "segmentation": outimg * ants.make_image(target_image_mask, bkgsegvec),
             "segmentation_raw": outimg,
             "intensity": outimgi,
             "probabilityimages": probimgs,
@@ -482,17 +480,17 @@ def local_joint_label_fusion(
             probability map image for each label
 
     """
-    myregion = utils.mask_image(initial_label, initial_label, which_labels)
+    myregion = ants.mask_image(initial_label, initial_label, which_labels)
     if myregion.max() == 0:
-        myregion = utils.threshold_image(initial_label, 1, math.inf)
+        myregion = ants.threshold_image(initial_label, 1, math.inf)
 
-    myregionb = utils.threshold_image(myregion, 1, math.inf)
-    myregionAroundRegion = utils.iMath(myregionb, "MD", submask_dilation)
+    myregionb = ants.threshold_image(myregion, 1, math.inf)
+    myregionAroundRegion = ants.iMath(myregionb, "MD", submask_dilation)
     if target_mask is not None:
         myregionAroundRegion = myregionAroundRegion * target_mask
-    croppedImage = utils.crop_image(target_image, myregionAroundRegion)
-    croppedMask = utils.crop_image(myregionAroundRegion, myregionAroundRegion)
-    mycroppedregion = utils.crop_image(myregion, myregionAroundRegion)
+    croppedImage = ants.crop_image(target_image, myregionAroundRegion)
+    croppedMask = ants.crop_image(myregionAroundRegion, myregionAroundRegion)
+    mycroppedregion = ants.crop_image(myregion, myregionAroundRegion)
     croppedmappedImages = []
     croppedmappedSegs = []
     if verbose is True:
@@ -504,13 +502,13 @@ def local_joint_label_fusion(
 
         if verbose is True:
             print( "local-seg-tx: " + local_mask_transform )
-        libregion = utils.mask_image(label_list[k], label_list[k], which_labels)
-        initMap = registration.registration(
+        libregion = ants.mask_image(label_list[k], label_list[k], which_labels)
+        initMap = ants.registration(
             mycroppedregion, libregion, type_of_transform=local_mask_transform, aff_metric=aff_metric, aff_iterations=aff_iterations, verbose=False
         )["fwdtransforms"]
         if verbose is True:
             print( "local-img-tx: " + type_of_transform )
-        localReg = registration.registration(
+        localReg = ants.registration(
             croppedImage,
             atlas_list[k],
             reg_iterations=reg_iterations,
@@ -523,10 +521,10 @@ def local_joint_label_fusion(
             initial_transform=initMap[0],
             verbose=False,
         )
-        transformedImage = registration.apply_transforms(
+        transformedImage = ants.apply_transforms(
             croppedImage, atlas_list[k], localReg["fwdtransforms"]
         )
-        transformedLabels = registration.apply_transforms(
+        transformedLabels = ants.apply_transforms(
             croppedImage,
             label_list[k],
             localReg["fwdtransforms"],

@@ -4,7 +4,8 @@ __all__ = ['affine_initializer']
 import warnings
 from tempfile import mktemp
 
-from .. import utils
+from ants.internal import get_lib_fn, process_arguments
+
 
 def affine_initializer(fixed_image, moving_image, search_factor=20,
                         radian_fraction=0.1, use_principal_axis=False, 
@@ -59,8 +60,8 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
     if mask is not None:
         veccer.append(mask)
 
-    xxx = utils._int_antsProcessArguments(veccer)
-    libfn = utils.get_lib_fn('antsAffineInitializer')
+    xxx = process_arguments(veccer)
+    libfn = get_lib_fn('antsAffineInitializer')
     retval = libfn(xxx)
 
     if retval != 0:

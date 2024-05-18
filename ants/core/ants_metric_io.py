@@ -8,10 +8,9 @@ __all__ = ['new_ants_metric',
 import os
 import numpy as np
 
-from .. import utils
-from . import ants_image as iio
-from . import ants_metric as mio
-
+import ants
+from ants.internal import get_lib_fn
+from ants.core.ants_metric import ANTsImageToImageMetric
 
 _supported_metrics = {'MeanSquares',
                     'MattesMutualInformation',
@@ -28,10 +27,10 @@ def new_ants_metric(dimension=3, precision='float', metric_type='MeanSquares'):
     if metric_type not in _supported_metrics:
         raise ValueError('metric_type must be one of %s' % _supported_metrics)
 
-    libfn = utils.get_lib_fn('new_ants_metricF%i'%dimension)
+    libfn = get_lib_fn('new_ants_metricF%i'%dimension)
     itk_tx = libfn(precision, dimension, metric_type)
 
-    ants_metric = mio.ANTsImageToImageMetric(itk_tx)
+    ants_metric = ANTsImageToImageMetric(itk_tx)
     return ants_metric
 
 
@@ -73,29 +72,29 @@ def create_ants_metric(fixed,
     if (dimension < 2) or (dimension > 4):
         raise ValueError('unsupported dimension %i' % dimension)
 
-    if not isinstance(moving, iio.ANTsImage):
+    if not ants.is_image(moving):
         raise ValueError('invalid moving image')
 
     if moving.dimension != dimension:
         raise ValueError('Fixed and Moving images must have same dimension')
 
-    if not isinstance(fixed, iio.ANTsImage):
+    if not ants.is_image(fixed):
         raise ValueError('invalid fixed image')
 
     fixed = fixed.clone('float')
     moving = moving.clone('float')
 
-    libfn = utils.get_lib_fn('create_ants_metricF%i' % dimension)
+    libfn = get_lib_fn('create_ants_metricF%i' % dimension)
     metric = libfn(pixeltype, dimension, metric_type, is_vector, fixed.pointer, moving.pointer)
 
-    ants_metric = mio.ANTsImageToImageMetric(metric)
+    ants_metric = ANTsImageToImageMetric(metric)
     ants_metric.set_fixed_image(fixed)
     ants_metric.set_moving_image(moving)
 
-    if isinstance(fixed_mask, iio.ANTsImage):
+    if ants.is_image(fixed_mask):
         ants_metric.set_fixed_mask(fixed_mask)
 
-    if isinstance(moving_mask, iio.ANTsImage):
+    if ants.is_image(moving_mask):
         ants_metric.set_moving_mask(moving_mask)
 
     ants_metric.set_sampling(sampling_strategy, sampling_percentage)

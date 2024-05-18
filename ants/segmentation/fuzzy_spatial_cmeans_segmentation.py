@@ -3,8 +3,7 @@ __all__ = ['fuzzy_spatial_cmeans_segmentation']
 
 import numpy as np
 
-from .. import core
-from .. import utils
+import ants
 
 def fuzzy_spatial_cmeans_segmentation(image,
                                       mask=None,
@@ -71,7 +70,7 @@ def fuzzy_spatial_cmeans_segmentation(image,
     """
 
     if mask is None:
-        mask = core.image_clone(image) * 0 + 1
+        mask = ants.image_clone(image) * 0 + 1
 
     x = image[mask != 0]
 
@@ -80,7 +79,7 @@ def fuzzy_spatial_cmeans_segmentation(image,
     #        x = image[mask != 0]
     #        x = ants.get_neighborhood_in_mask(image, mask)
 
-    mask_perm = core.from_numpy(np.transpose(mask.numpy()))
+    mask_perm = ants.from_numpy(np.transpose(mask.numpy()))
 
     v = np.linspace(0, 1, num=(number_of_clusters + 2))[1:(number_of_clusters+1)]
     v = v * (x.max() - x.min()) + x.min()
@@ -96,7 +95,7 @@ def fuzzy_spatial_cmeans_segmentation(image,
     if isinstance(radius, int):
         radius = tuple(np.zeros((image.dimension,), dtype=int) + radius)
 
-    segmentation = core.image_clone(image) * 0
+    segmentation = ants.image_clone(image) * 0
     probability_images = None
 
     np.seterr(divide='ignore', invalid='ignore')
@@ -133,10 +132,10 @@ def fuzzy_spatial_cmeans_segmentation(image,
 
         h = np.zeros((u.shape[0], u.shape[1]))
         for i in range(cc):
-            u_image = core.image_clone(image) * 0
+            u_image = ants.image_clone(image) * 0
             u_image[mask != 0] = u[i,:]
-            u_image_perm = core.from_numpy(np.transpose(u_image.numpy()))
-            u_neighborhoods = utils.get_neighborhood_in_mask(u_image_perm, mask_perm, radius)
+            u_image_perm = ants.from_numpy(np.transpose(u_image.numpy()))
+            u_neighborhoods = ants.get_neighborhood_in_mask(u_image_perm, mask_perm, radius)
             h[i,:] = np.nansum(u_neighborhoods, axis=0)
 
         # u prime
@@ -149,14 +148,14 @@ def fuzzy_spatial_cmeans_segmentation(image,
         uprime = np.zeros((u.shape[0], u.shape[1]))
         for i in range(cc):
             uprime[i,:] = ((u[i,:] ** p) * (h[i,:] ** q)) / d
-            uprime_image = core.image_clone(image) * 0
+            uprime_image = ants.image_clone(image) * 0
             uprime_image[mask != 0] = uprime[i,:]
             probability_images.append(uprime_image)
 
-        tmp_segmentation = core.image_clone(image) * 0
+        tmp_segmentation = ants.image_clone(image) * 0
         tmp_segmentation[mask != 0] = np.argmax(uprime, axis=0) + 1
 
-        dice_value = utils.label_overlap_measures(segmentation, tmp_segmentation)['MeanOverlap'][0]
+        dice_value = ants.label_overlap_measures(segmentation, tmp_segmentation)['MeanOverlap'][0]
         iter = iter + 1
 
         if verbose == True:

@@ -4,13 +4,7 @@ import numpy as np
 import os
 from tempfile import mktemp
 
-from .reflect_image import reflect_image
-from .interface import registration
-from .apply_transforms import apply_transforms
-from .resample_image import resample_image_to_target
-from ..core import ants_image_io as iio
-from ..core import ants_transform_io as tio
-from .. import utils
+import ants
 
 def build_template(
     initial_template=None,
@@ -78,14 +72,14 @@ def build_template(
         initial_template = image_list[0] * 0
         for i in range(len(image_list)):
             temp = image_list[i] * weights[i]
-            temp = resample_image_to_target(temp, initial_template)
+            temp = ants.resample_image_to_target(temp, initial_template)
             initial_template = initial_template + temp
 
     xavg = initial_template.clone()
     for i in range(iterations):
         affinelist = []
         for k in range(len(image_list)):
-            w1 = registration(
+            w1 = ants.registration(
                 xavg, image_list[k], type_of_transform=type_of_transform, **kwargs
             )
             L = len(w1["fwdtransforms"])
@@ -94,19 +88,19 @@ def build_template(
 
             if k == 0:
                 if L == 2:
-                    wavg = iio.image_read(w1["fwdtransforms"][0]) * weights[k]
+                    wavg = ants.image_read(w1["fwdtransforms"][0]) * weights[k]
                 xavgNew = w1["warpedmovout"] * weights[k]
             else:
                 if L == 2:
-                    wavg = wavg + iio.image_read(w1["fwdtransforms"][0]) * weights[k]
+                    wavg = wavg + ants.image_read(w1["fwdtransforms"][0]) * weights[k]
                 xavgNew = xavgNew + w1["warpedmovout"] * weights[k]
 
         if useNoRigid:
-            avgaffine = utils.average_affine_transform_no_rigid(affinelist)
+            avgaffine = ants.average_affine_transform_no_rigid(affinelist)
         else:
-            avgaffine = utils.average_affine_transform(affinelist)
+            avgaffine = ants.average_affine_transform(affinelist)
         afffn = mktemp(suffix=".mat")
-        tio.write_transform(avgaffine, afffn)
+        ants.write_transform(avgaffine, afffn)
 
         if L == 2:
             print(wavg.abs().mean())
@@ -114,16 +108,16 @@ def build_template(
             wavg = wavg * wscl
             # apply affine to the nonlinear?
             # need to save the average
-            wavgA = apply_transforms(fixed = xavgNew, moving = wavg, imagetype=1, transformlist=afffn, whichtoinvert=[1])
+            wavgA = ants.apply_transforms(fixed = xavgNew, moving = wavg, imagetype=1, transformlist=afffn, whichtoinvert=[1])
             wavgfn = mktemp(suffix=".nii.gz")
-            iio.image_write(wavgA, wavgfn)
-            xavg = apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[wavgfn, afffn], whichtoinvert=[0, 1])
+            ants.image_write(wavgA, wavgfn)
+            xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[wavgfn, afffn], whichtoinvert=[0, 1])
         else:
-            xavg = apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1])
+            xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1])
             
         os.remove(afffn)
         if blending_weight is not None:
-            xavg = xavg * blending_weight + utils.iMath(xavg, "Sharpen") * (
+            xavg = xavg * blending_weight + ants.iMath(xavg, "Sharpen") * (
                 1.0 - blending_weight
             )
 

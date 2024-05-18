@@ -3,22 +3,14 @@ Image IO
 """
 
 __all__ = [
-    'from_pointer',
     "image_header_info",
     "image_clone",
     "image_read",
     "dicom_read",
     "image_write",
     "make_image",
-    "matrix_to_images",
-    "images_from_matrix",
-    "image_list_to_matrix",
-    "images_to_matrix",
-    "matrix_from_images",
-    "timeseries_to_matrix",
-    "matrix_to_timeseries",
     "from_numpy",
-    "_from_numpy",
+    "new_image_like"
 ]
 
 import os
@@ -26,9 +18,9 @@ import json
 import numpy as np
 import warnings
 
-from . import ants_image as iio
-from .. import utils
-from .. import registration as reg
+import ants
+from ants.internal import get_lib_fn, short_ptype
+from ants.decorators import image_method
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
 _supported_ptypes = {"unsigned char", "unsigned int", "float", "double"}
@@ -65,10 +57,6 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
             ita = _image_type_map[itype]
             pa = _ptype_type_map[p]
             _image_read_dict[itype][p][d] = "imageRead%s%s%i" % (ita, pa, d)
-
-
-def from_pointer(pointer):
-    return iio.ANTsImage(pointer)
     
 def from_numpy(
     data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
@@ -128,11 +116,11 @@ def _from_numpy(
     if direction is None:
         direction = np.eye(ndim)
 
-    libfn = utils.get_lib_fn("fromNumpy%s%i" % (_ntype_type_map[dtype], ndim))
+    libfn = get_lib_fn("fromNumpy%s%i" % (_ntype_type_map[dtype], ndim))
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
-        ants_image = from_pointer(itk_image)
+        ants_image = ants.from_pointer(itk_image)
         ants_image.set_origin(origin)
         ants_image.set_spacing(spacing)
         ants_image.set_direction(direction)
@@ -143,13 +131,13 @@ def _from_numpy(
         ants_images = []
         for i in range(len(arrays)):
             tmp_ptr = libfn(arrays[i], data_shape[::-1])
-            tmp_img = from_pointer(tmp_ptr)
+            tmp_img = ants.from_pointer(tmp_ptr)
             tmp_img.set_origin(origin)
             tmp_img.set_spacing(spacing)
             tmp_img.set_direction(direction)
             tmp_img._ndarr = arrays[i]
             ants_images.append(tmp_img)
-        ants_image = utils.merge_channels(ants_images)
+        ants_image = ants.merge_channels(ants_images)
         if is_rgb:
             ants_image = ants_image.vector_to_rgb()
     return ants_image
@@ -196,7 +184,7 @@ def make_image(
     -------
     ANTsImage
     """
-    if isinstance(imagesize, iio.ANTsImage):
+    if ants.is_image(imagesize):
         img = imagesize.clone()
         sel = imagesize > 0
         if voxval.ndim > 1:
@@ -224,194 +212,6 @@ def make_image(
         return image.clone(pixeltype)
 
 
-def matrix_to_images(data_matrix, mask):
-    """
-    Unmasks rows of a matrix and writes as images
-
-    ANTsR function: `matrixToImages`
-
-    Arguments
-    ---------
-    data_matrix : numpy.ndarray
-        each row corresponds to an image
-        array should have number of columns equal to non-zero voxels in the mask
-
-    mask : ANTsImage
-        image containing a binary mask. Rows of the matrix are
-        unmasked and written as images. The mask defines the output image space
-
-    Returns
-    -------
-    list of ANTsImage types
-
-    Example
-    -------
-    >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'))
-    >>> msk = ants.get_mask( img )
-    >>> img2 = ants.image_read(ants.get_ants_data('r16'))
-    >>> img3 = ants.image_read(ants.get_ants_data('r16'))
-    >>> mat = ants.image_list_to_matrix([img,img2,img3], msk )
-    >>> ilist = ants.matrix_to_images( mat, msk )
-    """
-
-    if data_matrix.ndim > 2:
-        data_matrix = data_matrix.reshape(data_matrix.shape[0], -1)
-
-    numimages = len(data_matrix)
-    numVoxelsInMatrix = data_matrix.shape[1]
-    numVoxelsInMask = (mask >= 0.5).sum()
-    if numVoxelsInMask != numVoxelsInMatrix:
-        raise ValueError(
-            "Num masked voxels %i must match data matrix %i"
-            % (numVoxelsInMask, numVoxelsInMatrix)
-        )
-
-    imagelist = []
-    for i in range(numimages):
-        img = mask.clone()
-        img[mask >= 0.5] = data_matrix[i, :]
-        imagelist.append(img)
-    return imagelist
-
-
-images_from_matrix = matrix_to_images
-
-
-def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
-    """
-    Read images into rows of a matrix, given a mask - much faster for
-    large datasets as it is based on C++ implementations.
-
-    ANTsR function: `imagesToMatrix`
-
-    Arguments
-    ---------
-    image_list : list of ANTsImage types
-        images to convert to ndarray
-
-    mask : ANTsImage (optional)
-        image containing binary mask. voxels in the mask are placed in the matrix
-
-    sigma : scaler (optional)
-        smoothing factor
-
-    epsilon : scalar
-        threshold for mask
-
-    Returns
-    -------
-    ndarray
-        array with a row for each image
-        shape = (N_IMAGES, N_VOXELS)
-
-    Example
-    -------
-    >>> import ants
-    >>> img = ants.image_read(ants.get_ants_data('r16'))
-    >>> img2 = ants.image_read(ants.get_ants_data('r16'))
-    >>> img3 = ants.image_read(ants.get_ants_data('r16'))
-    >>> mat = ants.image_list_to_matrix([img,img2,img3])
-    """
-
-    def listfunc(x):
-        if np.sum(np.array(x.shape) - np.array(mask.shape)) != 0:
-            x = reg.resample_image_to_target(x, mask, 2)
-        return x[mask]
-
-    if mask is None:
-        mask = utils.get_mask(image_list[0])
-
-    num_images = len(image_list)
-    mask_arr = mask.numpy() >= epsilon
-    num_voxels = np.sum(mask_arr)
-
-    data_matrix = np.empty((num_images, num_voxels))
-    do_smooth = sigma is not None
-    for i, img in enumerate(image_list):
-        if do_smooth:
-            data_matrix[i, :] = listfunc(
-                utils.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
-            )
-        else:
-            data_matrix[i, :] = listfunc(img)
-    return data_matrix
-
-
-image_list_to_matrix = images_to_matrix
-matrix_from_images = images_to_matrix
-
-
-def timeseries_to_matrix(image, mask=None):
-    """
-    Convert a timeseries image into a matrix.
-
-    ANTsR function: `timeseries2matrix`
-
-    Arguments
-    ---------
-    image : image whose slices we convert to a matrix. E.g. a 3D image of size
-           x by y by z will convert to a z by x*y sized matrix
-
-    mask : ANTsImage (optional)
-        image containing binary mask. voxels in the mask are placed in the matrix
-
-    Returns
-    -------
-    ndarray
-        array with a row for each image
-        shape = (N_IMAGES, N_VOXELS)
-
-    Example
-    -------
-    >>> import ants
-    >>> img = ants.make_image( (10,10,10,5 ) )
-    >>> mat = ants.timeseries_to_matrix( img )
-    """
-    temp = utils.ndimage_to_list(image)
-    if mask is None:
-        mask = temp[0] * 0 + 1
-    return image_list_to_matrix(temp, mask)
-
-
-def matrix_to_timeseries(image, matrix, mask=None):
-    """
-    converts a matrix to a ND image.
-
-    ANTsR function: `matrix2timeseries`
-
-    Arguments
-    ---------
-
-    image: reference ND image
-
-    matrix: matrix to convert to image
-
-    mask: mask image defining voxels of interest
-
-
-    Returns
-    -------
-    ANTsImage
-
-    Example
-    -------
-    >>> import ants
-    >>> img = ants.make_image( (10,10,10,5 ) )
-    >>> mask = ants.ndimage_to_list( img )[0] * 0
-    >>> mask[ 4:8, 4:8, 4:8 ] = 1
-    >>> mat = ants.timeseries_to_matrix( img, mask = mask )
-    >>> img2 = ants.matrix_to_timeseries( img,  mat, mask)
-    """
-
-    if mask is None:
-        mask = temp[0] * 0 + 1
-    temp = matrix_to_images(matrix, mask)
-    newImage = utils.list_to_ndimage(image, temp)
-    iio.copy_image_info(image, newImage)
-    return newImage
-
-
 def image_header_info(filename):
     """
     Read file info from image header
@@ -430,7 +230,7 @@ def image_header_info(filename):
     if not os.path.exists(filename):
         raise Exception("filename does not exist")
 
-    libfn = utils.get_lib_fn("antsImageHeaderInfo")
+    libfn = get_lib_fn("antsImageHeaderInfo")
     retval = libfn(filename)
     retval["dimensions"] = tuple(retval["dimensions"])
     retval["origin"] = tuple([round(o, 4) for o in retval["origin"]])
@@ -544,10 +344,10 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         if (ndim < 2) or (ndim > 4):
             raise ValueError("Found %i-dimensional image - not supported!" % ndim)
 
-        libfn = utils.get_lib_fn(_image_read_dict[pclass][ptype][ndim])
+        libfn = get_lib_fn(_image_read_dict[pclass][ptype][ndim])
         itk_pointer = libfn(filename)
 
-        ants_image = from_pointer(itk_pointer)
+        ants_image = ants.from_pointer(itk_pointer)
 
         if pixeltype is not None:
             ants_image = ants_image.clone(pixeltype)
@@ -604,7 +404,7 @@ def dicom_read(directory, pixeltype="float"):
     slices = np.stack(slices, axis=-1)
     return from_numpy(slices, origin=origin, spacing=spacing, direction=direction)
 
-
+@image_method
 def image_write(image, filename, ri=False):
     """
     Write an ANTsImage to file
@@ -641,3 +441,77 @@ def image_write(image, filename, ri=False):
 
     if ri:
         return image
+
+@image_method
+def clone(self, pixeltype=None):
+    """
+    Create a copy of the given ANTsImage with the same data and info, possibly with
+    a different data type for the image data. Only supports casting to
+    uint8 (unsigned char), uint32 (unsigned int), float32 (float), and float64 (double)
+
+    Arguments
+    ---------
+    dtype: string (optional)
+        if None, the dtype will be the same as the cloned ANTsImage. Otherwise,
+        the data will be cast to this type. This can be a numpy type or an ITK
+        type.
+        Options:
+            'unsigned char' or 'uint8',
+            'unsigned int' or 'uint32',
+            'float' or 'float32',
+            'double' or 'float64'
+
+    Returns
+    -------
+    ANTsImage
+    """
+    if pixeltype is None:
+        pixeltype = self.pixeltype
+
+    if pixeltype not in _supported_ptypes:
+        raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
+
+    if self.has_components and (not self.is_rgb):
+        comp_imgs = ants.split_channels(self)
+        comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
+        return ants.merge_channels(comp_imgs_cloned)
+    else:
+        p1_short = short_ptype(self.pixeltype)
+        p2_short = short_ptype(pixeltype)
+        ndim = self.dimension
+        fn_suffix = '%s%i' % (p2_short,ndim)
+        libfn = get_lib_fn('antsImageClone%s'%fn_suffix)
+        pointer_cloned = libfn(self.pointer)
+        return ants.from_pointer(pointer_cloned)
+        
+copy = clone
+
+@image_method
+def new_image_like(self, data):
+    """
+    Create a new ANTsImage with the same header information, but with
+    a new image array.
+
+    Arguments
+    ---------
+    data : ndarray or py::capsule
+        New array or pointer for the image.
+        It must have the same shape as the current
+        image data.
+
+    Returns
+    -------
+    ANTsImage
+    """
+    if not isinstance(data, np.ndarray):
+        raise ValueError('data must be a numpy array')
+    if not self.has_components:
+        if data.shape != self.shape:
+            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
+    else:
+        if (data.shape[-1] != self.components) or (data.shape[:-1] != self.shape):
+            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
+
+    return from_numpy(data, origin=self.origin,
+        spacing=self.spacing, direction=self.direction,
+        has_components=self.has_components)

@@ -1,8 +1,7 @@
 
 __all__ = ['prior_based_segmentation']
 
-from ..core import ants_image as iio
-from .atropos import atropos
+import ants
 
 
 def prior_based_segmentation(image, priors, mask, priorweight=0.25, mrf=0.1, iterations=25):
@@ -51,9 +50,9 @@ def prior_based_segmentation(image, priors, mask, priorweight=0.25, mrf=0.1, ite
     >>> mask = ants.threshold_image(seg['segmentation'], 1, 1e15)
     >>> priorseg = ants.prior_based_segmentation(fi, seg['probabilityimages'], mask, 0.25, 0.1, 3)
     """
-    if isinstance(image, iio.ANTsImage):
+    if ants.is_image(image):
         dim = image.dimension
-    elif isinstance(image, (tuple,list)) and (isinstance(image[0], iio.ANTsImage)):
+    elif isinstance(image, (tuple,list)) and (ants.is_image(image[0])):
         dim = image[0].dimension
     else:
         raise ValueError('image argument must be ANTsImage or list/tuple of ANTsImage types')
@@ -62,7 +61,7 @@ def prior_based_segmentation(image, priors, mask, priorweight=0.25, mrf=0.1, ite
     mrf = '[%s,%s]' % (str(mrf), nhood)
     conv = '[%s,0]' % (str(iterations))
 
-    pseg = atropos(a=image, m=mrf, c=conv, i=priors, x=mask, priorweight=priorweight)
+    pseg = ants.atropos(a=image, m=mrf, c=conv, i=priors, x=mask, priorweight=priorweight)
 
     return pseg
 

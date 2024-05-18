@@ -1,10 +1,8 @@
-from .anti_alias import anti_alias
 from .atropos import atropos
 from .kmeans import kmeans_segmentation
 from .functional_lung_segmentation import functional_lung_segmentation
 from .fuzzy_spatial_cmeans_segmentation import fuzzy_spatial_cmeans_segmentation
 from .kelly_kapowski import kelly_kapowski
 from .joint_label_fusion import joint_label_fusion, local_joint_label_fusion
-from .label_geometry_measures import label_geometry_measures
 from .otsu import otsu_segmentation
 from .prior_based_segmentation import prior_based_segmentation

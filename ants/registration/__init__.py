@@ -1,22 +1,15 @@
-
-
 from .affine_initializer import affine_initializer
-from .apply_transforms import (apply_transforms,apply_transforms_to_points)
-from .create_jacobian_determinant_image import create_jacobian_determinant_image
-from .create_jacobian_determinant_image import deformation_gradient
-from .create_warped_grid import create_warped_grid
-from .fsl2antstransform import fsl2antstransform
-from .make_points_image import make_points_image
-from .metrics import image_mutual_information
-from .reflect_image import reflect_image
-from .reorient_image import (get_orientation,
-           reorient_image2,
-           get_possible_orientations,
-           get_center_of_mass)
-from .resample_image import (resample_image,
-           resample_image_to_target)
-from .symmetrize_image import symmetrize_image
+from .apply_transforms import apply_transforms, apply_transforms_to_points
+from .average_transform import average_affine_transform, average_affine_transform_no_rigid
 from .build_template import build_template
-from .landmark_transforms import (fit_transform_to_paired_points, fit_time_varying_transform_to_point_sets)
-
-from .interface import (registration, motion_correction)
+from .compose_displacement_fields import compose_displacement_fields
+from .create_jacobian_determinant_image import create_jacobian_determinant_image, deformation_gradient
+from .create_warped_grid import create_warped_grid
+from .fit_bspline_displacement_field import fit_bspline_displacement_field
+from .fit_bspline_object_to_scattered_data import fit_bspline_object_to_scattered_data
+from .fit_thin_plate_spline_displacement_field import fit_thin_plate_spline_displacement_field
+from .integrate_velocity_field import integrate_velocity_field
+from .invert_displacement_field import invert_displacement_field
+from .landmark_transforms import fit_transform_to_paired_points, fit_time_varying_transform_to_point_sets
+from .registration import registration, motion_correction
+from .simulate_displacement_field import simulate_displacement_field

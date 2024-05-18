@@ -11,8 +11,9 @@ import glob
 import warnings
 from tempfile import mktemp
 
-from ..core import ants_image_io as iio2
-from .. import utils
+
+import ants
+from ants.internal import get_lib_fn, get_pointer_string, process_arguments
 
 
 def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
@@ -91,7 +92,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             if ct < 9:
                 probchar = '0%s' % probchar
             tempfn = probs.replace('%02d', probchar)
-            iio2.image_write(i[ct], tempfn)
+            ants.image_write(i[ct], tempfn)
             ct += 1
         i = 'PriorProbabilityImages[%s,%s,%s]' % (str(len(i)), probs, str(priorweight))
 
@@ -101,7 +102,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         outimg = a.clone('unsigned int')
 
     mydim = outimg.dimension
-    outs = '[%s,%s]' % (utils._ptrstr(outimg.pointer), probs)
+    outs = '[%s,%s]' % (get_pointer_string(outimg), probs)
     mymask = x.clone('unsigned int')
 
     if (not isinstance(a, (list,tuple))) or (len(a) == 1):
@@ -134,8 +135,8 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         for aa_idx, aa in enumerate(a):
             myargs['a-MULTINAME-%i'%aa_idx] = aa
 
-    processed_args = utils._int_antsProcessArguments(myargs)
-    libfn = utils.get_lib_fn('Atropos')
+    processed_args = process_arguments(myargs)
+    libfn = get_lib_fn('Atropos')
     retval = libfn(processed_args)
 
     if retval != 0:
@@ -147,9 +148,9 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         raise Exception('No Atropos output probability images found. Run with verbose=1 to see error messages')
 
     probsout.sort()
-    probimgs = [iio2.image_read(probsout[0])]
+    probimgs = [ants.image_read(probsout[0])]
     for idx in range(1, len(probsout)):
-        probimgs.append(iio2.image_read(probsout[idx]))
+        probimgs.append(ants.image_read(probsout[idx]))
 
     outimg = outimg.clone('float')
     return {'segmentation': outimg,
