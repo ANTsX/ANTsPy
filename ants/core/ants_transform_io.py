@@ -253,6 +253,10 @@ def transform_from_displacement_field(field):
     """
     if not ants.is_image(field):
         raise ValueError("field must be ANTsImage type")
+    if field.dimension < 2 or field.dimension > 3:
+        raise ValueError("Unsupported displacement field dimension: %i" % field.dimension)
+    if field.components != field.dimension:
+        raise ValueError("Displacement field must have same number of components as the image dimension")
     libfn = get_lib_fn("antsTransformFromDisplacementField")
     field = field.clone("float")
     txptr = libfn(field.pointer)
@@ -262,6 +266,7 @@ def transform_from_displacement_field(field):
         transform_type="DisplacementFieldTransform",
         pointer=txptr,
     )
+
 
 def transform_to_displacement_field(xfrm, ref):
     """
@@ -299,6 +304,7 @@ def transform_to_displacement_field(xfrm, ref):
     field_ptr = libfn(xfrm.pointer, ref.pointer)
     return ants.from_pointer(field_ptr)
 
+
 def read_transform(filename, precision="float"):
     """
     Read a transform from file
@@ -329,7 +335,9 @@ def read_transform(filename, precision="float"):
     if not os.path.exists(filename):
         raise ValueError("filename does not exist!")
 
-    # intentionally ignore dimension
+    if filename.endswith('.nii') or filename.endswith('.nii.gz'):
+        return transform_from_displacement_field(iio2.image_read(filename))
+
     libfn1 = get_lib_fn("getTransformDimensionFromFile")
     dimensionUse = libfn1(filename)
 
