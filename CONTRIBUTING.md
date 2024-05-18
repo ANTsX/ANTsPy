@@ -71,7 +71,7 @@ When you run `python -m pip install .` or `python -m pip install -e .` to instal
 
 ## Wrapping ANTs functions
 
-Wrapping an ANTs function is easy since pybind11 implicitly casts between python and C++ standard types, allowing you to directly interface with C++ code. Here's an example:
+Wrapping an ANTs function is easy since nanobind implicitly casts between python and C++ standard types, allowing you to directly interface with C++ code. Here's an example:
 
 Say we want to wrap the `Atropos` function. We create the following file called
 `WRAP_Atropos.cxx` in the `src/` directory:
@@ -97,7 +97,7 @@ void wrap_Atropos(nb::module_ &m)
 }
 ```
 
-The `WRAP_function.cxx` file is the SAME for every ANTs function - simply exchange the word "Atropos" with whatever the function name is.
+The `WRAP_Atropos.cxx` file is the same for every ANTs function - simply exchange the word "Atropos" with whatever the function name is and include the correct file.
 
 Next, we add the following two lines to the top of the `src/main.cpp` file:
 
@@ -118,22 +118,23 @@ The general workflow for wrapping a library calls involves the following steps:
 
 - write a wrapper python function (e.g. `def atropos(...)`)
 - build up a list or dictionary of string argument names as in ANTs
-- pass those raw arguments through the function `process_arguments(args)`
-- pass those processed arguments into the library call (e.g. `lib.Atropos(processed_args)`).
+- pass those raw arguments through the function `myargs = process_arguments(args)`
+- get the library function by calling `libfn = get_lib_fn('Atropos')`
+- pass those processed arguments into the library function (e.g. `libfn(myargs)`).
 
 <br />
 
 ## Adding C++ / ITK code
 
-You can write any kind of custom code to process antspy images. The underlying image is ITK so the AntsImage class holds a pointer to the underlying ITK object in the in the property `self.pointer`.
+You can write any kind of custom code to process images in ANTsPy. The ANTsImage class holds a pointer to the underlying ITK object in the in the property `self.pointer`.
 
-To go from a C++ ANTsImage class to an ITK image, pass in an `AntsImage<ImageType>` argument (`image.pointer` in python) and call `.ptr` to access the ITK image.
+To go from a C++ ANTsImage to an ITK image, pass in an `AntsImage<ImageType>` argument (`image.pointer` in python) and call `.ptr` to access the ITK image.
 
 ```cpp
 #include "antsImage.h"
 
 template <typename ImageType>
-ImageType::Pointer getITKImage( AntsImage<ImageType> antsImage )
+ImageType::Pointer getITKImage( AntsImage<ImageType> & antsImage )
 {
     typedef typename ImageType::Pointer ImagePointerType;
     ImagePointerType itkImage = antsImage.ptr;
@@ -166,7 +167,7 @@ We would create the following file `src/getOrigin.cxx`:
 
 // all functions accepted ANTsImage types must be templated
 template <typename ImageType>
-std::vector getOrigin( AntsImage<ImageType> antsImage )
+std::vector getOrigin( AntsImage<ImageType> & antsImage )
 {
     // cast to ITK image as shown above
     typedef typename ImageType::Pointer ImagePointerType;
@@ -218,9 +219,9 @@ from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
 @image_method
-def get_origin(img):
+def get_origin(image):
     libfn = get_lib_fn('getOrigin')
-    origin = libfn(img.pointer)
+    origin = libfn(image.pointer)
 
     return tuple(origin)
 ```
@@ -238,7 +239,7 @@ Here is an example:
 #include "antsImage.h"
 
 template <typename ImageType>
-AntsImage<ImageType> someFunction( AntsImage<ImageType> antsImage )
+AntsImage<ImageType> someFunction( AntsImage<ImageType> & antsImage )
 {
     // cast from ANTsImage to ITK Image
     typedef typename ImageType::Pointer ImagePointerType;
@@ -281,7 +282,7 @@ AntsImage<OutImageType> someFunction( AntsImage<InImageType> antsImage )
 
 ## Adding Python code
 
-If you want to add custom Python code that calls other ANTsPy functions or the wrapped code, there are a few things to know. The `label_clusters` function provides a good example to show how to do so.
+If you want to add custom Python code that calls other ANTsPy functions or the wrapped code, there are a few things to know. The `label_clusters` function provides a good example of how to do so.
 
 ```python
 import ants
@@ -294,10 +295,8 @@ def label_clusters(image, min_cluster_size=50, min_thresh=1e-6, max_thresh=1, fu
     This will give a unique ID to each connected
     component 1 through N of size > min_cluster_size
     """
-    dim = image.dimension
     clust = ants.threshold_image(image, min_thresh, max_thresh)
-    temp = int(fully_connected)
-    args = [dim, clust, clust, min_cluster_size, temp]
+    args = [image.dimension, clust, clust, min_cluster_size, int(fully_connected)]
     processed_args = process_arguments(args)
     libfn = get_lib_fn('LabelClustersUniquely')
     libfn(processed_args)
@@ -328,30 +327,11 @@ With those three imports, you can call any internal Python function or any C++ f
 
 ## Running tests
 
-All tests can be executed by running the following command from the main directory:
+Whenever you add or change code in a meaningful way, you should add tests. All tests can be executed by running the following command from the main project directory:
 
 ```bash
 sh ./tests/run_tests.sh
 ```
-
-Similarly, code coverage can be calculated by adding a flag to the above command:
-
-```bash
-sh ./tests/run_tests.sh -c
-```
-
-This will create an html folder in the `tests` directory with detailed coverage information.
-In order to publish this information to coveralls, we run the following (given that the
-.coveralls.yml file is in the tests directory with the correct repo token):
-
-```bash
-./tests/run_tests.sh -c
-cd tests
-coveralls
-```
-
-We use https://coveralls.io/ for hosting our coverage information.
-
 Refer to that file for adding tests. We use the `unittest` module for creating tests, which
 generally have the following structure:
 
