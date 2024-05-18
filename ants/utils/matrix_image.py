@@ -145,12 +145,6 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     >>> img3 = ants.image_read(ants.get_ants_data('r16'))
     >>> mat = ants.image_list_to_matrix([img,img2,img3])
     """
-
-    def listfunc(x):
-        if np.sum(np.array(x.shape) - np.array(mask.shape)) != 0:
-            x = ants.resample_image_to_target(x, mask, 2)
-        return x[mask]
-
     if mask is None:
         mask = ants.get_mask(image_list[0])
 
@@ -162,11 +156,10 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     do_smooth = sigma is not None
     for i, img in enumerate(image_list):
         if do_smooth:
-            data_matrix[i, :] = listfunc(
-                ants.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
-            )
-        else:
-            data_matrix[i, :] = listfunc(img)
+            img = ants.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
+        if np.sum(np.array(img.shape) - np.array(mask.shape)) != 0:
+            img = ants.resample_image_to_target(img, mask, 2)
+        data_matrix[i, :] = img[mask]
     return data_matrix
 
 
