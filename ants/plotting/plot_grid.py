@@ -153,17 +153,17 @@ def plot_grid(
 
     def slice_image(img, axis, idx):
         if axis == 0:
-            return img[idx, :, :]
+            return img[idx, :, :].numpy()
         elif axis == 1:
-            return img[:, idx, :]
+            return img[:, idx, :].numpy()
         elif axis == 2:
-            return img[:, :, idx]
+            return img[:, :, idx].numpy()
         elif axis == -1:
-            return img[:, :, idx]
+            return img[:, :, idx].numpy()
         elif axis == -2:
-            return img[:, idx, :]
+            return img[:, idx, :].numpy()
         elif axis == -3:
-            return img[idx, :, :]
+            return img[idx, :, :].numpy()
         else:
             raise ValueError("axis %i not valid" % axis)
 

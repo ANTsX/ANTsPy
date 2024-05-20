@@ -494,18 +494,55 @@ class ANTsImage(object):
         return self.new_image_like(new_array.astype('uint8'))
 
     def __getitem__(self, idx):
-        if self._array is None:
-            self._array = self.numpy()
-
-        if is_image(idx):
+        if self.has_components:
+            return ants.merge_channels([
+                img[idx] for img in ants.split_channels(self)
+            ])
+        
+        if isinstance(idx, ANTsImage):
             if not ants.image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
-            return self._array.__getitem__(idx.numpy().astype('bool'))
-        else:
-            return self._array.__getitem__(idx)
+            return self.numpy().__getitem__(idx.numpy().astype('bool'))
+    
+        ndim = len(idx)
+        sizes = list(self.shape)
+        starts = [0] * ndim
+        
+        for i in range(ndim):
+            ti = idx[i]
+            if isinstance(ti, slice):
+                if ti.start:
+                    starts[i] = ti.start
+                if ti.stop:
+                    sizes[i] = ti.stop - starts[i]
+                else:
+                    sizes[i] = self.shape[i] - starts[i]
+                    
+                if ti.stop and ti.start:
+                    if ti.stop < ti.start:
+                        raise Exception('Reverse indexing is not supported.')
+                
+            elif isinstance(ti, int):
+                starts[i] = ti
+                sizes[i] = 0
+                
+            if sizes[i] == 0:
+                ndim -= 1
+        
+        if ndim < 2:
+            return self.numpy().__getitem__(idx)
+        
+        libfn = get_lib_fn('getItem%i' % ndim)
+        new_ptr = libfn(self.pointer, starts, sizes)
+        new_image = from_pointer(new_ptr)
+        return new_image
 
     def __setitem__(self, idx, value):
         arr = self.view()
+        
+        if is_image(value):
+            value = value.numpy()
+            
         if is_image(idx):
             if not ants.image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
