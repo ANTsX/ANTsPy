@@ -485,14 +485,13 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img3 = img != img2
 
     def test__getitem__(self):
-        #self.setUp()
         for img in self.imgs:
             if img.dimension == 2:
                 img2 = img[6:9,6:9]
-                nptest.assert_allclose(img2, img.numpy()[6:9,6:9])
+                nptest.assert_allclose(img2.numpy(), img.numpy()[6:9,6:9])
             elif img.dimension == 3:
                 img2 = img[6:9,6:9,6:9]
-                nptest.assert_allclose(img2, img.numpy()[6:9,6:9,6:9])
+                nptest.assert_allclose(img2.numpy(), img.numpy()[6:9,6:9,6:9])
 
             # get from another image
             img2 = img.clone()
@@ -503,7 +502,6 @@ class TestClass_ANTsImage(unittest.TestCase):
                 xx = img[img2]
 
     def test__setitem__(self):
-        #self.setUp()
         for img in self.imgs:
             if img.dimension == 2:
                 img[6:9,6:9] = 6.9
