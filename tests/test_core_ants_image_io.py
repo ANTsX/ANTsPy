@@ -164,6 +164,7 @@ class TestModule_ants_image_io(unittest.TestCase):
             imgmat = ants.images_to_matrix(imglist, mask=mask)
             self.assertTrue(imgmat.shape[0] == len(imglist))
             self.assertTrue(imgmat.shape[1] == (mask>0).sum())
+            self.assertTrue(np.allclose(img[mask], imgmat[0,:]))
 
             # go back to images
             imglist2 = ants.matrix_to_images(imgmat, mask)
@@ -178,20 +179,26 @@ class TestModule_ants_image_io(unittest.TestCase):
                 imgmat = ants.images_to_matrix(imglist, mask=mask, sigma=2.)
 
                 # with no mask
-                mask = ants.image_clone(  img > img.mean(), pixeltype = 'float' )
-                imglist = [img.clone(),img.clone(),img.clone()]
                 imgmat = ants.images_to_matrix(imglist)
+
+                # Mask not binary
+                mask = ants.image_clone(  img / img.mean(), pixeltype = 'float' )
+                imgmat = ants.images_to_matrix(imglist, mask=mask, epsilon=1)
 
                 # with mask of different shape
                 s = [65]*img.dimension
-                mask2 = ants.from_numpy(np.random.randn(*s))
+                mask2 = ants.from_numpy(np.random.randn(*s), spacing=[4.0, 4.0])
                 mask2 = mask2 > mask2.mean()
                 imgmat = ants.images_to_matrix(imglist, mask=mask2)
+                self.assertTrue(imgmat.shape[0] == len(imglist))
+                self.assertTrue(imgmat.shape[1] == (mask2>0).sum())
+
+
 
     def timeseries_to_matrix(self):
         img = ants.make_image( (10,10,10,5 ) )
         mat = ants.timeseries_to_matrix( img )
-        
+
         img = ants.make_image( (10,10,10,5 ) )
         mask = ants.ndimage_to_list( img )[0] * 0
         mask[ 4:8, 4:8, 4:8 ] = 1
