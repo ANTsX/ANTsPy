@@ -292,7 +292,7 @@ class TestModule_resample_image(unittest.TestCase):
         fi = ants.image_read(ants.get_ants_data("r16"))
         finn = ants.resample_image(fi, (50, 60), True, 0)
         filin = ants.resample_image(fi, (1.5, 1.5), False, 1)
-    
+
     def test_resample_channels(self):
         img = ants.image_read( ants.get_ants_data("r16"))
         img = ants.merge_channels([img, img])
@@ -304,6 +304,7 @@ class TestModule_resample_image(unittest.TestCase):
         fi = ants.image_read(ants.get_ants_data("r16"))
         fi2mm = ants.resample_image(fi, (2, 2), use_voxels=0, interp_type=1)
         resampled = ants.resample_image_to_target(fi2mm, fi, verbose=True)
+        self.assertTrue(ants.image_physical_space_consistency(fi, resampled, 0.0001, datatype=True))
 
 
 class TestModule_symmetrize_image(unittest.TestCase):
@@ -365,7 +366,7 @@ class TestModule_random(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_landmark_transforms(self):
         fixed = np.array([[50.0,50.0],[200.0,50.0],[200.0,200.0]])
         moving = np.array([[50.0,50.0],[50.0,200.0],[200.0,200.0]])
@@ -381,10 +382,10 @@ class TestModule_random(unittest.TestCase):
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="bspline", domain_image=domain_image, number_of_fitting_levels=5)
         xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
 
-        res = ants.fit_time_varying_transform_to_point_sets([fixed, moving, moving], 
+        res = ants.fit_time_varying_transform_to_point_sets([fixed, moving, moving],
                                                             domain_image=ants.image_read(ants.get_data('r16')),
                                                             verbose=True)
-        
+
     def test_deformation_gradient(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
         mi = ants.image_read( ants.get_ants_data('r64'))
@@ -392,16 +393,16 @@ class TestModule_random(unittest.TestCase):
         mi = ants.resample_image(mi,(128,128),1,0)
         mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
         dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
-        
+
         dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        py_based=True)
 
         dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        to_rotation=True)
-        
+
         dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        to_rotation=True, py_based=True)
-        
+
     def test_jacobian(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
         mi = ants.image_read( ants.get_ants_data('r64'))

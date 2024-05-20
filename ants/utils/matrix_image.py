@@ -123,13 +123,14 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
         images to convert to ndarray
 
     mask : ANTsImage (optional)
-        image containing binary mask. voxels in the mask are placed in the matrix
+        Mask image, voxels in the mask (>= epsilon) are placed in the matrix. If None,
+        the first image in image_list is thresholded at its mean value to create a mask.
 
     sigma : scaler (optional)
         smoothing factor
 
     epsilon : scalar
-        threshold for mask
+        threshold for mask, values >= epsilon are included in the mask.
 
     Returns
     -------
@@ -149,6 +150,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
         mask = ants.get_mask(image_list[0])
 
     num_images = len(image_list)
+    mask_thresh = mask.clone() >= epsilon
     mask_arr = mask.numpy() >= epsilon
     num_voxels = np.sum(mask_arr)
 
@@ -157,9 +159,9 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     for i, img in enumerate(image_list):
         if do_smooth:
             img = ants.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
-        if np.sum(np.array(img.shape) - np.array(mask.shape)) != 0:
-            img = ants.resample_image_to_target(img, mask, 2)
-        data_matrix[i, :] = img[mask]
+        if np.sum(np.array(img.shape) - np.array(mask_thresh.shape)) != 0:
+            img = ants.resample_image_to_target(img, mask_thresh, 2)
+        data_matrix[i, :] = img[mask_thresh]
     return data_matrix
 
 
