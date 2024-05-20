@@ -493,17 +493,6 @@ class ANTsImage(object):
         new_array = this_array != other
         return self.new_image_like(new_array.astype('uint8'))
 
-    def __getitem__2(self, idx):
-        if self._array is None:
-            self._array = self.numpy()
-
-        if is_image(idx):
-            if not ants.image_physical_space_consistency(self, idx):
-                raise ValueError('images do not occupy same physical space')
-            return self._array.__getitem__(idx.numpy().astype('bool'))
-        else:
-            return self._array.__getitem__(idx)
-        
     def __getitem__(self, idx):
         if self.has_components:
             return ants.merge_channels([
