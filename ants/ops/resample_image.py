@@ -148,8 +148,8 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
         if ants.is_image(fixed) and ants.is_image(moving):
             inpixeltype = fixed.pixeltype
             warpedmovout = moving.clone()
-            f = fixed
-            m = moving
+            f = fixed.clone('float')
+            m = moving.clone('float')
             if (moving.dimension == 4) and (fixed.dimension==3) and (imagetype==0):
                 raise ValueError('Set imagetype 3 to transform time series images.')
 
