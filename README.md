@@ -11,8 +11,6 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 [![PubMed](https://img.shields.io/badge/ANTsX_paper-Open_Access-8DABFF?logo=pubmed)](https://pubmed.ncbi.nlm.nih.gov/33907199/)
 
-<br>
-
 The ANTsPy library wraps the well-established C++ biomedical image processing framework [ANTs](https://github.com/antsx/ants). It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
 
 If you are looking to train deep learning models on medical imaging datasets, you might be interested in [ANTsPyNet](https://github.com/antsx/antspy) which provides tools for training and visualizing deep learning models.
