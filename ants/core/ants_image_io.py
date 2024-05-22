@@ -10,6 +10,7 @@ __all__ = [
     "image_write",
     "make_image",
     "from_numpy",
+    "from_numpy_like",
     "new_image_like"
 ]
 
@@ -487,7 +488,7 @@ def clone(self, pixeltype=None):
 copy = clone
 
 @image_method
-def new_image_like(self, data):
+def new_image_like(image, data):
     """
     Create a new ANTsImage with the same header information, but with
     a new image array.
@@ -505,13 +506,16 @@ def new_image_like(self, data):
     """
     if not isinstance(data, np.ndarray):
         raise ValueError('data must be a numpy array')
-    if not self.has_components:
-        if data.shape != self.shape:
-            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, self.shape))
+    if not image.has_components:
+        if data.shape != image.shape:
+            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, image.shape))
     else:
-        if (data.shape[-1] != self.components) or (data.shape[:-1] != self.shape):
-            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], self.shape))
+        if (data.shape[-1] != image.components) or (data.shape[:-1] != image.shape):
+            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], image.shape))
 
-    return from_numpy(data, origin=self.origin,
-        spacing=self.spacing, direction=self.direction,
-        has_components=self.has_components)
+    return from_numpy(data, origin=image.origin,
+        spacing=image.spacing, direction=image.direction,
+        has_components=image.has_components)
+    
+def from_numpy_like(data, image):
+    return new_image_like(image, data)
