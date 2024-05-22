@@ -40,6 +40,9 @@ $PYCMD test_segmentation.py $@
 echo "Running utils tests"
 $PYCMD test_utils.py $@
 
+echo "Running ops tests"
+$PYCMD test_ops.py $@
+
 echo "Running plotting tests"
 $PYCMD test_plotting.py $@
 
