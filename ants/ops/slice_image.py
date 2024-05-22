@@ -32,9 +32,13 @@ def slice_image(image, axis, idx, collapse_strategy=0):
     >>> mni = ants.image_read(ants.get_data('mni'))
     >>> mni2 = ants.slice_image(mni, axis=1, idx=100)
     """
-    if image.dimension < 3:
-        raise ValueError('image must have at least 3 dimensions')
-
+    if image.dimension == 2:
+        if axis == 0:
+            return image[idx,:]
+        elif axis == 1:
+            return image[:,idx]
+        raise Exception('Parameters not understood for 2D image.')
+        
     if collapse_strategy != 0 and collapse_strategy != 1 and collapse_strategy != 2:
         raise ValueError('collapse_strategy must be 0, 1, or 2.') 
 
