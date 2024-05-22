@@ -178,6 +178,15 @@ class TestClass_ANTsImage(unittest.TestCase):
             vecimg = ants.from_numpy(np.random.randn(69,12,3).astype('float32'), has_components=True)
             new_data = np.random.randn(69,12,4).astype('float32')
             vecimg.new_image_like(new_data)
+            
+    def test_from_numpy_like(self):
+        img = ants.image_read(ants.get_data('mni'))
+        
+        arr = img.numpy()
+        arr *= 2
+        img2 = ants.from_numpy_like(arr, img)
+        self.assertTrue(ants.image_physical_space_consistency(img, img2))
+        self.assertEqual(img2.mean() / img.mean(), 2)
 
     def test_to_file(self):
         #self.setUp()
