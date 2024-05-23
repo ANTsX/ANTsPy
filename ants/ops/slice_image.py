@@ -32,6 +32,12 @@ def slice_image(image, axis, idx, collapse_strategy=0):
     >>> mni = ants.image_read(ants.get_data('mni'))
     >>> mni2 = ants.slice_image(mni, axis=1, idx=100)
     """
+    if axis == -1:
+        axis = image.dimension - 1
+        
+    if axis > (image.dimension - 1) or axis < 0:
+        raise Exception('The axis must be between 0 and image.dimension - 1')
+        
     if image.dimension == 2:
         if axis == 0:
             return image[idx,:]

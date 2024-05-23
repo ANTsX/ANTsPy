@@ -34,6 +34,14 @@ class Test_slice_image(unittest.TestCase):
         
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 2, 100)
+            
+        with self.assertRaises(Exception):
+            img2 = ants.slice_image(img, -3, 100)
+        
+        with self.assertRaises(Exception):
+            img2 = ants.slice_image(img, 4, 100)
+            
+        img2 = ants.slice_image(img, -1, 100)
         
     def test_slice_image_3d(self):
         """
@@ -60,6 +68,8 @@ class Test_slice_image(unittest.TestCase):
             
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 2, 100, collapse_strategy=23)
+            
+        img2 = ants.slice_image(img, -1, 100)
 
 
 if __name__ == '__main__':
