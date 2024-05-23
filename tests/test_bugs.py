@@ -43,6 +43,23 @@ class Test_bugs(unittest.TestCase):
 
         self.assertTrue(np.sum(np.isnan(img3dr.numpy())) == 0)
 
+    def test_compose_multi_type_transforms(self):
+        image = ants.image_read(ants.get_ants_data("r16"))
+
+        linear_transform = ants.create_ants_transform(transform_type=
+            "AffineTransform", precision='float', dimension=image.dimension)
+
+        displacement_field = ants.simulate_displacement_field(image,
+            field_type="bspline", number_of_random_points=1000,
+            sd_noise=10.0, enforce_stationary_boundary=True,
+            number_of_fitting_levels=4, mesh_size=1,
+            sd_smoothing=4.0)
+        displacement_field_xfrm = ants.transform_from_displacement_field(displacement_field)
+
+        xfrm = ants.compose_ants_transforms([linear_transform, displacement_field_xfrm])
+        xfrm = ants.compose_ants_transforms([linear_transform, linear_transform])
+        xfrm = ants.compose_ants_transforms([displacement_field_xfrm, linear_transform])
+
 
 if __name__ == '__main__':
     run_tests()
