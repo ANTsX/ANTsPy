@@ -1,4 +1,4 @@
-name: Build
+name: build_wheels
 
 on:
   schedule:
@@ -140,6 +140,7 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+          CIBW_TEST_SKIP: "cp*" # We will test during install and test step
 
           # Include latest Python beta
           CIBW_PRERELEASE_PYTHONS: True
@@ -175,9 +176,10 @@ jobs:
 
       - name: Install and test (Windows)
         if: startsWith(matrix.os, 'windows-')
+        shell: bash
         run: |
-          python -m pip install --find-links=.\wheelhouse\cp${{ matrix.cibw_python }}-${{matrix.platform_id }} antspyx
-          tests\run_tests.ps1
+          python -m pip install --find-links=./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }} antspyx
+          bash tests/run_tests.sh
 
       - uses: actions/upload-artifact@v4
         with:
