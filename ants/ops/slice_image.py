@@ -2,7 +2,7 @@
 __all__ = ['slice_image']
 
 import math
-
+import numpy as np
 import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn
@@ -32,6 +32,13 @@ def slice_image(image, axis, idx, collapse_strategy=0):
     >>> mni = ants.image_read(ants.get_data('mni'))
     >>> mni2 = ants.slice_image(mni, axis=1, idx=100)
     """
+    if image.has_components:
+        ilist = ants.split_channels(image)
+        if image.dimension == 2:
+            return np.stack(tuple([i.slice_image(axis, idx, collapse_strategy) for i in ilist]), axis=-1)
+        else:
+            return ants.merge_channels([i.slice_image(axis, idx, collapse_strategy) for i in ilist])
+    
     if axis == -1:
         axis = image.dimension - 1
         
