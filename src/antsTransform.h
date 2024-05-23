@@ -344,19 +344,32 @@ AntsImage<ImageType> transformImage( AntsTransform<TransformType> & myTx,
 }
 
 
+// need nb:list instead of std::vector<AntsTransform<TransformBaseType>> in order
+// to support a mix of standard itk transform and itk displacementfieldtransform types
 template <typename TransformBaseType, typename PrecisionType, unsigned int Dimension>
-AntsTransform<TransformBaseType> composeTransforms( std::vector<AntsTransform<TransformBaseType>> tformlist,
-                                std::string precision, unsigned int dimension)
+AntsTransform<TransformBaseType> composeTransforms( nb::list tformlist, 
+                                                    std::string precision, 
+                                                    unsigned int dimension)
 {
+    typedef typename itk::DisplacementFieldTransform<PrecisionType, Dimension> DisplacementTransformType;
+    typedef typename DisplacementTransformType::Pointer  DisplacementTransformPointerType;
     typedef typename TransformBaseType::Pointer  TransformBasePointerType;
     typedef typename itk::CompositeTransform<PrecisionType, Dimension> CompositeTransformType;
 
     typename CompositeTransformType::Pointer comp_transform = CompositeTransformType::New();
 
-    for ( unsigned int i = 0; i < tformlist.size(); i++ )
+    for ( nb::handle_t<AntsTransform<TransformBaseType>> h: tformlist )
     {
-        TransformBasePointerType t = tformlist[i].ptr;
-        comp_transform->AddTransform( t );
+        PyObject * a_py = h.ptr(); 
+        AntsTransform<TransformBaseType> mytx;
+        bool res = nb::try_cast<AntsTransform<TransformBaseType> &>(h, mytx);
+        if (res == false) {
+            // failed cast means its a displacement field transform
+            AntsTransform<DisplacementTransformType> &mytx = nb::cast<AntsTransform<DisplacementTransformType> &>(h);
+            comp_transform->AddTransform( mytx.ptr );
+        } else {
+            comp_transform->AddTransform( mytx.ptr );
+        }
     }
     AntsTransform<TransformBaseType> outTransform = { comp_transform.GetPointer() };
     return outTransform;
