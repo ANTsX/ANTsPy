@@ -42,6 +42,9 @@ class Test_slice_image(unittest.TestCase):
             img2 = ants.slice_image(img, 4, 100)
             
         img2 = ants.slice_image(img, -1, 100)
+        img3 = ants.slice_image(img, -1, 100)
+        self.assertTrue(np.allclose(img2, img3))
+
         
     def test_slice_image_3d(self):
         """
@@ -70,6 +73,8 @@ class Test_slice_image(unittest.TestCase):
             img2 = ants.slice_image(img, 2, 100, collapse_strategy=23)
             
         img2 = ants.slice_image(img, -1, 100)
+        img3 = ants.slice_image(img, -1, 100)
+        self.assertTrue(ants.allclose(img2, img3))
 
 
 if __name__ == '__main__':
