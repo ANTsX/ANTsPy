@@ -169,6 +169,9 @@ def fit_bspline_object_to_scattered_data(scattered_data,
 
     if data_weights is None:
         data_weights = np.repeat(1.0, parametric_data.shape[0])
+    
+    if data_weights.ndim == 2:
+        data_weights = np.squeeze(data_weights)
 
     if len(data_weights) != parametric_data.shape[0]:
         raise ValueError("The number of weights is not the same as the number of points.")
