@@ -925,6 +925,16 @@ class TestRandom(unittest.TestCase):
         s16 = ants.kmeans_segmentation( r16, 3 )['segmentation']
         s64 = ants.kmeans_segmentation( r64, 3 )['segmentation']
         stats = ants.hausdorff_distance(s16, s64)
+        
+    def test_channels_first(self):
+        import ants
+        image = ants.image_read(ants.get_ants_data('r16'))
+        image2 = ants.image_read(ants.get_ants_data('r16'))
+        img3 = ants.merge_channels([image,image2])
+        img4 = ants.merge_channels([image,image2], channels_first=True)
+        
+        self.assertTrue(np.allclose(img3.numpy()[:,:,0], img4.numpy()[0,:,:]))
+        self.assertTrue(np.allclose(img3.numpy()[:,:,1], img4.numpy()[1,:,:]))
 
 
 if __name__ == "__main__":

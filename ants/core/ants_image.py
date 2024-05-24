@@ -51,6 +51,7 @@ class ANTsImage(object):
 
         """
         self.pointer = pointer
+        self.channels_first = False
         self._array = None
 
     @property
@@ -254,7 +255,8 @@ class ANTsImage(object):
         """
         array = np.array(self.view(single_components=single_components), copy=True, dtype=self.dtype)
         if self.has_components or (single_components == True):
-            array = np.rollaxis(array, 0, self.dimension+1)
+            if not self.channels_first:
+                array = np.rollaxis(array, 0, self.dimension+1)
         return array
 
     def astype(self, dtype):
