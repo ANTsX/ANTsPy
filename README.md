@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master)](https://coveralls.io/github/ANTsX/ANTsPy?branch=master)
 <a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
 </a>
-![PyPI - Downloads](https://img.shields.io/pypi/dm/antspyx?label=pypi%20downloads)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/antspyx?label=pypi%20downloads)](https://pypi.org/project/antspyx/)
 [![Nightly Build](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml)
 [![ci-pytest](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml)
 [![ci-docker](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml)
