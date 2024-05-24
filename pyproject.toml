@@ -12,7 +12,7 @@ authors = [
     { name = "Brian B. Avants", email = "stnava@gmail.com" }
 ]
 classifiers = [
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: Apache Software License",
 ]
 dependencies = [
     "pandas",
@@ -24,6 +24,7 @@ dependencies = [
     "Pillow",
     "requests"
 ]
+
 
 [project.urls]
 Homepage = "https://github.com/antsx/antspy"
