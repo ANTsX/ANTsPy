@@ -666,6 +666,23 @@ class TestModule_ants_image(unittest.TestCase):
             self.assertTrue(ants.allclose(img,img2))
             self.assertTrue(ants.allclose(img*6.9, img2*6.9))
             self.assertTrue(not ants.allclose(img, img2*6.9))
+            
+    def test_pickle(self):
+        import ants
+        import pickle
+        img = ants.image_read( ants.get_ants_data("mni"))
+        img_pickled = pickle.dumps(img)
+        img2 = pickle.loads(img_pickled)
+        
+        self.assertTrue(ants.allclose(img, img2))
+        self.assertTrue(ants.image_physical_space_consistency(img, img2))
+        
+        img = ants.image_read( ants.get_ants_data("r16"))
+        img_pickled = pickle.dumps(img)
+        img2 = pickle.loads(img_pickled)
+        
+        self.assertTrue(ants.allclose(img, img2))
+        self.assertTrue(ants.image_physical_space_consistency(img, img2))
 
 
 if __name__ == '__main__':

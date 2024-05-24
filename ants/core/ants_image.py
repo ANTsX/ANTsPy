@@ -565,7 +565,26 @@ class ANTsImage(object):
             '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
             '\t {:<10} : {}\n'.format('Direction', np.round(self.direction.flatten(),4))
         return s
-
+    
+    def __getstate__(self):
+        """
+        import ants
+        import pickle
+        import numpy as np
+        from copy import deepcopy
+        img = ants.image_read( ants.get_ants_data("r16"))
+        img_pickled = pickle.dumps(img)
+        img2 = pickle.loads(img_pickled)
+        img3 = deepcopy(img)
+        img += 10
+        print(img.mean(), img3.mean())
+        """
+        return self.numpy(), self.origin, self.spacing, self.direction, self.has_components, self.is_rgb
+    
+    def __setstate__(self, state):
+        data, origin, spacing, direction, has_components, is_rgb = state
+        image = ants.from_numpy(np.copy(data), origin=origin, spacing=spacing, direction=direction, has_components=has_components, is_rgb=is_rgb)
+        self.__dict__ = image.__dict__
 
 def copy_image_info(reference, target):
     """
