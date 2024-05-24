@@ -25,7 +25,6 @@ dependencies = [
     "requests"
 ]
 
-
 [project.urls]
 Homepage = "https://github.com/antsx/antspy"
 
