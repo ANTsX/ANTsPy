@@ -12,7 +12,7 @@ from ants.internal import get_lib_fn
 from ants.decorators import image_method
 
 
-def merge_channels(image_list):
+def merge_channels(image_list, channels_first=False):
     """
     Merge channels of multiple scalar ANTsImage types into one 
     multi-channel ANTsImage
@@ -31,9 +31,11 @@ def merge_channels(image_list):
     Example
     -------
     >>> import ants
-    >>> image = ants.image_read(ants.get_ants_data('r16'), 'float')
-    >>> image2 = ants.image_read(ants.get_ants_data('r16'), 'float')
+    >>> image = ants.image_read(ants.get_ants_data('r16'))
+    >>> image2 = ants.image_read(ants.get_ants_data('r16'))
     >>> image3 = ants.merge_channels([image,image2])
+    >>> image3 = ants.merge_channels([image,image2], channels_first=True)
+    >>> image3.numpy()
     >>> image3.components == 2
     """
     inpixeltype = image_list[0].pixeltype
@@ -49,7 +51,9 @@ def merge_channels(image_list):
     libfn = get_lib_fn('mergeChannels')
     image_ptr = libfn([image.pointer for image in image_list])
     
-    return ants.from_pointer(image_ptr)
+    image = ants.from_pointer(image_ptr)
+    image.channels_first = channels_first
+    return image
 
 @image_method
 def split_channels(image):
