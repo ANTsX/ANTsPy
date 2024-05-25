@@ -13,7 +13,6 @@ import ants
 from ants.internal import get_lib_fn, process_arguments
 from ants.decorators import image_method
 
-@image_method
 def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_file=None, 
                   min_input=None, max_input=None, min_rgb_output=None, max_rgb_output=None,
                   vtk_lookup_table=None):
@@ -27,54 +26,9 @@ def scalar_to_rgb(image, mask=None, filename=None, cmap='red', custom_colormap_f
     -------
     >>> import ants
     >>> img = ants.image_read(ants.get_data('r16'))
-    >>> img_color = img.scalar_to_rgb(cmap='jet')
+    >>> img_color = ants.scalar_to_rgb(img, cmap='jet')
     """
-
-    if filename is None:
-        file_is_temp = True
-        filename = mktemp(suffix='.png')
-    else:
-        file_is_temp = False
-
-    args = 'imageDimension inputImage outputImage mask colormap'.split(' ')
-    args[0] = image.dimension
-
-    if ants.is_image(image):
-        tmpimgfile = mktemp(suffix='.nii.gz')
-        image.to_file(tmpimgfile)
-    elif isinstance(image, str):
-        tmpimgfile = image
-    args[1] = tmpimgfile
-    args[2] = filename
-    args[3] = mask if mask is not None else image.new_image_like(np.ones(image.shape))
-    args[4] = cmap
-    if custom_colormap_file is not None:
-        args.append('customColormapFile=%s' % custom_colormap_file)
-    if min_input is not None:
-        args.append('minimumInput=%f' % min_input)
-    if max_input is not None:
-        args.append('maximumInput=%f' % max_input)
-    if min_rgb_output is not None:
-        args.append('minRGBOutput=%f' % min_rgb_output)
-    if max_rgb_output is not None:
-        args.append('maxRGBOutput=%f' % min_rgb_output)
-    if vtk_lookup_table is not None:
-        vtk_lookup_table = mktemp(suffix='.csv')
-        args.append('vtkLookupTable=%s' % vtk_lookup_table)
-    
-    processed_args = process_arguments(args)
-    libfn = get_lib_fn('ConvertScalarImageToRGB')
-    libfn(processed_args)
-
-    if file_is_temp:
-        outimg = ants.image_read(filename, pixeltype=None)
-        # clean up temp files
-        os.remove(filename)
-        os.remove(tmpimgfile)
-
-        return outimg
-    else:
-        os.remove(tmpimgfile)
+    raise Exception('This function is currently not supported.')
 
 @image_method
 def rgb_to_vector(image):
@@ -94,7 +48,7 @@ def rgb_to_vector(image):
     -------
     >>> import ants
     >>> mni = ants.image_read(ants.get_data('mni'))
-    >>> mni_rgb = mni.scalar_to_rgb()
+    >>> mni_rgb = ants.scalar_to_rgb(mni)
     >>> mni_vector = mni.rgb_to_vector()
     >>> mni_rgb2 = mni.vector_to_rgb()
     """
@@ -124,7 +78,7 @@ def vector_to_rgb(image):
     -------
     >>> import ants
     >>> img = ants.image_read(ants.get_data('r16'), pixeltype='unsigned char')
-    >>> img_rgb = img.clone().scalar_to_rgb()
+    >>> img_rgb = ants.scalar_to_rgb(img.clone())
     >>> img_vec = img_rgb.rgb_to_vector()
     >>> img_rgb2 = img_vec.vector_to_rgb()
     """

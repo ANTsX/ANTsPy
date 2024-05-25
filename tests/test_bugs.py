@@ -99,5 +99,11 @@ class Test_bugs(unittest.TestCase):
                                                                 number_of_fitting_levels=number_of_fitting_levels,
                                                                 mesh_size=1)
 
+    def test_scalar_rgb_missing(self):
+        import ants
+        img = ants.image_read(ants.get_data('r16'))
+        with self.assertRaises(Exception):
+            img_color = ants.scalar_to_rgb(img, cmap='jet')
+
 if __name__ == '__main__':
     run_tests()

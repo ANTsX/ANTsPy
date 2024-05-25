@@ -111,6 +111,35 @@ class TestModule_plot_ortho(unittest.TestCase):
         img = ants.image_read(ants.get_ants_data('mni'))
         ants.plot_ortho(img, overlay=img*2, reorient=True, crop=True)
         
+    def test_random_params(self):
+        img = ants.image_read(ants.get_ants_data('mni')).resample_image((4,4,4))
+        img2 = ants.image_read(ants.get_data('r16'))
+        ants.plot_ortho(ants.get_data('mni'), overlay=ants.get_data('mni'))
+        with self.assertRaises(Exception):
+            ants.plot_ortho(123)
+        with self.assertRaises(Exception):
+            ants.plot_ortho(img2)
+        with self.assertRaises(Exception):
+            ants.plot_ortho(img, overlay=img2)
+            
+        imgx = img.clone()
+        imgx.set_spacing((3,3,3))
+        ants.plot_ortho(img,overlay=imgx)
+        ants.plot_ortho(img.clone('unsigned int'),overlay=img, blend=True)
+        
+        imgx = img.clone()
+        imgx.set_spacing((10,1,1))
+        ants.plot_ortho(imgx)
+        
+        ants.plot_ortho(img, flat=True, title='Test', text='This is a test')
+        ants.plot_ortho(img, title='Test', text='This is a test', cbar=True)
+        
+        with self.assertRaises(Exception):
+            ants.plot_ortho(img, domain_image_map=123)
+            
+        with self.assertRaises(Exception):
+            ants.plot_orto(ants.merge_channels([img,img]))
+        
 
 class TestModule_plot_ortho_stack(unittest.TestCase):
 
@@ -239,11 +268,11 @@ class TestModule_plot_ortho_stack(unittest.TestCase):
         imgx.set_spacing((2,2,2))
         ants.plot_ortho_stack([img,imgx])
         
-        imgx.set_spacing((10,1,1))
+        imgx.set_spacing((2,1,1))
         ants.plot_ortho_stack([imgx,img])
         
         ants.plot_ortho_stack([img,img], scale=True, transpose=True,
-                              title='Test', colpad=10, rowpad=10,
+                              title='Test', colpad=1, rowpad=1,
                               xyz_lines=True)
         ants.plot_ortho_stack([img,img], scale=(0.05,0.95))
             
