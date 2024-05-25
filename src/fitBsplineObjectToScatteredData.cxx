@@ -123,7 +123,7 @@ std::vector<std::vector<double>> fitBsplineCurveHelper(
     count++;
     }
 
-  return bsplineCurve;
+  return bsplineCurveR;
 }
 
 template<unsigned int ParametricDimension>
