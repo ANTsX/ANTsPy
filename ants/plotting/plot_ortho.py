@@ -220,10 +220,10 @@ def plot_ortho(
 
     # handle `overlay` argument
     if overlay is not None:
-        vminol = overlay.min()
-        vmaxol = overlay.max()
         if isinstance(overlay, str):
             overlay = ants.image_read(overlay)
+        vminol = overlay.min()
+        vmaxol = overlay.max()
         if not ants.is_image(overlay):
             raise ValueError("overlay argument must be an ANTsImage")
         if overlay.components > 1:
@@ -302,21 +302,8 @@ def plot_ortho(
                 overlay = ants.apply_ants_transform_to_image(
                     tx, overlay, domain_image_map, interpolation="linear"
                 )
-        elif isinstance(domain_image_map, (list, tuple)):
-            # expect an image and transformation
-            if len(domain_image_map) != 2:
-                raise ValueError("domain_image_map list or tuple must have length == 2")
-
-            dimg = domain_image_map[0]
-            if not ants.is_image(dimg):
-                raise ValueError("domain_image_map first entry should be ANTsImage")
-
-            tx = domain_image_map[1]
-            image = ants.apply_transforms(dimg, image, transform_list=tx)
-            if overlay is not None:
-                overlay = ants.apply_transforms(
-                    dimg, overlay, transform_list=tx, interpolator="linear"
-                )
+        else:
+            raise Exception('The domain_image_map must be an image.')
 
     ## single-channel images ##
     if image.components == 1:

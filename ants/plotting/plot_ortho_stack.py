@@ -201,22 +201,8 @@ def plot_ortho_stack(
                     overlays[i] = ants.apply_ants_transform_to_image(
                         tx, overlays[i], domain_image_map, interpolation="linear"
                     )
-        elif isinstance(domain_image_map, (list, tuple)):
-            # expect an image and transformation
-            if len(domain_image_map) != 2:
-                raise ValueError("domain_image_map list or tuple must have length == 2")
-
-            dimg = domain_image_map[0]
-            if not ants.is_image(dimg):
-                raise ValueError("domain_image_map first entry should be ANTsImage")
-
-            tx = domain_image_map[1]
-            for i in range(n_images):
-                images[i] = ants.apply_transforms(dimg, images[i], transform_list=tx)
-                if overlays[i] is not None:
-                    overlays[i] = ants.apply_transforms(
-                        dimg, overlays[i], transform_list=tx, interpolator="linear"
-                    )
+        else:
+            raise Exception('The domain_image_map must be an ants image.')
 
     # potentially find dynamic range
     if scale == True:
