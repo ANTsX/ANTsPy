@@ -99,5 +99,23 @@ class Test_bugs(unittest.TestCase):
                                                                 number_of_fitting_levels=number_of_fitting_levels,
                                                                 mesh_size=1)
 
+    def test_bspline_zeros(self):
+        import ants
+        import numpy as np
+        x = np.linspace(-4, 4, num=100) + np.random.uniform(-0.1, 0.1, 100)
+        u = np.linspace(0, 1.0, num=len(x))
+        scattered_data = np.expand_dims(u, axis=-1)
+        parametric_data = np.expand_dims(u, axis=-1)
+        spacing = 1/(len(x)-1) * 1.0
+        bspline_curve = ants.fit_bspline_object_to_scattered_data(
+                scattered_data, parametric_data,
+                parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
+                parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
+                number_of_fitting_levels=5, mesh_size=1)
+
+        # Erroneously returns all zeros.
+        self.assertNotEqual(bspline_curve.sum(), 0)
+
+
 if __name__ == '__main__':
     run_tests()
