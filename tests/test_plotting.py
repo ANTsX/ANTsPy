@@ -54,6 +54,39 @@ class TestModule_plot(unittest.TestCase):
         img = ants.image_read(ants.get_ants_data('mni'))
         ants.plot(img, overlay=img*2, reorient=True, crop=True)
         
+    def test_random(self):
+        img = ants.image_read(ants.get_ants_data('r16'))
+        img3 = ants.image_read(ants.get_data('r64'))
+        img2 = ants.image_read(ants.get_ants_data('mni'))
+        imgv = ants.merge_channels([img2])
+        
+        ants.plot(img2, axis='x', scale=True, ncol=1)
+        ants.plot(img2, axis='y', scale=(0.05, 0.95))
+        ants.plot(img2, axis='z', slices=[10,20,30], title='Test', cbar=True,
+                  cbar_vertical=True)
+        ants.plot(img2, cbar=True, cbar_vertical=False)
+        ants.plot(img, black_bg=False, title='Test', cbar=True)
+        imgx = img2.clone()
+        imgx.set_spacing((10,1,1))
+        ants.plot(imgx)
+        ants.plot(ants.get_ants_data('r16'), overlay=ants.get_data('r64'), blend=True)
+        with self.assertRaises(Exception):
+            ants.plot(ants.get_ants_data('r16'), overlay=123)
+        with self.assertRaises(Exception):
+            ants.plot(ants.get_ants_data('r16'), overlay=ants.merge_channels([img,img]))
+        ants.plot(ants.from_numpy(np.zeros((100,100))))
+        ants.plot(img.clone('unsigned int'))
+        
+        ants.plot(img, domain_image_map=img3)
+        
+        with self.assertRaises(Exception):
+            ants.plot(123)
+        
+        
+        
+        
+        
+        
         
 class TestModule_plot_ortho(unittest.TestCase):
 
@@ -178,8 +211,41 @@ class TestModule_plot_grid(unittest.TestCase):
                     rfontsize=16, cfontsize=16)
 
 
+class TestModule_plot_ortho_stack(unittest.TestCase):
 
-
+    def setUp(self):
+        pass
+    def tearDown(self):
+        pass
     
+    def test_random_ortho_stack_params(self):
+        img = ants.image_read(ants.get_data('mni')).resample_image((4,4,4))
+        img2 = ants.image_read(ants.get_data('r16')).resample_image((4,4))
+        
+        ants.plot_ortho_stack([ants.get_data('mni'), ants.get_data('mni')])
+        ants.plot_ortho_stack([ants.get_data('mni'), ants.get_data('mni')],
+                              overlays=[ants.get_data('mni'), ants.get_data('mni')])
+        
+        with self.assertRaises(Exception):
+            ants.plot_ortho_stack([1,2,3])
+        with self.assertRaises(Exception):
+            ants.plot_ortho_stack([img2,img2])
+        with self.assertRaises(Exception):
+            ants.plot_ortho_stack([img,img], overlays=[img2,img2])
+        with self.assertRaises(Exception):
+            ants.plot_ortho_stack([img,img], overlays=[1,2])
+            
+        imgx = img.clone()
+        imgx.set_spacing((2,2,2))
+        ants.plot_ortho_stack([img,imgx])
+        
+        imgx.set_spacing((10,1,1))
+        ants.plot_ortho_stack([imgx,img])
+        
+        ants.plot_ortho_stack([img,img], scale=True, transpose=True,
+                              title='Test', colpad=10, rowpad=10,
+                              xyz_lines=True)
+        ants.plot_ortho_stack([img,img], scale=(0.05,0.95))
+            
 if __name__ == '__main__':
     run_tests()

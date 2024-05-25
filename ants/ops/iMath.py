@@ -116,10 +116,6 @@ def iMath_canny(image, sigma, lower, upper):
     return iMath(image, 'Canny', sigma, lower, upper)
 
 @image_method
-def iMath_distance_map(image, use_spacing=True):
-    return iMath(image, 'DistanceMap', use_spacing)
-
-@image_method
 def iMath_fill_holes(image, hole_type=2):
     return iMath(image, 'FillHoles', hole_type)
 

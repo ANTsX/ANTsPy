@@ -205,9 +205,6 @@ def plot(
     def rotate90_matrix(x):
         return x.T
 
-    def flip_matrix(x):
-        return mirror_matrix(rotate180_matrix(x))
-
     def reorient_slice(x, axis):
         if axis != 2:
             x = rotate90_matrix(x)
@@ -235,12 +232,12 @@ def plot(
 
     # handle `overlay` argument
     if overlay is not None:
+        if isinstance(overlay, str):
+            overlay = ants.image_read(overlay)
         if vminol is None:
             vminol = overlay.min()
         if vmaxol is None:
             vmaxol = overlay.max()
-        if isinstance(overlay, str):
-            overlay = ants.image_read(overlay)
         if not ants.is_image(overlay):
             raise ValueError("overlay argument must be an ANTsImage")
         if overlay.components > 1:
@@ -258,32 +255,16 @@ def plot(
 
     # handle `domain_image_map` argument
     if domain_image_map is not None:
-        if ants.is_image(domain_image_map):
-            tx = ants.new_ants_transform(
-                precision="float",
-                transform_type="AffineTransform",
-                dimension=image.dimension,
+        tx = ants.new_ants_transform(
+            precision="float",
+            transform_type="AffineTransform",
+            dimension=image.dimension,
+        )
+        image = ants.apply_ants_transform_to_image(tx, image, domain_image_map)
+        if overlay is not None:
+            overlay = ants.apply_ants_transform_to_image(
+                tx, overlay, domain_image_map, interpolation="nearestNeighbor"
             )
-            image = ants.apply_ants_transform_to_image(tx, image, domain_image_map)
-            if overlay is not None:
-                overlay = ants.apply_ants_transform_to_image(
-                    tx, overlay, domain_image_map, interpolation="nearestNeighbor"
-                )
-        elif isinstance(domain_image_map, (list, tuple)):
-            # expect an image and transformation
-            if len(domain_image_map) != 2:
-                raise ValueError("domain_image_map list or tuple must have length == 2")
-
-            dimg = domain_image_map[0]
-            if not ants.is_image(dimg):
-                raise ValueError("domain_image_map first entry should be ANTsImage")
-
-            tx = domain_image_map[1]
-            image = ants.apply_transforms(dimg, image, transform_list=tx)
-            if overlay is not None:
-                overlay = ants.apply_transforms(
-                    dimg, overlay, transform_list=tx, interpolator="linear"
-                )
 
     ## single-channel images ##
     if image.components == 1:
@@ -489,24 +470,8 @@ def plot(
                 fig.colorbar(im, cax=cax, orientation=cbar_orient)
 
     ## multi-channel images ##
-    elif image.components > 1:
-        if not image.is_rgb:
-            if not image.components == 3:
-                raise ValueError("Multi-component images only supported if they have 3 components")
-
-        img_arr = image.numpy()
-        img_arr = img_arr / img_arr.max()
-        img_arr = np.stack(
-            [rotate90_matrix(img_arr[:, :, i]) for i in range(3)], axis=-1
-        )
-
-        fig = plt.figure()
-        ax = plt.subplot(111)
-
-        # plot main image
-        ax.imshow(img_arr, alpha=alpha)
-
-        plt.axis("off")
+    elif image.has_components:
+        raise Exception('Plotting images with components is not currently supported.')
 
     if filename is not None:
         filename = os.path.expanduser(filename)
