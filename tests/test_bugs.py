@@ -124,7 +124,8 @@ class Test_bugs(unittest.TestCase):
         self.assertNotEqual(bspline_curve.sum(), 0)
 
     def test_from_numpy_different_dtypes(self):
-        all_dtypes = ('int8',
+        all_dtypes = ('bool',
+                      'int8',
                       'int16',
                       'int32',
                       'int64',

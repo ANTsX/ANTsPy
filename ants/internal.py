@@ -9,6 +9,7 @@ short_ptype_map = {"unsigned char": "UC",
 def infer_dtype(dtype):
     # supported dtypes: uint8, uint32, float32, float64
     exchange_map = {
+        'bool': 'uint8',
         'int8': 'uint32',
         'int16': 'uint32',
         'int32': 'uint32',

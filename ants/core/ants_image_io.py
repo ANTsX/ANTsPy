@@ -91,13 +91,12 @@ def from_numpy(
     """
     
     # this is historic but should be removed once tests can pass without it
-    if str(data.dtype) == 'float64':
+    if data.dtype.name == 'float64':
         data = data.astype('float32')
     
     # if dtype is not supported, cast to best available
     best_dtype = infer_dtype(data.dtype)
     if best_dtype != data.dtype:
-        warnings.warn(f'Warning: The dtype {data.dtype} is not supported so the array will be casted to {best_dtype}. Cast it manually before calling `ants.from_numpy()` to remove this warning.')
         data = data.astype(best_dtype)
     
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
