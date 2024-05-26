@@ -20,7 +20,7 @@ import numpy as np
 import warnings
 
 import ants
-from ants.internal import get_lib_fn, short_ptype
+from ants.internal import get_lib_fn, short_ptype, infer_dtype
 from ants.decorators import image_method
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba","symmetric_second_rank_tensor"}
@@ -89,7 +89,12 @@ def from_numpy(
     ANTsImage
         image with given data and any given information
     """
-    data = data.astype("float32") if data.dtype.name == "float64" else data
+    # if dtype is not supported, cast to best available
+    best_dtype = infer_dtype(data.dtype)
+    if best_dtype != data.dtype:
+        warnings.warn(f'Warning: The dtype {data.dtype} is not supported so the array will be casted to {best_dtype}. Cast it manually before calling `ants.from_numpy()` to remove this warning.')
+        data = data.astype(best_dtype)
+        
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
     return img
 

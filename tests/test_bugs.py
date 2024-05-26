@@ -123,6 +123,20 @@ class Test_bugs(unittest.TestCase):
         # Erroneously returns all zeros.
         self.assertNotEqual(bspline_curve.sum(), 0)
 
-
+    def test_from_numpy_different_dtypes(self):
+        all_dtypes = ('int8',
+                      'int16',
+                      'int32',
+                      'int64',
+                      'uint16',
+                      'uint64',
+                      'float16')
+        arr = np.random.randn(100,100)
+        
+        for dtype in all_dtypes:
+            arr2 = arr.astype(dtype)
+            img = ants.from_numpy(arr2)
+            self.assertTrue(ants.is_image(img))
+        
 if __name__ == '__main__':
     run_tests()
