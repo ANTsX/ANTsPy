@@ -99,7 +99,9 @@ More tutorials can be found in the [ANTs](https://github.com/ANTsX/ANTs) reposit
 
 ## Contributing
 
-If you have a question, feature request, or bug report the best way to get help is by posting an issue on the GitHub page. We welcome any new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/master/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
+If you have a question or bug report the best way to get help is by posting an issue on the GitHub page. We welcome any new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/master/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
+
+You can support our work by starring the repository, citing our methods when relevant, or suggesting new features in the issues tab. These actions help increase the project's visibility and community reach.
 
 <br>
 
