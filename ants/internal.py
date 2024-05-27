@@ -5,7 +5,22 @@ short_ptype_map = {"unsigned char": "UC",
                     "unsigned int": "UI",
                     "float": "F",
                     "double": "D"}
-    
+
+def infer_dtype(dtype):
+    # supported dtypes: uint8, uint32, float32, float64
+    exchange_map = {
+        'bool': 'uint8',
+        'int8': 'uint32',
+        'int16': 'uint32',
+        'int32': 'uint32',
+        'int64': 'uint32',
+        'uint16': 'uint32',
+        'uint64': 'uint32',
+        'float16': 'float32'
+    }
+    new_dtype = exchange_map.get(str(dtype), dtype)
+    return new_dtype
+
 def short_ptype(pixeltype):
     return short_ptype_map[pixeltype]
 
