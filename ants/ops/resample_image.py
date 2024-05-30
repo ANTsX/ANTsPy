@@ -72,7 +72,7 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
             libfn(processed_args)
             outimage = outimage.clone(image.pixeltype)
             new_images.append(outimage)
-        outimage = ants.merge_channels(new_images)
+        outimage = ants.merge_channels(new_images, channels_first=image.channels_first)
         return outimage
 
 @image_method
