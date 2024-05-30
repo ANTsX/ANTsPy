@@ -232,6 +232,13 @@ class TestModule_crop_image(unittest.TestCase):
             cropped = ants.crop_indices(fi, (10, 10, 10), (100, 100))
             cropped = ants.crop_indices(fi, (10, 10), (100, 100, 100))
 
+        # vector images
+        fi = ants.image_read( ants.get_ants_data("r16"))
+        cropped = ants.crop_indices( fi, (10,10), (100,100) )
+        fi2 = ants.merge_channels([fi,fi])
+        cropped2 = ants.crop_indices( fi, (10,10), (100,100) )
+        self.assertEqual(cropped.shape, cropped2.shape)
+
     def test_decrop_image_example(self):
         fi = ants.image_read(ants.get_ants_data("r16"))
         mask = ants.get_mask(fi)

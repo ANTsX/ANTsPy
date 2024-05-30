@@ -95,7 +95,8 @@ def crop_indices(image, lowerind, upperind):
     >>> decropped = ants.decrop_image( cropped, fi )
     """
     if image.has_components:
-        return ants.merge_channels([crop_indices(img, lowerind, upperind) for img in ants.split_channels(image)])
+        return ants.merge_channels([crop_indices(img, lowerind, upperind) for img in ants.split_channels(image)],
+                                   channels_first=image.channels_first)
         
     inpixeltype = 'float'
     if image.pixeltype != 'float':
