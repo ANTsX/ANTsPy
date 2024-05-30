@@ -453,7 +453,7 @@ def image_write(image, filename, ri=False):
         return image
 
 @image_method
-def clone(self, pixeltype=None):
+def clone(image, pixeltype=None):
     """
     Create a copy of the given ANTsImage with the same data and info, possibly with
     a different data type for the image data. Only supports casting to
@@ -476,22 +476,22 @@ def clone(self, pixeltype=None):
     ANTsImage
     """
     if pixeltype is None:
-        pixeltype = self.pixeltype
+        pixeltype = image.pixeltype
 
     if pixeltype not in _supported_ptypes:
         raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
-    if self.has_components and (not self.is_rgb):
-        comp_imgs = ants.split_channels(self)
+    if image.has_components and (not image.is_rgb):
+        comp_imgs = ants.split_channels(image)
         comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
-        return ants.merge_channels(comp_imgs_cloned)
+        return ants.merge_channels(comp_imgs_cloned, channels_first=image.channels_first)
     else:
-        p1_short = short_ptype(self.pixeltype)
+        p1_short = short_ptype(image.pixeltype)
         p2_short = short_ptype(pixeltype)
-        ndim = self.dimension
+        ndim = image.dimension
         fn_suffix = '%s%i' % (p2_short,ndim)
         libfn = get_lib_fn('antsImageClone%s'%fn_suffix)
-        pointer_cloned = libfn(self.pointer)
+        pointer_cloned = libfn(image.pointer)
         return ants.from_pointer(pointer_cloned)
         
 copy = clone

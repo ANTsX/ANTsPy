@@ -63,7 +63,8 @@ def reorient_image2(image, orientation='RAS'):
      >>> mni2 = mni.reorient_image2()
      """
      if image.has_components:
-         return ants.merge_channels([img.reorient_image2(orientation) for img in ants.split_channels(image)])
+         return ants.merge_channels([img.reorient_image2(orientation) for img in ants.split_channels(image)],
+                                    channels_first=image.channels_first)
      
      if image.dimension != 3:
          raise ValueError('image must have 3 dimensions')

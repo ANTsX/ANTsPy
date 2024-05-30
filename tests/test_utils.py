@@ -209,6 +209,14 @@ class TestModule_crop_image(unittest.TestCase):
 
         # label image not float
         cropped = ants.crop_image(fi, fi.clone("unsigned int"), 100)
+        
+        # channel image
+        fi = ants.image_read( ants.get_ants_data('r16') )
+        cropped = ants.crop_image(fi)
+        fi2 = ants.merge_channels([fi,fi])
+        cropped2 = ants.crop_image(fi2)
+        
+        self.assertEqual(cropped.shape, cropped2.shape)
 
     def test_crop_indices_example(self):
         fi = ants.image_read(ants.get_ants_data("r16"))

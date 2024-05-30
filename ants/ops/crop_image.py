@@ -37,8 +37,14 @@ def crop_image(image, label_image=None, label=1):
     >>> import ants
     >>> fi = ants.image_read( ants.get_ants_data('r16') )
     >>> cropped = ants.crop_image(fi)
+    >>> fi2 = ants.merge_channels([fi,fi])
+    >>> cropped2 = ants.crop_image(fi2)
     >>> cropped = ants.crop_image(fi, fi, 100 )
     """
+    if image.has_components:
+        return ants.merge_channels([crop_image(img, label_image, label) for img in ants.split_channels(image)],
+                                   channels_first=image.channels_first)
+        
     inpixeltype = image.pixeltype
     ndim = image.dimension
     if image.pixeltype != 'float':
@@ -88,6 +94,9 @@ def crop_indices(image, lowerind, upperind):
     >>> cropped = ants.smooth_image( cropped, 5 )
     >>> decropped = ants.decrop_image( cropped, fi )
     """
+    if image.has_components:
+        return ants.merge_channels([crop_indices(img, lowerind, upperind) for img in ants.split_channels(image)])
+        
     inpixeltype = 'float'
     if image.pixeltype != 'float':
         inpixeltype = image.pixeltype
