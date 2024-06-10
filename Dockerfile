@@ -22,10 +22,13 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py310_24.4.0-0-L
     && rm Miniconda3-py310_24.4.0-0-Linux-$(uname -m).sh
 ENV PATH=/opt/conda/bin:$PATH
 
+# Make conda-forge the default channel
+RUN conda config --add channels conda-forge
+
 # install cmake binary using conda for multi-arch support
 # apt install fails because libssl1.0.0 is not available for newer Debian
-RUN conda update -c defaults conda
-RUN conda install -c conda-forge cmake
+RUN conda update conda
+RUN conda install cmake
 
 WORKDIR /usr/local/src
 COPY environment.yml .
