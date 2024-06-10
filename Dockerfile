@@ -14,6 +14,7 @@ RUN apt-get update && \
       ca-certificates \
       git \
       libpng-dev \
+      libarchive-dev \
       wget
 
 # install miniconda3
