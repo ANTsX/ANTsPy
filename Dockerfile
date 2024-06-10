@@ -24,8 +24,9 @@ ENV PATH=/opt/conda/bin:$PATH
 
 # install cmake binary using conda for multi-arch support
 # apt install fails because libssl1.0.0 is not available for newer Debian
-RUN conda update -c defaults conda
-RUN conda install -c conda-forge cmake
+RUN conda update -c defaults conda && \
+    conda install -c conda-forge cmake && \
+    conda config --set solver classic
 
 WORKDIR /usr/local/src
 COPY environment.yml .
