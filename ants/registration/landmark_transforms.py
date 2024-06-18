@@ -2,6 +2,7 @@ __all__ = ["fit_transform_to_paired_points",
            "fit_time_varying_transform_to_point_sets"]
 
 import numpy as np
+import math
 import time
 
 import ants
@@ -208,8 +209,8 @@ def fit_transform_to_paired_points(moving_points,
             A = np.dot(x_svd[0], x_svd[2])
 
             if transform_type == 'similarity':
-                scaling = (np.math.sqrt((np.power(y, 2).sum(axis=1) / number_of_points).mean()) /
-                           np.math.sqrt((np.power(x, 2).sum(axis=1) / number_of_points).mean()))
+                scaling = (math.sqrt((np.power(y, 2).sum(axis=1) / number_of_points).mean()) /
+                           math.sqrt((np.power(x, 2).sum(axis=1) / number_of_points).mean()))
                 A = np.dot(A, np.eye(dimensionality) * scaling)
 
         xfrm = ants.create_ants_transform(matrix=A, translation=translation,
