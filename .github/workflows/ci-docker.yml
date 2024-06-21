@@ -40,6 +40,6 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-          push: ${{ github.repository == 'ANTsX/ANTsPy' }}
+          push: ${{ github.repository == 'ANTsX/ANTsPy' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ github.event_name == 'schedule' && 'antsx/antspy:nightly,antsx/antspy:latest' || steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
