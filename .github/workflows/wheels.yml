@@ -113,7 +113,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.16.2 setuptools toml
+        run: python -m pip install cibuildwheel==2.19.2 setuptools toml
 
       - name: Get package name and version (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
