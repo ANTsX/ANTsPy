@@ -91,16 +91,16 @@ AntsImage<ImageType> speckleNoise( AntsImage<ImageType> & antsImage,
 
 void local_addNoiseToImage(nb::module_ &m)
 {
-  m.def("additiveGaussianNoise", &additiveGaussianNoise<itk::Image<float, 2>>);
-  m.def("additiveGaussianNoise", &additiveGaussianNoise<itk::Image<float, 3>>);
+  m.def("additiveGaussianNoiseF2", &additiveGaussianNoise<itk::Image<float, 2>>);
+  m.def("additiveGaussianNoiseF3", &additiveGaussianNoise<itk::Image<float, 3>>);
 
-  m.def("saltAndPepperNoise", &saltAndPepperNoise<itk::Image<float, 2>>);
-  m.def("saltAndPepperNoise", &saltAndPepperNoise<itk::Image<float, 3>>);
+  m.def("saltAndPepperNoiseF2", &saltAndPepperNoise<itk::Image<float, 2>>);
+  m.def("saltAndPepperNoiseF3", &saltAndPepperNoise<itk::Image<float, 3>>);
 
-  m.def("shotNoise", &shotNoise<itk::Image<float, 2>>);
-  m.def("shotNoise", &shotNoise<itk::Image<float, 3>>);
+  m.def("shotNoiseF2", &shotNoise<itk::Image<float, 2>>);
+  m.def("shotNoiseF3", &shotNoise<itk::Image<float, 3>>);
 
-  m.def("speckleNoise", &speckleNoise<itk::Image<float, 2>>);
-  m.def("speckleNoise", &speckleNoise<itk::Image<float, 3>>);
+  m.def("speckleNoiseF2", &speckleNoise<itk::Image<float, 2>>);
+  m.def("speckleNoiseF3", &speckleNoise<itk::Image<float, 3>>);
 }
 

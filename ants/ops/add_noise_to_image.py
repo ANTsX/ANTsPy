@@ -48,7 +48,7 @@ def add_noise_to_image(image,
         if len(noise_parameters) != 2:
             raise ValueError("Incorrect number of parameters.")
 
-        libfn = get_lib_fn("additiveGaussianNoise")
+        libfn = get_lib_fn("additiveGaussianNoiseF" % image_dimension)
         noise = libfn(image.pointer, noise_parameters[0], noise_parameters[1])
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
@@ -56,7 +56,7 @@ def add_noise_to_image(image,
         if len(noise_parameters) != 3:
             raise ValueError("Incorrect number of parameters.")
 
-        libfn = get_lib_fn("saltAndPepperNoise")
+        libfn = get_lib_fn("saltAndPepperNoiseF" % image_dimension)
         noise = libfn(image.pointer, noise_parameters[0], noise_parameters[1], noise_parameters[2])
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
@@ -64,7 +64,7 @@ def add_noise_to_image(image,
         if not isinstance(noise_parameters, (int, float)):
             raise ValueError("Incorrect parameter specification.")
 
-        libfn = get_lib_fn("shotNoise")
+        libfn = get_lib_fn("shotNoiseF" % image_dimension)
         noise = libfn(image.pointer, noise_parameters)
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
@@ -72,7 +72,7 @@ def add_noise_to_image(image,
         if not isinstance(noise_parameters, (int, float)):
             raise ValueError("Incorrect parameter specification.")
 
-        libfn = get_lib_fn("speckleNoise")
+        libfn = get_lib_fn("speckleNoiseF" % image_dimension)
         noise = libfn(image.pointer, noise_parameters)
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
