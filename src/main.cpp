@@ -18,6 +18,7 @@
 #include "fsl2antstransform.cxx"
 #include "getNeighborhoodMatrix.cxx"
 #include "hausdorffDistance.cxx"
+#include "hessianObjectness.cxx"
 #include "histogramMatchImages.cxx"
 #include "integrateVelocityField.cxx"
 #include "invertDisplacementField.cxx"
@@ -77,6 +78,7 @@ void local_fitThinPlateSplineDisplacementFieldToScatteredData(nb::module_ &);
 void local_fsl2antstransform(nb::module_ &);
 void local_getNeighborhoodMatrix(nb::module_ &);
 void local_hausdorffDistance(nb::module_ &);
+void local_hessianObjectness(nb::module_ &);
 void local_histogramMatchImages(nb::module_ &);
 void local_integrateVelocityField(nb::module_ &);
 void local_invertDisplacementField(nb::module_ &);
@@ -135,6 +137,7 @@ NB_MODULE(lib, m) {
     local_fsl2antstransform(m);
     local_getNeighborhoodMatrix(m);
     local_hausdorffDistance(m);
+    local_hessianObjectness(m);
     local_histogramMatchImages(m);
     local_integrateVelocityField(m);
     local_invertDisplacementField(m);
