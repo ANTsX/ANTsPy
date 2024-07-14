@@ -917,7 +917,11 @@ class TestRandom(unittest.TestCase):
         noise_image = ants.add_noise_to_image(image, 'saltandpepper', (0.1, 0.0, 100.0))
         noise_image = ants.add_noise_to_image(image, 'shot', 1.0)
         noise_image = ants.add_noise_to_image(image, 'speckle', 1.0)
-    
+
+    def test_hessian_objectness(self):
+        image = ants.image_read(ants.get_ants_data('r16'))
+        hessian = ants.hessian_objectness(image)
+
     def test_thin_plate_spline(self):
         points = np.array([[-50, -50]])
         deltas = np.array([[10, 10]])
