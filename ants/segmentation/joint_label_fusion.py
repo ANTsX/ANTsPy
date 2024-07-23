@@ -132,7 +132,7 @@ def joint_label_fusion(
     >>> for i in range(len(ilist)):
     >>>     ilist[i] = ants.iMath(ilist[i],'Normalize')
     >>>     mytx = ants.registration(fixed=ref , moving=ilist[i] ,
-    >>>         typeofTransform = ('Affine') )
+    >>>         type_of_transform = ('Affine') )
     >>>     mywarpedimage = ants.apply_transforms(fixed=ref,moving=ilist[i],
     >>>             transformlist=mytx['fwdtransforms'])
     >>>     ilist[i] = mywarpedimage
