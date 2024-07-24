@@ -283,8 +283,8 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img3 = img - img2
 
     def test__rsub__(self):
-        if os.name == "nt":
-            return
+        #if os.name == "nt":
+        #    return
 
         #self.setUp()
         for img in self.imgs:
