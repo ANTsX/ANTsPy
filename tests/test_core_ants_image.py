@@ -178,10 +178,10 @@ class TestClass_ANTsImage(unittest.TestCase):
             vecimg = ants.from_numpy(np.random.randn(69,12,3).astype('float32'), has_components=True)
             new_data = np.random.randn(69,12,4).astype('float32')
             vecimg.new_image_like(new_data)
-            
+
     def test_from_numpy_like(self):
         img = ants.image_read(ants.get_data('mni'))
-        
+
         arr = img.numpy()
         arr *= 2
         img2 = ants.from_numpy_like(arr, img)
@@ -242,9 +242,6 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img3 = img + img2
 
     def test__radd__(self):
-        if os.name == "nt":
-            return
-
         #self.setUp()
         for img in self.imgs:
             # op on constant
@@ -283,9 +280,6 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img3 = img - img2
 
     def test__rsub__(self):
-        #if os.name == "nt":
-        #    return
-
         #self.setUp()
         for img in self.imgs:
             # op on constant
@@ -324,9 +318,6 @@ class TestClass_ANTsImage(unittest.TestCase):
                 img3 = img * img2
 
     def test__rmul__(self):
-        if os.name == "nt":
-            return
-
         #self.setUp()
         for img in self.imgs:
             # op on constant
@@ -666,21 +657,21 @@ class TestModule_ants_image(unittest.TestCase):
             self.assertTrue(ants.allclose(img,img2))
             self.assertTrue(ants.allclose(img*6.9, img2*6.9))
             self.assertTrue(not ants.allclose(img, img2*6.9))
-            
+
     def test_pickle(self):
         import ants
         import pickle
         img = ants.image_read( ants.get_ants_data("mni"))
         img_pickled = pickle.dumps(img)
         img2 = pickle.loads(img_pickled)
-        
+
         self.assertTrue(ants.allclose(img, img2))
         self.assertTrue(ants.image_physical_space_consistency(img, img2))
-        
+
         img = ants.image_read( ants.get_ants_data("r16"))
         img_pickled = pickle.dumps(img)
         img2 = pickle.loads(img_pickled)
-        
+
         self.assertTrue(ants.allclose(img, img2))
         self.assertTrue(ants.image_physical_space_consistency(img, img2))
 
