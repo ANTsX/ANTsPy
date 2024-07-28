@@ -13,7 +13,7 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
     """
     A multi-start optimizer for affine registration
     Searches over the sphere to find a good initialization for further
-    registration refinement, if needed.  This is a arapper for the ANTs
+    registration refinement, if needed.  This is a wrapper for the ANTs
     function antsAffineInitializer.
     
     ANTsR function: `affineInitializer`
