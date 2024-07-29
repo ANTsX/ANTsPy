@@ -2,7 +2,7 @@
 # Note: QEMU emulated ppc64le build might take ~6 hours
 
 # Use conda to resolve dependencies cross-platform
-FROM debian:bookworm-slim as builder
+FROM debian:bookworm as builder
 
 # install libpng to system for cross-architecture support
 # https://github.com/ANTsX/ANTs/issues/1069#issuecomment-681131938
@@ -22,20 +22,26 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py310_23.11.0-1-
     && rm Miniconda3-py310_23.11.0-1-Linux-$(uname -m).sh
 ENV PATH=/opt/conda/bin:$PATH
 
-# install cmake binary using conda for multi-arch support
-# apt install fails because libssl1.0.0 is not available for newer Debian
-RUN conda update -c defaults conda && \
-    conda install -c conda-forge cmake && \
-    conda config --set solver classic
-
 WORKDIR /usr/local/src
+
 COPY environment.yml .
-RUN conda env update -n base
+
+# Activate the base environment and update it
+RUN . /opt/conda/etc/profile.d/conda.sh && \
+    conda activate base && \
+    conda info && \
+    conda config --show-sources && \
+    echo "Updating conda" && \
+    conda env update -n base && \
+    echo "installing cmake" && \
+    conda install -c conda-forge cmake
+
 COPY . .
 
 # number of parallel make jobs
 ARG j=2
-RUN pip --no-cache-dir -v install .
+RUN . /opt/conda/etc/profile.d/conda.sh && \
+    pip --no-cache-dir -v install .
 
 # run tests
 RUN bash tests/run_tests.sh
