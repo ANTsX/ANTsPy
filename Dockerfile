@@ -30,7 +30,11 @@ RUN conda update -c defaults conda && \
 
 WORKDIR /usr/local/src
 COPY environment.yml .
-RUN conda env update -n base
+RUN echo "CONDA INFO: " && \
+    conda info && \
+    conda config --show-sources && \
+    echo "Updating conda" && \
+    conda env update -n base
 COPY . .
 
 # number of parallel make jobs
