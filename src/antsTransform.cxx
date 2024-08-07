@@ -128,7 +128,7 @@ AntsTransform<TransformType> antsTransformFromDisplacementField( AntsImage<Vecto
 }
 
 template <typename TransformType, typename VectorImageType, typename PrecisionType, unsigned int Dimension>
-AntsImage<VectorImageType> antsTransformToDisplacementField( AntsTransform<TransformType> & xfrm, 
+AntsImage<VectorImageType> antsTransformToDisplacementField( AntsTransform<TransformType> & xfrm,
                                                              AntsImage<itk::Image<PrecisionType, Dimension>> & ref )
 {
   //typedef itk::Transform<PrecisionType,Dimension,Dimension>                  TransformType;
@@ -246,6 +246,16 @@ void local_antsTransform(nb::module_ &m) {
     m.def("transformImage", &transformImage<itk::Transform<double,3, 3>, itk::Image<double, 3>>);
     m.def("transformImage", &transformImage<itk::Transform<double,4, 4>, itk::Image<double, 4>>);
 
+    // displacement field transforms
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 2>, itk::Image<unsigned char, 2>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 3>, itk::Image<unsigned char, 3>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 2>, itk::Image<unsigned int, 2>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 3>, itk::Image<unsigned int, 3>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 2>, itk::Image<float, 2>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 3>, itk::Image<float, 3>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 2>, itk::Image<double, 2>>);
+    m.def("transformImage", &transformImage<itk::DisplacementFieldTransform<float, 3>, itk::Image<double, 3>>);
+
     m.def("inverseTransform", &inverseTransform<itk::Transform<float, 2, 2>, itk::Transform<float, 2, 2>>);
     m.def("inverseTransform", &inverseTransform<itk::Transform<float, 3, 3>, itk::Transform<float, 3, 3>>);
     m.def("inverseTransform", &inverseTransform<itk::Transform<float, 4, 4>, itk::Transform<float, 4, 4>>);
@@ -286,7 +296,7 @@ void local_antsTransform(nb::module_ &m) {
     m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
     m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
 
-    
+
     nb::class_<AntsTransform<itk::DisplacementFieldTransform<float,2>>>(m, "AntsTransformDF2");
     nb::class_<AntsTransform<itk::DisplacementFieldTransform<float,3>>>(m, "AntsTransformDF3");
     nb::class_<AntsTransform<itk::Transform<float, 2, 2>>>(m, "AntsTransformF22");
