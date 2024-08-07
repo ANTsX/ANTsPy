@@ -175,6 +175,15 @@ class TestModule_ants_transform(unittest.TestCase):
         tx.set_parameters((0.9,0,0,1.1,10,11))
         img2 = ants.apply_ants_transform_to_image(tx, img, img)
 
+    def test_apply_ants_transform_to_image_displacement_field(self):
+        img = ants.image_read(ants.get_ants_data("r27")).clone('float')
+        img2 = ants.image_read(ants.get_ants_data("r16")).clone('float')
+        reg = ants.registration(fixed=img, moving=img2, type_of_transform="SyN")
+        tra = ants.transform_from_displacement_field(ants.image_read(reg['fwdtransforms'][0]))
+        deformed = tra.apply_to_image(img2, reference=img)
+        deformed_aat = ants.apply_transforms(img, img2, reg['fwdtransforms'][0], singleprecision=True)
+        nptest.assert_allclose(deformed.numpy(), deformed_aat.numpy(), atol=1e-6)
+
     def test_invert_ants_transform(self):
         img = ants.image_read(ants.get_ants_data("r16")).clone('float')
         tx = ants.new_ants_transform(dimension=2)
