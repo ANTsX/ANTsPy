@@ -130,7 +130,14 @@ jobs:
       - name: Set MacOS deployment target
         if: startsWith(matrix.os, 'macos-')
         run: |
-          echo "MACOSX_DEPLOYMENT_TARGET=${{matrix.macos_target}}" >> $GITHUB_ENV
+          echo "MACOSX_DEPLOYMENT_TARGET=${{ matrix.macos_target }}" >> $GITHUB_ENV
+
+      # conda to get libpng on Mac that is compatible with more OS versions
+      # brew install libpng has a mininum OS of 12
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python }}
 
       - name: Build wheels
         env:
@@ -158,10 +165,7 @@ jobs:
 
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools
-            brew update
-            if ! brew list libpng &>/dev/null; then
-                HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng
-            fi
+            conda install libpng
 
         run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
 
