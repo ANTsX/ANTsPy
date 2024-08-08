@@ -20,10 +20,6 @@ jobs:
 
           # Windows 64-bit
           - os: windows-latest
-            python: '3.9'
-            cibw_python: 39
-            platform_id: win_amd64
-          - os: windows-latest
             python: '3.10'
             cibw_python: 310
             platform_id: win_amd64
@@ -60,24 +56,22 @@ jobs:
 
           # macOS on Intel 64-bit
           - os: macos-12
-            python: '3.9'
-            cibw_python: 39
-            arch: x86_64
-            platform_id: macosx_x86_64
-          - os: macos-12
             python: '3.10'
             cibw_python: 310
             arch: x86_64
+            macos_target: 10.14
             platform_id: macosx_x86_64
           - os: macos-12
             python: '3.11'
             cibw_python: 311
             arch: x86_64
+            macos_target: 10.14
             platform_id: macosx_x86_64
           - os: macos-12
             python: '3.12'
             cibw_python: 312
             arch: x86_64
+            macos_target: 10.14
             platform_id: macosx_x86_64
 
           # macOS on Apple M1 64-bit, supported for Python 3.10 and later
@@ -85,16 +79,19 @@ jobs:
             python: '3.10'
             cibw_python: 310
             arch: arm64
+            macos_target: 11.0
             platform_id: macosx_arm64
           - os: macos-14
             python: '3.11'
             cibw_python: 311
             arch: arm64
+            macos_target: 11.0
             platform_id: macosx_arm64
           - os: macos-14
             python: '3.12'
             cibw_python: 312
             arch: arm64
+            macos_target: 11.0
             platform_id: macosx_arm64
 
     steps:
@@ -129,11 +126,11 @@ jobs:
           echo "PACKAGE_NAME=$( python -c "import toml; print(toml.load('pyproject.toml')['project']['name'])" )" | Out-File -FilePath $env:GITHUB_ENV ` -Append
           echo "PACKAGE_VERSION=$( python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])" )" | Out-File -FilePath $env:GITHUB_ENV ` -Append
 
-      - name: Determine macOS version
+      # Do this before CIBW steps
+      - name: Set MacOS deployment target
         if: startsWith(matrix.os, 'macos-')
         run: |
-          macos_version=$(sw_vers -productVersion | awk -F '.' '{print $1".0"}')
-          echo "MACOSX_DEPLOYMENT_TARGET=${macos_version}" >> $GITHUB_ENV
+          echo "MACOSX_DEPLOYMENT_TARGET=${{matrix.macos_target}}" >> $GITHUB_ENV
 
       - name: Build wheels
         env:
