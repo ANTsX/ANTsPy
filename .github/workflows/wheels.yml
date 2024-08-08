@@ -109,6 +109,15 @@ jobs:
         if: matrix.platform_id == 'win_amd64'
         uses: ilammy/msvc-dev-cmd@v1
 
+      # conda to get libpng on Mac that is compatible with more OS versions
+      # brew install libpng has a mininum OS of 12
+      - name: Set up Conda
+        if: startsWith(matrix.os, 'macos-')
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python }}
+
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.19.2 setuptools toml
 
@@ -131,13 +140,6 @@ jobs:
         if: startsWith(matrix.os, 'macos-')
         run: |
           echo "MACOSX_DEPLOYMENT_TARGET=${{ matrix.macos_target }}" >> $GITHUB_ENV
-
-      # conda to get libpng on Mac that is compatible with more OS versions
-      # brew install libpng has a mininum OS of 12
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python }}
 
       - name: Build wheels
         env:
