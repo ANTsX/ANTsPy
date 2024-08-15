@@ -2,14 +2,15 @@ __all__ = ["nifti_to_ants", "ants_to_nifti", "from_nibabel", "to_nibabel"]
 
 from typing import TYPE_CHECKING
 
-import ants
 import numpy as np
+
+import ants
 
 if TYPE_CHECKING:
     from nibabel.nifti1 import Nifti1Image
 
 
-def nifti_to_ants(nib_image: "Nifti1Image") -> ants.ANTsImage:
+def nifti_to_ants(nib_image: "Nifti1Image"):
     """
     Convert a Nifti image to an ANTsPy image.
 
@@ -26,26 +27,33 @@ def nifti_to_ants(nib_image: "Nifti1Image") -> ants.ANTsImage:
     ndim = nib_image.ndim
 
     if ndim < 3:
-        raise NotImplementedError("Conversion is only implemented for 3D or higher images.")
-
+        raise NotImplementedError(
+            "Conversion is only implemented for 3D or higher images."
+        )
     q_form = nib_image.get_qform()
     spacing = nib_image.header["pixdim"][1 : ndim + 1]
 
     origin = np.zeros(ndim)
-    origin[:3] = q_form[:3, 3]
+    origin[:3] = np.dot(np.diag([-1, -1, 1]), q_form[:3, 3])
 
     direction = np.eye(ndim)
-    direction[:3, :3] = q_form[:3, :3] / spacing[:3]
+    direction[:3, :3] = np.dot(np.diag([-1, -1, 1]), q_form[:3, :3]) / spacing[:3]
 
-    ants_img = ants.from_numpy(data=nib_image.get_fdata(), origin=origin.tolist(), spacing=spacing.tolist(), direction=direction)
+    ants_img = ants.from_numpy(
+        data=nib_image.get_fdata(),
+        origin=origin.tolist(),
+        spacing=spacing.tolist(),
+        direction=direction,
+    )
+    "add nibabel conversion (lacey import to prevent forced dependency)"
 
     return ants_img
 
 
-def get_ras_affine_from_ants(ants_img: ants.ANTsImage) -> np.ndarray:
+def get_ras_affine_from_ants(ants_img) -> np.ndarray:
     """
     Convert ANTs image affine to RAS coordinate system.
-
+    Source: https://github.com/fepegar/torchio/blob/main/src/torchio/data/io.py
     Parameters
     ----------
     ants_img : ants.ANTsImage
@@ -86,7 +94,7 @@ def get_ras_affine_from_ants(ants_img: ants.ANTsImage) -> np.ndarray:
     return affine
 
 
-def ants_to_nifti(img: ants.ANTsImage, header=None) -> "Nifti1Image":
+def ants_to_nifti(img, header=None) -> "Nifti1Image":
     """
     Convert an ANTs image to a Nifti image.
 
@@ -125,7 +133,9 @@ if __name__ == "__main__":
     nii_mni: "Nifti1Image" = nib.load(fn)
     ants_mni = to_nibabel(ants_img)
     assert (ants_mni.get_qform() == nii_mni.get_qform()).all()
-    temp = ants.from_nibabel(nii_mni)
+    assert (ants_mni.affine == nii_mni.affine).all()
+    temp = from_nibabel(nii_mni)
+
     assert ants.image_physical_space_consistency(ants_img, temp)
 
     fn = ants.get_data("ch2")
@@ -133,3 +143,20 @@ if __name__ == "__main__":
     nii_mni = nib.load(fn)
     ants_mni = to_nibabel(ants_mni)
     assert (ants_mni.get_qform() == nii_mni.get_qform()).all()
+
+    nii_org = nib.load(fn)
+    ants_org = ants.image_read(fn)
+    temp = ants_org
+    for i in range(10):
+        temp = to_nibabel(ants_org)
+        assert (temp.get_qform() == nii_org.get_qform()).all()
+        assert (ants_mni.affine == nii_mni.affine).all()
+        temp = from_nibabel(temp)
+        assert ants.image_physical_space_consistency(ants_org, temp)
+    for i in range(10):
+        temp = from_nibabel(nii_org)
+        assert ants.image_physical_space_consistency(ants_org, temp)
+        temp = to_nibabel(temp)
+
+        assert (temp.get_qform() == nii_org.get_qform()).all()
+        assert (ants_mni.affine == nii_mni.affine).all()
