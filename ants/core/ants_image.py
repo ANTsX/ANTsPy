@@ -1,6 +1,7 @@
 
 
-__all__ = ['copy_image_info',
+__all__ = ['ANTsImage',
+           'copy_image_info',
            'set_origin',
            'get_origin',
            'set_direction',
@@ -40,7 +41,7 @@ class ANTsImage(object):
     def __init__(self, pointer):
         """
         Initialize an ANTsImage.
-        
+
         Creating an ANTsImage requires a pointer to an underlying ITK image that
         is stored via a nanobind class wrapping a AntsImage struct.
 
@@ -57,31 +58,31 @@ class ANTsImage(object):
     @property
     def _libsuffix(self):
         return str(type(self.pointer)).split('AntsImage')[-1].split("'")[0]
-    
+
     @property
     def shape(self):
         return tuple(get_lib_fn('getShape')(self.pointer))
-    
+
     @property
     def physical_shape(self):
         return tuple([round(sh*sp,3) for sh,sp in zip(self.shape, self.spacing)])
-    
+
     @property
     def is_rgb(self):
         return 'RGB' in self._libsuffix
-    
+
     @property
     def has_components(self):
         suffix = self._libsuffix
         return suffix.startswith('V') or suffix.startswith('RGB')
-    
+
     @property
     def components(self):
         if not self.has_components:
             return 1
-        
+
         return get_lib_fn('getComponents')(self.pointer)
-        
+
     @property
     def pixeltype(self):
         ptype = self._libsuffix[:-1]
@@ -90,17 +91,17 @@ class ANTsImage(object):
                 ptype = ptype[3:]
             else:
                 ptype = ptype[1:]
-        
+
         ptype_map = {'UC': 'unsigned char',
                      'UI': 'unsigned int',
                      'F': 'float',
                      'D': 'double'}
         return ptype_map[ptype]
-    
+
     @property
     def dtype(self):
         return _itk_to_npy_map[self.pixeltype]
-    
+
     @property
     def dimension(self):
         return int(self._libsuffix[-1])
@@ -369,9 +370,9 @@ class ANTsImage(object):
 
         new_array = this_array + other
         return self.new_image_like(new_array)
-    
+
     __radd__ = __add__
-    
+
     def __sub__(self, other):
         this_array = self.numpy()
 
@@ -382,7 +383,7 @@ class ANTsImage(object):
 
         new_array = this_array - other
         return self.new_image_like(new_array)
-    
+
     def __rsub__(self, other):
         this_array = self.numpy()
 
@@ -393,7 +394,7 @@ class ANTsImage(object):
 
         new_array = other - this_array
         return self.new_image_like(new_array)
-    
+
     def __mul__(self, other):
         this_array = self.numpy()
 
@@ -500,16 +501,16 @@ class ANTsImage(object):
             return ants.merge_channels([
                 img[idx] for img in ants.split_channels(self)
             ])
-        
+
         if isinstance(idx, ANTsImage):
             if not ants.image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
             return self.numpy().__getitem__(idx.numpy().astype('bool'))
-    
+
         ndim = len(idx)
         sizes = list(self.shape)
         starts = [0] * ndim
-        
+
         for i in range(ndim):
             ti = idx[i]
             if isinstance(ti, slice):
@@ -519,21 +520,21 @@ class ANTsImage(object):
                     sizes[i] = ti.stop - starts[i]
                 else:
                     sizes[i] = self.shape[i] - starts[i]
-                    
+
                 if ti.stop and ti.start:
                     if ti.stop < ti.start:
                         raise Exception('Reverse indexing is not supported.')
-                
+
             elif isinstance(ti, int):
                 starts[i] = ti
                 sizes[i] = 0
-                
+
             if sizes[i] == 0:
                 ndim -= 1
-        
+
         if ndim < 2:
             return self.numpy().__getitem__(idx)
-        
+
         libfn = get_lib_fn('getItem%i' % ndim)
         new_ptr = libfn(self.pointer, starts, sizes)
         new_image = from_pointer(new_ptr)
@@ -541,10 +542,10 @@ class ANTsImage(object):
 
     def __setitem__(self, idx, value):
         arr = self.view()
-        
+
         if is_image(value):
             value = value.numpy()
-            
+
         if is_image(idx):
             if not ants.image_physical_space_consistency(self, idx):
                 raise ValueError('images do not occupy same physical space')
@@ -565,7 +566,7 @@ class ANTsImage(object):
             '\t {:<10} : {}\n'.format('Origin', tuple([round(o,4) for o in self.origin]))+\
             '\t {:<10} : {}\n'.format('Direction', np.round(self.direction.flatten(),4))
         return s
-    
+
     def __getstate__(self):
         """
         import ants
@@ -580,7 +581,7 @@ class ANTsImage(object):
         print(img.mean(), img3.mean())
         """
         return self.numpy(), self.origin, self.spacing, self.direction, self.has_components, self.is_rgb
-    
+
     def __setstate__(self, state):
         data, origin, spacing, direction, has_components, is_rgb = state
         image = ants.from_numpy(np.copy(data), origin=origin, spacing=spacing, direction=direction, has_components=has_components, is_rgb=is_rgb)
