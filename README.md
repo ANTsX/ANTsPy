@@ -28,8 +28,16 @@ pip install antspyx
 ```
 
 Because of limited storage space, pip binaries are not available for every combination of python
-version and platform. If we do not have releases for your platform on PyPI, you can check the
+version and platform. We also have had to delete older releases to make space. If you
+cannot find a binary you need on PyPI, you can check the
 [Releases](https://github.com/antsx/antspy/releases) page for archived binaries.
+
+Some Mac OS Python installations have compatibility issues with the pre-compiled
+binaries. This means pip will not install binaries targeted for the current Mac OS
+version, and will instead try to compile from source. The compatibility checks can be
+disabled by setting the  environment variable `SYSTEM_VERSION_COMPAT=0`. More details on
+the [wiki](https://github.com/ANTsX/ANTsPy/wiki/MacOS-wheel-compatibility-issues).
+
 
 ### Building from source
 
