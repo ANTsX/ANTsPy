@@ -17,7 +17,7 @@ classifiers = [
 dependencies = [
     "pandas",
     "pyyaml",
-    "numpy",
+    "numpy==2.0.1",
     "statsmodels",
     "webcolors",
     "matplotlib",
