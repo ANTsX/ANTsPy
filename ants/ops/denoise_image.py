@@ -5,7 +5,7 @@ from ants.decorators import image_method
 from ants.internal import get_lib_fn, process_arguments
 
 @image_method
-def denoise_image(image, mask=None, shrink_factor=1, p=1, r=3, noise_model="Rician", v=0):
+def denoise_image(image, mask=None, shrink_factor=1, p=1, r=2, noise_model="Rician", v=0):
     """
     Denoise an image using a spatially adaptive filter originally described in
     J. V. Manjon, P. Coupe, Luis Marti-Bonmati, D. L. Collins, and M. Robles.
