@@ -64,6 +64,7 @@ nanobind_add_module(
   src/antscore/ThresholdImage.cxx
   src/antscore/TileImages.cxx
 )
+target_compile_options(lib PRIVATE -O3)
 target_link_libraries(lib PRIVATE ${ITK_LIBRARIES} antsUtilities registrationUtilities imageMathUtilities)
 
 # Install directive for scikit-build-core

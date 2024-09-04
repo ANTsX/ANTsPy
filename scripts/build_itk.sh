@@ -1,24 +1,17 @@
 #!/bin/bash
 CXX_STD=CXX11
 JTHREADS=2
-if [[ `uname` -eq Darwin ]] ; then
-  CMAKE_BUILD_TYPE=Release
-fi
-if [[ $TRAVIS -eq true ]] ; then
-  CMAKE_BUILD_TYPE=Release
-  JTHREADS=2
-fi
+CMAKE_BUILD_TYPE=Release
 
 echo "Dependency;GitTag" > ./data/softwareVersions.csv
 echo "ITK;${itktag}" >> ./data/softwareVersions.csv
 
 mkdir -p itkbuild
 cd itkbuild
-compflags=" -fPIC -O2  "
 cmake \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
-    -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
-    -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
+    -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O3 -DNDEBUG  "\
+    -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-c++11-long-long -fPIC -O3 -DNDEBUG  "\
     -DITK_USE_GIT_PROTOCOL:BOOL=OFF \
     -DBUILD_SHARED_LIBS:BOOL=OFF \
     -DBUILD_TESTING:BOOL=OFF \
