@@ -380,7 +380,7 @@ def plot_ortho_stack(
             ax.text(
                 0.5,
                 0.98,
-                "A",
+                "I",
                 horizontalalignment="center",
                 verticalalignment="top",
                 fontsize=20 * figsize,
@@ -390,7 +390,7 @@ def plot_ortho_stack(
             ax.text(
                 0.5,
                 0.02,
-                "P",
+                "S",
                 horizontalalignment="center",
                 verticalalignment="bottom",
                 fontsize=20 * figsize,
