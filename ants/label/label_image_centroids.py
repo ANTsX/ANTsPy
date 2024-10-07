@@ -18,14 +18,14 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
     ---------
     image : ANTsImage
         image of integer labels
-    
+
     physical : boolean
         whether you want physical space coordinates or not
-    
+
     convex : boolean
         if True, return centroid
         if False return point with min average distance to other points with same label
-    
+
     Returns
     -------
     dictionary w/ following key-value pairs:
@@ -58,14 +58,14 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
     zc = np.zeros(n_labels)
 
     if convex:
-        for i in mylabels:
-            idx = (labels == i).flatten()
-            xc[i-1] = np.mean(xcoords[idx])
-            yc[i-1] = np.mean(ycoords[idx])
-            zc[i-1] = np.mean(zcoords[idx])
+        for lab_idx, label_intensity in enumerate(mylabels):
+            idx = (labels == label_intensity).flatten()
+            xc[lab_idx] = np.mean(xcoords[idx])
+            yc[lab_idx] = np.mean(ycoords[idx])
+            zc[lab_idx] = np.mean(zcoords[idx])
     else:
-        for i in mylabels:
-            idx = (labels == i).flatten()
+        for lab_idx, label_intensity in enumerate(mylabels):
+            idx = (labels == label_intensity).flatten()
             xci = xcoords[idx]
             yci = ycoords[idx]
             zci = zcoords[idx]
@@ -75,9 +75,9 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
                 dist[j] = np.mean(np.sqrt((xci[j] - xci)**2 + (yci[j] - yci)**2 + (zci[j] - zci)**2))
 
             mid = np.where(dist==np.min(dist))
-            xc[i-1] = xci[mid]
-            yc[i-1] = yci[mid]
-            zc[i-1] = zci[mid]
+            xc[lab_idx] = xci[mid]
+            yc[lab_idx] = yci[mid]
+            zc[lab_idx] = zci[mid]
 
     centroids = np.vstack([xc,yc,zc]).T
 

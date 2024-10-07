@@ -25,7 +25,7 @@ def mni2tal(xin):
 
     References
     ----------
-    http://bioimagesuite.yale.edu/mni2tal/501_95733_More\%20Accurate\%20Talairach\%20Coordinates\%20SLIDES.pdf
+    http://bioimagesuite.yale.edu/mni2tal/501_95733_More\\%20Accurate\\%20Talairach\\%20Coordinates\\%20SLIDES.pdf
     http://imaging.mrc-cbu.cam.ac.uk/imaging/MniTalairach
     """
     if (not isinstance(xin, (tuple,list))) or (len(xin) != 3):
