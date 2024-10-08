@@ -8,21 +8,21 @@ from ants.internal import get_lib_fn, process_arguments
 
 
 def affine_initializer(fixed_image, moving_image, search_factor=20,
-                        radian_fraction=0.1, use_principal_axis=False, 
+                        radian_fraction=0.1, use_principal_axis=False,
                         local_search_iterations=10, mask=None, txfn=None ):
     """
     A multi-start optimizer for affine registration
     Searches over the sphere to find a good initialization for further
     registration refinement, if needed.  This is a wrapper for the ANTs
     function antsAffineInitializer.
-    
+
     ANTsR function: `affineInitializer`
 
     Arguments
     ---------
     fixed_image : ANTsImage
         the fixed reference image
-    moving_image : ANTsImage 
+    moving_image : ANTsImage
         the moving image to be mapped to the fixed space
     search_factor : scalar
         degree of increments on the sphere to search
@@ -41,7 +41,7 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
     -------
     ndarray
         transformation matrix
-    
+
     Example
     -------
     >>> import ants
@@ -66,6 +66,5 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
 
     if retval != 0:
         warnings.warn('ERROR: Non-zero exit status!')
-    
-    return txfn
 
+    return txfn

@@ -5,4 +5,5 @@ from .label_image_centroids import label_image_centroids
 from .label_overlap_measures import label_overlap_measures
 from .label_stats import label_stats
 from .labels_to_matrix import labels_to_matrix
+from .make_points_image import make_points_image
 from .multi_label_morphology import multi_label_morphology

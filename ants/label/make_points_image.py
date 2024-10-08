@@ -7,7 +7,7 @@ import numpy as np
 
 import ants
 
-def make_points_image(pts, mask, radius=5):
+def make_points_image(pts, target, radius=5):
     """
     Create label image from physical space points
 
@@ -21,10 +21,10 @@ def make_points_image(pts, mask, radius=5):
     Arguments
     ---------
     pts : numpy.ndarray
-        input powers points
+        input points
 
-    mask : ANTsImage
-        mask defining target space
+    target : ANTsImage
+        Image defining target space
 
     radius : integer
         radius for the points
@@ -37,25 +37,25 @@ def make_points_image(pts, mask, radius=5):
     -------
     >>> import ants
     >>> import pandas as pd
-    >>> mni = ants.image_read(ants.get_data('mni')).get_mask()
+    >>> mni = ants.image_read(ants.get_data('mni'))
     >>> powers_pts = pd.read_csv(ants.get_data('powers_mni_itk'))
     >>> powers_labels = ants.make_points_image(powers_pts.iloc[:,:3].values, mni, radius=3)
     """
-    powers_lblimg = mask * 0
+    lblimg = target * 0
     npts = len(pts)
-    dim = mask.dimension
+    dim = target.dimension
     if pts.shape[1] != dim:
         raise ValueError('points dimensionality should match that of images')
 
     for r in range(npts):
         pt = pts[r,:]
-        idx = ants.transform_physical_point_to_index(mask, pt.tolist() ).astype(int)
+        idx = ants.transform_physical_point_to_index(target, pt.tolist() ).astype(int)
         in_image=True
-        for kk in range(mask.dimension):
-            in_image = in_image and idx[kk] >= 0 and idx[kk] < mask.shape[kk]
+        for kk in range(target.dimension):
+            in_image = in_image and idx[kk] >= 0 and idx[kk] < target.shape[kk]
         if ( in_image == True ):
             if (dim == 3):
-                powers_lblimg[idx[0],idx[1],idx[2]] = r + 1
+                lblimg[idx[0],idx[1],idx[2]] = r + 1
             elif (dim == 2):
-                powers_lblimg[idx[0],idx[1]] = r + 1
-    return ants.morphology( powers_lblimg, 'dilate', radius, 'grayscale' )
+                lblimg[idx[0],idx[1]] = r + 1
+    return ants.morphology( lblimg, 'dilate', radius, 'grayscale' )

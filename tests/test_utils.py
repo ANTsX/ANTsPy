@@ -209,13 +209,13 @@ class TestModule_crop_image(unittest.TestCase):
 
         # label image not float
         cropped = ants.crop_image(fi, fi.clone("unsigned int"), 100)
-        
+
         # channel image
         fi = ants.image_read( ants.get_ants_data('r16') )
         cropped = ants.crop_image(fi)
         fi2 = ants.merge_channels([fi,fi])
         cropped2 = ants.crop_image(fi2)
-        
+
         self.assertEqual(cropped.shape, cropped2.shape)
 
     def test_crop_indices_example(self):
@@ -583,11 +583,27 @@ class TestModule_label_image_centroids(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_label_clusters_example(self):
+    def test_label_image_centroids(self):
         image = ants.from_numpy(
             np.asarray([[[0, 2], [1, 3]], [[4, 6], [5, 7]]]).astype("float32")
         )
         labels = ants.label_image_centroids(image)
+        self.assertEqual(len(labels['labels']), 7)
+
+        # Test non-sequential labels
+        image = ants.from_numpy(
+            np.asarray([[[0, 2], [2, 2]], [[2, 0], [5, 0]]]).astype("float32")
+        )
+
+        labels = ants.label_image_centroids(image)
+        self.assertTrue(len(labels['labels']) == 2)
+        self.assertTrue(labels['labels'][1] == 5)
+        self.assertTrue(np.allclose(labels['vertices'][0], [0.5 , 0.5 , 0.25], atol=1e-5))
+        # With convex = False, the centroid position should change
+        labels = ants.label_image_centroids(image, convex=False)
+        self.assertTrue(np.allclose(labels['vertices'][0], [1.0, 1.0, 0.0], atol=1e-5))
+        # single point unchanged
+        self.assertTrue(np.allclose(labels['vertices'][1], [0.0, 1.0, 1.0], atol=1e-5))
 
 
 class TestModule_label_overlap_measures(unittest.TestCase):
@@ -631,6 +647,28 @@ class TestModule_labels_to_matrix(unittest.TestCase):
         mask = ants.get_mask(fi)
         labs = ants.kmeans_segmentation(fi, 3)["segmentation"]
         labmat = ants.labels_to_matrix(labs, mask)
+
+
+class TestModule_make_points_image(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_make_points_image_example(self):
+        image = ants.image_read(ants.get_ants_data("r16"))
+        points = np.array([[102,  76],[134, 129]])
+        points_image = ants.make_points_image(points, image, radius=5)
+        stats = ants.label_stats(image, points_image)
+        self.assertTrue(np.allclose(stats['Volume'].to_numpy()[1:3], 97.0, atol=1e-5))
+        self.assertTrue(np.allclose(stats['x'].to_numpy()[1:3], points[:,0], atol=1e-5))
+        self.assertTrue(np.allclose(stats['y'].to_numpy()[1:3], points[:,1], atol=1e-5))
+
+        points = np.array([[102,  76,  50],[134, 129,  50]])
+        # Shouldn't allow 3D points on a 2D image
+        with self.assertRaises(Exception):
+            points_image = ants.make_points_image(image, points, radius=3)
 
 
 class TestModule_mask_image(unittest.TestCase):
@@ -846,7 +884,7 @@ class TestRandom(unittest.TestCase):
         pass
     def tearDown(self):
         pass
-    
+
     def test_bspline_field(self):
         points = np.array([[-50, -50]])
         deltas = np.array([[10, 10]])
@@ -874,17 +912,17 @@ class TestRandom(unittest.TestCase):
         result = ants.ilr( df, vlist, myform)
         myform = " mat2 ~ covar + mat1 "
         result = ants.ilr( df, vlist, myform)
-        
+
     def test_quantile(self):
         img = ants.image_read(ants.get_data('r16'))
         ants.quantile(img, 0.5)
         ants.quantile(img, (0.5, 0.75))
-        
+
     def test_bandpass(self):
         brainSignal = np.random.randn( 400, 1000 )
         tr = 1
         filtered = ants.bandpass_filter_matrix( brainSignal, tr = tr )
-        
+
     def test_compcorr(self):
         cc = ants.compcor( ants.image_read(ants.get_ants_data("ch2")) )
 
@@ -892,11 +930,11 @@ class TestRandom(unittest.TestCase):
         src_img = ants.image_read(ants.get_data('r16'))
         ref_img = ants.image_read(ants.get_data('r64'))
         src_ref = ants.histogram_match_image(src_img, ref_img)
-        
+
         src_img = ants.image_read(ants.get_data('r16'))
         ref_img = ants.image_read(ants.get_data('r64'))
         src_ref = ants.histogram_match_image2(src_img, ref_img)
-        
+
     def test_averaging(self):
         x0=[ ants.get_data('r16'), ants.get_data('r27'), ants.get_data('r62'), ants.get_data('r64') ]
         x1=[]
@@ -906,7 +944,7 @@ class TestRandom(unittest.TestCase):
         avg1=ants.average_images(x1)
         avg2=ants.average_images(x1,mask=0)
         avg3=ants.average_images(x1,mask=1,normalize=True)
-        
+
     def test_n3_2(self):
         image = ants.image_read( ants.get_ants_data('r16') )
         image_n3 = ants.n3_bias_field_correction2(image)
@@ -929,7 +967,7 @@ class TestRandom(unittest.TestCase):
         displacement_origins=points, displacements=deltas,
         origin=[0.0, 0.0], spacing=[1.0, 1.0], size=[100, 100],
         direction=np.array([[-1, 0], [0, -1]]))
-        
+
     def test_multi_label_morph(self):
         img = ants.image_read(ants.get_data('r16'))
         labels = ants.get_mask(img,1,150) + ants.get_mask(img,151,225) * 2
@@ -937,21 +975,21 @@ class TestRandom(unittest.TestCase):
         # should see original label regions preserved in dilated version
         # label N should have mean N and 0 variance
         print(ants.label_stats(labels_dilated, labels))
-        
+
     def test_hausdorff_distance(self):
         r16 = ants.image_read( ants.get_ants_data('r16') )
         r64 = ants.image_read( ants.get_ants_data('r64') )
         s16 = ants.kmeans_segmentation( r16, 3 )['segmentation']
         s64 = ants.kmeans_segmentation( r64, 3 )['segmentation']
         stats = ants.hausdorff_distance(s16, s64)
-        
+
     def test_channels_first(self):
         import ants
         image = ants.image_read(ants.get_ants_data('r16'))
         image2 = ants.image_read(ants.get_ants_data('r16'))
         img3 = ants.merge_channels([image,image2])
         img4 = ants.merge_channels([image,image2], channels_first=True)
-        
+
         self.assertTrue(np.allclose(img3.numpy()[:,:,0], img4.numpy()[0,:,:]))
         self.assertTrue(np.allclose(img3.numpy()[:,:,1], img4.numpy()[1,:,:]))
 
