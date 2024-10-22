@@ -507,23 +507,37 @@ class ANTsImage(object):
                 raise ValueError('images do not occupy same physical space')
             return self.numpy().__getitem__(idx.numpy().astype('bool'))
 
-        ndim = len(idx)
+        # convert idx to tuple if it is not, eg im[10] or im[10:20]
+        if not isinstance(idx, tuple):
+            idx = (idx,)
+
+        ndim = len(self.shape)
+
+        if len(idx) > ndim:
+            raise ValueError('Too many indices for image')
+        if len(idx) < ndim:
+            # If not all dimensions are indexed, assume the rest are full slices
+            # eg im[10] -> im[10, :, :]
+            idx = idx + (slice(None),) * (ndim - len(idx))
+
         sizes = list(self.shape)
         starts = [0] * ndim
-
+        stops = list(self.shape)
         for i in range(ndim):
             ti = idx[i]
             if isinstance(ti, slice):
                 if ti.start:
                     starts[i] = ti.start
                 if ti.stop:
-                    sizes[i] = ti.stop - starts[i]
-                else:
-                    sizes[i] = self.shape[i] - starts[i]
+                    if ti.stop < 0:
+                        stops[i] = self.shape[i] + ti.stop
+                    else:
+                        stops[i] = ti.stop
 
-                if ti.stop and ti.start:
-                    if ti.stop < ti.start:
-                        raise Exception('Reverse indexing is not supported.')
+                sizes[i] = stops[i] - starts[i]
+
+                if stops[i] < starts[i]:
+                    raise ValueError('Reverse indexing is not supported.')
 
             elif isinstance(ti, int):
                 starts[i] = ti
