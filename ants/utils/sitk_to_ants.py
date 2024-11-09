@@ -1,6 +1,7 @@
 import numpy as np
 import ants
 
+
 def image_to_ants(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     """
     Converts a given SimpleITK image into an ANTsPy image
@@ -14,7 +15,7 @@ def image_to_ants(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
         ants_image: ANTsImage
     """
     import SimpleITK as sitk
-    
+
     ndim = sitk_image.GetDimension()
 
     if ndim < 3:
@@ -35,3 +36,28 @@ def image_to_ants(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     )
 
     return ants_img
+
+
+def image_fron_ants(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
+    """
+    Converts a given ANTsPy image into an SimpleITK image
+
+    Parameters
+    ----------
+        ants_image: ANTsImage
+
+    Returns
+    -------
+        img: SimpleITK.Image
+    """
+
+    import SimpleITK as sitk
+
+    data = ants_image.view()
+    shape = ants_image.shape
+
+    sitk_img = sitk.GetImageFromArray(data.ravel(order="F").reshape(shape[::-1]))
+    sitk_img.SetOrigin(ants_image.origin)
+    sitk_img.SetSpacing(ants_image.spacing)
+    sitk_img.SetDirection(ants_image.direction.flatten())
+    return sitk_img
