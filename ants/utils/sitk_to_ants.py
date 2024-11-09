@@ -38,7 +38,7 @@ def image_to_ants(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     return ants_img
 
 
-def image_fron_ants(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
+def image_from_ants(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
     """
     Converts a given ANTsPy image into an SimpleITK image
 

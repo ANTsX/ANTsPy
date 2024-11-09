@@ -1029,14 +1029,14 @@ class TestModule_sitk_to_ants(unittest.TestCase):
         nptest.assert_almost_equal(self.img.GetDirection(), img.GetDirection())
 
     def test_image_from_ants(self):
-        from ants.utils.sitk_to_ants import image_fron_ants
+        from ants.utils.sitk_to_ants import image_from_ants
 
         with TemporaryDirectory() as temp_dir:
             temp_fpath = os.path.join(temp_dir, "img.nrrd")
             sitk.WriteImage(self.img, temp_fpath)
             ants_img = ants.image_read(temp_fpath)
             
-        img = image_fron_ants(ants_img)
+        img = image_from_ants(ants_img)
 
         nptest.assert_equal(
             sitk.GetArrayViewFromImage(self.img), sitk.GetArrayViewFromImage(img)
