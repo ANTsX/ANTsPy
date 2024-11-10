@@ -6,6 +6,7 @@ from tempfile import mktemp
 
 import ants
 
+
 def build_template(
     initial_template=None,
     image_list=None,
@@ -14,7 +15,7 @@ def build_template(
     blending_weight=0.75,
     weights=None,
     useNoRigid=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Estimate an optimal template from an input image_list
@@ -70,30 +71,44 @@ def build_template(
     weights = [x / sum(weights) for x in weights]
     if initial_template is None:
         initial_template = image_list[0] * 0
+        wimg = initial_template.clone("float")
         for i in range(len(image_list)):
             temp = image_list[i] * weights[i]
             temp = ants.resample_image_to_target(temp, initial_template)
             initial_template = initial_template + temp
+
+            wtemp = image_list[i].clone("float")
+            wtemp.view().fill(weights[i])
+            wtemp = ants.resample_image_to_target(wtemp, initial_template)
+            wimg = wimg + wtemp
+        nonzero = wimg.view() != 0
+        initial_template.view()[nonzero] = initial_template.view()[nonzero] / wimg.view()[nonzero]
 
     xavg = initial_template.clone()
     for i in range(iterations):
         affinelist = []
         for k in range(len(image_list)):
             w1 = ants.registration(
-                xavg, image_list[k], type_of_transform=type_of_transform, **kwargs
+                xavg, image_list[k] * weights[k], type_of_transform=type_of_transform, **kwargs
             )
             L = len(w1["fwdtransforms"])
             # affine is the last one
-            affinelist.append(w1["fwdtransforms"][L-1])
+            affinelist.append(w1["fwdtransforms"][L - 1])
 
             if k == 0:
                 if L == 2:
                     wavg = ants.image_read(w1["fwdtransforms"][0]) * weights[k]
-                xavgNew = w1["warpedmovout"] * weights[k]
+                xavgNew = w1["warpedmovout"]
+                wimgNew = ants.apply_transforms(xavg, ants.ones_like(image_list[k]) * weights[k], transformlist=w1["fwdtransforms"])
             else:
                 if L == 2:
                     wavg = wavg + ants.image_read(w1["fwdtransforms"][0]) * weights[k]
-                xavgNew = xavgNew + w1["warpedmovout"] * weights[k]
+                xavgNew = xavgNew + w1["warpedmovout"]
+                wimgNew = wimgNew + ants.apply_transforms(xavg, ants.ones_like(image_list[k]) * weights[k], transformlist=w1["fwdtransforms"])
+
+            # normalize
+            nonzero = wimgNew.view() != 0
+            xavgNew.view()[nonzero] = xavgNew.view()[nonzero] / wimgNew.view()[nonzero]
 
         if useNoRigid:
             avgaffine = ants.average_affine_transform_no_rigid(affinelist)
@@ -108,13 +123,26 @@ def build_template(
             wavg = wavg * wscl
             # apply affine to the nonlinear?
             # need to save the average
-            wavgA = ants.apply_transforms(fixed = xavgNew, moving = wavg, imagetype=1, transformlist=afffn, whichtoinvert=[1])
+            wavgA = ants.apply_transforms(
+                fixed=xavgNew,
+                moving=wavg,
+                imagetype=1,
+                transformlist=afffn,
+                whichtoinvert=[1],
+            )
             wavgfn = mktemp(suffix=".nii.gz")
             ants.image_write(wavgA, wavgfn)
-            xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[wavgfn, afffn], whichtoinvert=[0, 1])
+            xavg = ants.apply_transforms(
+                fixed=xavgNew,
+                moving=xavgNew,
+                transformlist=[wavgfn, afffn],
+                whichtoinvert=[0, 1],
+            )
         else:
-            xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1])
-            
+            xavg = ants.apply_transforms(
+                fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1]
+            )
+
         os.remove(afffn)
         if blending_weight is not None:
             xavg = xavg * blending_weight + ants.iMath(xavg, "Sharpen") * (

@@ -528,3 +528,24 @@ def new_image_like(image, data):
     
 def from_numpy_like(data, image):
     return new_image_like(image, data)
+
+
+def ones_like(image: ants.ANTsImage) -> ants.ANTsImage:
+    """
+    Return an image of ones with the same shape and info as a given image.
+
+    Arguments
+    ---------
+    image : ANTsImage
+        Image to get image shape and info from.
+
+    Returns
+    -------
+    ANTsImage
+        Image of ones with reference header information
+    """
+    ones = image.clone()
+    ones.view().fill(1)
+    return ones
+    
+
