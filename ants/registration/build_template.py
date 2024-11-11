@@ -112,7 +112,6 @@ def build_template(
                 if normalize:
                     wimg = wimg + ants.apply_transforms(xavg, ants.ones_like(image_list[k]), transformlist=w1["fwdtransforms"]) * weights[k]
 
-        # normalize
         if normalize:
             nonzero = wimg.view() != 0
             xavgNew.view()[nonzero] = xavgNew.view()[nonzero] / wimg.view()[nonzero]
