@@ -14,6 +14,7 @@ def build_template(
     blending_weight=0.75,
     weights=None,
     useNoRigid=True,
+    normalize=False,
     **kwargs
 ):
     """
@@ -44,6 +45,11 @@ def build_template(
     useNoRigid : boolean
         equivalent of -y in the script. Template update
         step will not use the rigid component if this is True.
+        
+    normalize : boolean
+        if this is True, the intensity contribution from each input
+        image is renormalized on a per-pixel level.
+
     kwargs : keyword args
         extra arguments passed to ants registration
 
@@ -74,6 +80,13 @@ def build_template(
             temp = image_list[i] * weights[i]
             temp = ants.resample_image_to_target(temp, initial_template)
             initial_template = initial_template + temp
+        if normalize:
+            wimg = initial_template.clone("float")
+            for i in range(len(image_list)):
+                wtemp = ants.resample_image_to_target(ants.ones_like(image_list[i]), wimg)
+                wimg = wimg + wtemp * weights[i]
+            nonzero = wimg.view() != 0
+            initial_template.view()[nonzero] = initial_template.view()[nonzero] / wimg.view()[nonzero]
 
     xavg = initial_template.clone()
     for i in range(iterations):
@@ -90,10 +103,20 @@ def build_template(
                 if L == 2:
                     wavg = ants.image_read(w1["fwdtransforms"][0]) * weights[k]
                 xavgNew = w1["warpedmovout"] * weights[k]
+                if normalize:
+                    wimg = ants.apply_transforms(xavg, ants.ones_like(image_list[k]), transformlist=w1["fwdtransforms"]) * weights[k]
             else:
                 if L == 2:
                     wavg = wavg + ants.image_read(w1["fwdtransforms"][0]) * weights[k]
                 xavgNew = xavgNew + w1["warpedmovout"] * weights[k]
+                if normalize:
+                    wimg = wimg + ants.apply_transforms(xavg, ants.ones_like(image_list[k]), transformlist=w1["fwdtransforms"]) * weights[k]
+
+        if normalize:
+            nonzero = wimg.view() != 0
+            xavgNew.view()[nonzero] = xavgNew.view()[nonzero] / wimg.view()[nonzero]
+            if L == 2:
+                wavg.view()[nonzero] = wavg.view()[nonzero] / wimg.view()[nonzero]
 
         if useNoRigid:
             avgaffine = ants.average_affine_transform_no_rigid(affinelist)
