@@ -2,10 +2,10 @@ __all__ = ["build_template"]
 
 import numpy as np
 import os
+import shutil
 from tempfile import mktemp
 
 import ants
-
 
 def build_template(
     initial_template=None,
@@ -15,7 +15,8 @@ def build_template(
     blending_weight=0.75,
     weights=None,
     useNoRigid=True,
-    **kwargs,
+    output_dir=None,
+    **kwargs
 ):
     """
     Estimate an optimal template from an input image_list
@@ -45,6 +46,10 @@ def build_template(
     useNoRigid : boolean
         equivalent of -y in the script. Template update
         step will not use the rigid component if this is True.
+
+    output_dir : path
+        directory name where intermediate transforms are written
+
     kwargs : keyword args
         extra arguments passed to ants registration
 
@@ -61,6 +66,12 @@ def build_template(
     >>> timage = ants.build_template( image_list = ( image, image2, image3 ) ).resample_image( (45,45))
     >>> timagew = ants.build_template( image_list = ( image, image2, image3 ), weights = (5,1,1) )
     """
+    work_dir = mktemp() if output_dir is None else output_dir
+
+    def make_outprefix(k: int):
+        os.makedirs(os.path.join(work_dir, f"img{k:04d}"), exist_ok=True)
+        return os.path.join(work_dir, f"img{k:04d}", "out")
+
     if "type_of_transform" not in kwargs:
         type_of_transform = "SyN"
     else:
@@ -76,11 +87,8 @@ def build_template(
             temp = image_list[i] * weights[i]
             temp = ants.resample_image_to_target(temp, initial_template)
             initial_template = initial_template + temp
-
-            wtemp = image_list[i].clone("float")
-            wtemp.view().fill(weights[i])
-            wtemp = ants.resample_image_to_target(wtemp, initial_template)
-            wimg = wimg + wtemp
+            wtemp = ants.resample_image_to_target(ants.ones_like(image_list[i]), initial_template)
+            wimg = wimg + wtemp * weights[i]
         nonzero = wimg.view() != 0
         initial_template.view()[nonzero] = initial_template.view()[nonzero] / wimg.view()[nonzero]
 
@@ -89,26 +97,26 @@ def build_template(
         affinelist = []
         for k in range(len(image_list)):
             w1 = ants.registration(
-                xavg, image_list[k] * weights[k], type_of_transform=type_of_transform, **kwargs
+                xavg, image_list[k], type_of_transform=type_of_transform, outprefix=make_outprefix(k), **kwargs
             )
             L = len(w1["fwdtransforms"])
             # affine is the last one
-            affinelist.append(w1["fwdtransforms"][L - 1])
+            affinelist.append(w1["fwdtransforms"][L-1])
 
             if k == 0:
                 if L == 2:
                     wavg = ants.image_read(w1["fwdtransforms"][0]) * weights[k]
-                xavgNew = w1["warpedmovout"]
+                xavgNew = w1["warpedmovout"] * weights[k]
                 wimgNew = ants.apply_transforms(xavg, ants.ones_like(image_list[k]) * weights[k], transformlist=w1["fwdtransforms"])
             else:
                 if L == 2:
                     wavg = wavg + ants.image_read(w1["fwdtransforms"][0]) * weights[k]
-                xavgNew = xavgNew + w1["warpedmovout"]
+                xavgNew = xavgNew + w1["warpedmovout"] * weights[k]
                 wimgNew = wimgNew + ants.apply_transforms(xavg, ants.ones_like(image_list[k]) * weights[k], transformlist=w1["fwdtransforms"])
 
-            # normalize
-            nonzero = wimgNew.view() != 0
-            xavgNew.view()[nonzero] = xavgNew.view()[nonzero] / wimgNew.view()[nonzero]
+        # normalize
+        nonzero = wimgNew.view() != 0
+        xavgNew.view()[nonzero] = xavgNew.view()[nonzero] / wimgNew.view()[nonzero]
 
         if useNoRigid:
             avgaffine = ants.average_affine_transform_no_rigid(affinelist)
@@ -123,30 +131,20 @@ def build_template(
             wavg = wavg * wscl
             # apply affine to the nonlinear?
             # need to save the average
-            wavgA = ants.apply_transforms(
-                fixed=xavgNew,
-                moving=wavg,
-                imagetype=1,
-                transformlist=afffn,
-                whichtoinvert=[1],
-            )
+            wavgA = ants.apply_transforms(fixed = xavgNew, moving = wavg, imagetype=1, transformlist=afffn, whichtoinvert=[1])
             wavgfn = mktemp(suffix=".nii.gz")
             ants.image_write(wavgA, wavgfn)
-            xavg = ants.apply_transforms(
-                fixed=xavgNew,
-                moving=xavgNew,
-                transformlist=[wavgfn, afffn],
-                whichtoinvert=[0, 1],
-            )
+            xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[wavgfn, afffn], whichtoinvert=[0, 1])
+            os.remove(wavgfn)
         else:
-            xavg = ants.apply_transforms(
-                fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1]
-            )
-
+            xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1])
+            
         os.remove(afffn)
         if blending_weight is not None:
             xavg = xavg * blending_weight + ants.iMath(xavg, "Sharpen") * (
                 1.0 - blending_weight
             )
 
+    if output_dir is None:
+        shutil.rmtree(work_dir)
     return xavg
