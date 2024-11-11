@@ -2,6 +2,7 @@ __all__ = ["build_template"]
 
 import numpy as np
 import os
+import shutil
 from tempfile import mktemp
 
 import ants
@@ -14,6 +15,7 @@ def build_template(
     blending_weight=0.75,
     weights=None,
     useNoRigid=True,
+    output_dir=None,
     **kwargs
 ):
     """
@@ -44,6 +46,10 @@ def build_template(
     useNoRigid : boolean
         equivalent of -y in the script. Template update
         step will not use the rigid component if this is True.
+
+    output_dir : path
+        directory name where intermediate transforms are written
+
     kwargs : keyword args
         extra arguments passed to ants registration
 
@@ -60,6 +66,12 @@ def build_template(
     >>> timage = ants.build_template( image_list = ( image, image2, image3 ) ).resample_image( (45,45))
     >>> timagew = ants.build_template( image_list = ( image, image2, image3 ), weights = (5,1,1) )
     """
+    work_dir = mktemp() if output_dir is None else output_dir
+
+    def make_outprefix(k: int):
+        os.makedirs(os.path.join(work_dir, f"img{k:04d}"), exist_ok=True)
+        return os.path.join(work_dir, f"img{k:04d}", "out")
+
     if "type_of_transform" not in kwargs:
         type_of_transform = "SyN"
     else:
@@ -80,7 +92,7 @@ def build_template(
         affinelist = []
         for k in range(len(image_list)):
             w1 = ants.registration(
-                xavg, image_list[k], type_of_transform=type_of_transform, **kwargs
+                xavg, image_list[k], type_of_transform=type_of_transform, outprefix=make_outprefix(k), **kwargs
             )
             L = len(w1["fwdtransforms"])
             # affine is the last one
@@ -99,7 +111,7 @@ def build_template(
             avgaffine = ants.average_affine_transform_no_rigid(affinelist)
         else:
             avgaffine = ants.average_affine_transform(affinelist)
-        afffn = mktemp(suffix=".mat")
+        afffn = os.path.join(work_dir, "avgAffine.mat")
         ants.write_transform(avgaffine, afffn)
 
         if L == 2:
@@ -108,17 +120,18 @@ def build_template(
             wavg = wavg * wscl
             # apply affine to the nonlinear?
             # need to save the average
-            wavgA = ants.apply_transforms(fixed = xavgNew, moving = wavg, imagetype=1, transformlist=afffn, whichtoinvert=[1])
-            wavgfn = mktemp(suffix=".nii.gz")
+            wavgA = ants.apply_transforms(fixed=xavgNew, moving=wavg, imagetype=1, transformlist=afffn, whichtoinvert=[1])
+            wavgfn = os.path.join(work_dir, "avgWarp.nii.gz")
             ants.image_write(wavgA, wavgfn)
             xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[wavgfn, afffn], whichtoinvert=[0, 1])
         else:
             xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1])
             
-        os.remove(afffn)
         if blending_weight is not None:
             xavg = xavg * blending_weight + ants.iMath(xavg, "Sharpen") * (
                 1.0 - blending_weight
             )
 
+    if output_dir is None:
+        shutil.rmtree(work_dir)
     return xavg
