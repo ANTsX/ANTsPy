@@ -530,7 +530,7 @@ def from_numpy_like(data, image):
     return new_image_like(image, data)
 
 
-def ones_like(image: ants.ANTsImage) -> ants.ANTsImage:
+def ones_like(image):
     """
     Return an image of ones with the same shape and info as a given image.
 
