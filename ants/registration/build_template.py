@@ -76,12 +76,12 @@ def build_template(
     weights = [x / sum(weights) for x in weights]
     if initial_template is None:
         initial_template = image_list[0] * 0
-        wimg = initial_template.clone("float")
         for i in range(len(image_list)):
             temp = image_list[i] * weights[i]
             temp = ants.resample_image_to_target(temp, initial_template)
             initial_template = initial_template + temp
         if normalize:
+            wimg = initial_template.clone("float")
             for i in range(len(image_list)):
                 wtemp = ants.resample_image_to_target(ants.ones_like(image_list[i]), wimg)
                 wimg = wimg + wtemp * weights[i]
