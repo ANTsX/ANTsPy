@@ -53,7 +53,7 @@ def create_warped_grid(image, grid_step=10, grid_width=2, grid_directions=(True,
     >>> mi = ants.image_read( ants.get_ants_data( 'r64' ) )
     >>> mygr = ants.create_warped_grid( mi )
     >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
-    >>> mywarpedgrid = ants.create_warped_grid( mi, grid_directions=(False,True),
+    >>> mywarpedgrid = ants.create_warped_grid( mygr, grid_directions=(False,True),
                             transform=mytx['fwdtransforms'], fixed_reference_image=fi )
     """
     if ants.is_image(image):
