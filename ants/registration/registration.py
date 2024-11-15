@@ -211,9 +211,18 @@ def registration(
         - "TVMSQ": time-varying diffeomorphism with mean square metric
         - "TVMSQC": time-varying diffeomorphism with mean square metric for very large deformation
         - "antsRegistrationSyN[x]": recreation of the antsRegistrationSyN.sh script in ANTs
-                                    where 'x' is one of the transforms available (e.g., 't', 'b', 's')
-        - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs
-                                    where 'x' is one of the transforms available (e.g., 't', 'b', 's')
+                                    where 'x' is one of the transforms available:
+                                         t: translation (1 stage)
+                                         r: rigid (1 stage)
+                                         a: rigid + affine (2 stages)
+                                         s: rigid + affine + deformable syn (3 stages)
+                                         sr: rigid + deformable syn (2 stages)
+                                         so: deformable syn only (1 stage)
+                                         b: rigid + affine + deformable b-spline syn (3 stages)
+                                         br: rigid + deformable b-spline syn (2 stages)
+                                         bo: deformable b-spline syn only (1 stage)
+        - "antsRegistrationSyNQuick[x]": recreation of the antsRegistrationSyNQuick.sh script in ANTs.
+                                         x options as above.
         - "antsRegistrationSyNRepro[x]": reproducible registration.  x options as above.
         - "antsRegistrationSyNQuickRepro[x]": quick reproducible registration.  x options as above.
 
