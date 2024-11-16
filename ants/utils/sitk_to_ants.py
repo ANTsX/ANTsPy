@@ -2,7 +2,7 @@ import numpy as np
 import ants
 
 
-def image_to_ants(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
+def from_sitk(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     """
     Converts a given SimpleITK image into an ANTsPy image
 
@@ -38,7 +38,7 @@ def image_to_ants(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     return ants_img
 
 
-def image_from_ants(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
+def to_sitk(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
     """
     Converts a given ANTsPy image into an SimpleITK image
 
