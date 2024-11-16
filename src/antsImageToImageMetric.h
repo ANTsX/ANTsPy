@@ -52,8 +52,11 @@ public:
 
 };
 
-
-
+template <typename MetricType>
+void capsuleDestructor(void* ptr) noexcept {
+    auto* metricPtr = static_cast<typename MetricType::Pointer*>(ptr);
+    delete metricPtr;
+}
 
 template <typename MetricType>
 ANTsImageToImageMetric<MetricType> wrap_metric( const typename MetricType::Pointer & itkMetric )
@@ -67,7 +70,7 @@ ANTsImageToImageMetric<MetricType> wrap_metric( const typename MetricType::Point
     antsMetric.dimension         = MetricType::FixedImageDimension;
     antsMetric.metrictype        = itkMetric->GetNameOfClass();
     antsMetric.isVector          = 0;
-    antsMetric.pointer           = nb::capsule(ptr);
+    antsMetric.pointer           = nb::capsule(ptr, capsuleDestructor<MetricType>);
 
     return antsMetric;
 }
