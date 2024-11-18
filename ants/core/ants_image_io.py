@@ -241,7 +241,6 @@ def image_header_info(filename):
         raise Exception("filename does not exist")
 
     libfn = get_lib_fn("antsImageHeaderInfo")
-
     retval = libfn(filename)
     retval["dimensions"] = tuple(retval["dimensions"])
     retval["origin"] = tuple([round(o, 4) for o in retval["origin"]])
