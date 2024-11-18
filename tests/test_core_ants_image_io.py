@@ -339,8 +339,14 @@ class TestModule_ants_image_io(unittest.TestCase):
             nptest.assert_allclose(img.numpy(), img2.numpy())
 
         # non-existant file
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             tmpfile = mktemp(suffix='.nii.gz')
+            ants.image_read(tmpfile)
+
+        # Test empty file
+        with self.assertRaises(RuntimeError):
+            tmpfile = mktemp(suffix='.nii.gz')
+            open(tmpfile, 'a').close()
             ants.image_read(tmpfile)
 
 
