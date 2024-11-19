@@ -64,6 +64,7 @@ def registration(
 
     initial_transform : list of strings (optional)
         transforms to prepend. If None, a translation is computed to align the image centers of mass.
+        To use an identity transform, set this to 'Identity'.
 
     outprefix : string
         output will be named with this prefix.
