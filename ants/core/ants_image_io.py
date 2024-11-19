@@ -58,7 +58,7 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
             ita = _image_type_map[itype]
             pa = _ptype_type_map[p]
             _image_read_dict[itype][p][d] = "imageRead%s%s%i" % (ita, pa, d)
-    
+
 def from_numpy(
     data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False
 ):
@@ -89,16 +89,16 @@ def from_numpy(
     ANTsImage
         image with given data and any given information
     """
-    
+
     # this is historic but should be removed once tests can pass without it
     if data.dtype.name == 'float64':
         data = data.astype('float32')
-    
+
     # if dtype is not supported, cast to best available
     best_dtype = infer_dtype(data.dtype)
     if best_dtype != data.dtype:
         data = data.astype(best_dtype)
-    
+
     img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
     return img
 
@@ -247,7 +247,6 @@ def image_header_info(filename):
     retval["spacing"] = tuple([round(s, 4) for s in retval["spacing"]])
     retval["direction"] = np.round(retval["direction"], 4)
     return retval
-
 
 def image_clone(image, pixeltype=None):
     """
@@ -493,7 +492,7 @@ def clone(image, pixeltype=None):
         libfn = get_lib_fn('antsImageClone%s'%fn_suffix)
         pointer_cloned = libfn(image.pointer)
         return ants.from_pointer(pointer_cloned)
-        
+
 copy = clone
 
 @image_method
@@ -525,6 +524,6 @@ def new_image_like(image, data):
     return from_numpy(data, origin=image.origin,
         spacing=image.spacing, direction=image.direction,
         has_components=image.has_components)
-    
+
 def from_numpy_like(data, image):
     return new_image_like(image, data)

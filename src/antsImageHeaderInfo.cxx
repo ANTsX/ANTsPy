@@ -24,6 +24,11 @@ nb::dict antsImageHeaderInfo( std::string fname )
       itk::ImageIOFactory::CreateImageIO(
           fname.c_str(), itk::ImageIOFactory::ReadMode);
 
+  if ( !imageIO )
+    {
+    throw std::runtime_error("Could not create ImageIO object for file " + fname);
+    }
+
   imageIO->SetFileName(fname);
   imageIO->ReadImageInformation();
 
