@@ -1,7 +1,5 @@
 __all__ = ["nifti_to_ants"]
 
-import os
-from tempfile import mkstemp
 import numpy as np
 import ants
 

@@ -4,12 +4,17 @@ Test utils module
 
 import os
 import unittest
+from tempfile import TemporaryDirectory
 
 from common import run_tests
 
 import numpy.testing as nptest
 import numpy as np
 import pandas as pd
+try:
+    import SimpleITK as sitk
+except ImportError:
+    sitk = None
 
 import ants
 
@@ -993,6 +998,50 @@ class TestRandom(unittest.TestCase):
         self.assertTrue(np.allclose(img3.numpy()[:,:,0], img4.numpy()[0,:,:]))
         self.assertTrue(np.allclose(img3.numpy()[:,:,1], img4.numpy()[1,:,:]))
 
+
+@unittest.skipIf(sitk is None, "SimpleITK is not installed")
+class TestModule_sitk_to_ants(unittest.TestCase):
+    def setUp(self):
+        shape = (32, 24, 16)
+        self.img = sitk.GetImageFromArray(np.arange(np.prod(shape), dtype=float).reshape(shape))
+        self.img.SetSpacing([0.5, 0.5, 2.0])
+        self.img.SetOrigin([1.2, 5.7, -3.4])
+        self.img.SetDirection(sitk.VersorTransform([1, 0, 0], 0.5).GetMatrix())
+
+    def tearDown(self):
+        pass
+
+    def test_from_sitk(self):
+        ants_img = ants.from_sitk(self.img)
+
+        with TemporaryDirectory() as temp_dir:
+            temp_fpath = os.path.join(temp_dir, "img.nrrd")
+            ants.image_write(ants_img, temp_fpath)
+            img = sitk.ReadImage(temp_fpath)
+
+        nptest.assert_equal(
+            sitk.GetArrayViewFromImage(self.img), sitk.GetArrayViewFromImage(img)
+        )
+        nptest.assert_almost_equal(self.img.GetOrigin(), img.GetOrigin())
+        nptest.assert_almost_equal(self.img.GetSpacing(), img.GetSpacing())
+        nptest.assert_almost_equal(self.img.GetDirection(), img.GetDirection())
+
+    def test_ito_sitk(self):
+        with TemporaryDirectory() as temp_dir:
+            temp_fpath = os.path.join(temp_dir, "img.nrrd")
+            sitk.WriteImage(self.img, temp_fpath)
+            ants_img = ants.image_read(temp_fpath)
+            
+        img = ants.to_sitk(ants_img)
+
+        nptest.assert_equal(
+            sitk.GetArrayViewFromImage(self.img), sitk.GetArrayViewFromImage(img)
+        )
+        nptest.assert_almost_equal(self.img.GetOrigin(), img.GetOrigin())
+        nptest.assert_almost_equal(self.img.GetSpacing(), img.GetSpacing())
+        nptest.assert_almost_equal(self.img.GetDirection(), img.GetDirection())
+            
+        
 
 if __name__ == "__main__":
     run_tests()
