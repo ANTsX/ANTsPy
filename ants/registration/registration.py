@@ -42,7 +42,7 @@ def registration(
     multivariate_extras=None,
     restrict_transformation=None,
     smoothing_in_mm=False,
-    singleprecision=False,
+    singleprecision=True,
     **kwargs
 ):
     """
@@ -356,6 +356,8 @@ def registration(
         synits = "x".join([str(ri) for ri in reg_iterations])
 
     inpixeltype = fixed.pixeltype
+    output_pixel_type = 'float' if singleprecision else 'double'
+
     tvTypes = [
         "TV[1]",
         "TV[2]",
@@ -414,7 +416,6 @@ def registration(
     # initx = invertAntsrTransform( initx )
     # writeAntsrTransform( initx, tempTXfilename )
     # initx = tempTXfilename
-    output_pixel_type = 'float' if singleprecision else 'double'
 
     # NOTE: this may be better for general purpose applications: TBD
 #    moving = ants.iMath( moving.clone("float"), "Normalize" )
