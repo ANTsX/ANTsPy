@@ -1354,7 +1354,7 @@ def registration(
         args.append("-g")
         args.append(restrict_transformationchar)
 
-    args.append('--float')
+    args.append("--float")
     args.append(str(int(singleprecision)))
     args.append("--write-composite-transform")
     args.append(write_composite_transform * 1)
