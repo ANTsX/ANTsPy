@@ -416,12 +416,13 @@ def registration(
     # initx = invertAntsrTransform( initx )
     # writeAntsrTransform( initx, tempTXfilename )
     # initx = tempTXfilename
-
+    moving = moving.clone(output_pixel_type)
+    fixed = fixed.clone(output_pixel_type)
     # NOTE: this may be better for general purpose applications: TBD
 #    moving = ants.iMath( moving.clone("float"), "Normalize" )
 #    fixed = ants.iMath( fixed.clone("float"), "Normalize" )
-    warpedfixout = moving.clone(output_pixel_type)
-    warpedmovout = fixed.clone(output_pixel_type)
+    warpedfixout = moving.clone()
+    warpedmovout = fixed.clone()
     f = get_pointer_string(fixed)
     m = get_pointer_string(moving)
     wfo = get_pointer_string(warpedfixout)
