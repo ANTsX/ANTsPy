@@ -1716,7 +1716,7 @@ def label_image_registration(fixed_label_images,
             for j in range(len(common_label_ids[i])):
                 label = common_label_ids[i][j]
                 if verbose:
-                    print("  Finding center of mass for image pair " + str(i) + ", label " + str(label))
+                    print("  Finding centers of mass for image pair " + str(i) + ", label " + str(label))
                 fixed_single_label_image = ants.threshold_image(fixed_label_images[i], label, label, 1, 0)
                 fixed_centers_of_mass[count, :] = ants.get_center_of_mass(fixed_single_label_image)
                 moving_single_label_image = ants.threshold_image(moving_label_images[i], label, label, 1, 0)
