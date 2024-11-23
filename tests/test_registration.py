@@ -161,6 +161,10 @@ class TestModule_interface(unittest.TestCase):
             "QuickRigid",
             "DenseRigid",
             "BOLDRigid",
+            "antsRegistrationSyNQuick[b,32,26]",
+            "antsRegistrationSyNQuick[s]",
+            "antsRegistrationSyNRepro[s]",
+            "antsRegistrationSyN[s]"
         }
 
     def tearDown(self):
@@ -450,6 +454,18 @@ class TestModule_random(unittest.TestCase):
     def test_motion_correction(self):
         fi = ants.image_read(ants.get_ants_data('ch2'))
         mytx = ants.motion_correction( fi )
+
+    def test_label_image_registration(self):
+        fi = ants.image_read(ants.get_ants_data('r16'))
+        mi = ants.image_read(ants.get_ants_data('r64'))
+        fi = ants.resample_image(fi, (60,60), 1, 0)
+        mi = ants.resample_image(mi, (60,60), 1, 0)
+        fi_seg = ants.threshold_image(fi, "Kmeans", 3)-1
+        mi_seg = ants.threshold_image(mi, "Kmeans", 3)-1
+        mytx = ants.label_image_registration([fi_seg], 
+                                             [mi_seg],
+                                             fixed_intensity_images=fi,
+                                             moving_intensity_images=mi)
 
 if __name__ == "__main__":
     run_tests()
