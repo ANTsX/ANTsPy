@@ -1703,7 +1703,10 @@ def label_image_registration(fixed_label_images,
 
         if verbose:
             print("\n\nComputing linear transform.\n")
-        
+
+        if total_number_of_labels < 3:
+            raise ValueError("  Number of labels must be >= 3.") 
+
         fixed_centers_of_mass = np.zeros((total_number_of_labels, image_dimension))     
         moving_centers_of_mass = np.zeros((total_number_of_labels, image_dimension))
         deformable_multivariate_extras = list()
