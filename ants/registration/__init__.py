@@ -11,5 +11,5 @@ from .fit_thin_plate_spline_displacement_field import fit_thin_plate_spline_disp
 from .integrate_velocity_field import integrate_velocity_field
 from .invert_displacement_field import invert_displacement_field
 from .landmark_transforms import fit_transform_to_paired_points, fit_time_varying_transform_to_point_sets
-from .registration import registration, motion_correction
+from .registration import registration, motion_correction, label_image_registration
 from .simulate_displacement_field import simulate_displacement_field
