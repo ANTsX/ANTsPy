@@ -1759,7 +1759,7 @@ def label_image_registration(fixed_label_images,
         if "[" in type_of_transform and "]" in type_of_transform:
             subtype_of_transform = type_of_transform.split("[")[1].split("]")[0]
             if not ('bo' in subtype_of_transform or 'so' in subtype_of_transform):
-                raise ValueError("See only 'so' or 'bo' transforms are available.")
+                raise ValueError("Only 'so' or 'bo' transforms are available.")
             if "," in subtype_of_transform:
                 subtype_of_transform_args = subtype_of_transform.split(",")
                 subtype_of_transform = subtype_of_transform_args[0]
