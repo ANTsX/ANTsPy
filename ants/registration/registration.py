@@ -1683,7 +1683,7 @@ def label_image_registration(fixed_label_images,
         moving_label_geoms = ants.label_geometry_measures(moving_label_images[i])
         moving_label_ids = np.array(moving_label_geoms['Label'])
         common_label_ids.append(np.intersect1d(moving_label_ids, fixed_label_ids))
-        total_number_of_labels = len(common_label_ids[i])
+        total_number_of_labels += len(common_label_ids[i])
         if verbose:
             print("Common label ids for image pair ", str(i), ": ", common_label_ids[i])
         if len(common_label_ids) == 0:
@@ -1716,7 +1716,7 @@ def label_image_registration(fixed_label_images,
             for j in range(len(common_label_ids[i])):
                 label = common_label_ids[i][j]
                 if verbose:
-                    print("  Finding center of mass for label " + str(label))
+                    print("  Finding center of mass for image " + str(i) + ", label " + str(label))
                 fixed_single_label_image = ants.threshold_image(fixed_label_images[i], label, label, 1, 0)
                 fixed_centers_of_mass[count, :] = ants.get_center_of_mass(fixed_single_label_image)
                 moving_single_label_image = ants.threshold_image(moving_label_images[i], label, label, 1, 0)
