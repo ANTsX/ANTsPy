@@ -1700,7 +1700,7 @@ def label_image_registration(fixed_label_images,
         total_number_of_labels += len(common_label_ids[i])
         if verbose:
             print("Common label ids for image pair ", str(i), ": ", common_label_ids[i])
-        if len(common_label_ids) == 0:
+        if len(common_label_ids[i]) == 0:
             raise ValueError("No common labels for image pair " + str(i))
     
     if verbose:
