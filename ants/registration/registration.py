@@ -1631,8 +1631,22 @@ def label_image_registration(fixed_label_images,
 
     Example
     -------
-    >>> 
-    >>> 
+    >>> import ants
+    >>>
+    >>> r16 = ants.image_read(ants.get_ants_data('r16'))
+    >>> r16_seg1 = ants.threshold_image(r16, "Kmeans", 3) - 1
+    >>> r16_seg2 = ants.threshold_image(r16, "Kmeans", 5) - 1
+    >>> r64 = ants.image_read(ants.get_ants_data('r64'))
+    >>> r64_seg1 = ants.threshold_image(r64, "Kmeans", 3) - 1
+    >>> r64_seg2 = ants.threshold_image(r64, "Kmeans", 5) - 1
+    >>> reg = ants.label_image_registration([r16_seg1, r16_seg2],
+                                            [r64_seg1, r64_seg2],  
+                                            fixed_intensity_images=r16,
+                                            moving_intensity_images=r64,
+                                            type_of_linear_transform='affine',
+                                            type_of_transform='antsRegistrationSyNQuick[bo]',
+                                            label_image_weighting=[1.0, 2.0],
+                                            verbose=True)
     """
 
     # Perform validation check on the input
