@@ -475,10 +475,10 @@ class TestModule_random(unittest.TestCase):
         fi = ants.resample_image(fi, (60, 60), 1, 0)
         mi = ants.resample_image(mi, (60, 60), 1, 0)
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN") # should be float precision
-        info = ants.image_header_info(ants.image_read(mytx["fwdtransforms"][0]))
+        info = ants.image_header_info(mytx["fwdtransforms"][0])
         self.assertEqual(info['pixeltype'], 'float')
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN", singleprecision=False)
-        info = ants.image_header_info(ants.image_read(mytx["fwdtransforms"][0]))
+        info = ants.image_header_info(mytx["fwdtransforms"][0])
         self.assertEqual(info['pixeltype'], 'double')
 
 if __name__ == "__main__":
