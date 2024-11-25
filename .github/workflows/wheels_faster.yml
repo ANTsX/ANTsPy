@@ -27,7 +27,7 @@ jobs:
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
-          - os: macos-12
+          - os: macos-13
             python: '3.11'
             cibw_python: 311
             arch: x86_64
