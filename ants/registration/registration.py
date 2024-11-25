@@ -1620,7 +1620,10 @@ def label_image_registration(fixed_label_images,
     output_prefix : string
         Define the output prefix for the filenames of the output transform
         files.    
-          
+
+    random_seed : integer
+        Definition for deformable registration.
+
     verbose : boolean
         Print progress to the screen.
 
