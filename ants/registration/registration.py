@@ -1695,9 +1695,9 @@ def label_image_registration(fixed_label_images,
     if not type_of_linear_transform in allowable_linear_transforms:
         raise ValueError("Unrecognized linear transform.") 
         
-    do_deformable = False
-    if type_of_transform is not None or len(type_of_transform) > 0:
-       do_deformable = True
+    do_deformable = True
+    if type_of_transform is None or len(type_of_transform) == 0:
+       do_deformable = False
 
     common_label_ids = list()
     total_number_of_labels = 0
