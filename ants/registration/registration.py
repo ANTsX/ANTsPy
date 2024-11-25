@@ -42,6 +42,7 @@ def registration(
     multivariate_extras=None,
     restrict_transformation=None,
     smoothing_in_mm=False,
+    singleprecision=True,
     **kwargs
 ):
     """
@@ -151,6 +152,10 @@ def registration(
           transformations.
 
     smoothing_in_mm : boolean ; currently only impacts low dimensional registration
+
+    singleprecision : boolean
+        if True, use float32 for computations. This is useful for reducing memory
+        usage for large datasets, at the cost of precision.    
 
     kwargs : keyword args
         extra arguments
@@ -351,6 +356,8 @@ def registration(
         synits = "x".join([str(ri) for ri in reg_iterations])
 
     inpixeltype = fixed.pixeltype
+    output_pixel_type = 'float' if singleprecision else 'double'
+
     tvTypes = [
         "TV[1]",
         "TV[2]",
@@ -409,8 +416,8 @@ def registration(
     # initx = invertAntsrTransform( initx )
     # writeAntsrTransform( initx, tempTXfilename )
     # initx = tempTXfilename
-    moving = moving.clone("float")
-    fixed = fixed.clone("float")
+    moving = moving.clone(output_pixel_type)
+    fixed = fixed.clone(output_pixel_type)
     # NOTE: this may be better for general purpose applications: TBD
 #    moving = ants.iMath( moving.clone("float"), "Normalize" )
 #    fixed = ants.iMath( fixed.clone("float"), "Normalize" )
@@ -1349,7 +1356,7 @@ def registration(
         args.append(restrict_transformationchar)
 
     args.append("--float")
-    args.append("1")
+    args.append(str(int(singleprecision)))
     args.append("--write-composite-transform")
     args.append(write_composite_transform * 1)
     if verbose:
