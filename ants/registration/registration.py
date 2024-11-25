@@ -1809,7 +1809,7 @@ def label_image_registration(fixed_label_images,
                 "MSQ",
                 get_pointer_string(deformable_multivariate_extras[kk][1]),
                 get_pointer_string(deformable_multivariate_extras[kk][2]),
-                label_image_weights[kk], 0.0)
+                deformable_multivariate_extras[kk][3], 0.0)
             syn_stage.append(metricString)     
 
         syn_shrink_factors = "8x4x2x1"
@@ -1890,12 +1890,11 @@ def label_image_registration(fixed_label_images,
     find_forward_warps = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in all_xfrms])[0]
 
     if len(find_inverse_warps) > 0:
-        fwdtransforms = [find_forward_warps[0], linear_xfrm_file]
-        invtransforms = [linear_xfrm_file, find_inverse_warps[0]]
-        invtransforms = [ff for idx, ff in enumerate(all_xfrms) if idx != find_forward_warps[0]]
+        fwdtransforms = [all_xfrms[find_forward_warps[0]], linear_xfrm_file]
+        invtransforms = [linear_xfrm_file, all_xfrms[find_inverse_warps[0]]]
     else:
-        fwdtransforms = list(reversed(all_xfrms))
-        invtransforms = all_xfrms
+        fwdtransforms = [linear_xfrm_file]
+        invtransforms = [linear_xfrm_file]
 
     if verbose:
         print("\n\nResulting transforms")
