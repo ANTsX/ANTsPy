@@ -462,10 +462,24 @@ class TestModule_random(unittest.TestCase):
         mi = ants.resample_image(mi, (60,60), 1, 0)
         fi_seg = ants.threshold_image(fi, "Kmeans", 3)-1
         mi_seg = ants.threshold_image(mi, "Kmeans", 3)-1
-        mytx = ants.label_image_registration([fi_seg], 
+        mytx = ants.label_image_registration([fi_seg],
                                              [mi_seg],
                                              fixed_intensity_images=fi,
                                              moving_intensity_images=mi)
+
+
+    def test_reg_precision_option(self):
+        # Check that registration and apply transforms works with float and double precision
+        fi = ants.image_read(ants.get_ants_data("r16"))
+        mi = ants.image_read(ants.get_ants_data("r64"))
+        fi = ants.resample_image(fi, (60, 60), 1, 0)
+        mi = ants.resample_image(mi, (60, 60), 1, 0)
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN") # should be float precision
+        info = ants.image_header_info(mytx["fwdtransforms"][0])
+        self.assertEqual(info['pixeltype'], 'float')
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN", singleprecision=False)
+        info = ants.image_header_info(mytx["fwdtransforms"][0])
+        self.assertEqual(info['pixeltype'], 'double')
 
 if __name__ == "__main__":
     run_tests()
