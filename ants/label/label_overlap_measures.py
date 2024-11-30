@@ -40,5 +40,5 @@ def label_overlap_measures(source_image, target_image):
     libfn = get_lib_fn("labelOverlapMeasures%iD" % source_image_int.dimension)
     df = libfn(source_image_int.pointer, target_image_int.pointer)
     df = pd.DataFrame(df)
-    df.loc[0, 'Label'] = 'All'.astype(object)
+    df.loc[0, 'Label'] = 'All'
     return df
