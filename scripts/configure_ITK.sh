@@ -14,7 +14,7 @@ if [[ "$TRAVIS" == "true" ]] ; then
 fi
 
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-itktag=4535548a8539757c5fe9d81f8de5d804cd0a384f # 2024-03-12
+itktag=89d13df59f43d6d68375e217f6be3e7fb45d8447 # 2024-12-01
 # if there is a directory but no git, remove it
 if [[ -d itksource ]]; then
     if [[ ! -d itksource/.git ]]; then
