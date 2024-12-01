@@ -25,6 +25,12 @@ set(ITK_DIR "./itkbuild")
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+  include_directories(/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1)
+  set(ENV{PATH} "$ENV{PATH}:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1")
+  add_compile_options(-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1)
+endif()
+
 # ANTS
 add_library(antsUtilities STATIC src/antscore/antsUtilities.cxx src/antscore/antsCommandLineOption.cxx src/antscore/antsCommandLineParser.cxx src/antscore/ReadWriteData.cxx src/antscore/ANTsVersion.cxx)
 add_library(registrationUtilities STATIC  src/antscore/antsRegistrationTemplateHeader.cxx
