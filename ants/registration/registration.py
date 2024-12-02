@@ -1580,7 +1580,7 @@ def label_image_registration(fixed_label_images,
                              fixed_mask=None,
                              moving_mask=None,
                              type_of_linear_transform='affine',
-                             type_of_transform='antsRegistrationSyNQuick[so]',
+                             type_of_deformable_transform='antsRegistrationSyNQuick[so]',
                              label_image_weighting=1.0,
                              output_prefix='',
                              random_seed=None,
@@ -1616,7 +1616,7 @@ def label_image_registration(fixed_label_images,
         Use label images with the centers of mass to a calculate linear 
         transform of type 'rigid', 'similarity', or 'affine'.
 
-    type_of_transform : string
+    type_of_deformable_transform : string
         Only works with deformable-only transforms, specifically the family
         of antsRegistrationSyN*[so] or antsRegistrationSyN*[bo] transforms.  
         See 'type_of_transform' in ants.registration.
@@ -1654,7 +1654,7 @@ def label_image_registration(fixed_label_images,
                                             fixed_intensity_images=r16,
                                             moving_intensity_images=r64,
                                             type_of_linear_transform='affine',
-                                            type_of_transform='antsRegistrationSyNQuick[bo]',
+                                            type_of_deformable_transform='antsRegistrationSyNQuick[bo]',
                                             label_image_weighting=[1.0, 2.0],
                                             verbose=True)
     """
@@ -1696,7 +1696,7 @@ def label_image_registration(fixed_label_images,
         raise ValueError("Unrecognized linear transform.") 
         
     do_deformable = True
-    if type_of_transform is None or len(type_of_transform) == 0:
+    if type_of_deformable_transform is None or len(type_of_deformable_transform) == 0:
        do_deformable = False
 
     common_label_ids = list()
@@ -1773,24 +1773,24 @@ def label_image_registration(fixed_label_images,
         do_quick = False
         do_repro = False
 
-        if "Quick" in type_of_transform:
+        if "Quick" in type_of_deformable_transform:
             do_quick = True
-        elif "Repro" in type_of_transform:
+        elif "Repro" in type_of_deformable_transform:
             do_repro = True
             random_seed = str(1)
 
         intensity_metric_parameter = None
         spline_distance = 26
-        if "[" in type_of_transform and "]" in type_of_transform:
-            subtype_of_transform = type_of_transform.split("[")[1].split("]")[0]
-            if not ('bo' in subtype_of_transform or 'so' in subtype_of_transform):
+        if "[" in type_of_deformable_transform and "]" in type_of_deformable_transform:
+            subtype_of_deformable_transform = type_of_deformable_transform.split("[")[1].split("]")[0]
+            if not ('bo' in subtype_of_deformable_transform or 'so' in subtype_of_deformable_transform):
                 raise ValueError("Only 'so' or 'bo' transforms are available.")
-            if "," in subtype_of_transform:
-                subtype_of_transform_args = subtype_of_transform.split(",")
-                subtype_of_transform = subtype_of_transform_args[0]
-                intensity_metric_parameter = subtype_of_transform_args[1]
-                if len(subtype_of_transform_args) > 2:
-                    spline_distance = subtype_of_transform_args[2]
+            if "," in subtype_of_deformable_transform:
+                subtype_of_deformable_transform_args = subtype_of_deformable_transform.split(",")
+                subtype_of_deformable_transform = subtype_of_deformable_transform_args[0]
+                intensity_metric_parameter = subtype_of_deformable_transform_args[1]
+                if len(subtype_of_deformable_transform_args) > 2:
+                    spline_distance = subtype_of_deformable_transform_args[2]
 
         syn_stage = list() 
 
@@ -1837,7 +1837,7 @@ def label_image_registration(fixed_label_images,
         syn_stage.append("--smoothing-sigmas")
         syn_stage.append(syn_smoothing_sigmas)
 
-        if 'b' in subtype_of_transform:
+        if 'b' in subtype_of_deformable_transform:
             syn_stage.insert(0, "BSplineSyN[0.1," + str(spline_distance) + ",0,3]")
         else:
             syn_stage.insert(0, "SyN[0.1,3,0]")
