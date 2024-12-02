@@ -36,7 +36,7 @@ jobs:
           # macOS on Apple M1 64-bit, supported for Python 3.10 and later
           - os: macos-14
             python: '3.12'
-            cibw_python: 311
+            cibw_python: 312
             arch: arm64
             platform_id: macosx_arm64
 
