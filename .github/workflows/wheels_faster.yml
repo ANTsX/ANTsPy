@@ -14,11 +14,11 @@ jobs:
           # Have to specify python version twice so that the same python is used to build and test
           # Need to quote decimal versions as string to avoid the "Norway problem"
 
-          # Windows 64-bit - broken due to ITK issues
-        #   - os: windows-latest
-        #     python: '3.12'
-        #     cibw_python: 312
-        #     platform_id: win_amd64
+          # Windows 64-bit
+          - os: windows-latest
+            python: '3.12'
+            cibw_python: 312
+            platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
