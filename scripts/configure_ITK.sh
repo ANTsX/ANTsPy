@@ -38,25 +38,22 @@ cd ../
 echo "Dependency;GitTag" > ./data/softwareVersions.csv
 echo "ITK;${itktag}" >> ./data/softwareVersions.csv
 
-# if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-#  include_directories(/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1)
-##  set(ENV{PATH} "$ENV{PATH}:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1")
-#  add_compile_options(-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1)
-# endif()
-
 mkdir -p itkbuild
 cd itkbuild
 compflags=" -Wno-c++11-long-long -fPIC -O2 -DNDEBUG "
+osx_sysroot=""
 
 if [[ `uname` == 'Darwin' ]] ; then
-  compflags=" -Wno-c++11-long-long -fPIC -O2 -DNDEBUG -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -stdlib=libc++ "
+  osx_sysroot=$(xcrun --sdk macosx --show-sdk-path)
 fi
+
 cmake \
 	-G"${ADD_G}" \
     -DITK_USE_SYSTEM_PNG=ON \
     -DCMAKE_SH:BOOL=OFF \
     -DCMAKE_BUILD_TYPE:STRING="${CMAKE_BUILD_TYPE}" \
-    -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-c++11-long-long -fPIC -O2 -DNDEBUG  "\
+    -DCMAKE_OSX_SYSROOT="${osx_sysroot}" \
+    -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} ${compflags}"\
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} ${compflags} "\
     -DITK_USE_GIT_PROTOCOL:BOOL=OFF \
     -DBUILD_SHARED_LIBS:BOOL=OFF \
