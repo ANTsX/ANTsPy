@@ -1620,9 +1620,9 @@ def label_image_registration(fixed_label_images,
         Only works with deformable-only transforms, specifically the family
         of antsRegistrationSyN*[so] or antsRegistrationSyN*[bo] transforms.  
         See 'type_of_transform' in ants.registration.  Additionally, one can
-        use a dictionary to pass a more tailored deformably-only transform 
+        use a list to pass a more tailored deformably-only transform 
         optimization using SyN or BSplineSyN transforms.  The order of 
-        parameters in the dictionary would be 1) transform specification, i.e.
+        parameters in the list would be 1) transform specification, i.e.
         "SyN" or "BSplineSyN", 2) gradient (real), 3) intensity metric (string), 
         4) intensity metric parameter (real), 5) convergence iterations per level 
         (tuple) 6) smoothing factors per level (tuple), 7) shrink factors per level 
@@ -1799,7 +1799,7 @@ def label_image_registration(fixed_label_images,
                 not isinstance(type_of_deformable_transform[4], tuple) or 
                 not isinstance(type_of_deformable_transform[5], tuple) or 
                 not isinstance(type_of_deformable_transform[6], tuple)):
-                raise ValueError("Incorrect specification for type_of_deformable_transform.")            
+                raise ValueError("Incorrect specification for type_of_deformable_transform.  See help menu.")            
 
             syn_transform = type_of_deformable_transform[0]
             gradient_step = type_of_deformable_transform[1]
