@@ -40,6 +40,8 @@ version, and will instead try to compile from source. The compatibility checks c
 disabled by setting the  environment variable `SYSTEM_VERSION_COMPAT=0`. More details on
 the [wiki](https://github.com/ANTsX/ANTsPy/wiki/MacOS-wheel-compatibility-issues).
 
+Windows users will need a compatible [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) installation.
+
 
 ### Building from source
 
