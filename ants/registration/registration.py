@@ -65,7 +65,8 @@ def registration(
 
     initial_transform : list of strings (optional)
         transforms to prepend. If None, a translation is computed to align the image centers of mass, unless the type of
-        transform is deformable-only. To force initialization with an identity transform, set this to 'Identity'.
+        transform is deformable-only (time-varying diffeomorphisms, SyNOnly, or antsRegistrationSyN*[so|bo]).
+        To force initialization with an identity transform, set this to 'Identity'.
 
     outprefix : string
         output will be named with this prefix.
@@ -444,7 +445,8 @@ def registration(
     deformable_only_transforms = ["SyNOnly", "antsRegistrationSyN[so]", "antsRegistrationSyNQuick[so]",
                                   "antsRegistrationSyNRepro[so]", "antsRegistrationSyNQuickRepro[so]",
                                   "antsRegistrationSyN[bo]", "antsRegistrationSyNQuick[bo]",
-                                  "antsRegistrationSyNRepro[bo]", "antsRegistrationSyNQuickRepro[bo]"]
+                                  "antsRegistrationSyNRepro[bo]", "antsRegistrationSyNQuickRepro[bo]",
+                                  "TVMSQ", "TVMSQC"] + tvTypes
 
     if initx is None:
         if type_of_transform in deformable_only_transforms:
@@ -1071,7 +1073,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            # '-r', initx,
+            '-r'
+        ] + initx + [
             "-m",
             "%s[%s,%s,1,%s]" % (syn_metric, f, m, syn_sampling),
             "-t",
@@ -1102,7 +1105,8 @@ def registration(
         args = [
             "-d",
             str(fixed.dimension),
-            # '-r', initx,
+            '-r'
+        ] + initx + [
             "-m",
             "demons[%s,%s,0.5,0]" % (f, m),
             "-m",
