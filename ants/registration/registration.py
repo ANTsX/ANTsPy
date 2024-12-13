@@ -1775,6 +1775,16 @@ def label_image_registration(fixed_label_images,
 
     if do_deformable:
 
+        if type_of_linear_transform == "identity":
+            for i in range(len(common_label_ids)):
+                for j in range(len(common_label_ids[i])):
+                    label = common_label_ids[i][j]
+                    fixed_single_label_image = ants.threshold_image(fixed_label_images[i], label, label, 1, 0)
+                    moving_single_label_image = ants.threshold_image(moving_label_images[i], label, label, 1, 0)
+                    deformable_multivariate_extras.append(["MSQ", fixed_single_label_image, 
+                                                        moving_single_label_image, 
+                                                        label_image_weights[i], 0])
+
         if verbose:
             print("\n\nComputing deformable transform using images.\n")
 
