@@ -1720,7 +1720,9 @@ def label_image_registration(fixed_label_images,
             print("Common label ids for image pair ", str(i), ": ", common_label_ids[i])
         if len(common_label_ids[i]) == 0:
             raise ValueError("No common labels for image pair " + str(i))
-    
+
+    deformable_multivariate_extras = list()
+
     if verbose:
         print("Total number of labels: " + str(total_number_of_labels))
 
@@ -1741,7 +1743,6 @@ def label_image_registration(fixed_label_images,
 
         fixed_centers_of_mass = np.zeros((total_number_of_labels, image_dimension))     
         moving_centers_of_mass = np.zeros((total_number_of_labels, image_dimension))
-        deformable_multivariate_extras = list()
         
         count = 0
         for i in range(len(common_label_ids)):
@@ -1942,13 +1943,20 @@ def label_image_registration(fixed_label_images,
     
     find_inverse_warps = np.where([re.search("[0-9]InverseWarp.nii.gz", ff) for ff in all_xfrms])[0]
     find_forward_warps = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in all_xfrms])[0]
-
-    if len(find_inverse_warps) > 0:
-        fwdtransforms = [all_xfrms[find_forward_warps[0]], linear_xfrm_file]
-        invtransforms = [linear_xfrm_file, all_xfrms[find_inverse_warps[0]]]
+    
+    fwdtransforms = []
+    invtransforms = []
+    if linear_xfrm is not None:
+        if len(find_inverse_warps) > 0:
+            fwdtransforms = [all_xfrms[find_forward_warps[0]], linear_xfrm_file]
+            invtransforms = [linear_xfrm_file, all_xfrms[find_inverse_warps[0]]]
+        else:
+            fwdtransforms = [linear_xfrm_file]
+            invtransforms = [linear_xfrm_file]                     
     else:
-        fwdtransforms = [linear_xfrm_file]
-        invtransforms = [linear_xfrm_file]
+        if len(find_inverse_warps) > 0:
+            fwdtransforms = [all_xfrms[find_forward_warps[0]]]
+            invtransforms = [all_xfrms[find_inverse_warps[0]]]
 
     if verbose:
         print("\n\nResulting transforms")
