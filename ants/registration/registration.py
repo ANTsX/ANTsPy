@@ -1614,7 +1614,7 @@ def label_image_registration(fixed_label_images,
         
     type_of_linear_transform : string
         Use label images with the centers of mass to a calculate linear 
-        transform of type 'rigid', 'similarity', or 'affine'.
+        transform of type 'identity', 'rigid', 'similarity', or 'affine'.
 
     type_of_deformable_transform : string
         Only works with deformable-only transforms, specifically the family
@@ -1699,7 +1699,7 @@ def label_image_registration(fixed_label_images,
     if output_prefix == "" or output_prefix is None or len(output_prefix) == 0:
         output_prefix = mktemp()
 
-    allowable_linear_transforms = ['rigid', 'similarity', 'affine']  
+    allowable_linear_transforms = ['rigid', 'similarity', 'affine', 'identity']  
     if not type_of_linear_transform in allowable_linear_transforms:
         raise ValueError("Unrecognized linear transform.") 
         
@@ -1731,7 +1731,7 @@ def label_image_registration(fixed_label_images,
     ##############################
 
     linear_xfrm = None
-    if type_of_linear_transform is not None:
+    if type_of_linear_transform != 'identity':
 
         if verbose:
             print("\n\nComputing linear transform.\n")
