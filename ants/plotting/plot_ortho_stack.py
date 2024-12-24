@@ -288,7 +288,7 @@ def plot_ortho_stack(
         if xyz_lines:
             # add lines
             l = mlines.Line2D(
-                [yz_slice.shape[0] - xyz[1], yz_slice.shape[0] - xyz[1]],
+                [xyz[1], xyz[1]],
                 [xyz_pad, yz_slice.shape[0] - xyz_pad],
                 color=xyz_color,
                 alpha=xyz_alpha,
