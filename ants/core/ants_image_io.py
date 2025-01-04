@@ -259,7 +259,7 @@ def image_clone(image, pixeltype=None):
     image : ANTsImage
         image to clone
 
-    dtype : string (optional)
+    pixeltype : string (optional)
         new datatype for image
 
     Returns
@@ -460,8 +460,8 @@ def clone(image, pixeltype=None):
 
     Arguments
     ---------
-    dtype: string (optional)
-        if None, the dtype will be the same as the cloned ANTsImage. Otherwise,
+    pixeltype: string (optional)
+        if None, the pixeltype will be the same as the cloned ANTsImage. Otherwise,
         the data will be cast to this type. This can be a numpy type or an ITK
         type.
         Options:
@@ -478,7 +478,11 @@ def clone(image, pixeltype=None):
         pixeltype = image.pixeltype
 
     if pixeltype not in _supported_ptypes:
-        raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
+        # check if the pixeltype is a numpy type
+        if pixeltype in _supported_ntypes:
+            pixeltype =  _npy_to_itk_map[pixeltype]
+        else:
+            raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
     if image.has_components and (not image.is_rgb):
         comp_imgs = ants.split_channels(image)
