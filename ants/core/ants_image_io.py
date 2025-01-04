@@ -259,7 +259,7 @@ def image_clone(image, pixeltype=None):
     image : ANTsImage
         image to clone
 
-    dtype : string (optional)
+    pixeltype : string (optional)
         new datatype for image
 
     Returns
@@ -460,8 +460,8 @@ def clone(image, pixeltype=None):
 
     Arguments
     ---------
-    dtype: string (optional)
-        if None, the dtype will be the same as the cloned ANTsImage. Otherwise,
+    pixeltype: string (optional)
+        if None, the pixeltype will be the same as the cloned ANTsImage. Otherwise,
         the data will be cast to this type. This can be a numpy type or an ITK
         type.
         Options:
