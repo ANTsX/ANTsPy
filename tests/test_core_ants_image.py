@@ -27,7 +27,8 @@ class TestClass_ANTsImage(unittest.TestCase):
         img2d = ants.image_read(ants.get_ants_data('r16'))
         img3d = ants.image_read(ants.get_ants_data('mni'))
         self.imgs = [img2d, img3d]
-        self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
+        self.pixeltypes = ['unsigned char', 'unsigned int', 'float', 'double']
+        self.numpy_pixeltypes = ['uint8', 'uint32', 'float32', 'float64']
 
     def tearDown(self):
         pass
@@ -138,10 +139,10 @@ class TestClass_ANTsImage(unittest.TestCase):
         #self.setUp()
         for img in self.imgs:
             orig_ptype = img.pixeltype
-            for ptype in self.pixeltypes:
+            for ptype in [*self.pixeltypes, *self.numpy_pixeltypes]:
                 imgclone = img.clone(ptype)
 
-                self.assertEqual(imgclone.pixeltype, ptype)
+                self.assertIn(ptype, [imgclone.dtype, imgclone.pixeltype])
                 self.assertEqual(img.pixeltype, orig_ptype)
                 # test physical space consistency
                 self.assertTrue(ants.image_physical_space_consistency(img, imgclone))
@@ -530,7 +531,7 @@ class TestModule_ants_image(unittest.TestCase):
         img2d = ants.image_read(ants.get_ants_data('r16')).clone('float')
         img3d = ants.image_read(ants.get_ants_data('mni')).clone('float')
         self.imgs = [img2d, img3d]
-        self.pixeltypes = ['unsigned char', 'unsigned int', 'float']
+        self.pixeltypes = ['unsigned char', 'unsigned int', 'float', 'double']
 
     def tearDown(self):
         pass

@@ -478,7 +478,11 @@ def clone(image, pixeltype=None):
         pixeltype = image.pixeltype
 
     if pixeltype not in _supported_ptypes:
-        raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
+        # check if the pixeltype is a numpy type
+        if pixeltype in _supported_ntypes:
+            pixeltype =  _npy_to_itk_map[pixeltype]
+        else:
+            raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
 
     if image.has_components and (not image.is_rgb):
         comp_imgs = ants.split_channels(image)
