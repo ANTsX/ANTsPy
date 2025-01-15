@@ -580,19 +580,20 @@ def registration(
         ]
     # ------------------------------------------------------------
     elif type_of_transform == "SyNOnly":
-        args = [
-            "--dimensionality", str(fixed.dimension),
-            "-r"] + initial_transform + [
-            "--metric", "%s[%s,%s,1,%s]" % (syn_metric, fixed_str, moving_str, syn_sampling),
-            "--transform", mysyn,
-            "--convergence", "[%s,1e-7,8]" % synits,
-            "--smoothing-sigmas", smoothingsigmas,
-            "--shrink-factors", shrinkfactors,
-            "-u", "1",
-            "-z", "1",
-            "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
-        ]
-        if multivariate_extras is not None:
+        if multivariate_extras is None:
+            args = [
+                "--dimensionality", str(fixed.dimension),
+                "-r"] + initial_transform + [
+                "--metric", "%s[%s,%s,1,%s]" % (syn_metric, fixed_str, moving_str, syn_sampling),
+                "--transform", mysyn,
+                "--convergence", "[%s,1e-7,8]" % synits,
+                "--smoothing-sigmas", smoothingsigmas,
+                "--shrink-factors", shrinkfactors,
+                "-u", "1",
+                "-z", "1",
+                "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
+            ]
+        else:
             metrics = []
             for mve_idx in range(len(multivariate_extras)):
                 metrics.append("--metric")
@@ -613,7 +614,21 @@ def registration(
                     metric_sampling,
                 )
                 metrics.append(metric_full_string)
-            args = args + metrics
+            args_pre = [
+                "--dimensionality", str(fixed.dimension),
+                "-r"] + initial_transform + [
+                "--metric", "%s[%s,%s,1,%s]" % (syn_metric, fixed_str, moving_str, syn_sampling),
+            ]
+            args_post = [
+                "--transform", mysyn,
+                "--convergence", "[%s,1e-7,8]" % synits,
+                "--smoothing-sigmas", smoothingsigmas,
+                "--shrink-factors", shrinkfactors,
+                "-u", "1",
+                "-z", "1",
+                "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
+            ]
+            args = args_pre + metrics + args_post
         args.append("-x")
         args.append(maskopt)
     # ------------------------------------------------------------
