@@ -162,7 +162,7 @@ def registration(
     use_legacy_histogram_matching : boolean
         if True, use the original histogram matching in ANTs. This is not recommended, but is available for backwards
         compatibilty with earlier versions, where it was always turned on. The default is False. A better implementation of
-        histogram matching is available in the ants.utils.histogram_matching function.
+        histogram matching is available in the ants.histogram_match_image2 function.
 
     kwargs : keyword args
         extra arguments
