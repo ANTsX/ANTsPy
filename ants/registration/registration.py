@@ -43,6 +43,7 @@ def registration(
     restrict_transformation=None,
     smoothing_in_mm=False,
     singleprecision=True,
+    use_legacy_histogram_matching=False,
     **kwargs
 ):
     """
@@ -157,6 +158,11 @@ def registration(
     singleprecision : boolean
         if True, use float32 for computations. This is useful for reducing memory
         usage for large datasets, at the cost of precision.
+
+    use_legacy_histogram_matching : boolean
+        if True, use the original histogram matching in ANTs. This is not recommended, but is available for backwards
+        compatibilty with earlier versions, where it was always turned on. The default is False. A better implementation of
+        histogram matching is available in the ants.utils.histogram_matching function.
 
     kwargs : keyword args
         extra arguments
@@ -477,7 +483,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -504,7 +510,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % (synits),
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -525,7 +531,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % (synits),
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -546,7 +552,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -573,7 +579,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -589,7 +595,7 @@ def registration(
                 "--convergence", "[%s,1e-7,8]" % synits,
                 "--smoothing-sigmas", smoothingsigmas,
                 "--shrink-factors", shrinkfactors,
-                "-u", "1",
+                "-u", str(int(use_legacy_histogram_matching)),
                 "-z", "1",
                 "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             ]
@@ -624,7 +630,7 @@ def registration(
                 "--convergence", "[%s,1e-7,8]" % synits,
                 "--smoothing-sigmas", smoothingsigmas,
                 "--shrink-factors", shrinkfactors,
-                "-u", "1",
+                "-u", str(int(use_legacy_histogram_matching)),
                 "-z", "1",
                 "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             ]
@@ -647,7 +653,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -680,7 +686,7 @@ def registration(
             "--convergence", "[2100x1200x1200x20,1e-7,8]",
             "--smoothing-sigmas", "3x2x1x0",
             "--shrink-factors", "4x3x2x1",
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -726,7 +732,7 @@ def registration(
             "--convergence", myconvhi,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -753,7 +759,7 @@ def registration(
             "--convergence", "50x10x0",
             "--smoothing-sigmas", "2x1x0",
             "--shrink-factors", "4x2x1",
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -774,7 +780,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -803,7 +809,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "0",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -825,7 +831,7 @@ def registration(
             "--convergence", "[%s,1e-7,8]" % synits,
             "--smoothing-sigmas", smoothingsigmas,
             "--shrink-factors", shrinkfactors,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "0",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -847,7 +853,7 @@ def registration(
             "--convergence", "[1200x1200x100x20x0,0,5]",
             "--smoothing-sigmas", "8x6x4x2x1vox",
             "--shrink-factors", "8x6x4x2x1",
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "0",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -862,7 +868,7 @@ def registration(
             "--convergence", myiterations,
             "--smoothing-sigmas", smoothingsigmas_affine,
             "--shrink-factors", shrinkfactors_affine,
-            "-u", "1",
+            "-u", str(int(use_legacy_histogram_matching)),
             "-z", "1",
             "--output", "[%s,%s,%s]" % (outprefix, warpedmovout_str, warpedfixout_str),
             "-x", maskopt
@@ -1279,7 +1285,7 @@ def label_image_registration(fixed_label_images,
         of the moving image.
 
     type_of_linear_transform : string
-        Use label images with the centers of mass to a calculate linear 
+        Use label images with the centers of mass to a calculate linear
         transform of type 'identity', 'rigid', 'similarity', or 'affine'.
 
     type_of_deformable_transform : string
@@ -1365,7 +1371,7 @@ def label_image_registration(fixed_label_images,
     if output_prefix == "" or output_prefix is None or len(output_prefix) == 0:
         output_prefix = mktemp()
 
-    allowable_linear_transforms = ['rigid', 'similarity', 'affine', 'identity']  
+    allowable_linear_transforms = ['rigid', 'similarity', 'affine', 'identity']
     if not type_of_linear_transform in allowable_linear_transforms:
         raise ValueError("Unrecognized linear transform.")
 
@@ -1447,8 +1453,8 @@ def label_image_registration(fixed_label_images,
                     label = common_label_ids[i][j]
                     fixed_single_label_image = ants.threshold_image(fixed_label_images[i], label, label, 1, 0)
                     moving_single_label_image = ants.threshold_image(moving_label_images[i], label, label, 1, 0)
-                    deformable_multivariate_extras.append(["MSQ", fixed_single_label_image, 
-                                                        moving_single_label_image, 
+                    deformable_multivariate_extras.append(["MSQ", fixed_single_label_image,
+                                                        moving_single_label_image,
                                                         label_image_weights[i], 0])
 
         if verbose:
@@ -1608,7 +1614,7 @@ def label_image_registration(fixed_label_images,
 
     find_inverse_warps = np.where([re.search("[0-9]InverseWarp.nii.gz", ff) for ff in all_xfrms])[0]
     find_forward_warps = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in all_xfrms])[0]
-    
+
     fwdtransforms = []
     invtransforms = []
     if linear_xfrm is not None:
@@ -1617,7 +1623,7 @@ def label_image_registration(fixed_label_images,
             invtransforms = [linear_xfrm_file, all_xfrms[find_inverse_warps[0]]]
         else:
             fwdtransforms = [linear_xfrm_file]
-            invtransforms = [linear_xfrm_file]                     
+            invtransforms = [linear_xfrm_file]
     else:
         if len(find_inverse_warps) > 0:
             fwdtransforms = [all_xfrms[find_forward_warps[0]]]
