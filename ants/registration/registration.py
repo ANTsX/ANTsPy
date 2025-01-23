@@ -874,7 +874,7 @@ def registration(
 
         subtype_of_transform = "s"
         spline_distance = 26
-        metric_parameter = 32 if do_quick else 4
+        metric_parameter = 32 if do_quick else 2
         linear_metric = "GC[%s,%s,1,1,Regular,0.25]" if do_repro else "MI[%s,%s,1,32,Regular,0.25]"
 
         rigid_shrink_factors = "8x4x2x1"
@@ -882,6 +882,9 @@ def registration(
 
         affine_shrink_factors = "8x4x2x1"
         affine_smoothing_sigmas = "3x2x1x0vox"
+        
+        linear_gradient_step = 0.1
+        syn_gradient_step = 0.2
 
         if "[" in type_of_transform and "]" in type_of_transform:
             subtype_of_transform = type_of_transform.split("[")[1].split(
@@ -928,14 +931,14 @@ def registration(
         rigidtx = "Translation" if subtype_of_transform == "t" else "Rigid"
 
         rigid_stage = [
-            "--transform", rigidtx + "[0.1]",
+            "--transform", rigidtx + "[" + str(linear_gradient_step) + "]",
             "--metric", linear_metric % (fixed_str, moving_str),
             "--convergence", rigid_convergence,
             "--shrink-factors", rigid_shrink_factors,
             "--smoothing-sigmas", rigid_smoothing_sigmas,
         ]
         affine_stage = [
-            "--transform", "Affine[0.1]",
+            "--transform", "Affine[" + str(linear_gradient_step) + "]",
             "--metric", linear_metric % (fixed_str, moving_str),
             "--convergence", affine_convergence,
             "--shrink-factors", affine_shrink_factors,
@@ -973,11 +976,11 @@ def registration(
         syn_stage.append(syn_smoothing_sigmas)
 
         if subtype_of_transform in ("b", "br", "bo"):
-            syn_stage.insert(0, "BSplineSyN[0.1," + str(spline_distance) + ",0,3]")
+            syn_stage.insert(0, "BSplineSyN[" + str(syn_gradient_step) + "," + str(spline_distance) + ",0,3]")
             syn_stage.insert(0, "--transform")
 
         if subtype_of_transform in ("s", "sr", "so"):
-            syn_stage.insert(0, "SyN[0.1,3,0]")
+            syn_stage.insert(0, "SyN[" + str(syn_gradient_step) + ",3,0]")
             syn_stage.insert(0, "--transform")
 
         args = [
@@ -1460,7 +1463,7 @@ def label_image_registration(fixed_label_images,
         syn_smoothing_sigmas = "3x2x1x0vox"
         syn_convergence = "[100x70x50x20,1e-6,10]"
         spline_distance = 26
-        gradient_step = 0.1
+        gradient_step = 0.2
         syn_transform = "SyN"
 
         syn_stage = list()
