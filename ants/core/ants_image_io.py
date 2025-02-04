@@ -99,7 +99,8 @@ def from_numpy(
     if best_dtype != data.dtype:
         data = data.astype(best_dtype)
 
-    img = _from_numpy(data.T.copy(), origin, spacing, direction, has_components, is_rgb)
+    # Be explicit about ordering of data - needs to be C-contiguous
+    img = _from_numpy(data.T.copy(order='C'), origin, spacing, direction, has_components, is_rgb)
     return img
 
 
