@@ -36,7 +36,13 @@ AntsImage<ImageType> imageRead( std::string filename )
     return myImage;
 }
 
-
+/**
+ * Create an ANTsImage from a numpy array
+ *
+ * The data array must be C-contiguous, and ordered correctly
+ * See "4.1.7 Importing Image Data from a Buffer"
+ * https://itk.org/ITKSoftwareGuide/html/Book1/ITKSoftwareGuide-Book1ch4.html
+ */
 template <typename ImageType>
 AntsImage<ImageType> fromNumpy( nb::ndarray<nb::numpy> data, nb::tuple datashape )
 {

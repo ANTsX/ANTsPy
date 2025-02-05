@@ -80,7 +80,6 @@ PyBuffer<TImage>
   memset(&pyBuffer, 0, sizeof(Py_buffer));
 
   SizeType size;
-  SizeType sizeFortran;
   SizeValueType numberOfPixels = 1;
 
   const void *                buffer;
@@ -114,14 +113,7 @@ PyBuffer<TImage>
     {
     item = PySequence_Fast_GET_ITEM(shapeseq,i);
     size[i] = (SizeValueType)PyLong_AsLong(item);
-    sizeFortran[dimension - 1 - i] = (SizeValueType)PyLong_AsLong(item);
     numberOfPixels *= size[i];
-    }
-
-  bool isFortranContiguous = false;
-  if( pyBuffer.strides != NULL && pyBuffer.itemsize == pyBuffer.strides[0] )
-    {
-    isFortranContiguous = true;
     }
 
   len = numberOfPixels*numberOfComponents*pixelSize;
@@ -139,14 +131,6 @@ PyBuffer<TImage>
   RegionType region;
   region.SetIndex( start );
   region.SetSize( size );
-  if( isFortranContiguous )
-    {
-    region.SetSize( sizeFortran );
-    }
-  else
-    {
-    region.SetSize( size );
-    }
 
   PointType origin;
   origin.Fill( 0.0 );

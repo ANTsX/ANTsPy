@@ -350,5 +350,27 @@ class TestModule_ants_image_io(unittest.TestCase):
             ants.image_read(tmpfile)
 
 
+    def test_image_from_numpy_shape(self):
+        arr = np.random.randn(1,9,1).astype('float32')
+        img = ants.from_numpy(arr)
+        self.assertEqual(img.shape, arr.shape)
+        nptest.assert_allclose(img.numpy(), arr)
+
+        arr = np.random.randn(2,3,4).astype('float32')
+        img = ants.from_numpy(arr)
+        self.assertEqual(img.shape, arr.shape)
+        nptest.assert_allclose(img.numpy(), arr)
+
+        # Test special case where shape is (1,N), was getting transposed
+        arr = np.random.randn(1,9).astype('float32')
+        img = ants.from_numpy(arr)
+        self.assertEqual(img.shape, arr.shape)
+        nptest.assert_allclose(img.numpy(), arr)
+
+        arr = np.random.randn(9,1).astype('float32')
+        img = ants.from_numpy(arr)
+        self.assertEqual(img.shape, arr.shape)
+        nptest.assert_allclose(img.numpy(), arr)
+
 if __name__ == '__main__':
     run_tests()
