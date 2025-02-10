@@ -2,6 +2,17 @@ cmake_minimum_required(VERSION 3.16.3...3.26)
 
 project(ants LANGUAGES CXX)
 
+# Set the macOS SDK root
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    execute_process(
+        COMMAND xcrun --show-sdk-path
+        OUTPUT_VARIABLE SDK_PATH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(CMAKE_OSX_SYSROOT ${SDK_PATH})
+    message(STATUS "Using macOS SDK: ${CMAKE_OSX_SYSROOT}")
+endif()
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Try to import all Python components potentially needed by nanobind
@@ -24,12 +35,6 @@ endif()
 set(ITK_DIR "./itkbuild")
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-  include_directories(/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1)
-  set(ENV{PATH} "$ENV{PATH}:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1")
-  add_compile_options(-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1)
-endif()
 
 # ANTS
 add_library(antsUtilities STATIC src/antscore/antsUtilities.cxx src/antscore/antsCommandLineOption.cxx src/antscore/antsCommandLineParser.cxx src/antscore/ReadWriteData.cxx src/antscore/ANTsVersion.cxx)
