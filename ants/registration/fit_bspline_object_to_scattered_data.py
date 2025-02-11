@@ -144,8 +144,24 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     if is_parametric_dimension_closed is None:
         is_parametric_dimension_closed = np.repeat(False, parametric_dimension)
 
+    if isinstance(is_parametric_dimension_closed, bool):
+        is_parametric_dimension_closed = np.repeat(is_parametric_dimension_closed, parametric_dimension)    
+
+    if len(is_parametric_dimension_closed) != parametric_dimension:
+        raise ValueError("Closed is not of length parametric_dimension.")
+
     if isinstance(mesh_size, int) == False and len(mesh_size) != parametric_dimension:
         raise ValueError("Incorrect specification for mesh_size.")
+
+    if isinstance(mesh_size, int):
+        number_of_control_points = np.repeat(mesh_size + spline_order, parametric_dimension)
+    else:
+        number_of_control_points = np.array(mesh_size) + np.repeat(spline_order, parametric_dimension)
+
+    for i in range(len(is_parametric_dimension_closed)):
+        if is_parametric_dimension_closed[i]:
+            if number_of_control_points[i] < 2 * spline_order + 1:
+                raise ValueError("For closed parametric dimension, mesh_size > spline_order")
 
     if len(parametric_domain_origin) != parametric_dimension:
         raise ValueError("Origin is not of length parametric_dimension.")
@@ -154,15 +170,7 @@ def fit_bspline_object_to_scattered_data(scattered_data,
         raise ValueError("Spacing is not of length parametric_dimension.")
 
     if len(parametric_domain_size) != parametric_dimension:
-        raise ValueError("Size is not of length parametric_dimension.")
-
-    if len(is_parametric_dimension_closed) != parametric_dimension:
-        raise ValueError("Closed is not of length parametric_dimension.")
-
-    number_of_control_points = mesh_size + spline_order
-
-    if isinstance(number_of_control_points, int) == True:
-        number_of_control_points = np.repeat(number_of_control_points, parametric_dimension)
+        raise ValueError("Size is not of length parametric_dimension.")    
 
     if parametric_data.shape[0] != scattered_data.shape[0]:
         raise ValueError("The number of points is not equal to the number of scattered data values.")
@@ -177,10 +185,10 @@ def fit_bspline_object_to_scattered_data(scattered_data,
         raise ValueError("The number of weights is not the same as the number of points.")
 
     libfn = get_lib_fn("fitBsplineObjectToScatteredDataP%iD%i" % (parametric_dimension, data_dimension))
-    bspline_object = libfn(scattered_data.tolist(), parametric_data.tolist(), data_weights.tolist(),
-                           parametric_domain_origin, parametric_domain_spacing,
-                           parametric_domain_size, is_parametric_dimension_closed.tolist(),
-                           number_of_fitting_levels, number_of_control_points.tolist(),
+    bspline_object = libfn(scattered_data, parametric_data, np.array(data_weights).tolist(),
+                           np.array(parametric_domain_origin).tolist(), np.array(parametric_domain_spacing).tolist(),
+                           np.array(parametric_domain_size).tolist(), np.array(is_parametric_dimension_closed).tolist(),
+                           number_of_fitting_levels, np.array(number_of_control_points).tolist(),
                            spline_order)
 
     if parametric_dimension == 1:
