@@ -5,7 +5,7 @@ CMAKE_BUILD_TYPE=Release
 cd $HOME
 itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
 itkgit=https://github.com/stnava/ITK.git
-itktag=20a456c3803d5d8e38b1c0a62df484fd10b8b71b
+itktag=f67dd9ac229f92f966452b1cff45c81b8e370c79 # 2025-14-02
 if [[ ! -d ITK ]] ; then
   git clone $itkgit
 fi
