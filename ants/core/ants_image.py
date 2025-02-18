@@ -567,6 +567,13 @@ class ANTsImage(object):
         else:
             arr.__setitem__(idx, value)
 
+
+    def __iter__(self):
+        # Do not allow iteration on ANTsImage. Builtin iteration, eg sum(), will generally be much slower
+        # than using numpy methods. We need to explicitly disallow it to prevent breaking object state.
+        raise TypeError("ANTsImage is not iterable. See docs for available functions, or use numpy.")
+
+
     def __repr__(self):
         if self.dimension == 3:
             s = 'ANTsImage ({})\n'.format(self.orientation)
