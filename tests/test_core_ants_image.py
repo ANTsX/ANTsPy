@@ -525,6 +525,13 @@ class TestClass_ANTsImage(unittest.TestCase):
             s = img.__repr__()
 
 
+    def test__iter__(self):
+        # Attempts to use __iter__ on an ANTsImage should raise a TypeError
+        img = self.imgs[0]
+        with self.assertRaises(TypeError):
+            for _ in img:
+                pass
+
 class TestModule_ants_image(unittest.TestCase):
 
     def setUp(self):
