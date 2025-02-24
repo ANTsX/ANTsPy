@@ -11,14 +11,14 @@ from ants.decorators import image_method
 @image_method
 def label_geometry_measures(label_image, intensity_image=None):
     """
-    Wrapper for the ANTs funtion labelGeometryMeasures
+    Wrapper for the ANTs funtion LabelGeometryMeasures
 
     ANTsR function: `labelGeometryMeasures`
 
     Arguments
     ---------
     label_image : ANTsImage
-        image on which to compute geometry
+        image on which to compute geometry. Labels must be representable as uint32.
     intensity_image : ANTsImage (optional)
         image with intensity values
 
@@ -37,7 +37,11 @@ def label_geometry_measures(label_image, intensity_image=None):
         intensity_image = label_image.clone()
 
     outcsv = mktemp(suffix='.csv')
-
+    # Library function requires unsigned int labels
+    if label_image.pixeltype != 'unsigned int':
+        if label_image.max() > np.iinfo(np.uint32).max:
+            raise ValueError('Labels must be representable as uint32')
+        label_image = label_image.clone('unsigned int')
     veccer = [label_image.dimension, label_image, intensity_image, outcsv]
     veccer_processed = process_arguments(veccer)
     libfn = get_lib_fn('LabelGeometryMeasures')
