@@ -13,7 +13,7 @@ cp data/* ~/.antspy/
 # clone ANTs and move all files into library directory
 
 antsgit=https://github.com/ANTsX/ANTs.git
-antstag=35d9381721b143c7bbd9d5f7f4ad853406351c1c # 04-01-2024
+antstag=bc283951ab9b1b8175e91dd6ac05020f9c756d32 # 02-24-2025
 echo "ANTS;${antstag}" >> ./data/softwareVersions.csv
 
 cd src # go to lib dir
