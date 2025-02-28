@@ -11,14 +11,14 @@ from ants.decorators import image_method
 @image_method
 def label_geometry_measures(label_image, intensity_image=None):
     """
-    Wrapper for the ANTs funtion labelGeometryMeasures
-    
+    Wrapper for the ANTs funtion LabelGeometryMeasures
+
     ANTsR function: `labelGeometryMeasures`
 
     Arguments
     ---------
     label_image : ANTsImage
-        image on which to compute geometry
+        image on which to compute geometry. Labels must be representable as uint32.
     intensity_image : ANTsImage (optional)
         image with intensity values
 
@@ -37,18 +37,17 @@ def label_geometry_measures(label_image, intensity_image=None):
         intensity_image = label_image.clone()
 
     outcsv = mktemp(suffix='.csv')
-
-    veccer = [label_image.dimension, label_image, intensity_image, outcsv]
+    # Library function requires unsigned int labels
+    if label_image.pixeltype != 'unsigned int':
+        label_image_int = label_image.clone('unsigned int')
+        if not np.all(label_image.numpy() == label_image_int.numpy()):
+            raise ValueError('Input label values must be representable as uint32.')
+        label_image = label_image.clone('unsigned int')
+    veccer = [label_image.dimension, label_image_int, intensity_image, outcsv]
     veccer_processed = process_arguments(veccer)
     libfn = get_lib_fn('LabelGeometryMeasures')
     pp = libfn(veccer_processed)
     pp = pd.read_csv(outcsv)
-    pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')
-    pp_cols = pp.columns.values
-    pp_cols[1] = 'VolumeInMillimeters'
-    pp.columns = pp_cols
-    spc = np.prod(label_image.spacing)
-    pp['VolumeInMillimeters'] = pp['VolumeInMillimeters']*spc
     return pp
 
 
