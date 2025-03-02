@@ -49,10 +49,9 @@ def label_geometry_measures(label_image, intensity_image=None):
     libfn = get_lib_fn('LabelGeometryMeasures')
     pp = libfn(veccer_processed)
     pp = pd.read_csv(outcsv)
-    pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')
-    pp_cols = pp.columns.values
-    pp_cols[1] = 'VolumeInMillimeters'
-    pp.columns = pp_cols
-    spc = np.prod(label_image.spacing)
-    pp['VolumeInMillimeters'] = pp['VolumeInMillimeters']*spc
+    import numpy as np
+    # pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')
+    if 'VolumeInVoxels' in pp.columns and not 'VolumeInMillimeters' in pp.columns:
+        spc = np.prod(label_image.spacing)
+        pp['VolumeInMillimeters'] = pp['VolumeInVoxels'] * spc
     return pp
