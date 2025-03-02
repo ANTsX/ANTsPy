@@ -33,6 +33,7 @@ def label_geometry_measures(label_image, intensity_image=None):
     >>> seg = ants.kmeans_segmentation( fi, 3 )['segmentation']
     >>> geom = ants.label_geometry_measures(seg,fi)
     """
+    import numpy as np
     if intensity_image is None:
         intensity_image = label_image.clone()
 
@@ -48,7 +49,10 @@ def label_geometry_measures(label_image, intensity_image=None):
     libfn = get_lib_fn('LabelGeometryMeasures')
     pp = libfn(veccer_processed)
     pp = pd.read_csv(outcsv)
+    pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')
+    pp_cols = pp.columns.values
+    pp_cols[1] = 'VolumeInMillimeters'
+    pp.columns = pp_cols
+    spc = np.prod(label_image.spacing)
+    pp['VolumeInMillimeters'] = pp['VolumeInMillimeters']*spc
     return pp
-
-
-
