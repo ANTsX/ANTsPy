@@ -34,6 +34,10 @@ jobs:
           - os: windows-latest
             python: '3.12'
             cibw_python: 312
+            platform_id: win_amd64          
+          - os: windows-latest
+            python: '3.13'
+            cibw_python: 313
             platform_id: win_amd64
 
           # Linux 64-bit
@@ -57,6 +61,10 @@ jobs:
             python: '3.12'
             cibw_python: 312
             platform_id: manylinux_x86_64
+          - os: ubuntu-latest
+            python: '3.13'
+            cibw_python: 313
+            platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-13
@@ -79,6 +87,12 @@ jobs:
             cibw_python: 312
             arch: x86_64
             platform_id: macosx_x86_64
+          - os: macos-13
+            python: '3.13'
+            cibw_python: 313
+            arch: x86_64
+            platform_id: macosx_x86_64
+
 
           # macOS on Apple M1 64-bit, supported for Python 3.10 and later
           - os: macos-14
@@ -96,7 +110,12 @@ jobs:
             cibw_python: 312
             arch: arm64
             platform_id: macosx_arm64
-
+          - os: macos-14
+            python: '3.13'
+            cibw_python: 313
+            arch: arm64
+            platform_id: macosx_arm64
+            
     steps:
       - uses: actions/checkout@v4
         with:
