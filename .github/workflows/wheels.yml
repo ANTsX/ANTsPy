@@ -35,10 +35,7 @@ jobs:
             python: '3.12'
             cibw_python: 312
             platform_id: win_amd64          
-          - os: windows-latest
-            python: '3.13'
-            cibw_python: 313
-            platform_id: win_amd64
+
 
           # Linux 64-bit
           - os: ubuntu-latest
