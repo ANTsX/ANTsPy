@@ -11,11 +11,11 @@ on:
 
 env:
   # Updates or changes to this, or the runner OS or arch will invalidate the cache
-  python_version: "3.10" # Python version to use for testing - update when needed
+  python_version: "3.12" # Python version to use for testing - update when needed
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     # Default shell needs to be bash for conda
     # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#important
     defaults:
