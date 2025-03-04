@@ -136,11 +136,9 @@ jobs:
 
       - name: Install and test (Windows)
         if: startsWith(matrix.os, 'windows-')
-        shell: bash
+        shell: cmd
         run: |
-          # prepend MSVC to path to avoid linker errors
-          export PATH="$MSVC_BIN:$PATH"
-          echo -n "link : " 
+          echo Checking link.exe location:
           where link
           python -m pip install --find-links=./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }} antspyx
           bash tests/run_tests.sh
