@@ -62,9 +62,9 @@ jobs:
           MSVC_ARCH="${VSCMD_ARG_TGT_ARCH:-}"
           MSVC_VERSION=$(ls -d "$VSINSTALLDIR/VC/Tools/MSVC/"* 2>/dev/null | sort -r | head -n 1)
           MSVC_BIN="$MSVC_VERSION/bin/Host$MSVC_ARCH/$MSVC_ARCH"
-          echo "C_LD=$MSVC_BIN/link.exe" >> $GITHUB_ENV
+          echo "C_LD=\"$MSVC_BIN/link.exe\"" >> $GITHUB_ENV
           # Verify the linker path
-          echo "Set C_LD to : $MSVC_BIN/link.exe"
+          echo "Set C_LD to : \"$MSVC_BIN/link.exe\""
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.19.2 setuptools toml
