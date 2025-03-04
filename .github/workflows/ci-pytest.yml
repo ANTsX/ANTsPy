@@ -11,11 +11,11 @@ on:
 
 env:
   # Updates or changes to this, or the runner OS or arch will invalidate the cache
-  python_version: "3.10" # Python version to use for testing - update when needed
+  python_version: "3.12" # Python version to use for testing - update when needed
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     # Default shell needs to be bash for conda
     # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#important
     defaults:
@@ -23,16 +23,12 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@030178870c779d9e5e1b4e563269f3aa69b04081 # v3.0.3, devs recommend using hash
+        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3.1.1, devs recommend using hash
         with:
-          miniconda-version: "latest"
+          miniforge-version: latest
           python-version: ${{ env.python_version }}
           auto-update-conda: true
           activate-environment: "test-env"
-
-      - name: Configure Conda to use only .tar.bz2
-        run: |
-          conda config --set use_only_tar_bz2 true
 
       - name: Checkout code
         uses: actions/checkout@v4 # Checkout PR code to 'antspy-pr'
@@ -41,9 +37,10 @@ jobs:
 
       - name: Install dependencies and ANTsPy from PR
         run: |
+          conda info
           conda create -n antspy-env python=${{ env.python_version }} -y
           conda activate antspy-env
-          conda install -c conda-forge coverage
+          conda install coverage
           conda info
           pip install ./antspy-pr
           conda list
