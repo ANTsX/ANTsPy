@@ -44,6 +44,7 @@ jobs:
 
       - name: Install dependencies and ANTsPy from PR
         run: |
+          conda info
           conda create -c conda-forge -n antspy-env python=${{ env.python_version }} -y
           conda activate antspy-env
           conda install -c conda-forge coverage
