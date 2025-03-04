@@ -30,6 +30,7 @@ jobs:
           auto-update-conda: true
           activate-environment: "test-env"
           channels: conda-forge
+          conda-remove-defaults: "true"
           channel-priority: strict
 
       - name: Configure Conda to use only .tar.bz2
