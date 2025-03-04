@@ -25,13 +25,10 @@ jobs:
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3.1.1, devs recommend using hash
         with:
-          miniconda-version: "latest"
+          miniforge-version: latest
           python-version: ${{ env.python_version }}
           auto-update-conda: true
           activate-environment: "test-env"
-          channels: conda-forge
-          conda-remove-defaults: "true" # doesn't seem to help
-          channel-priority: strict
 
       - name: Configure Conda to use only .tar.bz2
         run: |
@@ -45,9 +42,9 @@ jobs:
       - name: Install dependencies and ANTsPy from PR
         run: |
           conda info
-          conda create -c conda-forge -n antspy-env python=${{ env.python_version }} -y
+          conda create -n antspy-env python=${{ env.python_version }} -y
           conda activate antspy-env
-          conda install -c conda-forge coverage
+          conda install coverage
           conda info
           pip install ./antspy-pr
           conda list
