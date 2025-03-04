@@ -54,18 +54,17 @@ jobs:
         if: matrix.platform_id == 'win_amd64'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Ensure MSVC is Used for Compilation
+      - name: Ensure MSVC link
         if: matrix.platform_id == 'win_amd64'
         shell: bash
         run: |
-          # Extract VS installation path
-          VSINSTALLDIR=$(cmd.exe /c "echo %VSINSTALLDIR%" | tr -d '\r')
-          MSVC_ARCH=$(cmd.exe /c "echo %VSCMD_ARG_TGT_ARCH%" | tr -d '\r')
-          # Find latest installed MSVC version
-          MSVC_BIN=$(ls -d "$VSINSTALLDIR/VC/Tools/MSVC/"* | sort -r | head -n 1)/bin/Host$MSVC_ARCH/$MSVC_ARCH
-          # Set MSVC linker
+          VSINSTALLDIR="${VSINSTALLDIR:-}"
+          MSVC_ARCH="${VSCMD_ARG_TGT_ARCH:-}"
+          MSVC_VERSION=$(ls -d "$VSINSTALLDIR/VC/Tools/MSVC/"* 2>/dev/null | sort -r | head -n 1)
+          MSVC_BIN="$MSVC_VERSION/bin/Host$MSVC_ARCH/$MSVC_ARCH"
           echo "C_LD=$MSVC_BIN/link.exe" >> $GITHUB_ENV
-          echo "Set C_LD to: $MSVC_BIN/link.exe"
+          # Verify the linker path
+          echo "Set C_LD to : $MSVC_BIN/link.exe
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.19.2 setuptools toml
