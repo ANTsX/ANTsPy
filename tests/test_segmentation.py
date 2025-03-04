@@ -177,9 +177,27 @@ class TestModule_label_geometry_measures(unittest.TestCase):
         pass
 
     def test_example(self):
-        fi = ants.image_read( ants.get_ants_data('r16') )
+        fi = ants.resample_image(ants.image_read( ants.get_ants_data('r16') ), (140,140),1,0)
         seg = ants.kmeans_segmentation( fi, 3 )['segmentation']
         geom = ants.label_geometry_measures(seg,fi)
+        expected_cols = ['Label', 'VolumeInVoxels', 'VolumeInMillimeters',
+       'SurfaceAreaInMillimetersSquared', 'Eccentricity', 'Elongation',
+       'Roundness', 'Flatness', 'Centroid_x', 'Centroid_y', 'AxesLength_x',
+       'AxesLength_y', 'BoundingBoxLower_x', 'BoundingBoxLower_y',
+       'BoundingBoxUpper_x', 'BoundingBoxUpper_y', 'MeanIntensity',
+       'SigmaIntensity', 'MinIntensity', 'MaxIntensity',
+       'IntegratedIntensity']
+        for col in expected_cols:
+            self.assertTrue(col in geom.columns)
+        # Label column should have int type
+        self.assertTrue(np.issubdtype(geom['Label'].dtype, np.integer))
+        # So should VolumeInVoxels
+        self.assertTrue(np.issubdtype(geom['VolumeInVoxels'].dtype, np.integer))
+        # Check math of VolumeInMillimeters
+        self.assertTrue(np.allclose(geom['VolumeInMillimeters'], geom['VolumeInVoxels'] * np.prod(fi.spacing), atol=1e-6))
+        # should be three rows
+        self.assertEqual(geom.shape[0], 3)
+
 
 
 class TestModule_prior_based_segmentation(unittest.TestCase):
@@ -198,7 +216,7 @@ class TestModule_prior_based_segmentation(unittest.TestCase):
 
 
 class TestModule_random(unittest.TestCase):
-    
+
     def setUp(self):
         pass
     def tearDown(self):
@@ -208,7 +226,7 @@ class TestModule_random(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data('r16'))
         mask = ants.get_mask(image)
         fuzzy = ants.fuzzy_spatial_cmeans_segmentation(image, mask, number_of_clusters=3)
-        
+
     def test_functional_lung(self):
         image = ants.image_read(ants.get_data("mni")).resample_image((4,4,4))
         mask = image.get_mask()
@@ -216,7 +234,7 @@ class TestModule_random(unittest.TestCase):
                                                 number_of_iterations=1,
                                                 number_of_clusters=2,
                                                 number_of_atropos_iterations=1)
-        
+
     def test_anti_alias(self):
         img = ants.image_read(ants.get_data('r16'))
         mask = ants.get_mask(img)

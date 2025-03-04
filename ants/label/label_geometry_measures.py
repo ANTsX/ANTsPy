@@ -33,7 +33,6 @@ def label_geometry_measures(label_image, intensity_image=None):
     >>> seg = ants.kmeans_segmentation( fi, 3 )['segmentation']
     >>> geom = ants.label_geometry_measures(seg,fi)
     """
-    import numpy as np
     if intensity_image is None:
         intensity_image = label_image.clone()
 
@@ -49,9 +48,11 @@ def label_geometry_measures(label_image, intensity_image=None):
     libfn = get_lib_fn('LabelGeometryMeasures')
     pp = libfn(veccer_processed)
     pp = pd.read_csv(outcsv)
-    import numpy as np
-    # pp['Label'] = np.sort(np.unique(label_image[label_image>0])).astype('int')
     if 'VolumeInVoxels' in pp.columns and not 'VolumeInMillimeters' in pp.columns:
         spc = np.prod(label_image.spacing)
         pp['VolumeInMillimeters'] = pp['VolumeInVoxels'] * spc
+    # Ensure that the label column is of integer type - if there is any NaN, it will be float
+    # Something has gone seriously wrong if the labels are not interpreted as integers
+    if not np.issubdtype(pp['Label'].dtype, np.integer):
+        raise ValueError('Label column not integer type, label values may be invalid')
     return pp
