@@ -1,6 +1,8 @@
 name: wheels_faster
 
 on:
+  schedule: # Run nightly except Fridays, when the more extensive wheel runs
+    - cron: "0 5 * * 0-4,6"
   workflow_dispatch:
 
 jobs:
