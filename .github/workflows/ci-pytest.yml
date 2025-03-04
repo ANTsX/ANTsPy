@@ -30,10 +30,6 @@ jobs:
           auto-update-conda: true
           activate-environment: "test-env"
 
-      - name: Configure Conda to use only .tar.bz2
-        run: |
-          conda config --set use_only_tar_bz2 true
-
       - name: Checkout code
         uses: actions/checkout@v4 # Checkout PR code to 'antspy-pr'
         with:
