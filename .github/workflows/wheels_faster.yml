@@ -54,7 +54,7 @@ jobs:
         if: matrix.platform_id == 'win_amd64'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Ensure MSVC link
+      - name: Parse MSVC bin dir
         if: matrix.platform_id == 'win_amd64'
         shell: bash
         run: |
@@ -62,9 +62,7 @@ jobs:
           MSVC_ARCH="${VSCMD_ARG_TGT_ARCH:-}"
           MSVC_VERSION=$(ls -d "$VSINSTALLDIR/VC/Tools/MSVC/"* 2>/dev/null | sort -r | head -n 1)
           MSVC_BIN="$MSVC_VERSION/bin/Host$MSVC_ARCH/$MSVC_ARCH"
-          echo "C_LD=\"$MSVC_BIN/link.exe\"" >> $GITHUB_ENV
-          # Verify the linker path
-          echo "Set C_LD to : \"$MSVC_BIN/link.exe\""
+          echo "MSVC_BIN=\"${MSVC_BIN}\"" >> $GITHUB_ENV
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.19.2 setuptools toml
@@ -140,6 +138,10 @@ jobs:
         if: startsWith(matrix.os, 'windows-')
         shell: bash
         run: |
+          # prepend MSVC to path to avoid linker errors
+          export PATH="$MSVC_BIN:$PATH"
+          echo -n "link : " 
+          where link
           python -m pip install --find-links=./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }} antspyx
           bash tests/run_tests.sh
 
