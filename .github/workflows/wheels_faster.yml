@@ -50,10 +50,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-        # Visual Studio
       - name: Set up MSVC x64
         if: matrix.platform_id == 'win_amd64'
         uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Ensure MSVC is Used for linking on Windoes
+        if: matrix.platform_id == 'win_amd64'
+        shell: bash
+        run: |
+          echo "Setting MSVC linker"
+          echo "C_LD=link.exe" >> $GITHUB_ENV
+          where link
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.19.2 setuptools toml
