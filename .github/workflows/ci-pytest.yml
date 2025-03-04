@@ -30,7 +30,7 @@ jobs:
           auto-update-conda: true
           activate-environment: "test-env"
           channels: conda-forge
-          conda-remove-defaults: "true"
+          conda-remove-defaults: "true" # doesn't seem to help
           channel-priority: strict
 
       - name: Configure Conda to use only .tar.bz2
@@ -44,9 +44,9 @@ jobs:
 
       - name: Install dependencies and ANTsPy from PR
         run: |
-          conda create -n antspy-env python=${{ env.python_version }} -y
+          conda create -c conda-forge -n antspy-env python=${{ env.python_version }} -y
           conda activate antspy-env
-          conda install coverage
+          conda install -c conda-forge coverage
           conda info
           pip install ./antspy-pr
           conda list
