@@ -1,28 +1,64 @@
-## Installing specific versions
+## Installing ANTsPy from PyPI
 
-We cannot store the entire history of releases because storage space on `pip` is limited. If you need an older release, you can check the [Github Releases page](https://github.com/ANTsX/ANTsPy/releases) or
-build from source.
+The easiest way to install ANTsPy is from PyPI with pip:
 
-which will attempt to build from source (requires a machine with developer tools).
+```bash
+pip install antspyx
+```
 
-## Recent wheels
+Because of space limitations, we are only able to retain antspyx >= 0.4.2 on PyPI.
+Starting with 0.5.3, refactoring of the C++ bindings with nanobind produces wheels that
+are about 20x smaller, meaning we will be able to keep many more releases on PyPI going
+forward.
+
+## Github releases
+
+Starting from 0.3.8, wheels are available for supported platforms on the [releases
+page](https://github.com/ANTsX/ANTsPy/releases).
+
+
+## Development wheels
 
 Non-release commits have wheels built automatically, which are available for download for a limited period.
-Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions). Then click on the commit for the software version you want.
-Recent commits will have wheels stored as "artifacts".
+Look under the [Actions tab](https://github.com/ANTsX/ANTsPy/actions). A limited subset of wheels are [built
+nightly](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels_faster.yml), a longer
+workflow is [built weekly](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml)
+and covers more platforms and python versions.
 
 Wheels are built locally like this:
 
 ```
-rm -r -f build/ antspymm.egg-info/ dist/
+rm -r -f build/ antspy.egg-info/ dist/
 python3 setup.py sdist bdist_wheel
 pipx run twine upload dist/*
 ```
 
 ## Docker images
 
-Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). To build
-ANTsPy docker images, see the (installation tutorial)(https://github.com/ANTsX/ANTsPy/blob/master/tutorials/InstallingANTsPy.md#docker-installation).
+Available on [Docker Hub](https://hub.docker.com/repository/docker/antsx/antspy). The
+development version is pushed nightly, and release versions is pushed on release creation.
+As with PyPI, space limitations may mean we have to remove older images in the future.
+
+
+## Compiling from source
+
+```bash
+git clone https://github.com/ANTsX/ANTsPy.git
+cd ANTsPy
+pip install .
+```
+or
+```bash
+pip install git+https://github.com/ANTsX/ANTsPy.git
+```
+or install a specific version `${antspyx_version}`:
+
+```bash
+pip install git+https://github.com/ANTsX/ANTsPy.git@${antspyx_version}
+```
+
+where `antspyx_version` is a tag or commit hash.
+
 
 ## Other notes on compilation
 
@@ -44,56 +80,6 @@ sphinx-apidoc -o source/ ../
 make html
 ```
 
-## Installation methods
-
-### Method 1: Pre-Compiled Binaries (preferred)
-
-The fastest method is to install the pre-compiled binaries for the latest
-stable, weekly release (takes ~1 min):
-
-If you have MacOS:
-
-```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.1.8/antspyx-0.1.8-cp37-cp37m-macosx_10_14_x86_64.whl
-```
-
-If you have Linux:
-
-```bash
-pip install https://github.com/ANTsX/ANTsPy/releases/download/v0.2.0/antspyx-0.2.0-cp37-cp37m-linux_x86_64.whl
-```
-
----
-
-### Method 2: Github Master Branch
-
-If you want the latest code, you can install directly from source (takes ~45 min):
-
-```bash
-pip install git+https://github.com/ANTsX/ANTsPy.git
-```
-
-with an option to specify the branch or particular release by `@v0.1.6` on the end of the path.
-
----
-
-### Method 3: PyPI Source Distribution
-
-If this doesn't work, you should install the latest stable source release from PyPI (takes ~45 min):
-
-```bash
-pip install -v antspy
-```
-
-ANTsPy will by default install with VTK in order to use the visualization functions such as
-`ants.surf` and `ants.vol`. If you dont want VTK support, use the following:
-
-```bash
-git clone https://github.com/ANTsX/ANTsPy.git
-cd ANTsPy
-python setup.py install --novtk
-```
-
 ### Method 4: Development Installation
 
 If you want to develop code for ANTsPy, you should install the project as follows and
@@ -103,49 +89,13 @@ and how to add code.
 ```bash
 git clone https://github.com/ANTsX/ANTsPy.git
 cd ANTsPy
-python setup.py install
+pip install -e .
 ```
 
-ANTsPy is known to install on MacOS, Ubuntu, and CentOS - all with Python3.6. It does not
-currently work on Python 2.7, but we're planning on adding support.
+This will make an "editable" installation of ANTsPy, meaning that you can modify the
+Python code without having to reinstall the package. This is useful for Python development
+but will not recompile C++ code (of ANTsPy or ANTs or ITK).
 
-## CentOS Installation
-
-To install ANTsPy on CentOS (tested on "7") with virtual environment,
-follow these commands:
-
-background:
-
-- follow python3.6 installation from [here](https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7)
-- create a virtual environment.
-- clone `ANTsPy`
-
-then call
-
-```
-sudo python3.6 setup.py develop
-```
-
-To use the toolkit, you then need to install dependencies:
-
-```
- pip3.6 install numpy
- pip3.6 install pandas
- pip3.6 install pillow
- pip3.6 install webcolors
- pip3.6 install plotly
- pip3.6 install matplotlib
- sudo yum --enablerepo=ius-archive install python36u-tkinter
-```
-
-after this, you may try to run examples such as the following:
-
-```
-help( ants.vol )
-help( ants.sparse_decom2 )
-```
-
----
 
 ## Docker Installation
 
