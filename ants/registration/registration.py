@@ -180,14 +180,14 @@ def registration(
     type_of_transform can be one of:
         - "Translation": Translation transformation.
         - "Rigid": Rigid transformation: Only rotation and translation.
-        - "Similarity": Similarity transformation: scaling, rotation and translation.
+        - "Similarity": Similarity transformation: uniform scaling, rotation and translation.
         - "QuickRigid": Rigid transformation: Only rotation and translation.
                         May be useful for quick visualization fixes.'
         - "DenseRigid": Rigid transformation: Only rotation and translation.
                         Employs dense sampling during metric estimation.'
         - "BOLDRigid": Rigid transformation: Parameters typical for BOLD to
                         BOLD intrasubject registration'.'
-        - "Affine": Affine transformation: Rigid + scaling.
+        - "Affine": Affine transformation: Rigid + scaling + shear (12 parameters).
         - "AffineFast": Fast version of Affine.
         - "BOLDAffine": Affine transformation: Parameters typical for BOLD to
                         BOLD intrasubject registration'.'
