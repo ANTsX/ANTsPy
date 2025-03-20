@@ -1526,8 +1526,7 @@ def label_image_registration(fixed_label_images,
 
             if do_quick:
                 intensity_metric = "MI"
-                if intensity_metric_parameter is None:
-                    intensity_metric_parameter = 32
+                intensity_metric_parameter = 32
                 syn_convergence = "[100x70x50x0,1e-6,10]"
 
         if fixed_intensity_images is not None and len(fixed_intensity_images) > 0:
