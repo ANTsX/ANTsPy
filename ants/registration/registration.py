@@ -11,6 +11,7 @@ import glob
 import re
 import pandas as pd
 import itertools
+import os
 
 import ants
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
@@ -1254,7 +1255,8 @@ def label_image_registration(fixed_label_images,
                              moving_intensity_images=None,
                              fixed_mask=None,
                              moving_mask=None,
-                             type_of_linear_transform='affine',
+                             initial_transforms='affine',
+                             type_of_linear_transform=None,
                              type_of_deformable_transform='antsRegistrationSyNQuick[so]',
                              label_image_weighting=1.0,
                              output_prefix='',
@@ -1287,9 +1289,16 @@ def label_image_registration(fixed_label_images,
         Defines region for similarity metric calculation in the space
         of the moving image.
 
+    initial_transforms : string or list of files
+        If specified, there are two options:  2) Use label images with 
+        the centers of mass to a calculate linear transform of type 
+        'identity', 'rigid', 'similarity', or 'affine'.  2) Specify a
+        list of transform files, e.g., the output of ants.registration().
+
     type_of_linear_transform : string
         Use label images with the centers of mass to a calculate linear
         transform of type 'identity', 'rigid', 'similarity', or 'affine'.
+        Deprecated-subsumed by initial_transforms.
 
     type_of_deformable_transform : string
         Only works with deformable-only transforms, specifically the family
@@ -1336,13 +1345,21 @@ def label_image_registration(fixed_label_images,
                                             [r64_seg1, r64_seg2],
                                             fixed_intensity_images=r16,
                                             moving_intensity_images=r64,
-                                            type_of_linear_transform='affine',
+                                            initial_transforms='affine',
                                             type_of_deformable_transform='antsRegistrationSyNQuick[bo]',
                                             label_image_weighting=[1.0, 2.0],
                                             verbose=True)
     """
 
     # Perform validation check on the input
+
+    if type_of_linear_transform is not None:
+        print( "\n" )
+        print( "*****************************************************************************************" )
+        print( "Deprecation warning.  typeOfLinearTransform is deprecated.  Please use initialTransforms." )
+        print( "*****************************************************************************************" )
+        print( "\n" )
+        initial_transforms = type_of_linear_transform
 
     if isinstance(fixed_label_images, ants.ANTsImage):
         fixed_label_images = [ants.image_clone(fixed_label_images)]
@@ -1374,10 +1391,6 @@ def label_image_registration(fixed_label_images,
     if output_prefix == "" or output_prefix is None or len(output_prefix) == 0:
         output_prefix = mktemp()
 
-    allowable_linear_transforms = ['rigid', 'similarity', 'affine', 'identity']
-    if not type_of_linear_transform in allowable_linear_transforms:
-        raise ValueError("Unrecognized linear transform.")
-
     do_deformable = True
     if type_of_deformable_transform is None or len(type_of_deformable_transform) == 0:
        do_deformable = False
@@ -1401,14 +1414,15 @@ def label_image_registration(fixed_label_images,
     if verbose:
         print("Total number of labels: " + str(total_number_of_labels))
 
+    initial_xfrm_files = list()
+
     ##############################
     #
-    #    Linear transform
+    #    Initial linear transform
     #
     ##############################
 
-    linear_xfrm = None
-    if type_of_linear_transform != 'identity':
+    if isinstance(initial_transforms, str) and initial_transforms in ['rigid', 'similarity', 'affine']:
 
         if verbose:
             print("\n\nComputing linear transform.\n")
@@ -1436,21 +1450,20 @@ def label_image_registration(fixed_label_images,
 
         linear_xfrm = ants.fit_transform_to_paired_points(moving_centers_of_mass,
                                                           fixed_centers_of_mass,
-                                                          transform_type=type_of_linear_transform,
+                                                          transform_type=initial_transforms,
                                                           verbose=verbose)
+        
+        if do_deformable:
+            linear_xfrm_file = output_prefix + "LandmarkBasedLinear" + initial_transforms + ".mat"
+        else:
+            linear_xfrm_file = output_prefix + "0GenericAffine.mat"
 
-        linear_xfrm_file = output_prefix + "0GenericAffine.mat"
         ants.write_transform(linear_xfrm, linear_xfrm_file)
+        initial_xfrm_files.append(linear_xfrm_file)
 
-    ##############################
-    #
-    #    Deformable transform
-    #
-    ##############################
-
-    if do_deformable:
-
-        if type_of_linear_transform == "identity":
+    elif initial_transforms is not None or initial_transforms == 'identity':
+        
+        if do_deformable:
             for i in range(len(common_label_ids)):
                 for j in range(len(common_label_ids[i])):
                     label = common_label_ids[i][j]
@@ -1459,6 +1472,23 @@ def label_image_registration(fixed_label_images,
                     deformable_multivariate_extras.append(["MSQ", fixed_single_label_image,
                                                         moving_single_label_image,
                                                         label_image_weights[i], 0])
+
+        if initial_transforms != 'identity':
+            if not isinstance(initial_transforms, list):
+                initial_transforms = [initial_transforms]
+            for i in range(len(initial_transforms)):
+                if not os.path.exists(initial_transforms[i]):
+                    raise ValueError(initial_transforms[i] + " does not exist.")
+                else:
+                    initial_xfrm_files.append(initial_transforms[i])
+            
+    ##############################
+    #
+    #    Deformable transform
+    #
+    ##############################
+
+    if do_deformable:
 
         if verbose:
             print("\n\nComputing deformable transform using images.\n")
@@ -1561,14 +1591,14 @@ def label_image_registration(fixed_label_images,
             syn_stage.insert(0, "BSplineSyN[" + str(gradient_step) + "," + str(spline_distance) + ",0,3]")
         syn_stage.insert(0, "--transform")
 
-        args = None
-        if linear_xfrm is None:
-          args = ["--dimensionality", str(image_dimension),
-                  "--output", output_prefix]
-        else:
-          args = ["--dimensionality", str(image_dimension),
-                  "-r", linear_xfrm_file,
-                  "--output", output_prefix]
+        args = ["--dimensionality", str(image_dimension),
+                "--output", output_prefix]
+
+        if len(initial_xfrm_files) > 0:
+          for i in range(len(initial_xfrm_files)):
+            initial_args = ["-r", initial_xfrm_files[i]]
+            args.append(initial_args)
+
         args.append(syn_stage)
 
         fixed_mask_string = 'NA'
@@ -1614,22 +1644,20 @@ def label_image_registration(fixed_label_images,
 
     all_xfrms = sorted(set(glob.glob(output_prefix + "*" + "[0-9]*")))
 
-    find_inverse_warps = np.where([re.search("[0-9]InverseWarp.nii.gz", ff) for ff in all_xfrms])[0]
-    find_forward_warps = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in all_xfrms])[0]
+    find_inverse_warps_idx = np.where([re.search("[0-9]InverseWarp.nii.gz", ff) for ff in all_xfrms])[0]
+    find_forward_warps_idx = np.where([re.search("[0-9]Warp.nii.gz", ff) for ff in all_xfrms])[0]
+    find_affines_idx = np.where([re.search("[0-9]GenericAffine.mat", ff) for ff in all_xfrms])[0]
 
-    fwdtransforms = []
-    invtransforms = []
-    if linear_xfrm is not None:
-        if len(find_inverse_warps) > 0:
-            fwdtransforms = [all_xfrms[find_forward_warps[0]], linear_xfrm_file]
-            invtransforms = [linear_xfrm_file, all_xfrms[find_inverse_warps[0]]]
-        else:
-            fwdtransforms = [linear_xfrm_file]
-            invtransforms = [linear_xfrm_file]
-    else:
-        if len(find_inverse_warps) > 0:
-            fwdtransforms = [all_xfrms[find_forward_warps[0]]]
-            invtransforms = [all_xfrms[find_inverse_warps[0]]]
+    fwdtransforms = list()
+    invtransforms = list()
+
+    if len(find_forward_warps_idx) > 0:
+        fwdtransforms.append(all_xfrms[find_forward_warps_idx[0]])
+    if len(find_affines_idx) > 0:    
+        fwdtransforms.append(all_xfrms[find_affines_idx[0]])
+        invtransforms.append(all_xfrms[find_affines_idx[0]])
+    if len(find_inverse_warps_idx) > 0:
+        invtransforms.append(all_xfrms[find_inverse_warps_idx[0]])
 
     if verbose:
         print("\n\nResulting transforms")
