@@ -258,7 +258,7 @@ def apply_ants_transform(transform, data, data_type="point", reference=None, **k
 
     Returns
     -------
-    ANTsImage if data_type == 'point'
+    ANTsImage if data_type == 'image'
     OR
     tuple if data_type == 'point' or data_type == 'vector'
     """
