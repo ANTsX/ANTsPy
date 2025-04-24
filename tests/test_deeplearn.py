@@ -120,7 +120,7 @@ class TestModule_histogram_warp_image_intensities(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data("r16"))
         image_xfrm = ants.histogram_warp_image_intensities(image)
 
-class TestModule_histogram_warp_image_intensities(unittest.TestCase):
+class TestModule_simulate_bias_field(unittest.TestCase):
     def setUp(self):
         pass
 
