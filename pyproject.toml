@@ -23,7 +23,7 @@ dependencies = [
     "matplotlib",
     "Pillow",
     "requests",
-    "sklearn"
+    "scikit-learn"
 ]
 
 [project.urls]
