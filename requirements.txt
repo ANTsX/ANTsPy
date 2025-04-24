@@ -5,3 +5,4 @@ statsmodels
 webcolors
 matplotlib
 Pillow
+scikit-learn
