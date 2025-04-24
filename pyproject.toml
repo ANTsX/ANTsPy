@@ -22,7 +22,8 @@ dependencies = [
     "webcolors",
     "matplotlib",
     "Pillow",
-    "requests"
+    "requests",
+    "scikit-learn"
 ]
 
 [project.urls]
