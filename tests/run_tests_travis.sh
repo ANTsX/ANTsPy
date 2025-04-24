@@ -42,7 +42,8 @@ $PYCMD test_utils.py $@
 echo "Running bug tests"
 $PYCMD test_bugs.py $@
 
-
+echo "Running deeplearn tests"
+$PYCMD test_deeplearn.py $@
 
 if [[ $COVERAGE -eq 1 ]]; then
     coverage combine
