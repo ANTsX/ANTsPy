@@ -1031,7 +1031,7 @@ class TestModule_sitk_to_ants(unittest.TestCase):
             temp_fpath = os.path.join(temp_dir, "img.nrrd")
             sitk.WriteImage(self.img, temp_fpath)
             ants_img = ants.image_read(temp_fpath)
-            
+
         img = ants.to_sitk(ants_img)
 
         nptest.assert_equal(
@@ -1040,8 +1040,67 @@ class TestModule_sitk_to_ants(unittest.TestCase):
         nptest.assert_almost_equal(self.img.GetOrigin(), img.GetOrigin())
         nptest.assert_almost_equal(self.img.GetSpacing(), img.GetSpacing())
         nptest.assert_almost_equal(self.img.GetDirection(), img.GetDirection())
-            
-        
+
+    def test_roundtrip_scalar_vector(self):
+        """
+        Tests roundtrip conversions between ANTsPy and SimpleITK
+        for scalar and vector images in 2D, 3D, and 4D.
+        """
+
+        base_2d = ants.image_read(ants.get_ants_data('r16'))  # 2D scalar image
+        base_arr_2d = base_2d.numpy()
+
+        test_cases = []
+
+        # 2D scalar
+        img_2d_scalar = ants.from_numpy(base_arr_2d, has_components=False)
+        test_cases.append(("2D scalar", img_2d_scalar))
+
+        # 2D vector
+        arr_vec = np.stack([base_arr_2d, base_arr_2d], axis=-1)  # (Y, X, components)
+        img_2d_vector = ants.from_numpy(arr_vec, has_components=True)
+        test_cases.append(("2D vector", img_2d_vector))
+
+        # 3D scalar
+        arr_3d = np.stack([base_arr_2d]*5, axis=-1)  # (Y, X, Z)
+        img_3d_scalar = ants.from_numpy(arr_3d, has_components=False)
+        test_cases.append(("3D scalar", img_3d_scalar))
+
+        # 3D vector
+        arr_vec_3d = np.stack([arr_3d, arr_3d], axis=-1)  # (Y, X, Z, components)
+        img_3d_vector = ants.from_numpy(arr_vec_3d, has_components=True)
+        test_cases.append(("3D vector", img_3d_vector))
+
+        # 4D scalar
+        arr_4d = np.stack([arr_3d]*4, axis=-1)  # (Y, X, Z, T)
+        img_4d_scalar = ants.from_numpy(arr_4d, has_components=False)
+        test_cases.append(("4D scalar", img_4d_scalar))
+
+        # 4D vector
+        arr_vec_4d = np.stack([arr_4d, arr_4d], axis=-1)  # (Y, X, Z, T, components)
+        img_4d_vector = ants.from_numpy(arr_vec_4d, has_components=True)
+        test_cases.append(("4D vector", img_4d_vector))
+
+        # Now test round-trip for each
+        for name, ants_img in test_cases:
+            print(f"Testing {name}")
+
+            # Convert to SimpleITK and back
+            sitk_img = to_sitk(ants_img)
+            ants_img2 = from_sitk(sitk_img)
+
+            # Basic checks
+            assert ants_img.dimension == ants_img2.dimension, f"Dimension mismatch for {name}"
+            assert ants_img.shape == ants_img2.shape, f"Shape mismatch for {name}"
+            assert ants_img.components == ants_img2.components, f"Components mismatch for {name}"
+
+            # Pixel value checks (floating point tolerant)
+            arr1 = ants_img.numpy()
+            arr2 = ants_img2.numpy()
+            np.testing.assert_allclose(
+                arr1, arr2, rtol=1e-5, atol=1e-8,
+                err_msg=f"Pixel data mismatch for {name}"
+            )
 
 if __name__ == "__main__":
     run_tests()
