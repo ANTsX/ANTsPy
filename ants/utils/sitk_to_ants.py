@@ -1,4 +1,4 @@
-__all__ = ['from_sitk', 
+__all__ = ['from_sitk',
            'to_sitk']
 
 
