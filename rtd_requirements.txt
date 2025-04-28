@@ -1,3 +1,4 @@
 -r requirements.txt
 sphinx==6.2.1
 -e git+https://github.com/snide/sphinx_rtd_theme.git#egg=sphinx_rtd_theme
+SimpleITK

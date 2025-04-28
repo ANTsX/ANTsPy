@@ -8,7 +8,7 @@ import ants
 
 def from_sitk(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     """
-    Converts a given SimpleITK image into an ANTsPy image
+    Converts a given SimpleITK image into an ANTsPy image. Requires SimpleITK.
 
     Parameters
     ----------
@@ -18,7 +18,11 @@ def from_sitk(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     -------
         ants_image: ANTsImage
     """
-    import SimpleITK as sitk
+    try:
+        import SimpleITK as sitk
+    except ImportError:
+        raise ImportError("SimpleITK is required to convert to or from SimpleITK images. Install SimpleITK to use this "
+                          "function")
 
     ndim = sitk_image.GetDimension()
 
@@ -44,7 +48,7 @@ def from_sitk(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
 
 def to_sitk(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
     """
-    Converts a given ANTsPy image into an SimpleITK image
+    Converts a given ANTsPy image into an SimpleITK image. Requires SimpleITK.
 
     Parameters
     ----------
@@ -54,8 +58,11 @@ def to_sitk(ants_image: ants.ANTsImage) -> "SimpleITK.Image":
     -------
         img: SimpleITK.Image
     """
-
-    import SimpleITK as sitk
+    try:
+        import SimpleITK as sitk
+    except ImportError:
+        raise ImportError("SimpleITK is required to convert to or from SimpleITK images. Install SimpleITK to use this "
+                          "function")
 
     data = ants_image.view()
     shape = ants_image.shape
