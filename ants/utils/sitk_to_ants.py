@@ -1,8 +1,10 @@
+__all__ = ['from_sitk', 
+           'to_sitk']
+
+
 import numpy as np
 import ants
 
-__all__ = ['from_sitk', 
-           'to_sitk']
 
 def from_sitk(sitk_image: "SimpleITK.Image") -> ants.ANTsImage:
     """
