@@ -100,11 +100,10 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
             yum install -y gcc-c++ libpng-devel libpng
-            echo "pip installing cmake and ninja"
-            python -m pip install cmake ninja setuptools
+            python -m pip install cmake ninja setuptools SimpleITK
 
           CIBW_BEFORE_ALL_WINDOWS: |
-            python -m pip install cmake ninja setuptools
+            python -m pip install cmake ninja setuptools SimpleITK
 
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
 
@@ -112,7 +111,7 @@ jobs:
             CMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} CMAKE_PREFIX_PATH=/usr/local
 
           CIBW_BEFORE_ALL_MACOS: |
-            python -m pip install cmake ninja setuptools
+            python -m pip install cmake ninja setuptools SimpleITK
             brew update
             if ! brew list libpng &>/dev/null; then
                 HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng

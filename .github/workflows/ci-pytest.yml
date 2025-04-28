@@ -42,6 +42,7 @@ jobs:
           conda activate antspy-env
           conda install coverage
           conda info
+          pip install SimpleITK
           pip install ./antspy-pr
           conda list
 
