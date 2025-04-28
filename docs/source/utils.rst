@@ -7,7 +7,7 @@ Utilities
 .. autofunction:: abp_n4
 .. autofunction:: merge_channels
 .. autofunction:: split_channels
-.. autofunction:: crop_image 
+.. autofunction:: crop_image
 .. autofunction:: crop_indices
 .. autofunction:: decrop_image
 .. autofunction:: denoise_image
@@ -32,3 +32,5 @@ Utilities
 .. autofunction:: smooth_image
 .. autofunction:: threshold_image
 .. autofunction:: weingarten_image_curvature
+.. autofunction:: from_sitk
+.. autofunction:: to_sitk

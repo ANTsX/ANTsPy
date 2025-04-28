@@ -237,6 +237,19 @@ ants.utils.threshold\_image module
    :undoc-members:
    :show-inheritance:
 
+ants.utils.sitk\_to\_ants module
+---------------------------------
+.. automodule:: ants.utils.sitk_to_ants
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+... automodule:: ants.utils.ants_to_sitk
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 ants.utils.weingarten\_image\_curvature module
 ----------------------------------------------
 
