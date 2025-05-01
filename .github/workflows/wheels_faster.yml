@@ -100,7 +100,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
             yum install -y gcc-c++ libpng-devel libpng
-            python -m pip install cmake ninja setuptools SimpleITK
+            python -m pip install cmake ninja setuptools SimpleITK==2.4.1
 
           CIBW_BEFORE_ALL_WINDOWS: |
             python -m pip install cmake ninja setuptools SimpleITK
