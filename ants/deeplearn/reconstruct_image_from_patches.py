@@ -2,7 +2,6 @@ __all__ = ["reconstruct_image_from_patches"]
 
 import ants
 import numpy as np
-import random
 
 def reconstruct_image_from_patches(patches,
                                    domain_image,
