@@ -131,5 +131,22 @@ class TestModule_simulate_bias_field(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data("r16"))
         image_xfrm = ants.simulate_bias_field(image)
 
+class TestModule_one_hot(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_example(self):
+        image = ants.image_read(ants.get_ants_data("r16"))
+        seg = ants.kmeans_segmentation(image, 3)['segmentation']
+        one_hot = ants.segmentation_to_one_hot(seg.numpy().astype('int'))        
+        one_hot_inv = ants.one_hot_to_segmentation(one_hot, seg)        
+        one_hot_c = ants.segmentation_to_one_hot(seg.numpy().astype('int'),
+                                                 channel_first_ordering=True)        
+        one_hot_c_inv = ants.one_hot_to_segmentation(one_hot_c, seg,
+                                                     channel_first_ordering=True)        
+
 if __name__ == "__main__":
     run_tests()
