@@ -1256,7 +1256,6 @@ def label_image_registration(fixed_label_images,
                              fixed_mask=None,
                              moving_mask=None,
                              initial_transforms='affine',
-                             type_of_linear_transform=None,
                              type_of_deformable_transform='antsRegistrationSyNQuick[so]',
                              label_image_weighting=1.0,
                              output_prefix='',
@@ -1294,11 +1293,6 @@ def label_image_registration(fixed_label_images,
         the centers of mass to a calculate linear transform of type 
         'identity', 'rigid', 'similarity', or 'affine'.  2) Specify a
         list of transform files, e.g., the output of ants.registration().
-
-    type_of_linear_transform : string
-        Use label images with the centers of mass to a calculate linear
-        transform of type 'identity', 'rigid', 'similarity', or 'affine'.
-        Deprecated-subsumed by initial_transforms.
 
     type_of_deformable_transform : string
         Only works with deformable-only transforms, specifically the family
@@ -1352,14 +1346,6 @@ def label_image_registration(fixed_label_images,
     """
 
     # Perform validation check on the input
-
-    if type_of_linear_transform is not None:
-        print( "\n" )
-        print( "*****************************************************************************************" )
-        print( "Deprecation warning.  typeOfLinearTransform is deprecated.  Please use initialTransforms." )
-        print( "*****************************************************************************************" )
-        print( "\n" )
-        initial_transforms = type_of_linear_transform
 
     if isinstance(fixed_label_images, ants.ANTsImage):
         fixed_label_images = [ants.image_clone(fixed_label_images)]
