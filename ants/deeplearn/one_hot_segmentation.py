@@ -42,7 +42,7 @@ def segmentation_to_one_hot(segmentations_array,
     if number_of_labels < 2:
         raise ValueError("At least two segmentation labels need to be specified.")
 
-    image_dimension = len(segmentations_array.shape)
+    image_dimension = len(segmentations_array.shape) - 1
 
     one_hot_array = np.zeros((*segmentations_array.shape, number_of_labels))
     for i in range(number_of_labels):
