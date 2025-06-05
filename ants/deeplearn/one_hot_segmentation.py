@@ -57,9 +57,9 @@ def segmentation_to_one_hot(segmentations_array,
 
     if channel_first_ordering:  
         if image_dimension == 2:
-            one_hot_array = one_hot_array.transpose((2, 0, 1))
-        elif image_dimension == 3:
             one_hot_array = one_hot_array.transpose((3, 0, 1, 2))
+        elif image_dimension == 3:
+            one_hot_array = one_hot_array.transpose((4, 0, 1, 2, 3))
 
     return one_hot_array
 
