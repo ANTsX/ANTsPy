@@ -42,24 +42,24 @@ def segmentation_to_one_hot(segmentations_array,
     if number_of_labels < 2:
         raise ValueError("At least two segmentation labels need to be specified.")
 
-    image_dimension = len(segmentations_array.shape) - 1
+    image_dimension = len(segmentations_array.shape)
 
     one_hot_array = np.zeros((*segmentations_array.shape, number_of_labels))
     for i in range(number_of_labels):
         per_label = np.zeros_like(segmentations_array)
         per_label[segmentations_array == segmentation_labels[i]] = 1
         if image_dimension == 2:
-            one_hot_array[:,:,:,i] = per_label
+            one_hot_array[:,:,i] = per_label
         elif image_dimension == 3:
-            one_hot_array[:,:,:,:,i] = per_label
+            one_hot_array[:,:,:,i] = per_label
         else:
             raise ValueError("Unrecognized image dimensionality.")
 
     if channel_first_ordering:  
         if image_dimension == 2:
-            one_hot_array = one_hot_array.transpose((3, 0, 1, 2))
+            one_hot_array = one_hot_array.transpose((2, 0, 1))
         elif image_dimension == 3:
-            one_hot_array = one_hot_array.transpose((4, 0, 1, 2, 3))
+            one_hot_array = one_hot_array.transpose((3, 0, 1, 2))
 
     return one_hot_array
 
