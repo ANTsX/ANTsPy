@@ -49,9 +49,9 @@ def segmentation_to_one_hot(segmentations_array,
         per_label = np.zeros_like(segmentations_array)
         per_label[segmentations_array == segmentation_labels[i]] = 1
         if image_dimension == 2:
-            one_hot_array[:,:,i] = per_label
-        elif image_dimension == 3:
             one_hot_array[:,:,:,i] = per_label
+        elif image_dimension == 3:
+            one_hot_array[:,:,:,:,i] = per_label
         else:
             raise ValueError("Unrecognized image dimensionality.")
 
