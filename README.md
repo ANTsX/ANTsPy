@@ -28,6 +28,11 @@ The easiest way to install ANTsPy is via the latest pre-compiled binaries from P
 ```bash
 pip install antspyx
 ```
+Or alternatively from conda:
+
+```bash
+conda install conda-forge::antspyx
+```
 
 Because of limited storage space, pip binaries are not available for every combination of python
 version and platform. We also have had to delete older releases to make space. If you
