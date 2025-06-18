@@ -1029,7 +1029,7 @@ class TestRandom(unittest.TestCase):
         # c. Check if the estimated orthogonal part is close to the known one.
         nptest.assert_almost_equal(Z_known, Z_est)
         
-    def test_onvergence_monitoring(self):
+    def test_convergence_monitoring(self):
         f = [1 / i for i in range(1, 100)]
         convergence = ants.convergence_monitoring(f, window_size=10)
         nptest.assert_almost_equal(convergence, 0.0, decimal=3)
