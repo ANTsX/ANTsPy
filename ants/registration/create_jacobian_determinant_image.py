@@ -7,6 +7,7 @@ __all__ = ['create_jacobian_determinant_image',
 from tempfile import mktemp
 
 import ants
+import numpy as np
 from ants.internal import get_lib_fn, process_arguments
 
 
@@ -44,17 +45,6 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
     >>> mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
     >>> dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
     """
-    import numpy as np
-    def polar_decomposition(X):
-         U, d, V = np.linalg.svd(X, full_matrices=False)
-         P = np.matmul(U, np.matmul(np.diag(d), np.transpose(U)))
-         Z = np.matmul(U, V)
-         if np.linalg.det(Z) < 0:
-             n = X.shape[0]
-             reflection_matrix = np.identity(n)
-             reflection_matrix[0,0] = -1.0
-             Z = np.matmul(Z, reflection_matrix)
-         return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
     if not py_based:
         if ants.is_image(warp_image):
             txuse = mktemp(suffix='.nii.gz')
@@ -78,7 +68,7 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
             dg = np.reshape( dg.numpy(), newshape )
             it=np.ndindex(tshp)
             for i in it:
-                dg[i]=polar_decomposition( dg[i] )['Z']
+                dg[i]=ants.polar_decomposition( dg[i] )['Z']
             newshape = tshp + (dim*dim,)
             dg = np.reshape( dg, newshape )
             dg = ants.from_numpy( dg, has_components=True )
@@ -114,7 +104,7 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         if to_rotation:
             it=np.ndindex(tshp)
             for i in it:
-                dg[i]=polar_decomposition( dg[i] )['Z']
+                dg[i]=ants.polar_decomposition( dg[i] )['Z']
         newshape = tshp + (dim*dim,)
         dg = np.reshape( dg, newshape )
         dg = ants.from_numpy( dg, has_components=True )
