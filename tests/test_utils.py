@@ -990,15 +990,49 @@ class TestRandom(unittest.TestCase):
         stats = ants.hausdorff_distance(s16, s64)
 
     def test_channels_first(self):
-        import ants
         image = ants.image_read(ants.get_ants_data('r16'))
         image2 = ants.image_read(ants.get_ants_data('r16'))
         img3 = ants.merge_channels([image,image2])
         img4 = ants.merge_channels([image,image2], channels_first=True)
-
         self.assertTrue(np.allclose(img3.numpy()[:,:,0], img4.numpy()[0,:,:]))
         self.assertTrue(np.allclose(img3.numpy()[:,:,1], img4.numpy()[1,:,:]))
+        
+    def test_polar_decomposition(self):
+        # Helper functions for creating known matrices
+        def make_known_rotation(theta_deg):
+            theta = np.deg2rad(theta_deg)
+            R = np.eye(3)
+            R[:2, :2] = [[np.cos(theta), -np.sin(theta)],
+                        [np.sin(theta),  np.cos(theta)]]
+            return R
+        def make_known_scaling_matrix(sx, sy, sz):
+            return np.diag([sx, sy, sz])        
 
+        # 1. Setup: Create a matrix from a known P and Z.        
+        # The key is to multiply them in the order P @ Z.
+        P_known = make_known_scaling_matrix(2.5, 1.0, 1.5)
+        Z_known = make_known_rotation(45) # Use Z for "orthogonal" part        
+        # Construct X using the left decomposition structure: X = P @ Z
+        X = P_known @ Z_known
+
+        # 2. Decompose the matrix using the function       
+        result = ants.polar_decomposition(X)
+        P_est = result["P"]
+        Z_est = result["Z"]
+        X_reconstructed = result["Xtilde"]
+
+        # 3. Assertions
+        # a. Check if the reconstruction is close to the original matrix.
+        nptest.assert_almost_equal(X, X_reconstructed)
+        # b. Check if the estimated symmetric part is close to the known one.
+        nptest.assert_almost_equal(P_known, P_est)
+        # c. Check if the estimated orthogonal part is close to the known one.
+        nptest.assert_almost_equal(Z_known, Z_est)
+        
+    def test_onvergence_monitoring(self):
+        f = [1 / i for i in range(1, 100)]
+        convergence = ants.convergence_monitoring(f, window_size=10)
+        nptest.assert_almost_equal(convergence, 0.0, decimal=3)
 
 @unittest.skipIf(sitk is None, "SimpleITK is not installed")
 class TestModule_sitk_to_ants(unittest.TestCase):
