@@ -1011,7 +1011,7 @@ class TestRandom(unittest.TestCase):
         # 1. Setup: Create a matrix from a known P and Z.        
         # The key is to multiply them in the order P @ Z.
         P_known = make_known_scaling_matrix(2.5, 1.0, 1.5)
-        Z_known = make_known_rotation(45) # Use Z for "orthogonal" part        
+        Z_known = make_known_rotation(42) # Use Z for "orthogonal" part        
         # Construct X using the left decomposition structure: X = P @ Z
         X = P_known @ Z_known
 
