@@ -11,7 +11,7 @@ import numpy as np
 from ants.internal import get_lib_fn, process_arguments
 
 
-def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
+def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=False, py_based=False ):
     """
     Compute the deformation gradient from an image containing a warp (deformation)
 
@@ -22,9 +22,15 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
     warp_image : ANTsImage (or filename if not py_based)
         image that defines the deformation field (vector pixels)
 
-    to_rotation : boolean maps deformation gradient to a rotation matrix
+    to_rotation : boolean
+        maps deformation gradient to a rotation matrix
 
-    py_based: boolean uses pure python implementation (maybe slow)
+    to_inverse_rotation : boolean
+        map the deformation gradient to a rotation matrix, and return its inverse.
+        This is useful for reorienting tensors and vectors after resampling.
+
+    py_based: boolean
+        uses pure python implementation (maybe slow)
 
     Returns
     -------
@@ -63,12 +69,14 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         libfn = get_lib_fn('CreateJacobianDeterminantImage')
         libfn(processed_args)
         dg = ants.image_read(writtenimage)
-        if to_rotation:
+        if to_rotation or to_inverse_rotation:
             newshape = tshp + (dim,dim)
             dg = np.reshape( dg.numpy(), newshape )
             it=np.ndindex(tshp)
             for i in it:
                 dg[i]=ants.polar_decomposition( dg[i] )['Z']
+                if to_inverse_rotation:
+                    dg[i] = dg[i].T
             newshape = tshp + (dim*dim,)
             dg = np.reshape( dg, newshape )
             dg = ants.from_numpy( dg, has_components=True )
@@ -109,10 +117,12 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
                 dg_row_rotated = np.dot( tdir, dg_row)
                 dg[i][r,:] = dg_row_rotated
             dg[i] = dg[i] + ident
-        if to_rotation:
+        if to_rotation or to_inverse_rotation:
             it=np.ndindex(tshp)
             for i in it:
                 dg[i]=ants.polar_decomposition( dg[i] )['Z']
+                if to_inverse_rotation:
+                    dg[i] = dg[i].T
         newshape = tshp + (dim*dim,)
         dg = np.reshape( dg, newshape )
         dg = ants.from_numpy( dg, has_components=True )
