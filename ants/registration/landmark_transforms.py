@@ -7,22 +7,6 @@ import time
 
 import ants
 
-def convergence_monitoring(values, window_size=10):
-     if len(values) >= window_size:
-         u = np.linspace(0.0, 1.0, num=window_size)
-         scattered_data = np.expand_dims(values[-window_size:], axis=-1)
-         parametric_data = np.expand_dims(u, axis=-1)
-         spacing = 1 / (window_size-1)
-         bspline_line = ants.fit_bspline_object_to_scattered_data(scattered_data, parametric_data,
-             parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
-             parametric_domain_size=[window_size], number_of_fitting_levels=1, mesh_size=1,
-             spline_order=1)
-         bspline_slope = -(bspline_line[1][0] - bspline_line[0][0]) / spacing
-         return(bspline_slope)
-     else:
-         return None
-
-
 def fit_transform_to_paired_points(moving_points,
                                    fixed_points,
                                    transform_type="affine",
@@ -130,17 +114,6 @@ def fit_transform_to_paired_points(moving_points,
     >>> xfrm = ants.fit_transform_to_paired_points(moving, fixed, transform_type="diffeo", domain_image=domain_image, number_of_fitting_levels=6)
     """
 
-    def polar_decomposition(X):
-         U, d, V = np.linalg.svd(X, full_matrices=False)
-         P = np.matmul(U, np.matmul(np.diag(d), np.transpose(U)))
-         Z = np.matmul(U, V)
-         if np.linalg.det(Z) < 0:
-             n = X.shape[0]
-             reflection_matrix = np.identity(n)
-             reflection_matrix[0,0] = -1.0
-             Z = np.matmul(Z, reflection_matrix)
-         return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
-
     def create_zero_displacement_field(domain_image):
          field_array = np.zeros((*domain_image.shape, domain_image.dimension))
          field = ants.from_numpy(field_array, origin=domain_image.origin,
@@ -191,7 +164,7 @@ def fit_transform_to_paired_points(moving_points,
         M = x11 * (1.0 - regularization) + regularization * y_prior
         Minv = np.linalg.lstsq(M, y, rcond=None)[0]
 
-        p = polar_decomposition(Minv[0:dimensionality, 0:dimensionality].T)
+        p = ants.polar_decomposition(Minv[0:dimensionality, 0:dimensionality].T)
         A = p['Xtilde']
         translation = Minv[dimensionality,:] + center_moving - center_fixed
 
@@ -296,7 +269,7 @@ def fit_transform_to_paired_points(moving_points,
                     updated_fixed_points[j,:] = total_field_xfrm.apply_to_point(tuple(fixed_points[j,:]))
 
             error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - moving_points), axis=1, keepdims=True))))
-            convergence_value = convergence_monitoring(error_values)
+            convergence_value = ants.convergence_monitoring(error_values)
             if verbose:
                 end_time = time.time()
                 diff_time = end_time - start_time
@@ -395,7 +368,7 @@ def fit_transform_to_paired_points(moving_points,
                     updated_moving_points[j,:] = total_field_moving_to_middle_xfrm.apply_to_point(tuple(moving_points[j,:]))
 
             error_values.append(np.mean(np.sqrt(np.sum(np.square(updated_fixed_points - updated_moving_points), axis=1, keepdims=True))))
-            convergence_value = convergence_monitoring(error_values)
+            convergence_value = ants.convergence_monitoring(error_values)
             if verbose:
                 end_time = time.time()
                 diff_time = end_time - start_time
@@ -512,7 +485,7 @@ def fit_transform_to_paired_points(moving_points,
                                              has_components=True)
 
             error_values.append(average_error)
-            convergence_value = convergence_monitoring(error_values)
+            convergence_value = ants.convergence_monitoring(error_values)
             if verbose:
                 end_time = time.time()
                 diff_time = end_time - start_time
@@ -816,7 +789,7 @@ def fit_time_varying_transform_to_point_sets(point_sets,
                                          has_components=True)
 
         error_values.append(average_error)
-        convergence_value = convergence_monitoring(error_values)
+        convergence_value = ants.convergence_monitoring(error_values)
         if verbose:
             end_time = time.time()
             diff_time = end_time - start_time
