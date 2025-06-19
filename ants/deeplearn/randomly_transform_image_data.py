@@ -101,17 +101,6 @@ def randomly_transform_image_data(reference_image,
     >>>     transform_type = "affineAndDeformation" )
     """
 
-    def polar_decomposition(X):
-         U, d, V = np.linalg.svd(X, full_matrices=False)
-         P = np.matmul(U, np.matmul(np.diag(d), np.transpose(U)))
-         Z = np.matmul(U, V)
-         if np.linalg.det(Z) < 0:
-             n = X.shape[0]
-             reflection_matrix = np.identity(n)
-             reflection_matrix[0,0] = -1.0
-             Z = np.matmul(Z, reflection_matrix)
-         return({"P" : P, "Z" : Z, "Xtilde" : np.matmul(P, Z)})
-
     def create_random_linear_transform(image,
                                        fixed_parameters,
                                        transform_type='affine',
@@ -131,7 +120,7 @@ def randomly_transform_image_data(reference_image,
         random_matrix = np.reshape(
             random_parameters[:(len(identity_parameters) - image.dimension)],
             newshape=(image.dimension, image.dimension))
-        decomposition = polar_decomposition(random_matrix)
+        decomposition = ants.polar_decomposition(random_matrix)
 
         if transform_type == "rotation" or transform_type == "rigid":
             random_matrix = decomposition['Z']
