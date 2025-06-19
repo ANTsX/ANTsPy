@@ -1,5 +1,5 @@
 
- 
+
 
 __all__ = ['create_jacobian_determinant_image',
            'deformation_gradient']
@@ -13,7 +13,7 @@ from ants.internal import get_lib_fn, process_arguments
 def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
     """
     Compute the deformation gradient from an image containing a warp (deformation)
-   
+
     ANTsR function: `NA`
 
     Arguments
@@ -27,7 +27,7 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
 
     Returns
     -------
-    ANTsImage with dimension*dimension components indexed in order U_xyz, V_xyz, W_xyz 
+    ANTsImage with dimension*dimension components indexed in order U_xyz, V_xyz, W_xyz
         where U is the x-component of deformation and xyz are spatial.
 
     Note
@@ -72,7 +72,7 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         processed_args = process_arguments(args2)
         libfn = get_lib_fn('CreateJacobianDeterminantImage')
         libfn(processed_args)
-        dg = ants.image_read(writtenimage) 
+        dg = ants.image_read(writtenimage)
         if to_rotation:
             newshape = tshp + (dim,dim)
             dg = np.reshape( dg.numpy(), newshape )
@@ -96,9 +96,11 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         spc = warp_image.spacing
         it=np.ndindex(tshp)
         # print("first we need to rotate the warp by the direction cosines")
-        for i in it:
-            warpnp[i]=np.dot( tdir,warpnp[i])
+        # (PAC) don't do this, the warp vector is already in physical space
+        # for i in it:
+        #    warpnp[i]=np.dot( tdir,warpnp[i])
         # print("second get deformation gradient")
+        # dg is the transpose of the gradient as defined by ITK, take transpose below
         dg = []
         for k in range(dim):
             if dim == 2:
@@ -110,11 +112,17 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
         it=np.ndindex(tshp)
         ident = np.eye( dim )
         for i in it:
-            dg[i]=dg[i]+ident
+            dg[i]=dg[i].T # Get deformation gradient in same shape as ITK
+            # dg is derivative of physical disp with respect to voxel indices, transform to physical space
+            for r in range(dim):
+                dg_row = dg[i][r,:]
+                dg_row_rotated = np.dot( tdir, dg_row)
+                dg[i][r,:] = dg_row_rotated
+            dg[i] = dg[i] + ident
         if to_rotation:
             it=np.ndindex(tshp)
             for i in it:
-                dg[i]=polar_decomposition( dg[i] )['Z']
+                dg[i] = polar_decomposition( dg[i] )['Z']
         newshape = tshp + (dim*dim,)
         dg = np.reshape( dg, newshape )
         dg = ants.from_numpy( dg, has_components=True )
@@ -126,23 +134,23 @@ def deformation_gradient( warp_image, to_rotation=False, py_based=False ):
 def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False):
     """
     Compute the jacobian determinant from a transformation file
-   
+
     ANTsR function: `createJacobianDeterminantImage`
 
     Arguments
     ---------
     domain_image : ANTsImage
         image that defines transformation domain
-    
+
     tx : string
         deformation transformation file name
-    
+
     do_log : boolean
         return the log jacobian
-    
+
     geom : bolean
         use the geometric jacobian calculation (boolean)
-    
+
     Returns
     -------
     ANTsImage
@@ -170,6 +178,6 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     libfn = get_lib_fn('CreateJacobianDeterminantImage')
     libfn(processed_args)
     jimage = args2[2].clone('float')
-    
+
     return jimage
 
