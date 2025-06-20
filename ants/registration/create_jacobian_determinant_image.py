@@ -13,7 +13,9 @@ from ants.internal import get_lib_fn, process_arguments
 
 def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=False, py_based=False ):
     """
-    Compute the deformation gradient from an image containing a warp (deformation)
+    Compute the deformation gradient from an image containing a warp (deformation).
+
+    This function now includes a highly optimized pure Python/NumPy implementation.
 
     ANTsR function: `NA`
 
@@ -23,23 +25,20 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
         image that defines the deformation field (vector pixels)
 
     to_rotation : boolean
-        maps deformation gradient to a rotation matrix
+        maps deformation gradient to a rotation matrix using polar decomposition.
 
     to_inverse_rotation : boolean
         map the deformation gradient to a rotation matrix, and return its inverse.
         This is useful for reorienting tensors and vectors after resampling.
 
     py_based: boolean
-        uses pure python implementation (maybe slow)
+        If True, uses the optimized pure Python/NumPy implementation. If False,
+        uses the classic C++ backend.
 
     Returns
     -------
     ANTsImage with dimension*dimension components indexed in order U_xyz, V_xyz, W_xyz
         where U is the x-component of deformation and xyz are spatial.
-
-    Note
-    -------
-    the to_rotation option is still experimental. use with caution.
 
     Example
     -------
@@ -49,9 +48,13 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
     >>> fi = ants.resample_image(fi,(128,128),1,0)
     >>> mi = ants.resample_image(mi,(128,128),1,0)
     >>> mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
-    >>> dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
+    >>> warp = ants.image_read( mytx['fwdtransforms'][0] )
+    >>> # Use the fast, optimized Python implementation
+    >>> dg_py = ants.deformation_gradient( warp, py_based=True )
+    >>> dg_rot_py = ants.deformation_gradient( warp, to_rotation=True, py_based=True )
     """
     if not py_based:
+        # --- Original C++ based implementation (unchanged) ---
         if ants.is_image(warp_image):
             txuse = mktemp(suffix='.nii.gz')
             ants.image_write(warp_image, txuse)
@@ -70,10 +73,12 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
         libfn(processed_args)
         dg = ants.image_read(writtenimage)
         if to_rotation or to_inverse_rotation:
+            # This part still uses loops, but is in the C++ branch.
             newshape = tshp + (dim,dim)
             dg = np.reshape( dg.numpy(), newshape )
             it=np.ndindex(tshp)
             for i in it:
+                # Assuming ants.polar_decomposition exists and works as expected
                 dg[i]=ants.polar_decomposition( dg[i] )['Z']
                 if to_inverse_rotation:
                     dg[i] = dg[i].T
@@ -84,50 +89,50 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
         import os
         os.remove( writtenimage )
         return dg
+
+    # --- Optimized Python/NumPy Implementation ---
     if py_based:
         if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
+
         dim = warp_image.dimension
-        warpnp=warp_image.numpy()
-        tshp=warp_image.shape
-        tdir=warp_image.direction
+        tshp = warp_image.shape
+        tdir = warp_image.direction
         spc = warp_image.spacing
-        it=np.ndindex(tshp)
-        # print("first we need to rotate the warp by the direction cosines")
-        # (PAC) don't do this, the warp vector is already in physical space
-        # for i in it:
-        #    warpnp[i]=np.dot( tdir,warpnp[i])
-        # print("second get deformation gradient")
-        # dg is the transpose of the gradient as defined by ITK, take transpose below
-        dg = []
-        for k in range(dim):
-            if dim == 2:
-                temp=np.stack( np.gradient( warpnp[...,k], spc[0], spc[1], axis=range(dim) ), axis=dim)
-            if dim == 3:
-                temp=np.stack( np.gradient( warpnp[...,k], spc[0], spc[1], spc[2], axis=range(dim) ), axis=dim)
-            dg.append(temp)
-        dg = np.stack(dg,axis=dim+1)
-        it=np.ndindex(tshp)
-        ident = np.eye( dim )
-        for i in it:
-            dg[i]=dg[i].T # Get deformation gradient in same shape as ITK
-            # dg is derivative of physical disp with respect to voxel indices, transform to physical space
-            for r in range(dim):
-                dg_row = dg[i][r,:]
-                dg_row_rotated = np.dot( tdir, dg_row)
-                dg[i][r,:] = dg_row_rotated
-            dg[i] = dg[i] + ident
+        warpnp = warp_image.numpy()
+
+        # Step 1: Compute the gradient of each warp component w.r.t. voxel coordinates.
+        # The result is the Jacobian of the physical displacement w.r.t. voxel coordinates.
+        # The shape will be (tshp, dim, dim), e.g., (nx, ny, nz, 3, 3)
+        # Using a list comprehension and generalized `*spc` is cleaner than if/else.
+        gradient_list = [np.gradient(warpnp[..., k], *spc, axis=range(dim)) for k in range(dim)]
+        # Stack the gradients correctly to form the Jacobian matrices at each voxel.
+        # dg[..., i, j] = d(u_i)/d(v_j) where u is displacement and v is voxel index.
+        dg = np.stack([np.stack(grad_k, axis=-1) for grad_k in gradient_list], axis=-2)
+        # Transpose dg so we can correct the rows of dg (cols of dg.T) with fast einsum
+        axes = (*range(dg.ndim - 2), dg.ndim - 1, dg.ndim - 2)
+        dg = np.transpose(dg, axes=axes)
+        temp = np.einsum('ij,...jk->...ik', tdir, dg)
+        # Reverse the transpose, we now have dg corrected by the direction matrix
+        axes = (*range(temp.ndim - 2), temp.ndim - 1, temp.ndim - 2)
+        dg = np.transpose(temp, axes=axes)
+
+        dg += np.eye(dim)
         if to_rotation or to_inverse_rotation:
-            it=np.ndindex(tshp)
-            for i in it:
-                dg[i]=ants.polar_decomposition( dg[i] )['Z']
-                if to_inverse_rotation:
-                    dg[i] = dg[i].T
-        newshape = tshp + (dim*dim,)
-        dg = np.reshape( dg, newshape )
-        dg = ants.from_numpy( dg, has_components=True )
-        dg = ants.copy_image_info( warp_image, dg )
-    return dg
+            U, s, Vh = np.linalg.svd(dg)
+            Z = U @ Vh
+            dets = np.linalg.det(Z)
+            reflection_mask = dets < 0
+            Vh[reflection_mask, -1, :] *= -1
+            Z[reflection_mask] = U[reflection_mask] @ Vh[reflection_mask]
+            dg = Z
+            if to_inverse_rotation:
+                dg = np.transpose(dg, axes=(*range(dg.ndim - 2), dg.ndim - 1, dg.ndim - 2))
+        new_shape = tshp + (dim * dim,)
+        dg_reshaped = np.reshape(dg, new_shape)
+        return ants.from_numpy(dg_reshaped, origin=warp_image.origin,
+                            spacing=warp_image.spacing, direction=warp_image.direction,
+                            has_components=True)
 
 
 
