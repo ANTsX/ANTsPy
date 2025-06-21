@@ -94,29 +94,15 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
     if py_based:
         if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
-
         dim = warp_image.dimension
         tshp = warp_image.shape
         tdir = warp_image.direction
         spc = warp_image.spacing
         warpnp = warp_image.numpy()
-
-        # Step 1: Compute the gradient of each warp component w.r.t. voxel coordinates.
-        # The result is the Jacobian of the physical displacement w.r.t. voxel coordinates.
-        # The shape will be (tshp, dim, dim), e.g., (nx, ny, nz, 3, 3)
-        # Using a list comprehension and generalized `*spc` is cleaner than if/else.
         gradient_list = [np.gradient(warpnp[..., k], *spc, axis=range(dim)) for k in range(dim)]
-        # Stack the gradients correctly to form the Jacobian matrices at each voxel.
-        # dg[..., i, j] = d(u_i)/d(v_j) where u is displacement and v is voxel index.
-        dg = np.stack([np.stack(grad_k, axis=-1) for grad_k in gradient_list], axis=-2)
-        # Transpose dg so we can correct the rows of dg (cols of dg.T) with fast einsum
-        axes = (*range(dg.ndim - 2), dg.ndim - 1, dg.ndim - 2)
-        dg = np.transpose(dg, axes=axes)
-        temp = np.einsum('ij,...jk->...ik', tdir, dg)
-        # Reverse the transpose, we now have dg corrected by the direction matrix
-        axes = (*range(temp.ndim - 2), temp.ndim - 1, temp.ndim - 2)
-        dg = np.transpose(temp, axes=axes)
-
+        # This correctly calculates J.T, where dg[..., i, j] = d(u_j)/d(x_i)
+        dg = np.stack([np.stack(grad_k, axis=-1) for grad_k in gradient_list], axis=-1)
+        dg = (tdir @ dg).swapaxes(-1, -2)
         dg += np.eye(dim)
         if to_rotation or to_inverse_rotation:
             U, s, Vh = np.linalg.svd(dg)
@@ -133,6 +119,7 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
         return ants.from_numpy(dg_reshaped, origin=warp_image.origin,
                             spacing=warp_image.spacing, direction=warp_image.direction,
                             has_components=True)
+
 
 
 
