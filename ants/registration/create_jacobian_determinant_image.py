@@ -54,7 +54,7 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
     >>> dg_rot_py = ants.deformation_gradient( warp, to_rotation=True, py_based=True )
     """
     if not py_based:
-        # --- Original C++ based implementation (unchanged) ---
+        # --- Original C++ based implementation ---
         if ants.is_image(warp_image):
             txuse = mktemp(suffix='.nii.gz')
             ants.image_write(warp_image, txuse)
@@ -63,7 +63,7 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
             warp_image=ants.image_read(txuse)
         if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
-        writtenimage = mktemp(suffix='.nrrd')
+        writtenimage = mktemp(suffix='.nii.gz')
         dimage = warp_image.split_channels()[0].clone('double')
         dim = dimage.dimension
         tshp = dimage.shape
@@ -73,15 +73,17 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
         libfn(processed_args)
         dg = ants.image_read(writtenimage)
         if to_rotation or to_inverse_rotation:
-            # This part still uses loops, but is in the C++ branch.
             newshape = tshp + (dim,dim)
             dg = np.reshape( dg.numpy(), newshape )
-            it=np.ndindex(tshp)
-            for i in it:
-                # Assuming ants.polar_decomposition exists and works as expected
-                dg[i]=ants.polar_decomposition( dg[i] )['Z']
-                if to_inverse_rotation:
-                    dg[i] = dg[i].T
+            U, s, Vh = np.linalg.svd(dg)
+            Z = U @ Vh
+            dets = np.linalg.det(Z)
+            reflection_mask = dets < 0
+            Vh[reflection_mask, -1, :] *= -1
+            Z[reflection_mask] = U[reflection_mask] @ Vh[reflection_mask]
+            dg = Z
+            if to_inverse_rotation:
+                dg = np.transpose(dg, axes=(*range(dg.ndim - 2), dg.ndim - 1, dg.ndim - 2))
             newshape = tshp + (dim*dim,)
             dg = np.reshape( dg, newshape )
             dg = ants.from_numpy( dg, has_components=True )
@@ -140,7 +142,7 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     do_log : boolean
         return the log jacobian
 
-    geom : bolean
+    geom : boolean
         use the geometric jacobian calculation (boolean)
 
     Returns
