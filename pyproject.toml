@@ -23,7 +23,8 @@ dependencies = [
     "matplotlib",
     "Pillow",
     "requests",
-    "scikit-learn"
+    "scikit-learn",
+    "scipy<1.16"
 ]
 
 [project.urls]
