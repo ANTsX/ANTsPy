@@ -226,6 +226,19 @@ class TestModule_interface(unittest.TestCase):
             )
         print("Finished long registration interface test")
 
+    def test_reg_precision_option(self):
+        # Check that registration works with float and double precision
+        fi = ants.image_read(ants.get_ants_data("r16"))
+        mi = ants.image_read(ants.get_ants_data("r64"))
+        fi = ants.resample_image(fi, (60, 60), 1, 0)
+        mi = ants.resample_image(mi, (60, 60), 1, 0)
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN") # should be float precision
+        info = ants.image_header_info(mytx["fwdtransforms"][0])
+        self.assertEqual(info['pixeltype'], 'float')
+        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN", singleprecision=False)
+        info = ants.image_header_info(mytx["fwdtransforms"][0])
+        self.assertEqual(info['pixeltype'], 'double')
+
 
 class TestModule_metrics(unittest.TestCase):
     def setUp(self):
@@ -396,16 +409,59 @@ class TestModule_random(unittest.TestCase):
         fi = ants.resample_image(fi,(128,128),1,0)
         mi = ants.resample_image(mi,(128,128),1,0)
         mytx = ants.registration(fixed=fi , moving=mi, type_of_transform = ('SyN') )
-        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
 
-        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ) )
+        # Expect some differences between these two methods
+        dg_py = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        py_based=True)
 
-        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+        rot = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        to_rotation=True)
-
-        dg = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+        rot_py = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        to_rotation=True, py_based=True)
+
+        def rotation_angle_diff_field(rot_1, rot_2, degrees=False):
+            """
+            Compute angular difference between two rotation matrix images.
+            Inputs:
+                rot_1: antsImage with dim*dim components representing the matrix
+                rot_2: antsImage with same shape and dimension as rot_1
+            Returns:
+                angle_diff: numpy array with angle in radians (or degrees if degrees=True)
+            """
+            # cast and reshape
+            dim = rot_1.dimension
+            if rot_2.dimension != dim:
+                raise ValueError("Rotation images must have the same dimension.")
+            if rot_1.shape != rot_2.shape:
+                raise ValueError("Rotation images must have the same shape.")
+            rot_py1 = rot_1.numpy().reshape(rot_1.shape + (dim, dim))
+            rot_py2 = rot_2.numpy().reshape(rot_2.shape + (dim, dim))
+            # Compute relative rotation: R_rel = R_py @ R.T
+            R_rel = rot_py1 @ np.swapaxes(rot_py2, -2, -1)
+            trace = np.trace(R_rel, axis1=-2, axis2=-1)
+            if dim == 2:
+                angle = np.arccos(np.clip((trace) / 2, -1.0, 1.0))
+            elif dim == 3:
+                angle = np.arccos(np.clip((trace - 1) / 2, -1.0, 1.0))
+            else:
+                raise ValueError("Only 2D or 3D rotation matrices are supported.")
+
+            return np.degrees(angle) if degrees else angle
+
+        rot_angle_diff = rotation_angle_diff_field(rot_py, rot, degrees=True)
+        self.assertTrue(np.all(rot_angle_diff < 1))
+
+        rot_inv = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+                                       to_inverse_rotation=True)
+        rot_py_inv = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
+                                       to_inverse_rotation=True, py_based=True)
+
+        rot_angle_diff = rotation_angle_diff_field(rot_inv, rot_py_inv, degrees=True)
+        self.assertTrue(np.all(rot_angle_diff < 1))
+
+        # Check it's actually the inverse
+        self.assertTrue(np.allclose (rot_py.numpy(), rot_py_inv.numpy()[..., [0, 2, 1, 3]]))
 
     def test_jacobian(self):
         fi = ants.image_read( ants.get_ants_data('r16'))
@@ -467,19 +523,6 @@ class TestModule_random(unittest.TestCase):
                                              fixed_intensity_images=fi,
                                              moving_intensity_images=mi)
 
-
-    def test_reg_precision_option(self):
-        # Check that registration and apply transforms works with float and double precision
-        fi = ants.image_read(ants.get_ants_data("r16"))
-        mi = ants.image_read(ants.get_ants_data("r64"))
-        fi = ants.resample_image(fi, (60, 60), 1, 0)
-        mi = ants.resample_image(mi, (60, 60), 1, 0)
-        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN") # should be float precision
-        info = ants.image_header_info(mytx["fwdtransforms"][0])
-        self.assertEqual(info['pixeltype'], 'float')
-        mytx = ants.registration(fixed=fi, moving=mi, type_of_transform="SyN", singleprecision=False)
-        info = ants.image_header_info(mytx["fwdtransforms"][0])
-        self.assertEqual(info['pixeltype'], 'double')
 
 if __name__ == "__main__":
     run_tests()
