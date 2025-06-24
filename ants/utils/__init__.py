@@ -13,3 +13,5 @@ from .ndimage_to_list import ndimage_to_list, list_to_ndimage
 from .nifti_to_ants import nifti_to_ants
 from .scalar_rgb_vector import rgb_to_vector, vector_to_rgb, scalar_to_rgb
 from .sitk_to_ants import from_sitk, to_sitk
+from .convergence_monitoring import convergence_monitoring
+from .polar_decomposition import polar_decomposition

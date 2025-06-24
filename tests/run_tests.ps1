@@ -10,7 +10,8 @@ $PYTHON_SCRIPTS = @(
     "test_registration.py",
     "test_segmentation.py",
     "test_utils.py",
-    "test_bugs.py"
+    "test_bugs.py",
+    "test_deeplearn.py"
 )
 
 $scriptFailed = $false

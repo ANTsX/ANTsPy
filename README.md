@@ -15,7 +15,7 @@
 
 The ANTsPy library wraps the well-established C++ biomedical image processing framework [ANTs](https://github.com/antsx/ants). It includes blazing-fast reading and writing of medical images, algorithms for registration, segmentation, and statistical learning, as well as functions to create publication-ready visualizations.
 
-If you are looking to train deep learning models on medical imaging datasets, you might be interested in [ANTsPyNet](https://github.com/antsx/antspy) which provides tools for training and visualizing deep learning models.
+If you are looking to train deep learning models on medical imaging datasets, you might be interested in [ANTsPyNet](https://github.com/ANTsX/ANTsPyNet) which provides tools for training and visualizing deep learning models.
 
 <br>
 
@@ -27,6 +27,11 @@ The easiest way to install ANTsPy is via the latest pre-compiled binaries from P
 
 ```bash
 pip install antspyx
+```
+Or alternatively from conda:
+
+```bash
+conda install conda-forge::antspyx
 ```
 
 Because of limited storage space, pip binaries are not available for every combination of python
@@ -101,9 +106,9 @@ Resources for learning about ANTsPy can be found in the [tutorials](https://gith
 
 - Basic overview [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/tutorial_5min.md)]
 - Composite registrations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)]
-- Multi-metric registration [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistration/MultiMetricRegistration.ipynb)]
-- Image math operations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/iMath_help.ipynb)]
-- Wrapping ITK code [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/UsingITK.ipynb)]
+- Multi-metric registration [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/MultiMetricRegistration.ipynb)]
+- Image math operations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/iMath_help.md)]
+- Wrapping ITK code [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/UsingITK.md)]
 
 More tutorials can be found in the [ANTs](https://github.com/ANTsX/ANTs) repository.
 

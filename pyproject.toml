@@ -17,12 +17,14 @@ classifiers = [
 dependencies = [
     "pandas",
     "pyyaml",
-    "numpy<=2.0.1",
+    "numpy",
     "statsmodels",
     "webcolors",
     "matplotlib",
     "Pillow",
-    "requests"
+    "requests",
+    "scikit-learn",
+    "scipy<1.16"
 ]
 
 [project.urls]

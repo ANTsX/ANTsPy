@@ -11,3 +11,4 @@ from .registration import *
 from .segmentation import *
 from .utils import *
 from .contrib import *
+from .deeplearn import *

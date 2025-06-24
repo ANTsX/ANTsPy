@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 
 from common import run_tests
 
+import math
 import numpy.testing as nptest
 import numpy as np
 import pandas as pd
@@ -989,15 +990,49 @@ class TestRandom(unittest.TestCase):
         stats = ants.hausdorff_distance(s16, s64)
 
     def test_channels_first(self):
-        import ants
         image = ants.image_read(ants.get_ants_data('r16'))
         image2 = ants.image_read(ants.get_ants_data('r16'))
         img3 = ants.merge_channels([image,image2])
         img4 = ants.merge_channels([image,image2], channels_first=True)
-
         self.assertTrue(np.allclose(img3.numpy()[:,:,0], img4.numpy()[0,:,:]))
         self.assertTrue(np.allclose(img3.numpy()[:,:,1], img4.numpy()[1,:,:]))
+        
+    def test_polar_decomposition(self):
+        # Helper functions for creating known matrices
+        def make_known_rotation(theta_deg):
+            theta = np.deg2rad(theta_deg)
+            R = np.eye(3)
+            R[:2, :2] = [[np.cos(theta), -np.sin(theta)],
+                        [np.sin(theta),  np.cos(theta)]]
+            return R
+        def make_known_scaling_matrix(sx, sy, sz):
+            return np.diag([sx, sy, sz])        
 
+        # 1. Setup: Create a matrix from a known P and Z.        
+        # The key is to multiply them in the order P @ Z.
+        P_known = make_known_scaling_matrix(2.5, 1.0, 1.5)
+        Z_known = make_known_rotation(42) # Use Z for "orthogonal" part        
+        # Construct X using the left decomposition structure: X = P @ Z
+        X = P_known @ Z_known
+
+        # 2. Decompose the matrix using the function       
+        result = ants.polar_decomposition(X)
+        P_est = result["P"]
+        Z_est = result["Z"]
+        X_reconstructed = result["Xtilde"]
+
+        # 3. Assertions
+        # a. Check if the reconstruction is close to the original matrix.
+        nptest.assert_almost_equal(X, X_reconstructed)
+        # b. Check if the estimated symmetric part is close to the known one.
+        nptest.assert_almost_equal(P_known, P_est)
+        # c. Check if the estimated orthogonal part is close to the known one.
+        nptest.assert_almost_equal(Z_known, Z_est)
+        
+    def test_convergence_monitoring(self):
+        f = [1 / i for i in range(1, 100)]
+        convergence = ants.convergence_monitoring(f, window_size=10)
+        nptest.assert_almost_equal(convergence, 0.0, decimal=3)
 
 @unittest.skipIf(sitk is None, "SimpleITK is not installed")
 class TestModule_sitk_to_ants(unittest.TestCase):
@@ -1011,6 +1046,7 @@ class TestModule_sitk_to_ants(unittest.TestCase):
     def tearDown(self):
         pass
 
+    # Basic tests with 3D image
     def test_from_sitk(self):
         ants_img = ants.from_sitk(self.img)
 
@@ -1026,12 +1062,13 @@ class TestModule_sitk_to_ants(unittest.TestCase):
         nptest.assert_almost_equal(self.img.GetSpacing(), img.GetSpacing())
         nptest.assert_almost_equal(self.img.GetDirection(), img.GetDirection())
 
-    def test_ito_sitk(self):
+
+    def test_to_sitk(self):
         with TemporaryDirectory() as temp_dir:
             temp_fpath = os.path.join(temp_dir, "img.nrrd")
             sitk.WriteImage(self.img, temp_fpath)
             ants_img = ants.image_read(temp_fpath)
-            
+
         img = ants.to_sitk(ants_img)
 
         nptest.assert_equal(
@@ -1040,8 +1077,144 @@ class TestModule_sitk_to_ants(unittest.TestCase):
         nptest.assert_almost_equal(self.img.GetOrigin(), img.GetOrigin())
         nptest.assert_almost_equal(self.img.GetSpacing(), img.GetSpacing())
         nptest.assert_almost_equal(self.img.GetDirection(), img.GetDirection())
-            
-        
+
+
+    def test_roundtrip_scalar_vector(self):
+        """
+        Tests roundtrip conversions between ANTsPy and SimpleITK
+        for scalar and vector images in 2D, 3D, and 4D.
+        """
+        # Load 2D scalar image
+        base_2d = ants.image_read(ants.get_ants_data('r16'))
+        base_2d = ants.resample_image(base_2d, (48, 64), use_voxels=True, interp_type=1)
+
+        # Set interesting spacing, origin, direction for 2D
+        base_2d.set_spacing((1.5, 2.0))
+        base_2d.set_origin((1.2, 3.4))
+        theta = math.radians(16)
+        base_2d.set_direction([
+           [math.cos(theta), -math.sin(theta)],
+           [math.sin(theta),  math.cos(theta)]
+        ])
+
+        base_arr_2d = base_2d.numpy()
+
+        test_cases = []
+
+        # 2D scalar
+        img_2d_scalar = ants.from_numpy(
+            base_arr_2d,
+            has_components=False,
+            spacing=base_2d.spacing,
+            origin=base_2d.origin,
+            direction=base_2d.direction,
+        )
+        test_cases.append(("2D scalar", img_2d_scalar))
+
+        # 2D vector
+        arr_vec = np.stack([base_arr_2d, base_arr_2d], axis=-1)
+        img_2d_vector = ants.from_numpy(
+            arr_vec,
+            has_components=True,
+            spacing=base_2d.spacing,
+            origin=base_2d.origin,
+            direction=base_2d.direction,
+        )
+        test_cases.append(("2D vector", img_2d_vector))
+
+        # --- 3D setup ---
+
+        # Make 3D volume by stacking slices
+        arr_3d = np.stack([base_arr_2d]*5, axis=-1)
+
+        # 3D spacing and origin
+        spacing_3d = base_2d.spacing + (2.5,)  # (1.5, 2.0, 2.5)
+        origin_3d = base_2d.origin + (5.6,)    # (1.2, 3.4, 5.6)
+
+        # 3D direction: rotation about Z axis
+        theta = math.radians(30)  # 30 degrees
+        direction_3d = np.array([
+            [math.cos(theta), -math.sin(theta), 0],
+            [math.sin(theta),  math.cos(theta), 0],
+            [0,                 0,                1]
+        ])
+
+        # 3D scalar
+        img_3d_scalar = ants.from_numpy(
+            arr_3d,
+            has_components=False,
+            spacing=spacing_3d,
+            origin=origin_3d,
+            direction=direction_3d,
+        )
+        test_cases.append(("3D scalar", img_3d_scalar))
+
+        # 3D vector
+        arr_vec_3d = np.stack([arr_3d, arr_3d], axis=-1)
+        img_3d_vector = ants.from_numpy(
+            arr_vec_3d,
+            has_components=True,
+            spacing=spacing_3d,
+            origin=origin_3d,
+            direction=direction_3d,
+        )
+        test_cases.append(("3D vector", img_3d_vector))
+
+        # --- 4D setup ---
+
+        # Make 4D volume by stacking 3D volumes
+        arr_4d = np.stack([arr_3d]*4, axis=-1)
+
+        # 4D spacing and origin
+        spacing_4d = spacing_3d + (0.8,)
+        origin_4d = origin_3d + (0.0,)
+
+        # 4D direction matrix is same as 3D in space
+        direction_4d = np.eye(4)
+        direction_4d[:3, :3] = direction_3d
+
+
+        # 4D scalar
+        img_4d_scalar = ants.from_numpy(
+            arr_4d,
+            has_components=False,
+            spacing=spacing_4d,
+            origin=origin_4d,
+            direction=direction_4d,
+        )
+        test_cases.append(("4D scalar", img_4d_scalar))
+
+        # 4D vector
+        arr_vec_4d = np.stack([arr_4d, arr_4d], axis=-1)
+        img_4d_vector = ants.from_numpy(
+            arr_vec_4d,
+            has_components=True,
+            spacing=spacing_4d,
+            origin=origin_4d,
+            direction=direction_4d,
+        )
+        test_cases.append(("4D vector", img_4d_vector))
+
+        # Now test round-trip for each
+        for name, ants_img in test_cases:
+            print(f"Testing {name}")
+
+            # Convert to SimpleITK and back
+            sitk_img = ants.to_sitk(ants_img)
+            ants_img2 = ants.from_sitk(sitk_img)
+
+            # Basic checks
+            assert ants_img.dimension == ants_img2.dimension, f"Dimension mismatch for {name}"
+            assert ants_img.shape == ants_img2.shape, f"Shape mismatch for {name}"
+            assert ants_img.components == ants_img2.components, f"Components mismatch for {name}"
+
+            # Pixel value checks (floating point tolerant)
+            arr1 = ants_img.numpy()
+            arr2 = ants_img2.numpy()
+            np.testing.assert_allclose(
+                arr1, arr2, rtol=1e-5, atol=1e-8,
+                err_msg=f"Pixel data mismatch for {name}"
+            )
 
 if __name__ == "__main__":
     run_tests()
