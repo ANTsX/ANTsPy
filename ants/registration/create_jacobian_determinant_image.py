@@ -4,7 +4,7 @@
 __all__ = ['create_jacobian_determinant_image',
            'deformation_gradient']
 
-from tempfile import mktemp
+from tempfile import NamedTemporaryFile
 
 import ants
 import numpy as np
@@ -56,14 +56,15 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
     if not py_based:
         # --- Original C++ based implementation ---
         if ants.is_image(warp_image):
-            txuse = mktemp(suffix='.nii.gz')
+            txuse = NamedTemporaryFile(suffix='.nii.gz', delete=False).name
             ants.image_write(warp_image, txuse)
         else:
             txuse = warp_image
             warp_image=ants.image_read(txuse)
         if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
-        writtenimage = mktemp(suffix='.nii.gz')
+        writtenimage = NamedTemporaryFile(suffix='.nii.gz', delete=False).name
+        print(f"Writing deformation gradient to {writtenimage}")
         dimage = warp_image.split_channels()[0].clone('double')
         dim = dimage.dimension
         tshp = dimage.shape
@@ -161,7 +162,7 @@ def create_jacobian_determinant_image(domain_image, tx, do_log=False, geom=False
     """
     dim = domain_image.dimension
     if ants.is_image(tx):
-        txuse = mktemp(suffix='.nii.gz')
+        txuse = NamedTemporaryFile(suffix='.nii.gz', delete=False).name
         ants.image_write(tx, txuse)
     else:
         txuse = tx
