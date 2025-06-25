@@ -64,7 +64,6 @@ def deformation_gradient( warp_image, to_rotation=False, to_inverse_rotation=Fal
         if not ants.is_image(warp_image):
             raise RuntimeError("antsimage is required")
         writtenimage = NamedTemporaryFile(suffix='.nii.gz', delete=False).name
-        print(f"Writing deformation gradient to {writtenimage}")
         dimage = warp_image.split_channels()[0].clone('double')
         dim = dimage.dimension
         tshp = dimage.shape
