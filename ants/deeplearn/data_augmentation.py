@@ -193,6 +193,7 @@ def data_augmentation(input_image_list,
 
 
         simulated_local_image_list = list()
+        bias_field_array = None
         for j in range(number_of_modalities):
 
             if verbose:
@@ -262,14 +263,17 @@ def data_augmentation(input_image_list,
                 if verbose:
                     print("        Adding simulated bias field.")
 
-                log_field = ants.simulate_bias_field(image, 
-                                                     number_of_points=10, 
-                                                     sd_bias_field=sd_simulated_bias_field, 
-                                                     number_of_fitting_levels=2, 
-                                                     mesh_size=10)
-                log_field = log_field.iMath("Normalize")
-                field_array = np.power(np.exp(log_field.numpy()), random.sample((2, 3, 4), 1)[0])
-                image = image * ants.from_numpy_like(field_array, image)
+                   
+                # Keep the bias field the same across modalities   
+                if j == 0:
+                    log_field = ants.simulate_bias_field(image, 
+                                                        number_of_points=10, 
+                                                        sd_bias_field=sd_simulated_bias_field, 
+                                                        number_of_fitting_levels=2, 
+                                                        mesh_size=10)
+                    log_field = log_field.iMath("Normalize")
+                    bias_field_array = np.power(np.exp(log_field.numpy()), random.sample((2, 3, 4), 1)[0])
+                image = image * ants.from_numpy_like(bias_field_array, image)
 
             # Histogram intensity warping
 
