@@ -9,7 +9,7 @@ from common import run_tests
 import ants
 import numpy as np
 
-class Test_bugs(unittest.TestCase):
+class Test_config(unittest.TestCase):
     """
     Test ants.ANTsImage class
     """
