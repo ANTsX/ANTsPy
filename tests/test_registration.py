@@ -9,11 +9,13 @@ self.assertTrue
 import os
 import unittest
 from common import run_tests
-from tempfile import mktemp
+from numpy.linalg import eigh
 
+import math
 import numpy as np
 import numpy.testing as nptest
 import pandas as pd
+import tempfile
 
 import ants
 
@@ -522,6 +524,73 @@ class TestModule_random(unittest.TestCase):
                                              [mi_seg],
                                              fixed_intensity_images=fi,
                                              moving_intensity_images=mi)
+
+
+    def test_tensor_reorient(self):
+        fa = 0.75
+        trace = 2.1E-3
+        l_1 = trace * (1 + (2 * fa) / np.sqrt(3 - 2 * fa**2))
+        l_2 = (trace - l_1) / 2
+
+        tensor = np.zeros((3, 3))
+        tensor[0, 0] = l_1
+        tensor[1, 1] = l_2
+        tensor[2, 2] = l_2
+
+        img_shape = (10,10,10)
+
+        # Fill image with this tensor (SymmetricSecondRankTensor has 6 unique values)
+        image_data = np.zeros(img_shape + (6,), dtype=np.float32)
+        image_data[..., 0] = tensor[0, 0]  # xx
+        image_data[..., 1] = tensor[0, 1]  # xy
+        image_data[..., 2] = tensor[0, 2]  # xz
+        image_data[..., 3] = tensor[1, 1]  # yy
+        image_data[..., 4] = tensor[1, 2]  # yz
+        image_data[..., 5] = tensor[2, 2]  # zz
+
+        tensor_image = ants.from_numpy(image_data, has_components=True)
+        tensor_image.set_direction(np.eye(3))
+        tensor_image.set_spacing((1.0, 1.0, 1.0))
+        tensor_image.set_origin((0.0, 0.0, 0.0))
+
+        ref_image = ants.from_numpy(image_data[..., 0], has_components=False)
+        ants.copy_image_info(tensor_image, ref_image)
+
+        theta = math.radians(20)
+        tx_params = np.array([math.cos(theta), -math.sin(theta), 0, math.sin(theta), math.cos(theta), 0, 0, 0, 1, 0, 0, 0])
+
+        affine_tx = ants.create_ants_transform(transform_type="AffineTransform", dimension=3, parameters=tx_params)
+
+        fd, tx_fn = tempfile.mkstemp(suffix=".mat")
+        os.close(fd)
+
+        ants.write_transform(affine_tx, tx_fn)
+
+        reoriented_tensor = ants.apply_transforms(ref_image, tensor_image, tx_fn, imagetype=2, verbose=True).numpy()
+
+        os.remove(tx_fn)
+
+        mid = reoriented_tensor.shape[0] // 2
+
+        dtUpper = reoriented_tensor[mid, mid, mid]
+
+        # Convert upper-triangular to full tensor
+        T = np.array([
+            [dtUpper[0], dtUpper[1], dtUpper[2]],
+            [dtUpper[1], dtUpper[3], dtUpper[4]],
+            [dtUpper[2], dtUpper[4], dtUpper[5]],
+        ])
+
+        # Check tensor has been reoriented by theta
+        # Compute eigenvectors and eigenvalues
+        eigvals, eigvecs = eigh(T)
+        principal_ev = eigvecs[:, np.argmax(eigvals)]
+
+        # The expected reorientation is the opposite to the forward transform
+        expected_ev = np.array([math.cos(-theta), math.sin(-theta), 0])
+
+        dot = np.abs(np.dot(principal_ev, expected_ev))
+        assert math.isclose(dot, 1.0, abs_tol=1e-3), f"Principal eigenvector {principal_ev}, expected {expected_ev}"
 
 
 if __name__ == "__main__":
