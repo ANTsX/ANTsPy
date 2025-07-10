@@ -39,7 +39,6 @@ def registration(
     aff_shrink_factors=(6, 4, 2, 1),
     aff_smoothing_sigmas=(3, 2, 1, 0),
     write_composite_transform=False,
-    random_seed=None,
     verbose=False,
     multivariate_extras=None,
     restrict_transformation=None,
@@ -124,9 +123,6 @@ def registration(
 
     aff_smoothing_sigmas : list/tuple of integers
         vector of multi-resolution smoothing factors for low-dimensional (translation, rigid, affine) registration.
-
-    random_seed : integer
-        random seed to improve reproducibility. note that the number of ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS should be 1 if you want perfect reproducibility.
 
     write_composite_transform : boolean
         Boolean specifying whether or not the composite transform (and its inverse, if it exists) should be written to an hdf5 composite file. This is false by default so that only the transform for each stage is written to file.
@@ -937,9 +933,6 @@ def registration(
             syn_shrink_factors = "2x1"
             syn_smoothing_sigmas = "1x0vox"
 
-        if random_seed is None and do_repro:
-            random_seed = "1"
-
         rigidtx = "Translation" if subtype_of_transform == "t" else "Rigid"
 
         rigid_stage = [
@@ -1028,9 +1021,9 @@ def registration(
 
     # ------------------------------------------------------------
 
-    if random_seed is not None:
+    if ants.config._random_seed is not None:
         args.append("--random-seed")
-        args.append(random_seed)
+        args.append(str(ants.config._random_seed))
 
     if restrict_transformation is not None:
         args.append("-g")
@@ -1264,7 +1257,6 @@ def label_image_registration(fixed_label_images,
                              type_of_deformable_transform='antsRegistrationSyNQuick[so]',
                              label_image_weighting=1.0,
                              output_prefix='',
-                             random_seed=None,
                              verbose=False):
 
     """
@@ -1318,9 +1310,6 @@ def label_image_registration(fixed_label_images,
     output_prefix : string
         Define the output prefix for the filenames of the output transform
         files.
-
-    random_seed : integer
-        Definition for deformable registration.
 
     verbose : boolean
         Print progress to the screen.
@@ -1528,8 +1517,6 @@ def label_image_registration(fixed_label_images,
             do_quick = False
             if "Quick" in type_of_deformable_transform:
                 do_quick = True
-            elif "Repro" in type_of_deformable_transform:
-                random_seed = str(1)
 
             if "[" in type_of_deformable_transform and "]" in type_of_deformable_transform:
                 subtype_of_deformable_transform = type_of_deformable_transform.split("[")[1].split("]")[0]
@@ -1615,9 +1602,9 @@ def label_image_registration(fixed_label_images,
         args.append("--float")
         args.append("1")
 
-        if random_seed is not None:
+        if ants.config._random_seed is not None:
             args.append("--random-seed")
-            args.append(random_seed)
+            args.append(str(ants.config._random_seed))
 
         if verbose:
             args.append("-v")
