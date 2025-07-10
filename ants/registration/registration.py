@@ -15,6 +15,7 @@ import os
 
 import ants
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
+from ants.config import _deterministic
 
 def registration(
     fixed,
@@ -424,6 +425,10 @@ def registration(
     if not "antsRegistrationSyN" in type_of_transform and not transform_type_exists:
         raise ValueError(f'{type_of_transform} does not exist')
 
+    # Perform Repro checking if set_ants_deterministic is True
+    if _deterministic and not "Repro" in type_of_transform:
+        raise ValueError(f'{type_of_transform} is not deterministic/reproducible.')
+        
     if isinstance(initial_transform, str):
         initial_transform = [initial_transform]
     # if isinstance(initx, ANTsTransform):
