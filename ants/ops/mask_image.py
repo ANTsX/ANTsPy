@@ -46,8 +46,9 @@ def mask_image(image, mask, level=1, binarize=False):
     if type(leveluse) is int or type(leveluse) is float:
         leveluse = [level]
     image_out = image.clone() * 0
+    mask_float = ants.image_clone(mask, 'float')
     for mylevel in leveluse:
-        temp = ants.threshold_image(mask, mylevel, mylevel)
+        temp = ants.threshold_image(mask_float, mylevel, mylevel)
         if binarize:
             image_out = image_out + temp
         else:
