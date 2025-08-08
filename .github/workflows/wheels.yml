@@ -19,19 +19,19 @@ jobs:
           # Need to quote decimal versions as string to avoid the "Norway problem"
 
           # Windows 64-bit
-          - os: windows-latest
+          - os: windows-2022
             python: '3.10'
             cibw_python: 310
             platform_id: win_amd64
-          - os: windows-latest
+          - os: windows-2022
             python: '3.11'
             cibw_python: 311
             platform_id: win_amd64
-          - os: windows-latest
+          - os: windows-2022
             python: '3.12'
             cibw_python: 312
             platform_id: win_amd64
-          - os: windows-latest
+          - os: windows-2022
             python: '3.13'
             cibw_python: 313
             platform_id: win_amd64
