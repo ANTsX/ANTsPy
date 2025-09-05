@@ -201,7 +201,7 @@ class ANTsImage(object):
         if not isinstance(new_direction, np.ndarray):
             raise ValueError('arg must be np.ndarray or tuple or list')
         if len(new_direction) != self.dimension:
-            raise ValueError('must give a origin value for each dimension (%i)' % self.dimension)
+            raise ValueError('must give a direction value for each dimension (%i)' % self.dimension)
 
         get_lib_fn('setDirection')(self.pointer, new_direction)
 
