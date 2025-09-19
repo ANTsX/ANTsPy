@@ -40,12 +40,12 @@ nb::dict labelStatsHelper(
 
   long nlabs = labelStatisticsImageFilter->GetNumberOfLabels();
 
-  std::vector<double> labelvals(nlabs);
+  std::vector<LabelType> labelvals(nlabs);
   std::vector<double> means(nlabs);
   std::vector<double> mins(nlabs);
   std::vector<double> maxes(nlabs);
   std::vector<double> variances(nlabs);
-  std::vector<double> counts(nlabs);
+  std::vector<LabelType> counts(nlabs);
   std::vector<double> volumes(nlabs);
   std::vector<double> x(nlabs);
   std::vector<double> y(nlabs);
@@ -137,7 +137,7 @@ nb::dict labelStatsHelper(
 template <unsigned int Dimension>
 nb::dict labelStats(AntsImage<itk::Image<float, Dimension>> & py_image,
                     AntsImage<itk::Image<unsigned int, Dimension>> & py_labelImage)
-{ 
+{
   typedef itk::Image<float, Dimension> FloatImageType;
   typedef itk::Image<unsigned int, Dimension> IntImageType;
   typedef typename FloatImageType::Pointer FloatImagePointerType;
