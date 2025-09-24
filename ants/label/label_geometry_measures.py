@@ -43,6 +43,8 @@ def label_geometry_measures(label_image, intensity_image=None):
         if not np.all(label_image.numpy() == label_image_int.numpy()):
             raise ValueError('Input label values must be representable as uint32.')
         label_image = label_image.clone('unsigned int')
+    else:
+        label_image_int = label_image
     veccer = [label_image.dimension, label_image_int, intensity_image, outcsv]
     veccer_processed = process_arguments(veccer)
     libfn = get_lib_fn('LabelGeometryMeasures')
