@@ -15,3 +15,5 @@ from .scalar_rgb_vector import rgb_to_vector, vector_to_rgb, scalar_to_rgb
 from .sitk_to_ants import from_sitk, to_sitk
 from .convergence_monitoring import convergence_monitoring
 from .polar_decomposition import polar_decomposition
+from .nifti_utils import (deshear_nifti_sform, get_nifti_sform_shear, get_nifti_qform_spatial_info, get_nifti_sform_spatial_info,
+                          get_nifti_spatial_transform_from_metadata, set_nifti_spatial_transform_from_metadata)
