@@ -27,6 +27,7 @@
 #include "mergeChannels.cxx"
 #include "padImage.cxx"
 #include "readImage.cxx"
+#include "readImageMetadata.cxx"
 #include "readTransform.cxx"
 #include "reflectionMatrix.cxx"
 #include "reorientImage.cxx"
@@ -87,6 +88,7 @@ void local_labelStats(nb::module_ &);
 void local_mergeChannels(nb::module_ &);
 void local_padImage(nb::module_ &);
 void local_readImage(nb::module_ &);
+void local_readImageMetadata(nb::module_ &);
 void local_readTransform(nb::module_ &);
 void local_reflectionMatrix(nb::module_ &);
 void local_reorientImage(nb::module_ &);
@@ -146,6 +148,7 @@ NB_MODULE(lib, m) {
     local_mergeChannels(m);
     local_padImage(m);
     local_readImage(m);
+    local_readImageMetadata(m);
     local_readTransform(m);
     local_reflectionMatrix(m);
     local_reorientImage(m);

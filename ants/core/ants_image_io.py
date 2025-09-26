@@ -11,7 +11,8 @@ __all__ = [
     "make_image",
     "from_numpy",
     "from_numpy_like",
-    "new_image_like"
+    "new_image_like",
+    "read_image_metadata",
 ]
 
 import os
@@ -532,3 +533,24 @@ def new_image_like(image, data):
 
 def from_numpy_like(data, image):
     return new_image_like(image, data)
+
+def read_image_metadata(filename):
+    """
+    Read metadata dictionary from image file. This uses ITK ImageIO to efficiently read the metadata without reading the pixel
+    data.
+
+    Arguments
+    ---------
+    filename : string
+        name of image file from which metadata will be read.
+
+    Returns
+    -------
+    dict
+    """
+    if not os.path.exists(filename):
+        raise Exception("filename does not exist")
+
+    libfn = get_lib_fn("readImageMetadata")
+    retval = libfn(filename)
+    return retval
