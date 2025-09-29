@@ -1216,5 +1216,172 @@ class TestModule_sitk_to_ants(unittest.TestCase):
                 err_msg=f"Pixel data mismatch for {name}"
             )
 
+
+class TestModule_nifti_utils(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Load once for all tests
+        cls.mni_src = ants.image_read(ants.get_ants_data("mni"))
+        cls.mni_src_metadata = ants.read_image_metadata(ants.get_ants_data("mni"))
+
+
+    def setUp(self):
+        self.mni = ants.image_clone(self.mni_src)
+        self.mni_metadata = dict(self.mni_src_metadata)
+
+
+    def tearDown(self):
+        pass
+
+
+    def test_nifti_utils_examples(self):
+        pass
+
+
+    def test_qform_info(self):
+        pixdim_spacing = [float(p) for p in [self.mni_metadata['pixdim[1]'],
+                                            self.mni_metadata['pixdim[2]'],
+                                            self.mni_metadata['pixdim[3]']]]
+
+        qform_spatial_info = ants.get_nifti_qform_spatial_info(self.mni_metadata)
+
+        # Check direction, spacing, origin
+        self.assertTrue(np.allclose(
+            qform_spatial_info['direction'],
+            self.mni.direction,
+            atol=1e-5
+        ))
+        self.assertTrue(np.allclose(
+            qform_spatial_info['transform_spacing'],
+            self.mni.spacing,
+            atol=1e-5
+        ))
+        self.assertTrue(np.allclose(
+            qform_spatial_info['pixdim_spacing'],
+            pixdim_spacing,
+            atol=1e-5
+        ))
+        self.assertTrue(np.allclose(
+            qform_spatial_info['origin'],
+            self.mni.origin,
+            atol=1e-5
+        ))
+
+
+    def test_sform_info(self):
+
+        pixdim_spacing = [float(p) for p in [self.mni_metadata['pixdim[1]'],
+                                            self.mni_metadata['pixdim[2]'],
+                                            self.mni_metadata['pixdim[3]']]]
+
+        sform_spatial_info = ants.get_nifti_sform_spatial_info(self.mni_metadata)
+        # Check direction, spacing, origin
+        self.assertTrue(np.allclose(
+            sform_spatial_info['direction'],
+            self.mni.direction,
+            atol=1e-5
+        ))
+        self.assertTrue(np.allclose(
+            sform_spatial_info['transform_spacing'],
+            self.mni.spacing,
+            atol=1e-5
+        ))
+        self.assertTrue(np.allclose(
+            sform_spatial_info['pixdim_spacing'],
+            pixdim_spacing,
+            atol=1e-5
+        ))
+        self.assertTrue(np.allclose(
+            sform_spatial_info['origin'],
+            self.mni.origin,
+            atol=1e-5
+        ))
+        self.assertFalse(sform_spatial_info['desheared'])
+        self.assertTrue(np.allclose(
+            sform_spatial_info['original_shear'],
+            [0.0, 0.0, 0.0],
+            atol=1e-5
+        ))
+
+        # Now add a tiny shear, below threshold
+        srow_x = self.mni_metadata['srow_x'].split()
+        srow_x[1] = str('1e-7')
+        self.mni_metadata['srow_x'] = ' '.join(srow_x)
+
+        sform_spatial_info_nocorrect = ants.get_nifti_sform_spatial_info(self.mni_metadata)
+        # Check direction, spacing, origin
+        self.assertTrue(np.allclose(
+            sform_spatial_info_nocorrect['direction'],
+            self.mni.direction,
+            atol=1e-5
+        ))
+        self.assertFalse(sform_spatial_info['desheared'])
+
+        sform_spatial_info_correct = ants.get_nifti_sform_spatial_info(self.mni_metadata, shear_threshold=0)
+        # Should be identical to original
+        self.assertTrue(np.allclose(
+            sform_spatial_info_correct['direction'],
+            self.mni.direction,
+            atol=1e-12
+        ))
+        self.assertTrue(sform_spatial_info_correct['desheared'])
+
+
+    def test_get_nifti_sform_shear(self):
+        # No shear
+        shear = ants.get_nifti_sform_shear(self.mni_metadata)
+        self.assertTrue(np.allclose(shear, [0.0, 0.0, 0.0], atol=1e-8))
+
+        # Add shear
+        srow_x = self.mni_metadata['srow_x'].split()
+        srow_x[2] = str('0.0001')
+        self.mni_metadata['srow_x'] = ' '.join(srow_x)
+
+        shear = ants.get_nifti_sform_shear(self.mni_metadata)
+        self.assertTrue(np.allclose(shear, [0.0, -0.0001, 0.0], atol=1e-5))
+
+
+    def get_nifti_spatial_transform_from_metadata(self):
+        # Should be identical to mni
+        xform = ants.get_nifti_spatial_transform_from_metadata(self.mni_metadata)
+        self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
+        self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
+        self.assertTrue(np.allclose(xform['origin'], self.mni.origin, atol=1e-5))
+        self.assertTrue(xform['transform_source'] == 'sform')
+
+        # Flip sform just to be different
+        mni_metadata_flip = self.mni_metadata.deepcopy()
+        srow_x = self.mni_metadata['srow_x'].split()
+        srow_x = [str(-float(v)) for v in srow_x]
+        mni_metadata_flip['srow_x'] = ' '.join(srow_x)
+
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_flip)
+        self.assertTrue(np.allclose(xform['direction'][0], -self.mni.direction[0], atol=1e-5))
+        self.assertTrue(np.allclose(xform['origin'][0], -self.mni.origin[0], atol=1e-5))
+        xform_q = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_flip, prefer_sform=False)
+        self.assertTrue(np.allclose(xform_q['direction'], self.mni.direction, atol=1e-5))
+
+        # Check that shear gets removed
+        mni_metadata_shear = self.mni_metadata.deepcopy()
+        srow_x = self.mni_metadata['srow_x'].split()
+        srow_x[1] = str('-0.0001')
+        mni_metadata_shear['srow_x'] = ' '.join(srow_x)
+        info = ants.get_nifti_sform_spatial_info(mni_metadata_shear, shear_threshold=0)
+        self.assertTrue(np.allclose(info['original_shear'], [-0.0001, 0.0, 0.0], atol=1e-6))
+
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, shear_threshold=0, max_angle_deviation=1)
+        self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
+        self.assertTrue(np.allclose(xform['origin'], self.mni.origin, atol=1e-5))
+        self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
+        self.assertTrue(xform['transform_source'] == 'sform')
+
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, shear_threshold=0, max_angle_deviation=1e-5)
+        self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
+        self.assertTrue(np.allclose(xform['origin'], self.mni.origin, atol=1e-5))
+        self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
+        self.assertTrue(xform['transform_source'] == 'qform')
+
+
 if __name__ == "__main__":
     run_tests()

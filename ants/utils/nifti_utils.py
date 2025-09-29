@@ -1,9 +1,10 @@
 __all__ = [
     "deshear_sform",
-    "get_sform_shear",
-    "get_sform_image_info",
-    "get_qform_image_info",
-    "get_transform_from_metadata",
+    "get_nifti_sform_shear",
+    "get_nifti_sform_image_info",
+    "get_nifti_qform_image_info",
+    "get_nifti_spatial_transform_from_metadata",
+    "set_nifti_spatial_transform_from_metadata"
 ]
 
 import numpy as np
@@ -67,27 +68,58 @@ def _shear_components_from_dirs(D):
     return [float(np.dot(ux, uy)), float(np.dot(ux, uz)), float(np.dot(uy, uz))]
 
 
-def _closest_orthogonal_dirs(M, enforce_right_handed=True):
+
+def _deshear_affine(affine, eps=1e-12):
     """
-    Return the orthogonal matrix Q that is closest (Frobenius) to M.
-    Uses SVD-based polar decomposition: M = U S V^T, Q = U V^T.
-    If enforce_right_handed, make det(Q)=+1 by flipping the last singular vector.
+    Remove shear from a 4x4 index->world affine by orthogonalizing the 3x3 part
+    with a column-preserving QR decomposition.
+
+    - Preserves axis order (no permutations).
+    - Enforces a proper rotation (no reflections) by making the diagonal of R positive.
+    - Keeps per-axis scales from the diagonal of R.
+    - Leaves translation unchanged.
+
+    Parameters
+    ----------
+    affine : (4,4) array
+        Input affine.
+    eps : float
+        Small threshold to avoid division / sign issues when a scale is ~0.
+
+    Returns
+    -------
+    (4,4) array
+        Affine with zero shear.
     """
-    M = np.asarray(M, dtype=float)
-    if M.shape != (3, 3):
-        raise ValueError("closest_orthogonal_dirs expects a 3x3 matrix.")
+    A = np.array(affine, dtype=float, copy=True)
+    if A.shape != (4, 4):
+        raise ValueError("affine must be 4x4")
 
-    # SVD
-    U, S, Vt = np.linalg.svd(M, full_matrices=False)
-    Q = U @ Vt
+    R3 = A[:3, :3]
 
-    # Optionally enforce a proper rotation (no reflection)
-    if enforce_right_handed and np.linalg.det(Q) < 0:
-        # Flip the last column of U (equivalently, last row of Vt)
-        U[:, -1] *= -1
-        Q = U @ Vt
+    # Column-preserving Gram–Schmidt via QR
+    # R3 = Q * R, with Q orthogonal, R upper-triangular
+    Q, R = np.linalg.qr(R3)
 
-    return Q
+    # Force positive scales on the diagonal of R (avoid reflections / sign flips)
+    d = np.sign(np.diag(R))
+    d[np.abs(np.diag(R)) < eps] = 1.0  # don't flip near-zero
+    D = np.diag(d)
+
+    Q = Q @ D            # flip columns of Q as needed
+    R = D @ R            # make diag(R) nonnegative
+
+    # Extract per-axis scales from the diagonal; drop shear (off-diagonals)
+    scales = np.diag(R).copy()
+
+    # Guard against zeros
+    scales[np.abs(scales) < eps] = 1.0
+
+    # Recompose: orthogonal dirs (Q) with per-axis scales (no shear)
+    A_new = A.copy()
+    A_new[:3, :3] = Q @ np.diag(scales)
+
+    return A_new
 
 
 def _angle_deg(u, v):
@@ -137,12 +169,12 @@ def get_nifti_sform_shear(metadata):
     return _shear_components_from_dirs(D)
 
 
-def deshear_nifti_sform(metadata, shear_threshold=1e-5, max_axis_deviation=1.0):
+def deshear_nifti_sform(metadata, shear_threshold=1e-6, max_angle_deviation=0.5):
     """
     Deshear an sform matrix in the provided metadata dict.
     Returns a new 4x4 affine (index->RAS) with shear removed (direction orthonormal),
-    preserving per-axis spacings and translation. Raises ValueError if the orthonormalized
-    axes deviate from the originals by more than max_axis_deviation degrees.
+    preserving spacings and translation. Raises ValueError if the orthonormalized
+    directions deviate from the originals by more than max_angle_deviation degrees.
     """
     A = _as_affine_4x4_from_srow(metadata)
     if A is None:
@@ -156,38 +188,43 @@ def deshear_nifti_sform(metadata, shear_threshold=1e-5, max_axis_deviation=1.0):
         # Already fine
         return A.copy()
 
-    Q = _closest_orthogonal_dirs(D)
+    Q = _deshear_affine(A)
 
-    # sanity check: how much do directions deviate?
     dev = max(
-        _angle_deg(D[:, 0], Q[:, 0]),
-        _angle_deg(D[:, 1], Q[:, 1]),
-        _angle_deg(D[:, 2], Q[:, 2]),
+        _angle_deg(A[:, 0], Q[:, 0]),
+        _angle_deg(A[:, 1], Q[:, 1]),
+        _angle_deg(A[:, 2], Q[:, 2]),
     )
-    if dev > max_axis_deviation:
+    if dev > max_angle_deviation:
         raise ValueError(
-            f"Desheared axes deviate by {dev:.3f} deg (> max allowed {max_axis_deviation} deg). "
+            f"Desheared directions deviate by {dev:.3f} deg (> max allowed {max_angle_deviation} deg). "
             "This likely indicates significant obliquity/shear"
         )
 
     # Rebuild affine with same translation
-    S = np.diag(spacing)
-    A_new = np.eye(4, dtype=float)
-    A_new[:3, :3] = Q @ S
-    A_new[:3, 3]  = A[:3, 3]
-    return A_new
+    return Q
 
 
-def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_axis_deviation=1.0):
+def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_angle_deviation=0.5):
     """
     Extract sform-derived spacing, origin, direction.
 
-    Output is in ITK LPS coordinates.
+    Note: output is in ITK LPS coordinates.
+
+    Arguments
+    ---------
+    metadata : dict
+        The NIfTI header metadata dictionary.
+    shear_threshold : float
+        Shear threshold for deshearing sform.
+    max_angle_deviation : float
+        Maximum angle deviation for directions after deshearing sform.
 
     Returns
     -------
     dict with keys:
-      spacing : [sx, sy, sz]
+      pixdim_spacing = [sx, sy, sz]  (from pixdim[1..3])
+      transform_spacing : [sx, sy, sz]
       origin  : [ox, oy, oz]
       direction : 3x3 list (direction cosines)
       desheared : bool
@@ -204,7 +241,7 @@ def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_axis_deviat
 
     try:
         A2 = deshear_nifti_sform(metadata, shear_threshold=shear_threshold,
-                            max_axis_deviation=max_axis_deviation)
+                            max_angle_deviation=max_angle_deviation)
         desheared = not np.allclose(A, A2)
         if desheared:
             A = A2
@@ -218,7 +255,8 @@ def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_axis_deviat
     spacing, D = _spacing_and_dirs_from_affine(A[:3, :3])
     origin = A[:3, 3].tolist()
     return dict(
-        spacing=spacing,
+        pixdim_spacing=_pixdims_from_metadata(metadata),
+        transform_spacing=spacing,
         origin=origin,
         direction=D.tolist(),
         desheared=desheared,
@@ -235,7 +273,8 @@ def get_nifti_qform_spatial_info(metadata):
     Returns
     -------
     dict with keys:
-      spacing : [sx, sy, sz]
+      pixdim_spacing = [sx, sy, sz]  (from pixdim[1..3])
+      transform_spacing : [sx, sy, sz]
       origin  : [ox, oy, oz]
       direction : 3x3 list (direction cosines)
     """
@@ -248,21 +287,51 @@ def get_nifti_qform_spatial_info(metadata):
 
     spacing, D = _spacing_and_dirs_from_affine(A[:3, :3])
     origin = A[:3, 3].tolist()
-    return dict(spacing=spacing, origin=origin, direction=D.tolist())
+    return dict(
+        pixdim_spacing=_pixdims_from_metadata(metadata),
+        transform_spacing=spacing,
+        origin=origin,
+        direction=D.tolist())
 
 
-def get_nifti_spatial_transform_from_metadata(metadata: dict, prefer_sform: bool = True, shear_threshold: float = 1e-6,
-                                              max_axis_deviation: float = 1.0, verbose: bool = False):
+def get_nifti_spatial_transform_from_metadata(metadata, prefer_sform=True, shear_threshold=1e-6, max_angle_deviation=0.5,
+                                              verbose = False):
     """
-    Return a dict containing origin/spacing/direction (LPS) derived from NIfTI header metadata.
+    Return a dict containing origin/spacing/direction in ITK (LPS) coordinates, derived from NIfTI header metadata.
 
-    This function only returns the 3D spatial transform information.
+    This function only returns the 3D spatial transform information, including spacing for the first
+    three dimensions. It does not modify time spacing or direction for 4D images.
+
+    Note that the spacing is always taken from the pixdim fields in the NIfTI header, as is standard in ITK. The transforms
+    are checked for consistency with the pixdim spacing, if they are not the same, it indicates that the transform is something
+    other than a reorientation to the native physical space.
+
+    If prefer_sform is True (default), the sform transform is used if it is present (sform_code > 0) and either has shear
+    beneath the threshold, or the shear can be removed without exceeding the max_axis_deviation.
+
+    If prefer_sform is False, qform is used if it is present (qform_code > 0), otherwise sform is used if present and usable.
+
+    Arguments
+    ---------
+    image : ants.ANTsImage
+        The image to modify.
+    metadata : dict
+        The NIfTI header metadata dictionary.
+    prefer_sform : bool
+        Whether to prefer sform over qform if both are available.
+    shear_threshold : float
+        Shear threshold for deshearing sform.
+    max_angle_deviation : float
+        Maximum angle deviation for deshearing sform.
+    verbose : bool
+        Whether to print verbose output.
 
     Returns
     -------
     {
       "origin": [ox, oy, oz],
-      "spacing": [sx, sy, sz],         # from the chosen transform (not altering image)
+      "pixdim_spacing": [sx, sy, sz],         # from the pixdims
+      "transform_spacing": [sx, sy, sz],  # from the transform
       "direction": [[...],[...],[...]],
       "transform_source": "sform" | "qform"
     }
@@ -284,7 +353,7 @@ def get_nifti_spatial_transform_from_metadata(metadata: dict, prefer_sform: bool
             info_s = get_nifti_sform_spatial_info(
                 metadata,
                 shear_threshold=shear_threshold,
-                max_axis_deviation=max_axis_deviation,
+                max_angle_deviation=max_angle_deviation,
             )
             if verbose:
                 print(f"[sform] spacing={info_s['spacing']} origin={info_s['origin']} (desheared={info_s['desheared']})")
@@ -313,7 +382,7 @@ def get_nifti_spatial_transform_from_metadata(metadata: dict, prefer_sform: bool
             print(f"[qform] spacing={info_q['spacing']} origin={info_q['origin']}")
         return dict(
             origin=info_q["origin"],
-            spacing=info_q["spacing"],
+            spacing=pixdims,
             direction=info_q["direction"],
             transform_source="qform",
         )
@@ -321,20 +390,23 @@ def get_nifti_spatial_transform_from_metadata(metadata: dict, prefer_sform: bool
         # Use sform
         return dict(
             origin=info_s["origin"],
-            spacing=info_s["spacing"],
+            spacing=pixdims,
             direction=info_s["direction"],
             transform_source="sform",
         )
 
 
-def set_nifti_spatial_transform_from_metadata(image, metadata: dict, prefer_sform: bool = True, shear_threshold: float = 1e-6,
-                                              max_axis_deviation: float = 1.0, verbose: bool = False):
+def set_nifti_spatial_transform_from_metadata(image, metadata, prefer_sform=True, shear_threshold=1e-6,
+                                              max_angle_deviation=0.5, use_pixdim_spacing=True, verbose=False):
     """
     Set the spatial transform of an ANTsImage from NIfTI header metadata. This sets the 3D spatial transform but does
-    not modify time spacing or direction for 4D images.
+    not modify spacing or the fourth row / column of the direction matrix for 4D images.
 
-    Parameters
-    ----------
+    The spacing is not modified but it is checked for consistency with the pixdim fields in the NIfTI header,
+    as is standard in ITK. If the spacing does not match the pixdim, an error is raised.
+
+    Arguments
+    ---------
     image : ants.ANTsImage
         The image to modify.
     metadata : dict
@@ -343,8 +415,8 @@ def set_nifti_spatial_transform_from_metadata(image, metadata: dict, prefer_sfor
         Whether to prefer sform over qform if both are available.
     shear_threshold : float
         Shear threshold for deshearing sform.
-    max_axis_deviation : float
-        Maximum axis deviation for deshearing sform.
+    max_angle_deviation : float
+        Maximum angle deviation for directions after deshearing sform.
     verbose : bool
         Whether to print verbose output.
 
@@ -353,21 +425,17 @@ def set_nifti_spatial_transform_from_metadata(image, metadata: dict, prefer_sfor
     ants.ANTsImage
         The modified image with updated spatial transform.
     """
+    if image.dimension == 2:
+        raise ValueError("Projection of NIFTI spatial orientation to 2D is not supported")
+
+    # This will raise ValueError if there is no usable transform
     info = get_nifti_spatial_transform_from_metadata(
         metadata,
         prefer_sform=prefer_sform,
         shear_threshold=shear_threshold,
-        max_axis_deviation=max_axis_deviation,
+        max_angle_deviation=max_angle_deviation,
         verbose=verbose,
     )
-
-    if image.dimension == 2:
-        raise ValueError("Projection of NIFTI spatial orientation to 2D is not supported")
-
-    # check spacing matches metadata pixdim
-    pixdims = _pixdims_from_metadata(metadata)
-    if not _spacing_matches(image.spacing[:3], pixdims):
-        raise ValueError(f"Image spacing {image.spacing} does not match NIfTI pixdim {pixdims}; cannot set transform.")
 
     if image.dimension == 4:
         # Use original definition of time spacing and origin
