@@ -161,6 +161,12 @@ def get_nifti_sform_shear(metadata):
     Returns
     -------
     [shear_xy, shear_xz, shear_yz]  (cosines between axes; 0 means orthogonal)
+
+    Example
+    -------
+    >>> import ants
+    >>> metadata = ants.read_image_metadata( ants.get_ants_data('mni') )
+    >>> ants.get_nifti_sform_shear(metadata)
     """
     A = _as_affine_4x4_from_srow(metadata)
     if A is None:
@@ -175,6 +181,28 @@ def deshear_nifti_sform(metadata, shear_threshold=1e-6, max_angle_deviation=0.5)
     Returns a new 4x4 affine (index->RAS) with shear removed (direction orthonormal),
     preserving spacings and translation. Raises ValueError if the orthonormalized
     directions deviate from the originals by more than max_angle_deviation degrees.
+
+    Arguments
+    ---------
+    metadata : dict
+        The NIfTI header metadata dictionary.
+    shear_threshold : float
+        Shear threshold for deshearing sform. Shear below this value is considered negligible, and the original sform is
+        returned.
+    max_angle_deviation : float
+        Maximum angle deviation for directions after deshearing sform. If the desheared directions deviate from the original
+        directions by more than this value (in degrees), a ValueError is raised.
+
+    Returns
+    -------
+    numpy.ndarray array
+        The desheared affine matrix.
+
+    Example
+    -------
+    >>> import ants
+    >>> metadata = ants.read_image_metadata( ants.get_ants_data('mni') )
+    >>> A = ants.deshear_nifti_sform(metadata)
     """
     A = _as_affine_4x4_from_srow(metadata)
     if A is None:
@@ -216,9 +244,10 @@ def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_angle_devia
     metadata : dict
         The NIfTI header metadata dictionary.
     shear_threshold : float
-        Shear threshold for deshearing sform.
+        Shear threshold for deshearing sform, if the shear is beneath this value, the sform is not modified.
     max_angle_deviation : float
-        Maximum angle deviation for directions after deshearing sform.
+        Maximum angle deviation for directions after deshearing sform. If the desheared directions deviate from the original
+        directions by more than this value (in degrees), deshearing fails and the return value is None.
 
     Returns
     -------
@@ -229,6 +258,14 @@ def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_angle_devia
       direction : 3x3 list (direction cosines)
       desheared : bool
       original_shear : [shear_xy, shear_xz, shear_yz]
+
+    Returns None if no sform is present or if deshearing fails.
+
+    Example
+    -------
+    >>> import ants
+    >>> metadata = ants.read_image_metadata( ants.get_ants_data('mni') )
+    >>> ants.get_nifti_sform_spatial_info(metadata)
     """
     A = _as_affine_4x4_from_srow(metadata)
     if A is None:
@@ -279,6 +316,12 @@ def get_nifti_qform_spatial_info(metadata):
       transform_spacing : [sx, sy, sz]
       origin  : [ox, oy, oz]
       direction : 3x3 list (direction cosines)
+
+    Example
+    -------
+    >>> import ants
+    >>> metadata = ants.read_image_metadata( ants.get_ants_data('mni') )
+    >>> ants.get_nifti_qform_spatial_info(metadata)
     """
     A = _as_affine_4x4_from_qto(metadata)
     if A is None:
@@ -337,6 +380,12 @@ def get_nifti_spatial_transform_from_metadata(metadata, prefer_sform=True, shear
       "direction": [[...],[...],[...]],
       "transform_source": "sform" | "qform"
     }
+
+    Example
+    -------
+    >>> import ants
+    >>> metadata = ants.read_image_metadata( ants.get_ants_data('mni') )
+    >>> ants.get_nifti_spatial_transform_from_metadata(metadata)
     """
     have_sform = all(k in metadata for k in ("srow_x", "srow_y", "srow_z")) and int(metadata.get("sform_code", 0)) > 0
     have_qform = ("qto_xyz" in metadata) and int(metadata.get("qform_code", 0)) > 0
@@ -403,7 +452,8 @@ def set_nifti_spatial_transform_from_metadata(image, metadata, prefer_sform=True
                                               max_angle_deviation=0.5, use_pixdim_spacing=True, verbose=False):
     """
     Set the spatial transform of an ANTsImage from NIfTI header metadata. This sets the 3D spatial transform but does
-    not modify spacing or the fourth row / column of the direction matrix for 4D images.
+    not modify spacing or the fourth row / column of the direction matrix for 4D images. This function does not support 2D
+    images, because the projection of a 3D spatial transform to 2D is not preserved in the ANTsImage.
 
     The spacing is not modified but it is checked for consistency with the pixdim fields in the NIfTI header,
     as is standard in ITK. If the spacing does not match the pixdim, an error is raised.
@@ -417,9 +467,10 @@ def set_nifti_spatial_transform_from_metadata(image, metadata, prefer_sform=True
     prefer_sform : bool
         Whether to prefer sform over qform if both are available.
     shear_threshold : float
-        Shear threshold for deshearing sform.
+        Shear threshold for deshearing sform, shear below this will be ignored.
     max_angle_deviation : float
-        Maximum angle deviation for directions after deshearing sform.
+        Maximum angle deviation for directions after deshearing sform. If the desheared directions deviate from the original
+        directions by more than this value (in degrees), deshearing fails, and qform is used if available.
     verbose : bool
         Whether to print verbose output.
 
@@ -427,6 +478,13 @@ def set_nifti_spatial_transform_from_metadata(image, metadata, prefer_sform=True
     -------
     ants.ANTsImage
         The modified image with updated spatial transform.
+
+    Example
+    -------
+    >>> import ants
+    >>> img = ants.image_read( ants.get_ants_data('mni') )
+    >>> metadata = ants.read_image_metadata( ants.get_ants_data('mni') )
+    >>> ants.set_nifti_spatial_transform_from_metadata(img, metadata)
     """
     if image.dimension == 2:
         raise ValueError("Projection of NIFTI spatial orientation to 2D is not supported")
