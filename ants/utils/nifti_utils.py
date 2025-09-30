@@ -266,7 +266,9 @@ def get_nifti_sform_spatial_info(metadata, shear_threshold=1e-6, max_angle_devia
 
 def get_nifti_qform_spatial_info(metadata):
     """
-    Extract qform-derived spacing, origin, direction. Uses 'qto_xyz' from the metadata dict.
+    Extract qform-derived spacing, origin, direction. Uses the 4x4 'qto_xyz' from the metadata dict. This is the rotation
+    matrix derived from quaternion parameters in the NIfTI header, multiplied by the pixdim scales and with the qoffset
+    translation.
 
     Note: output is in ITK LPS coordinates
 
@@ -358,9 +360,9 @@ def get_nifti_spatial_transform_from_metadata(metadata, prefer_sform=True, shear
             if verbose:
                 print(f"[sform] spacing={info_s['spacing']} origin={info_s['origin']} (desheared={info_s['desheared']})")
             # Verify spacing vs pixdim
-            if not _spacing_matches(info_s["spacing"], pixdims):
+            if not _spacing_matches(info_s['transform_spacing'], pixdims):
                 warnings.warn(
-                    f"sform-derived spacing {info_s['spacing']} does not match NIfTI pixdim {pixdims}; "
+                    f"sform-derived spacing {info_s['transform_spacing']} does not match NIfTI pixdim {pixdims}; "
                     "ignoring sform and trying qform.",
                     RuntimeWarning,
                 )
@@ -376,22 +378,23 @@ def get_nifti_spatial_transform_from_metadata(metadata, prefer_sform=True, shear
             warnings.warn("No usable sform or qform present in metadata; image not modified", RuntimeWarning)
             return
         info_q = get_nifti_qform_spatial_info(metadata)
-        if not _spacing_matches(info_q["spacing"], pixdims):
-                raise ValueError(f"qform-derived spacing {info_q['spacing']} does not match NIfTI pixdim {pixdims}")
+        if not _spacing_matches(info_q['transform_spacing'], pixdims):
+                raise ValueError(f"qform-derived spacing {info_q['transform_spacing']} does not match NIfTI pixdim {pixdims}")
         if verbose:
-            print(f"[qform] spacing={info_q['spacing']} origin={info_q['origin']}")
+            print(f"[qform] spacing={info_q['transform_spacing']} origin={info_q['origin']}")
+            print(f"Setting spacing to pixdims={pixdims}")
         return dict(
-            origin=info_q["origin"],
+            origin=info_q['origin'],
             spacing=pixdims,
-            direction=info_q["direction"],
+            direction=info_q['direction'],
             transform_source="qform",
         )
     else:
         # Use sform
         return dict(
-            origin=info_s["origin"],
+            origin=info_s['origin'],
             spacing=pixdims,
-            direction=info_s["direction"],
+            direction=info_s['direction'],
             transform_source="sform",
         )
 
@@ -439,11 +442,13 @@ def set_nifti_spatial_transform_from_metadata(image, metadata, prefer_sform=True
 
     if image.dimension == 4:
         # Use original definition of time spacing and origin
-        image.set_origin(info["origin"].append(image.origin[-1]))
+        origin_4d = info['origin'].copy()
+        origin_4d.append(image.origin[-1])
+        image.set_origin(origin_4d)
         # direction is 4x4 with identity time
         dir4 = np.eye(4)
-        dir4[:3, :3] = np.array(info["direction"])
+        dir4[:3, :3] = np.array(info['direction'])
         image.set_direction(dir4.tolist())
     else:
-        image.set_origin(info["origin"])
-        image.set_direction(info["direction"])
+        image.set_origin(info['origin'])
+        image.set_direction(info['direction'])

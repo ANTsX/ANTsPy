@@ -7,6 +7,7 @@ import unittest
 from tempfile import TemporaryDirectory
 
 from common import run_tests
+from copy import deepcopy
 
 import math
 import numpy.testing as nptest
@@ -1351,7 +1352,7 @@ class TestModule_nifti_utils(unittest.TestCase):
         self.assertTrue(xform['transform_source'] == 'sform')
 
         # Flip sform just to be different
-        mni_metadata_flip = self.mni_metadata.deepcopy()
+        mni_metadata_flip = deepcopy(self.mni_metadata)
         srow_x = self.mni_metadata['srow_x'].split()
         srow_x = [str(-float(v)) for v in srow_x]
         mni_metadata_flip['srow_x'] = ' '.join(srow_x)
@@ -1359,11 +1360,13 @@ class TestModule_nifti_utils(unittest.TestCase):
         xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_flip)
         self.assertTrue(np.allclose(xform['direction'][0], -self.mni.direction[0], atol=1e-5))
         self.assertTrue(np.allclose(xform['origin'][0], -self.mni.origin[0], atol=1e-5))
+
+        # Prefer qform should give original
         xform_q = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_flip, prefer_sform=False)
         self.assertTrue(np.allclose(xform_q['direction'], self.mni.direction, atol=1e-5))
 
         # Check that shear gets removed
-        mni_metadata_shear = self.mni_metadata.deepcopy()
+        mni_metadata_shear = deepcopy(self.mni_metadata)
         srow_x = self.mni_metadata['srow_x'].split()
         srow_x[1] = str('-0.0001')
         mni_metadata_shear['srow_x'] = ' '.join(srow_x)
@@ -1382,6 +1385,45 @@ class TestModule_nifti_utils(unittest.TestCase):
         self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
         self.assertTrue(xform['transform_source'] == 'qform')
 
+
+    def test_set_nifti_spatial_transform_from_metadata(self):
+        # Flip sform
+        mni_metadata_flip = deepcopy(self.mni_metadata)
+        srow_x = self.mni_metadata['srow_x'].split()
+        srow_x = [str(-float(v)) for v in srow_x]
+        mni_metadata_flip['srow_x'] = ' '.join(srow_x)
+
+        mni_copy = ants.image_clone(self.mni)
+        ants.set_nifti_spatial_transform_from_metadata(mni_copy, mni_metadata_flip)
+        self.assertTrue(np.allclose(mni_copy.direction[0], -self.mni.direction[0], atol=1e-5))
+        self.assertTrue(np.allclose(mni_copy.direction[1], self.mni.direction[1], atol=1e-5))
+        self.assertTrue(np.allclose(mni_copy.direction[2], self.mni.direction[2], atol=1e-5))
+        self.assertTrue(np.allclose(mni_copy.origin[0], -self.mni.origin[0], atol=1e-5))
+        self.assertTrue(np.allclose(mni_copy.origin[1], self.mni.origin[1], atol=1e-5))
+        self.assertTrue(np.allclose(mni_copy.origin[2], self.mni.origin[2], atol=1e-5))
+
+        # Make a time series image
+        mni_metadata_ts = deepcopy(mni_metadata_flip)
+        mni_metadata_ts['dim[0]'] = '4'
+        mni_metadata_ts['dim[4]'] = '3'
+        mni_metadata_ts['pixdim[4]'] = '2.0'
+        array_list = [img.numpy() for img in [self.mni, self.mni, self.mni]]
+        stacked_array = np.stack(array_list, axis=-1)
+        mni_ts = ants.from_numpy(
+            stacked_array,
+            has_components=False,
+            spacing=self.mni.spacing + (2.0,),
+            origin=self.mni.origin + (0.0,),
+            direction=np.eye(4)
+        )
+        ants.set_nifti_spatial_transform_from_metadata(mni_ts, mni_metadata_ts)
+
+        mni_ts_expected_direction = np.eye(4)
+        mni_ts_expected_direction[:3,:3] = mni_copy.direction
+
+        self.assertTrue(np.allclose(mni_ts.direction, mni_ts_expected_direction, atol=1e-5))
+        self.assertTrue(np.allclose(mni_ts.origin, mni_copy.origin + (0.0,), atol=1e-5))
+        self.assertTrue(np.allclose(mni_ts.spacing, mni_copy.spacing + (2.0,), atol=1e-5))
 
 if __name__ == "__main__":
     run_tests()
