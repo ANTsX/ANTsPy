@@ -6,7 +6,8 @@ from .ants_image_io import (image_header_info,
                             make_image,
                             from_numpy,
                             from_numpy_like,
-                            new_image_like)
+                            new_image_like,
+                            read_image_metadata)
 from .ants_image import (ANTsImage,
                          copy_image_info,
                          set_origin,
