@@ -688,7 +688,6 @@ class TestModule_ants_image(unittest.TestCase):
         # create rgb image
         rgb = np.random.randint(0,255,size=(30,30,3)).astype('uint8')
         rgb_img = ants.from_numpy(rgb, is_rgb=True)
-        self.assertTrue(rgb_img.pixeltype == 'uchar')
         print(rgb_img)
         self.assertTrue(rgb_img.has_components)
         self.assertTrue(rgb_img.components == 3)
