@@ -108,6 +108,8 @@ void local_antsImage(nb::module_ &m) {
     m.def("getComponents",  &getComponents<itk::VectorImage<double,2>>);
     m.def("getComponents",  &getComponents<itk::VectorImage<double,3>>);
     m.def("getComponents",  &getComponents<itk::VectorImage<double,4>>);
+    m.def("getComponents", &getComponents<itk::Image<itk::RGBPixel<unsigned char>,2>>);
+    m.def("getComponents", &getComponents<itk::Image<itk::RGBPixel<unsigned char>,3>>);
 
     m.def("getShape",  &getShape<itk::Image<unsigned char,2>>);
     m.def("getShape",  &getShape<itk::Image<unsigned char,3>>);

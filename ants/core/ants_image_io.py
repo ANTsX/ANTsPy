@@ -83,7 +83,10 @@ def from_numpy(
         image direction
 
     has_components : boolean
-        whether the image has components
+        whether the image has vector components.
+
+    is_rgb : boolean
+        whether the image is RGB. This implies has_components=True.
 
     Returns
     -------
