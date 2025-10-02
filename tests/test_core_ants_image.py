@@ -684,5 +684,19 @@ class TestModule_ants_image(unittest.TestCase):
         self.assertTrue(ants.image_physical_space_consistency(img, img2))
 
 
+    def test_rgb_image(self):
+        # create rgb image
+        rgb = np.random.randint(0,255,size=(30,30,3)).astype('uint8')
+        rgb_img = ants.from_numpy(rgb, is_rgb=True)
+        self.assertTrue(rgb_img.pixeltype == 'uchar')
+        print(rgb_img)
+        self.assertTrue(rgb_img.has_components)
+        self.assertTrue(rgb_img.components == 3)
+        self.assertTrue(rgb_img.dimension == 2)
+        self.assertTrue(rgb_img.shape == (30,30))
+        self.assertTrue(rgb_img.is_rgb)
+        self.assertTrue(rgb_img.dtype == 'uint8')
+
+
 if __name__ == '__main__':
     run_tests()
