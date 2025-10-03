@@ -293,7 +293,9 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
     pixeltype : string
         C++ datatype to be used to represent the pixels read. This datatype
         need not be the same as the datatype used in the file.
-        Options: unsigned char, unsigned int, float, double
+        Options: unsigned char, unsigned int, float, double. Use pixeltype=None
+        to use the datatype in the file if supported. Unsupported datatypes
+        will be converted to float.
 
     reorient : boolean | string
         if True, the image will be reoriented to RPI if it is 3D
@@ -363,7 +365,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
 
         ants_image = ants.from_pointer(itk_pointer)
 
-        if pixeltype is not None:
+        if pixeltype is not None and pixeltype != ptype:
             ants_image = ants_image.clone(pixeltype)
 
     if (reorient != False) and (ants_image.dimension == 3):
