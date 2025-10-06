@@ -175,6 +175,10 @@ def registration(
 
     Notes
     -----
+    The output dict contains file names, designed to be used with ants.apply_transforms. As in ANTs,
+    the forward affine transform .mat file is present in both the fwdtransforms and invtransforms lists.
+    The matrix is inverted at run time by ants.apply_transforms when applying an inverse transform (see its whichtoinvert parameter).
+
     type_of_transform can be one of:
         - "Translation": Translation transformation.
         - "Rigid": Rigid transformation: Only rotation and translation.
@@ -424,7 +428,7 @@ def registration(
     # Perform Repro checking if set_ants_deterministic is True
     if _deterministic and not "Repro" in type_of_transform:
         raise ValueError(f'{type_of_transform} is not deterministic/reproducible.')
-        
+
     if isinstance(initial_transform, str):
         initial_transform = [initial_transform]
     # if isinstance(initx, ANTsTransform):
@@ -890,7 +894,7 @@ def registration(
 
         affine_shrink_factors = "8x4x2x1"
         affine_smoothing_sigmas = "3x2x1x0vox"
-        
+
         linear_gradient_step = 0.1
         syn_gradient_step = 0.2
 
@@ -1286,8 +1290,8 @@ def label_image_registration(fixed_label_images,
         of the moving image.
 
     initial_transforms : string or list of files
-        If specified, there are two options:  2) Use label images with 
-        the centers of mass to a calculate linear transform of type 
+        If specified, there are two options:  2) Use label images with
+        the centers of mass to a calculate linear transform of type
         'identity', 'rigid', 'similarity', or 'affine'.  2) Specify a
         list of transform files, e.g., the output of ants.registration().
 
@@ -1432,7 +1436,7 @@ def label_image_registration(fixed_label_images,
                                                           fixed_centers_of_mass,
                                                           transform_type=initial_transforms,
                                                           verbose=verbose)
-        
+
         if do_deformable:
             linear_xfrm_file = output_prefix + "LandmarkBasedLinear" + initial_transforms + ".mat"
         else:
@@ -1442,7 +1446,7 @@ def label_image_registration(fixed_label_images,
         initial_xfrm_files.append(linear_xfrm_file)
 
     elif initial_transforms is not None or initial_transforms == 'identity':
-        
+
         if do_deformable:
             for i in range(len(common_label_ids)):
                 for j in range(len(common_label_ids[i])):
@@ -1461,7 +1465,7 @@ def label_image_registration(fixed_label_images,
                     raise ValueError(initial_transforms[i] + " does not exist.")
                 else:
                     initial_xfrm_files.append(initial_transforms[i])
-            
+
     ##############################
     #
     #    Deformable transform
@@ -1631,7 +1635,7 @@ def label_image_registration(fixed_label_images,
 
     if len(find_forward_warps_idx) > 0:
         fwdtransforms.append(all_xfrms[find_forward_warps_idx[0]])
-    if len(find_affines_idx) > 0:    
+    if len(find_affines_idx) > 0:
         fwdtransforms.append(all_xfrms[find_affines_idx[0]])
         invtransforms.append(all_xfrms[find_affines_idx[0]])
     if len(find_inverse_warps_idx) > 0:
