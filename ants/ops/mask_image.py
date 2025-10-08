@@ -22,10 +22,11 @@ def mask_image(image, mask, level=1, binarize=False):
         Mask or label image.
 
     level : scalar or tuple of scalars
-        Level(s) at which to mask image. If vector or list of values, output image is non-zero at all locations where label image matches any of the levels specified.
+        Level(s) at which to threshold the mask. Can be a single value or an iterable of values.
 
     binarize : boolean
-        whether binarize the output image
+        whether to binarize the output image. This computes an intersection between (image != 0) and (mask == i), for
+        all i in level.
 
     Returns
     -------
@@ -49,8 +50,9 @@ def mask_image(image, mask, level=1, binarize=False):
     mask_float = ants.image_clone(mask, 'float')
     for mylevel in leveluse:
         temp = ants.threshold_image(mask_float, mylevel, mylevel)
-        if binarize:
-            image_out = image_out + temp
-        else:
-            image_out = image_out + temp * image
+        image_out = image_out + temp * image
+
+    if binarize:
+        image_out = image_out != 0
+
     return image_out
