@@ -689,8 +689,18 @@ class TestModule_mask_image(unittest.TestCase):
         myimage = ants.image_read(ants.get_ants_data("r16"))
         mask = ants.get_mask(myimage)
         myimage_mask = ants.mask_image(myimage, mask, (2, 3))
+        self.assertTrue(myimage_mask.sum() == 0)
         seg = ants.kmeans_segmentation(myimage, 3)
         myimage_mask = ants.mask_image(myimage, seg["segmentation"], (1, 3))
+        self.assertTrue(myimage_mask.sum() == myimage[seg["segmentation"] == 1].sum() + myimage[seg["segmentation"] == 3].sum())
+
+    def test_mask_imag_binarize(self):
+        myimage = ants.image_read(ants.get_ants_data("r16"))
+        mask = ants.get_mask(myimage)
+        seg = ants.kmeans_segmentation(myimage, 3)
+        myimage_binarize = ants.mask_image(myimage, seg["segmentation"], (2, 3), binarize=True)
+        self.assertTrue(myimage_binarize.max() == 1)
+        self.assertTrue(myimage_binarize.sum() == np.sum(seg["segmentation"].numpy() >= 2))
 
 
 class TestModule_mni2tal(unittest.TestCase):
