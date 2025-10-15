@@ -249,6 +249,13 @@ ants.utils.sitk\_to\_ants module
    :undoc-members:
    :show-inheritance:
 
+ants.utils.nifti\_utils module
+----------------------------
+... automodule:: ants.utils.nifti_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 ants.utils.weingarten\_image\_curvature module
 ----------------------------------------------
