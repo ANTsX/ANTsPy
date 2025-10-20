@@ -13,14 +13,21 @@ ANTsPy is an optimized and validated medical imaging library for Python.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Package Reference
+   :caption: Package Reference: select functionality organized thematically
 
    core
    registration
    segmentation
    learn
    utils
+   deeplearn
    vis
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference: all modules
+
+   api_index
 
 Indices and tables
 ==================

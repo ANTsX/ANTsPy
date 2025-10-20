@@ -10,5 +10,5 @@ Deeplearn
 .. autofunction:: pad_image_by_factor
 .. autofunction:: histogram_warp_image_intensities
 .. autofunction:: simulate_bias_field
-.. autofunction:: randomly_transform_image_data 
+.. autofunction:: randomly_transform_image_data
 .. autofunction:: data_augmentation
