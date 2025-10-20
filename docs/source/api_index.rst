@@ -3,22 +3,9 @@ API Reference
 
 The full public API for ANTsPy.
 
-.. note::
-   This section is auto-generated with ``autosummary`` from the installed package.
-   Add new public modules by exposing them under the ``ants`` package.
 
-Top-level package
+ANTsPy modules
 -----------------
-
-.. autosummary::
-   :toctree: .
-   :template: autosummary/module.rst
-   :recursive:
-
-   ants
-
-Subpackages
------------
 
 .. autosummary::
    :toctree: .
@@ -34,3 +21,4 @@ Subpackages
    ants.plotting
    ants.registration
    ants.segmentation
+   ants.utils

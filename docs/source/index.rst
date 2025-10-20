@@ -10,10 +10,13 @@ ANTsPy documentation
 
 ANTsPy is an optimized and validated medical imaging library for Python.
 
+The "Package Reference" highlights commonly used functionality, organized thematically.
+
+See the "API Reference: all modules" for the full list of available modules and functions.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Package Reference: select functionality organized thematically
+   :caption: Package Reference
 
    core
    registration
