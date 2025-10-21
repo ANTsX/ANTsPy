@@ -3,22 +3,8 @@ API Reference
 
 The full public API for ANTsPy.
 
-
-ANTsPy modules
------------------
-
 .. autosummary::
-   :toctree: .
-   :template: autosummary/module.rst
+   :toctree: api/
+   :template: a
    :recursive:
    ants
-   ants.core
-   ants.deeplearn
-   ants.label
-   ants.learn
-   ants.math
-   ants.ops
-   ants.plotting
-   ants.registration
-   ants.segmentation
-   ants.utils
