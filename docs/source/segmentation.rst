@@ -1,6 +1,6 @@
 Segmentation
 ===================================
-.. automodule:: ants
+.. currentmodule:: ants
 
 .. autofunction:: atropos
 .. autofunction:: joint_label_fusion

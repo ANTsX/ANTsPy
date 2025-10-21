@@ -1,6 +1,6 @@
 Registration
 ===================================
-.. automodule:: ants
+.. currentmodule:: ants
 
 .. autofunction:: registration
 .. autofunction:: affine_initializer

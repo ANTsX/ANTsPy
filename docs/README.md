@@ -1,9 +1,7 @@
 # Building the docs
 
-An action builds the docs on PRs. To update search, install sphinx and generate stubs with
+To build docs locally:
 
 ```
-sphinx-autogen -o docs/source/api docs/source/api_index.rst
+sphinx-build -b html docs/source docs/_build/html
 ```
-
-from the ANTsPy/ directory.

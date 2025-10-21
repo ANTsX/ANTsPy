@@ -1,6 +1,6 @@
 Deeplearn
 ===================================
-.. automodule:: ants
+.. currentmodule:: ants
 
 .. autofunction:: extract_image_patches
 .. autofunction:: reconstruct_image_from_patches

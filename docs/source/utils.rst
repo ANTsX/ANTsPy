@@ -1,6 +1,6 @@
 Utilities
 ===================================
-.. automodule:: ants
+.. currentmodule:: ants
 
 .. autofunction:: n3_bias_field_correction
 .. autofunction:: n4_bias_field_correction

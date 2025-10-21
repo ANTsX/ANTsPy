@@ -19,7 +19,12 @@ on_rtd = os.environ.get('READTHEDOCS') == 'True'
 sys.path.insert(0, os.path.abspath('../../'))
 
 # Avoid importing heavy/GUI deps during doc builds
-autodoc_mock_imports = ['_tkinter', 'matplotlib']
+autodoc_mock_imports = [
+    '_tkinter', 'matplotlib',
+    'nibabel', 'skimage', 'scipy',
+    'torch', 'tensorflow', 'keras',
+    'vtk', 'itk'  # add/remove as needed
+]
 
 if on_rtd:
     # RTD can't load our C++ extension; provide an empty lib/__init__.py
@@ -62,6 +67,20 @@ nitpicky = True
 # Silence known, intentional missing targets by adding tuples like:
 # nitpick_ignore = [('py:class', 'ants.ANTsImage')]
 nitpick_ignore = []
+
+# Allows linkage of type aliases in docstrings
+# Developers: please try to use actual types rather than aliases
+napoleon_type_aliases = {
+    'boolean': 'bool',
+    'string': 'str',
+    'optional': 'typing.Optional',
+    'ndarray': 'numpy.ndarray',
+    'array': 'numpy.ndarray',
+    'ANTsImage': 'ants.core.ANTsImage',
+    '3-tuple': 'typing.Tuple',
+    '2-tuple': 'typing.Tuple',
+    'n-D tuple': 'typing.Tuple',
+}
 
 # Napoleon / docstring parsing
 napoleon_use_ivar = True
@@ -151,8 +170,8 @@ texinfo_documents = [
 # -----------------------------------------------------------------------------
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', {}),
-    'numpy': ('https://numpy.org/doc/stable/', {}),
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
 }
 
 # -----------------------------------------------------------------------------

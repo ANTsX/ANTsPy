@@ -1,6 +1,6 @@
 Statistical Learning
 ===================================
-.. automodule:: ants
+.. currentmodule:: ants
 
 .. autofunction:: sparse_decom2
 .. autofunction:: eig_seg

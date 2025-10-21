@@ -14,6 +14,12 @@ The "Package Reference" highlights commonly used functionality, organized themat
 
 See the "API Reference: all modules" for the full list of available modules and functions.
 
+More resources:
+
+- `Installation instructions <https://github.com/ANTsX/ANTsPy/wiki/Installing-ANTsPy>`_
+- `ANTsX examples <https://gist.github.com/ntustison/12a656a5fc2f6f9c4494c88dc09c5621/>`_
+- `ANTsPy GitHub <https://github.com/ANTsX/ANTsPy>`_ for support, bug reports, and contributions.
+
 .. toctree::
    :maxdepth: 1
    :caption: Package Reference
