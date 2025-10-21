@@ -11,7 +11,7 @@ ANTsPy modules
    :toctree: .
    :template: autosummary/module.rst
    :recursive:
-
+   ants
    ants.core
    ants.deeplearn
    ants.label
