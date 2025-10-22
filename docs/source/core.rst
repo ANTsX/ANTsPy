@@ -1,6 +1,6 @@
 Core
 ===================================
-.. automodule:: ants
+.. currentmodule:: ants
 
 Images
 ----------------------------------

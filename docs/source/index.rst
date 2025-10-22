@@ -10,6 +10,15 @@ ANTsPy documentation
 
 ANTsPy is an optimized and validated medical imaging library for Python.
 
+The "Package Reference" highlights commonly used functionality, organized thematically.
+
+See the "API Reference" for the full list of available modules and functions.
+
+More resources:
+
+- `Installation instructions <https://github.com/ANTsX/ANTsPy/wiki/Installing-ANTsPy>`_
+- `ANTsX examples <https://gist.github.com/ntustison/12a656a5fc2f6f9c4494c88dc09c5621/>`_
+- `ANTsPy GitHub <https://github.com/ANTsX/ANTsPy>`_ for support, bug reports, and contributions.
 
 .. toctree::
    :maxdepth: 1
@@ -20,7 +29,14 @@ ANTsPy is an optimized and validated medical imaging library for Python.
    segmentation
    learn
    utils
+   deeplearn
    vis
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
+   api_index
 
 Indices and tables
 ==================
