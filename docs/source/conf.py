@@ -73,6 +73,7 @@ napoleon_preprocess_types = True  # be explicit
 # Developers: please try to use actual types rather than aliases
 napoleon_type_aliases = {
     'boolean': 'bool',
+    'integer': 'int',
     'string': 'str',
     'optional': 'typing.Optional',
     'ndarray': 'numpy.ndarray',
