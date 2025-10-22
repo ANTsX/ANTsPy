@@ -68,6 +68,7 @@ nitpicky = True
 # nitpick_ignore = [('py:class', 'ants.ANTsImage')]
 nitpick_ignore = []
 
+napoleon_preprocess_types = True  # be explicit
 # Allows linkage of type aliases in docstrings
 # Developers: please try to use actual types rather than aliases
 napoleon_type_aliases = {
