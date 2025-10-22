@@ -1,8 +1,8 @@
 antspyx
 ==================
 
-.. toctree::
-   :maxdepth: 2
-   :titlesonly:
+.. autosummary::
+   :toctree: api
+   :recursive:
 
-   api/ants
+   ants

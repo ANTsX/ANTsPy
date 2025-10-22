@@ -32,11 +32,14 @@ More resources:
    deeplearn
    vis
 
+
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
 
    api_index
+
+
 
 Indices and tables
 ==================
