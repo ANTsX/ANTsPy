@@ -271,7 +271,6 @@ def data_augmentation(input_image_list,
                                                         sd_bias_field=sd_simulated_bias_field, 
                                                         number_of_fitting_levels=2, 
                                                         mesh_size=10)
-                    log_field = log_field.iMath("Normalize")
                     bias_field_array = np.exp(log_field.numpy())
                 image = image * ants.from_numpy_like(bias_field_array, image)
 
