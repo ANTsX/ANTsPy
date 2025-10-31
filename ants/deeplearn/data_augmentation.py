@@ -272,7 +272,7 @@ def data_augmentation(input_image_list,
                                                         number_of_fitting_levels=2, 
                                                         mesh_size=10)
                     log_field = log_field.iMath("Normalize")
-                    bias_field_array = np.power(np.exp(log_field.numpy()), random.sample((1, 1.5), 1)[0])
+                    bias_field_array = np.exp(log_field.numpy())
                 image = image * ants.from_numpy_like(bias_field_array, image)
 
             # Histogram intensity warping
