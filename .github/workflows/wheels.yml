@@ -63,22 +63,22 @@ jobs:
             platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
-          - os: macos-13
+          - os: macos-15-intel
             python: '3.10'
             cibw_python: 310
             arch: x86_64
             platform_id: macosx_x86_64
-          - os: macos-13
+          - os: macos-15-intel
             python: '3.11'
             cibw_python: 311
             arch: x86_64
             platform_id: macosx_x86_64
-          - os: macos-13
+          - os: macos-15-intel
             python: '3.12'
             cibw_python: 312
             arch: x86_64
             platform_id: macosx_x86_64
-          - os: macos-13
+          - os: macos-15-intel
             python: '3.13'
             cibw_python: 313
             arch: x86_64
