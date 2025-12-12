@@ -21,7 +21,7 @@ jobs:
         run: python -m pip install coverage
 
       - name: Install optional dependencies
-        run: python -m pip install SimpleITK
+        run: python -m pip install SimpleITK nibabel
 
       - name: Unit tests
         run: tests/run_tests.sh -c

@@ -18,6 +18,11 @@ try:
 except ImportError:
     sitk = None
 
+try:
+    import nibabel as nib
+except ImportError:
+    nib = None
+
 import ants
 
 
@@ -1329,7 +1334,7 @@ class TestModule_nifti_utils(unittest.TestCase):
         ))
         self.assertFalse(sform_spatial_info['desheared'])
 
-        sform_spatial_info_correct = ants.get_nifti_sform_spatial_info(self.mni_metadata, shear_threshold=0)
+        sform_spatial_info_correct = ants.get_nifti_sform_spatial_info(self.mni_metadata, deshear_threshold=0)
         # Should be identical to original
         self.assertTrue(np.allclose(
             sform_spatial_info_correct['direction'],
@@ -1380,16 +1385,16 @@ class TestModule_nifti_utils(unittest.TestCase):
         srow_x = self.mni_metadata['srow_x'].split()
         srow_x[1] = str('-0.0001')
         mni_metadata_shear['srow_x'] = ' '.join(srow_x)
-        info = ants.get_nifti_sform_spatial_info(mni_metadata_shear, shear_threshold=0)
+        info = ants.get_nifti_sform_spatial_info(mni_metadata_shear, deshear_threshold=0)
         self.assertTrue(np.allclose(info['original_shear'], [-0.0001, 0.0, 0.0], atol=1e-6))
 
-        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, shear_threshold=0, max_angle_deviation=1)
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, deshear_threshold=0, max_angle_deviation=1)
         self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
         self.assertTrue(np.allclose(xform['origin'], self.mni.origin, atol=1e-5))
         self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
         self.assertTrue(xform['transform_source'] == 'sform')
 
-        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, shear_threshold=0, max_angle_deviation=1e-5)
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, deshear_threshold=0, max_angle_deviation=1e-5)
         self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
         self.assertTrue(np.allclose(xform['origin'], self.mni.origin, atol=1e-5))
         self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
@@ -1434,6 +1439,71 @@ class TestModule_nifti_utils(unittest.TestCase):
         self.assertTrue(np.allclose(mni_ts.direction, mni_ts_expected_direction, atol=1e-5))
         self.assertTrue(np.allclose(mni_ts.origin, mni_copy.origin + (0.0,), atol=1e-5))
         self.assertTrue(np.allclose(mni_ts.spacing, mni_copy.spacing + (2.0,), atol=1e-5))
+
+
+@unittest.skipIf(nib is None, "nibabel is not installed")
+class TestModule_nibabel_to_ants(unittest.TestCase):
+    def setUp(self):
+        self.affine_mat = np.array([
+                [0.5, 0,   0,   1.2],
+                [0,   0.5, 0,   5.7],
+                [0,   0,   2.0, -3.4],
+                [0,   0,   0,   1.0]
+            ])
+        self.shape = (32, 24, 16)
+        self.img = nib.nifti1.Nifti1Image(
+            np.arange(np.prod(self.shape), dtype=float).reshape(self.shape),
+            affine=self.affine_mat
+        )
+        self.img.header['descrip'] = 'nib_ants_test'
+        self.img.header.set_xyzt_units('mm', 'sec') # required to set pixdims correctly
+
+    def tearDown(self):
+        pass
+
+    # Basic tests with 3D image
+    def test_from_nibabel(self):
+        ants_img = ants.from_nibabel_nifti(self.img)
+
+        self.assertTrue(np.allclose(ants_img.spacing, self.img.header.get_zooms(), atol=1e-5))
+        self.assertAlmostEqual(ants_img.origin[0], -1.0 * self.affine_mat[0, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[1], -1.0 * self.affine_mat[1, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[2],  self.affine_mat[2, 3], places=5)
+
+        ants_direction = np.diag([-1, -1, 1])
+
+        self.assertTrue(np.allclose(ants_img.direction, ants_direction, atol=1e-5))
+
+        with TemporaryDirectory() as temp_dir:
+            temp_fpath = os.path.join(temp_dir, "img.nii.gz")
+            ants.image_write(ants_img, temp_fpath)
+            img = nib.load(temp_fpath)
+
+            self.assertTrue(np.allclose(self.img.get_fdata(),img.get_fdata(), atol=1e-5))
+            self.assertTrue(np.allclose(self.img.affine, img.affine, atol=1e-5))
+
+
+    def test_to_nibabel(self):
+        with TemporaryDirectory() as temp_dir:
+            temp_fpath = os.path.join(temp_dir, "img_nib.nii.gz")
+            nib.save(self.img, temp_fpath)
+            ants_img = ants.image_read(temp_fpath)
+            nib_img = nib.load(temp_fpath)
+
+            img = ants.to_nibabel_nifti(ants_img)
+
+            self.assertTrue(np.allclose(self.img.get_fdata(), img.get_fdata(), atol=1e-5))
+            self.assertTrue(np.allclose(self.img.affine, img.affine, atol=1e-5))
+
+            # Test roundtrip
+            ants_img2 = ants.from_nibabel_nifti(nib_img)
+            nib_img2 = ants.to_nibabel_nifti(ants_img2, header=self.img.header)
+
+            self.assertTrue(np.allclose(self.img.get_fdata(), nib_img2.get_fdata(), atol=1e-5))
+            self.assertTrue(np.allclose(self.img.affine, nib_img2.affine, atol=1e-5))
+            self.assertEqual(self.img.header['descrip'], nib_img2.header['descrip'])
+
+
 
 if __name__ == "__main__":
     run_tests()
