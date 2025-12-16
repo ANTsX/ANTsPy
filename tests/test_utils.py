@@ -1444,19 +1444,53 @@ class TestModule_nifti_utils(unittest.TestCase):
 @unittest.skipIf(nib is None, "nibabel is not installed")
 class TestModule_nibabel_to_ants(unittest.TestCase):
     def setUp(self):
-        self.affine_mat = np.array([
-                [0.5, 0,   0,   1.2],
-                [0,   0.5, 0,   5.7],
-                [0,   0,   2.0, -3.4],
-                [0,   0,   0,   1.0]
-            ])
+        # Voxel spacing
+        self.spacing = np.array((0.5, 1.25, 2.0))
+
+        # Rotation: oblique axes
+        rx, ry, rz = np.deg2rad([5.0, -10.0, 15.0])
+
+        Rx = np.array([
+            [1, 0, 0],
+            [0, np.cos(rx), -np.sin(rx)],
+            [0, np.sin(rx),  np.cos(rx)]
+        ])
+
+        Ry = np.array([
+            [ np.cos(ry), 0, np.sin(ry)],
+            [ 0,          1, 0         ],
+            [-np.sin(ry), 0, np.cos(ry)]
+        ])
+
+        Rz = np.array([
+            [np.cos(rz), -np.sin(rz), 0],
+            [np.sin(rz),  np.cos(rz), 0],
+            [0,           0,          1]
+        ])
+
+        self.direction = Rz @ Ry @ Rx  # intrinsic rotations
+
+        # Direction × spacing
+        M = self.direction @ np.diag(self.spacing)
+
+        # Translation
+        origin = np.array((1.2, 5.7, -3.4))
+        # Full affine
+        self.affine_mat = np.eye(4)
+        self.affine_mat[:3, :3] = M
+        self.affine_mat[:3, 3] = origin
+
+        # Image
         self.shape = (32, 24, 16)
-        self.img = nib.nifti1.Nifti1Image(
-            np.arange(np.prod(self.shape), dtype=float).reshape(self.shape),
-            affine=self.affine_mat
-        )
+        data = np.arange(np.prod(self.shape), dtype=float).reshape(self.shape)
+
+        self.img = nib.nifti1.Nifti1Image(data, affine=self.affine_mat)
         self.img.header['descrip'] = 'nib_ants_test'
         self.img.header.set_xyzt_units('mm', 'sec') # required to set pixdims correctly
+
+        # ANTs spatial info in LPS+ coordinates
+        self.ants_affine = ants.nifti_utils._ras_to_lps_affine(self.affine_mat)
+        _, self.ants_direction = ants.nifti_utils._spacing_and_dirs_from_affine(self.ants_affine[:3, :3])
 
     def tearDown(self):
         pass
@@ -1470,9 +1504,7 @@ class TestModule_nibabel_to_ants(unittest.TestCase):
         self.assertAlmostEqual(ants_img.origin[1], -1.0 * self.affine_mat[1, 3], places=5)
         self.assertAlmostEqual(ants_img.origin[2],  self.affine_mat[2, 3], places=5)
 
-        ants_direction = np.diag([-1, -1, 1])
-
-        self.assertTrue(np.allclose(ants_img.direction, ants_direction, atol=1e-5))
+        self.assertTrue(np.allclose(ants_img.direction, self.ants_direction, atol=1e-5))
 
         with TemporaryDirectory() as temp_dir:
             temp_fpath = os.path.join(temp_dir, "img.nii.gz")
@@ -1503,6 +1535,68 @@ class TestModule_nibabel_to_ants(unittest.TestCase):
             self.assertTrue(np.allclose(self.img.affine, nib_img2.affine, atol=1e-5))
             self.assertEqual(self.img.header['descrip'], nib_img2.header['descrip'])
 
+
+    def test_timeseries(self):
+        with TemporaryDirectory() as temp_dir:
+            temp_fpath = os.path.join(temp_dir, "img_nib_ts.nii.gz")
+            # Make a time series by stacking 3 copies
+            data = np.stack([self.img.get_fdata()]*3, axis=-1)
+            affine = self.img.affine
+            nib_img_ts = nib.nifti1.Nifti1Image(data, affine)
+            self.assertEqual(nib_img_ts.ndim, 4)
+            nib_img_ts.header.set_xyzt_units('mm', 'sec') # required to set pixdims correctly
+            time_origin = 2.0
+            nib_img_ts.header['toffset'] = time_origin
+            nib.save(nib_img_ts, temp_fpath)
+
+            ants_img = ants.image_read(temp_fpath)
+            self.assertEqual(ants_img.dimension, 4)
+            self.assertEqual(ants_img.shape, data.shape)
+            self.assertAlmostEqual(ants_img.origin[-1], time_origin, places=5)
+
+            nib_img2 = ants.to_nibabel_nifti(ants_img)
+
+            self.assertEqual(nib_img2.ndim, 4)
+            self.assertTrue(np.allclose(nib_img_ts.get_fdata(), nib_img2.get_fdata(), atol=1e-5))
+            self.assertTrue(np.allclose(nib_img_ts.affine, nib_img2.affine, atol=1e-5))
+            self.assertTrue(np.allclose(nib_img2.header['toffset'], time_origin, atol=1e-5))
+
+            ants_img2 = ants.from_nibabel_nifti(nib_img2)
+            self.assertEqual(ants_img2.dimension, 4)
+            self.assertEqual(ants_img2.shape, data.shape)
+            self.assertTrue(np.allclose(ants_img.origin, ants_img2.origin, atol=1e-5))
+            self.assertTrue(np.allclose(ants_img.spacing, ants_img2.spacing, atol=1e-5))
+            self.assertTrue(np.allclose(ants_img.direction, ants_img2.direction, atol=1e-5))
+
+
+    def test_multicomponent(self):
+        # Make a multi-component image by stacking two copies
+        data = np.stack([self.img.get_fdata(), self.img.get_fdata()], axis=-1)
+        data = np.expand_dims(data, axis=3)  # make 5D
+        affine = self.img.affine
+        nib_img_vec = nib.nifti1.Nifti1Image(data, affine)
+        nib_img_vec.header['descrip'] = 'nib_ants_test_vector'
+        nib_img_vec.header.set_xyzt_units('mm', 'sec') # required to set pixdims correctly
+
+        self.assertEqual(nib_img_vec.ndim, 5)
+        self.assertEqual(nib_img_vec.shape[-1], 2)  # components
+
+        ants_img = ants.from_nibabel_nifti(nib_img_vec)
+
+        self.assertEqual(ants_img.dimension, 3)
+        self.assertEqual(ants_img.components, 2)
+        self.assertTrue(np.allclose(ants_img.spacing, self.img.header.get_zooms(), atol=1e-5))
+        self.assertAlmostEqual(ants_img.origin[0], -1.0 * self.affine_mat[0, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[1], -1.0 * self.affine_mat[1, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[2],  self.affine_mat[2, 3], places=5)
+
+        self.assertTrue(np.allclose(ants_img.direction, self.ants_direction, atol=1e-5))
+
+        ants_img_back = ants.to_nibabel_nifti(ants_img)
+
+        self.assertEqual(ants_img_back.shape[-1], 2)
+        self.assertTrue(np.allclose(nib_img_vec.get_fdata(), ants_img_back.get_fdata(), atol=1e-5))
+        self.assertTrue(np.allclose(nib_img_vec.affine, ants_img_back.affine, atol=1e-5))
 
 
 if __name__ == "__main__":
