@@ -473,7 +473,7 @@ def get_nifti_spatial_transform_from_metadata(metadata, prefer_sform=True, deshe
 
 
 def set_nifti_spatial_transform_from_metadata(image, metadata, prefer_sform=True, deshear_threshold=1e-6,
-                                              max_angle_deviation=0.5, use_pixdim_spacing=True, verbose=False):
+                                              max_angle_deviation=0.5, verbose=False):
     """
     Set the spatial transform of an ANTsImage from NIfTI header metadata. This sets the 3D spatial transform but does
     not modify spacing or the fourth row / column of the direction matrix for 4D images. This function does not support 2D

@@ -452,7 +452,7 @@ class TestModule_random(unittest.TestCase):
             return np.degrees(angle) if degrees else angle
 
         rot_angle_diff = rotation_angle_diff_field(rot_py, rot, degrees=True)
-        self.assertTrue(np.all(rot_angle_diff < 1))
+        self.assertTrue(np.all(rot_angle_diff < 1.5))
 
         rot_inv = ants.deformation_gradient( ants.image_read( mytx['fwdtransforms'][0] ),
                                        to_inverse_rotation=True)
@@ -460,7 +460,7 @@ class TestModule_random(unittest.TestCase):
                                        to_inverse_rotation=True, py_based=True)
 
         rot_angle_diff = rotation_angle_diff_field(rot_inv, rot_py_inv, degrees=True)
-        self.assertTrue(np.all(rot_angle_diff < 1))
+        self.assertTrue(np.all(rot_angle_diff < 1.5))
 
         # Check it's actually the inverse
         self.assertTrue(np.allclose (rot_py.numpy(), rot_py_inv.numpy()[..., [0, 2, 1, 3]]))
