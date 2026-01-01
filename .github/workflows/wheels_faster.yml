@@ -99,7 +99,7 @@ jobs:
 
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
-            yum install -y gcc-c++ libpng-devel libpng libjpeg-turbo8-dev
+            yum install -y gcc-c++ libpng-devel libpng libjpeg-turbo libjpeg-turbo-devel
             python -m pip install cmake ninja setuptools SimpleITK==2.4.1 nibabel
 
           CIBW_BEFORE_ALL_WINDOWS: |
