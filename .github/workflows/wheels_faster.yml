@@ -99,7 +99,7 @@ jobs:
 
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
-            yum install -y gcc-c++ libpng-devel libpng
+            yum install -y gcc-c++ libpng-devel libpng libjpeg-turbo libjpeg-turbo-devel
             python -m pip install cmake ninja setuptools SimpleITK==2.4.1 nibabel
 
           CIBW_BEFORE_ALL_WINDOWS: |
@@ -136,3 +136,14 @@ jobs:
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
+
+      - name: Upload debug artifacts on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+          path: |
+            wheelhouse/**
+            ./**/*.log
+            ./**/CMakeCache.txt
+          if-no-files-found: warn
