@@ -4,8 +4,8 @@
 SET CMAKE_BUILD_TYPE=Release
 
 SET itkgit=https://github.com/InsightSoftwareConsortium/ITK.git
-:: 5.4.3
-SET itktag=0913f2a962d28eb5725a50a17304c4652ca6cfdc
+:: 5.4.5
+SET itktag=f51594ad88194a72cdc06a314dafff709fcdc2e9
 
 :: if there is a directory but no git, remove it
 if exist itksource\ (
