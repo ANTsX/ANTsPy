@@ -74,7 +74,7 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
             for j in range(len(xci)):
                 dist[j] = np.mean(np.sqrt((xci[j] - xci)**2 + (yci[j] - yci)**2 + (zci[j] - zci)**2))
 
-            mid = np.argmin(dist)
+            mid = np.where(dist==np.min(dist))
             xc[lab_idx] = xci[mid]
             yc[lab_idx] = yci[mid]
             zc[lab_idx] = zci[mid]
