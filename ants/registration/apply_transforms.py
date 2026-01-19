@@ -51,7 +51,13 @@ def apply_transforms(fixed, moving, transformlist,
             genericLabel use this for label images
 
     imagetype : integer
-        choose 0/1/2/3 mapping to scalar/vector/tensor/time-series
+        choose 0/1/2/3/4 mapping to scalar/vector/tensor/time-series/multi-channel images.
+
+        Default is 0 (scalar).
+
+        Vectors and tensors are assumed to be stored in index coordinates, and will be rebased into the
+        fixed index space. They will also be reoriented to account for the physical rotation component of the
+        transform.
 
     whichtoinvert : list of booleans (optional)
         Must be same length as transformlist.
@@ -188,7 +194,7 @@ def apply_transforms(fixed, moving, transformlist,
                     return None
 
         else:
-            return 1
+            raise ValueError('fixed and moving must be ANTsImage objects')
     else:
         args = args + ['-z', str(1), '--float', str(int(singleprecision)), '-e', imagetype, '-f', defaultvalue]
         processed_args = process_arguments(args)
@@ -305,7 +311,9 @@ def apply_transforms_to_points( dim, points, transformlist,
 
     processed_args = myargs + [ '-f', str(1), '--precision', str(0)]
     libfn = get_lib_fn('antsApplyTransformsToPoints')
-    libfn(processed_args)
+    retval = libfn(processed_args)
+    if retval != 0:
+        raise RuntimeError('antsApplyTransformsToPoints returned non-zero exit code %d' % retval)
     mynp = pointsOut.numpy()
     pointsOutDF = points.copy()
     pointsOutDF['x'] = mynp[:,0]
