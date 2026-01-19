@@ -175,7 +175,9 @@ def apply_transforms(fixed, moving, transformlist,
 
             processed_args = myargs + ['-z', str(1), '-v', str(myverb), '--float', str(int(singleprecision)), '-e', str(imagetype), '-f', str(defaultvalue)]
             libfn = get_lib_fn('antsApplyTransforms')
-            libfn(processed_args)
+            retval = libfn(processed_args)
+            if retval != 0:
+                raise RuntimeError('antsApplyTransforms returned non-zero exit code %d' % retval)
 
             if compose is None:
                 return warpedmovout.clone(inpixeltype)

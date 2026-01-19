@@ -592,6 +592,53 @@ class TestModule_random(unittest.TestCase):
         dot = np.abs(np.dot(principal_ev, expected_ev))
         assert math.isclose(dot, 1.0, abs_tol=1e-3), f"Principal eigenvector {principal_ev}, expected {expected_ev}"
 
+    def test_vector_reorient(self):
+
+        vector = np.zeros(3)
+        vector[0] = 1.0
+        vector[1] = 0.0
+        vector[2] = 0.0
+
+        img_shape = (10,10,10)
+
+        # Fill image with this vector (SymmetricSecondRankTensor has 6 unique values)
+        image_data = np.zeros(img_shape + (3,), dtype=np.float32)
+        image_data[..., 0] = vector[0]
+        image_data[..., 1] = vector[1]
+        image_data[..., 2] = vector[2]
+
+        vector_image = ants.from_numpy(image_data, has_components=True)
+        vector_image.set_direction(np.eye(3))
+        vector_image.set_spacing((1.0, 1.0, 1.0))
+        vector_image.set_origin((0.0, 0.0, 0.0))
+
+        ref_image = ants.from_numpy(image_data[..., 0], has_components=False)
+        ants.copy_image_info(vector_image, ref_image)
+
+        theta = math.radians(20)
+        tx_params = np.array([math.cos(theta), -math.sin(theta), 0, math.sin(theta), math.cos(theta), 0, 0, 0, 1, 0, 0, 0])
+
+        affine_tx = ants.create_ants_transform(transform_type="AffineTransform", dimension=3, parameters=tx_params)
+
+        fd, tx_fn = tempfile.mkstemp(suffix=".mat")
+        os.close(fd)
+
+        ants.write_transform(affine_tx, tx_fn)
+
+        reoriented_vector = ants.apply_transforms(ref_image, vector_image, tx_fn, imagetype=1, verbose=True).numpy()
+
+        os.remove(tx_fn)
+
+        mid = reoriented_vector.shape[0] // 2
+
+        vecR = reoriented_vector[mid, mid, mid]
+
+        # The expected reorientation is the opposite to the forward transform
+        expected_vec = np.array([math.cos(-theta), math.sin(-theta), 0])
+
+        dot = np.abs(np.dot(vecR, expected_vec))
+        assert math.isclose(dot, 1.0, abs_tol=1e-3), f"Vector {vecR}, expected {expected_vec}"
+
 
 if __name__ == "__main__":
     run_tests()
