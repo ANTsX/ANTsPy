@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "antspyx"
-version = "0.6.2"
+version = "0.6.3"
 description = "A fast medical imaging analysis library in Python with algorithms for registration, segmentation, and more."
 license = { text = "Apache-2.0" }
 readme = "README.md"
