@@ -11,8 +11,8 @@ COPY data\* %USERPROFILE%\.antspy
 
 :: clone ANTs and move all files into library directory
 SET antsgit=https://github.com/ANTsX/ANTs.git
-:: ANTs 2.6.5 2026-01-14
-SET antstag=fdce4d2f84b60ac75d7e45aafe18488b1f9f5303
+:: 2026-01-19
+SET antstag=b53aad349e6767de8e1d99a392f05a82b1bf2373
 echo "ANTS;%antstag%" REM UNKNOWN: {"type":"Redirect","op":{"text":">>","type":"dgreat"},"file":{"text":"./data/softwareVersions.csv","type":"Word"}}
 cd src
 echo "123"

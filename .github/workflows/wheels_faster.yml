@@ -132,6 +132,17 @@ jobs:
           python -m pip install --find-links=./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }} antspyx
           bash tests/run_tests.sh
 
+      - name: Upload debug artifacts on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
+          path: |
+            wheelhouse/**
+            ./**/*.log
+            ./**/CMakeCache.txt
+          if-no-files-found: warn
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
