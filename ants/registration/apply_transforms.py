@@ -72,8 +72,6 @@ def apply_transforms(fixed, moving, transformlist,
         orientations are similar. If your vector data is axial (ie, the sign is undefined) use nearestNeighbor interpolation,
         or project vectors into a single hemisphere before interpolation.
 
-
-
     whichtoinvert : list of booleans (optional)
         Must be same length as transformlist.
         whichtoinvert[i] is True if transformlist[i] is a matrix,
