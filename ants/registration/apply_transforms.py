@@ -51,13 +51,28 @@ def apply_transforms(fixed, moving, transformlist,
             genericLabel use this for label images
 
     imagetype : integer
-        choose 0/1/2/3/4 mapping to scalar/vector/tensor/time-series/multi-channel images.
+        Integer mapping to image types as one of
+          0 scalar (default)
+          1 spatial vector in index coordinates
+          2 diffusion tensor in index coordinates
+          3 time series
+          4 multi-channel image (vector-valued pixels, but not spatial vectors)
+          6 spatial vector in physical coordinates, such as an ANTs/ITK displacement field
 
         Default is 0 (scalar).
 
-        Vectors and tensors are assumed to be stored in index coordinates, and will be rebased into the
-        fixed index space. They will also be reoriented to account for the physical rotation component of the
-        transform.
+        Index-based vectors (imagetype=1) and tensors (imagetype=2) will be rebased into the fixed index space.
+        They will also be reoriented to account for the physical rotation in the transform.
+        Physical space vectors (imagetype=6) will remain in physical coordinates, but will be reoriented to maintain
+        appropriate alignment after transformation.
+
+        Tensors are interpolated using a log-Euclidean framework.
+
+        Vectors are linearly interpolated component-wise. This is not optimal but probably acceptable if the neighborhood
+        orientations are similar. If your vector data is axial (ie, the sign is undefined) use nearestNeighbor interpolation,
+        or project vectors into a single hemisphere before interpolation.
+
+
 
     whichtoinvert : list of booleans (optional)
         Must be same length as transformlist.
