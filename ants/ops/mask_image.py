@@ -53,6 +53,7 @@ def mask_image(image, mask, level=1, binarize=False):
         image_out = image_out + temp * image
 
     if binarize:
-        image_out = image_out != 0
+        image_out_b[ image_out > 0.5 ] = 1.0
+        return image_out_b
 
     return image_out
