@@ -16,7 +16,8 @@ def from_nibabel_nifti( nib_image, deshear_threshold=1e-6, max_angle_deviation=0
     ----------
     img: NiftiImage from nibabel. This must be a 3D, 4D (time series) or 5D (multi-component) image. The pixel datatype must be
     compatible with ANTsPy, one of "uint8", "uint32", "float32", "float64". Units should be mm for spatial dimensions and
-    seconds for time.
+    seconds for time. If the units are set to 0 (unknown), they will be assumed to be mm for spatial dimensions and seconds for
+    time.
 
     deshear_threshold: float
         Threshold for action to remove the shear component of affine transform. If shear is above this threshold, it will be
@@ -37,6 +38,13 @@ def from_nibabel_nifti( nib_image, deshear_threshold=1e-6, max_angle_deviation=0
 
     # nibabel RAS+ affine transform
     A = nib_image.affine
+
+    if nib_image.header.get_xyzt_units()[0] == 'unknown':
+        print("Warning: NIftI spatial units are 'unknown'. Assuming mm for spatial dimensions.")
+        nib_image.header.set_xyzt_units('mm', nib_image.header.get_xyzt_units()[1])
+    if nib_image.header.get_xyzt_units()[1] == 'unknown':
+        print("Warning: NIftI time units are 'unknown'. Assuming seconds for time dimension.")
+        nib_image.header.set_xyzt_units(nib_image.header.get_xyzt_units()[0], 'sec')
 
     if ndim == 3:
         if nib_image.header.get_xyzt_units()[0] != 'mm':
