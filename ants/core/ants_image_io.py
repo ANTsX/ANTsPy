@@ -159,7 +159,7 @@ def _from_numpy(
 
 
 def make_image(
-    imagesize,
+    shape,
     voxval=0,
     spacing=None,
     origin=None,
@@ -168,55 +168,58 @@ def make_image(
     pixeltype="float",
 ):
     """
-    Make an image with given size and voxel value or given a mask and vector
+    Make an image with given size and voxel values or fill a mask with a vector of voxel values.
 
     ANTsR function: `makeImage`
 
     Arguments
     ---------
     shape : tuple/ANTsImage
-        input image size or mask
+        input image shape (tuple) or a mask (ANTsImage). If a mask, the output image has the same shape as the mask, and the
+        number of voxel values in ``voxval`` should match the number of positive voxels in the mask. If a tuple, the number of
+        voxel values in ``voxval`` should match the product of the dimensions in the tuple.
 
     voxval : scalar
-        input image value or vector, size of mask
+        input image value. Either a scalar (single value) to be placed in all voxels, or a vector of with length matching the
+        number of voxels required by the shape argument.
 
     spacing : tuple/list
-        image spatial resolution
+        image spatial resolution.
 
     origin  : tuple/list
-        image spatial origin
+        image spatial origin.
 
     direction : list/ndarray
-        direction matrix to convert from index to physical space
+        direction matrix to convert from index to physical space.
 
     components : boolean
-        whether there are components per pixel or not
+        whether there are components per pixel or not.
 
-    pixeltype : float
-        data type of image values
+    pixeltype : str
+        a supported pixel type for ANTsImage.
 
     Returns
     -------
     ANTsImage
     """
-    if ants.is_image(imagesize):
-        img = imagesize.clone()
-        sel = imagesize > 0
+    if ants.is_image(shape):
+        img = shape.clone()
+        sel = shape > 0
         if voxval.ndim > 1:
             voxval = voxval.flatten()
         if (len(voxval) == int((sel > 0).sum())) or (len(voxval) == 0):
             img[sel] = voxval
         else:
             raise ValueError(
-                "Num given voxels %i not same as num positive values %i in `imagesize`"
+                "Num given voxels %i not same as num positive values %i in `shape`"
                 % (len(voxval), int((sel > 0).sum()))
             )
         return img
     else:
         if isinstance(voxval, (tuple, list, np.ndarray)):
-            array = np.asarray(voxval).astype("float32").reshape(imagesize)
+            array = np.asarray(voxval).astype("float32").reshape(shape)
         else:
-            array = np.full(imagesize, voxval, dtype="float32")
+            array = np.full(shape, voxval, dtype="float32")
         image = from_numpy(
             array,
             origin=origin,
