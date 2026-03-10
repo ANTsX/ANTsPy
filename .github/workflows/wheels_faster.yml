@@ -87,6 +87,24 @@ jobs:
           echo -n "env : "
           env
 
+      - name: Set cibuildwheel cache path (macOS / Windows)
+        if: ${{ startsWith(matrix.os, 'macos-') || startsWith(matrix.os, 'windows-') }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cache_dir="${RUNNER_TEMP}/cibw-cache"
+          mkdir -p "${cache_dir}"
+          echo "CIBW_CACHE_PATH=${cache_dir}" >> "${GITHUB_ENV}"
+
+      - name: Download virtualenv.pyz for cibuildwheel to cache dir (macOS / Windows)
+        if: ${{ startsWith(matrix.os, 'macos-') || startsWith(matrix.os, 'windows-') }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L --retry 5 --retry-delay 5 \
+            -o "${CIBW_CACHE_PATH}/virtualenv-20.26.3.pyz" \
+            https://bootstrap.pypa.io/virtualenv/${{ matrix.python }}/virtualenv.pyz
+
       - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
