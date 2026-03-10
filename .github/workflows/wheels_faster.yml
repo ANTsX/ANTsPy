@@ -102,7 +102,7 @@ jobs:
         run: |
           set -euxo pipefail
           curl -L --retry 5 --retry-delay 5 \
-            -o "${CIBW_CACHE_PATH}/virtualenv-20.26.3.pyz" \
+            -o "${CIBW_CACHE_PATH}/virtualenv-virtualenv-20.30.0.pyz" \
             https://bootstrap.pypa.io/virtualenv/${{ matrix.python }}/virtualenv.pyz
 
       - name: Build wheels
