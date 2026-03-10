@@ -112,8 +112,8 @@ jobs:
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           CIBW_TEST_SKIP: "cp*" # We will test during install and test step
 
-          # Include latest Python beta
-          CIBW_PRERELEASE_PYTHONS: True
+          # Uncomment to enable python beta
+          # CIBW_ENABLE: cpython-prerelease
 
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
@@ -130,7 +130,8 @@ jobs:
 
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools SimpleITK nibabel
-            brew update
+            # Possibly not needed on runners
+            # brew update
             if ! brew list libpng &>/dev/null; then
                 HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng
             fi
