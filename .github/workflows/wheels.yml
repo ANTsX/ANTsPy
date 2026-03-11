@@ -108,11 +108,11 @@ jobs:
             platform_id: macosx_arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python host for cibuildwheel
         with:
           python-version: ${{ matrix.python }}
@@ -123,7 +123,11 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.19.2 setuptools toml
+        shell: bash
+        run: |
+          python -m pip install cibuildwheel==2.23.3 setuptools toml
+          # pin virtualenv version - this depends on cibuildwheel version
+          echo "VIRTUALENV_VERSION=20.30.0" >> $GITHUB_ENV
 
       - name: Get package name and version (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
@@ -145,15 +149,30 @@ jobs:
           macos_version=$(sw_vers -productVersion | awk -F '.' '{print $1".0"}')
           echo "MACOSX_DEPLOYMENT_TARGET=${macos_version}" >> $GITHUB_ENV
 
+      - name: Set cibuildwheel cache path (macOS / Windows)
+        if: ${{ startsWith(matrix.os, 'macos-') || startsWith(matrix.os, 'windows-') }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cache_dir="${RUNNER_TEMP}/cibw-cache"
+          mkdir -p "${cache_dir}"
+          echo "CIBW_CACHE_PATH=${cache_dir}" >> "${GITHUB_ENV}"
+
+      - name: Download virtualenv.pyz for cibuildwheel to cache dir (macOS / Windows)
+        if: ${{ startsWith(matrix.os, 'macos-') || startsWith(matrix.os, 'windows-') }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L --retry 5 --retry-delay 5 \
+            -o "${CIBW_CACHE_PATH}/virtualenv-${VIRTUALENV_VERSION}.pyz" \
+            https://bootstrap.pypa.io/virtualenv/${{ matrix.python }}/virtualenv.pyz
+
       - name: Build wheels
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           CIBW_TEST_SKIP: "cp*" # We will test during install and test step
-
-          # Include latest Python beta
-          CIBW_PRERELEASE_PYTHONS: True
 
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
@@ -171,7 +190,6 @@ jobs:
 
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools SimpleITK nibabel
-            brew update
             if ! brew list libpng &>/dev/null; then
                 HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng
             fi
@@ -193,7 +211,7 @@ jobs:
 
       - name: Upload debug artifacts on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: debug-${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: |
@@ -202,7 +220,7 @@ jobs:
             ./**/CMakeCache.txt
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
@@ -226,14 +244,14 @@ jobs:
     needs:
       - build_wheels
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python host for cibuildwheel
         with:
           python-version: '3.13'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: downloaded_artifacts
       - name: Move wheels to dist/ root

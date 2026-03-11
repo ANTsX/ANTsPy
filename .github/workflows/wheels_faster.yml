@@ -43,11 +43,11 @@ jobs:
             platform_id: macosx_arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python host for cibuildwheel
         with:
           python-version: ${{ matrix.python }}
@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload debug artifacts on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: debug-${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: |
@@ -162,7 +162,7 @@ jobs:
             ./**/CMakeCache.txt
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
