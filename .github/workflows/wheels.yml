@@ -108,11 +108,11 @@ jobs:
             platform_id: macosx_arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python host for cibuildwheel
         with:
           python-version: ${{ matrix.python }}
@@ -174,9 +174,6 @@ jobs:
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           CIBW_TEST_SKIP: "cp*" # We will test during install and test step
 
-          # Include latest Python beta
-          CIBW_PRERELEASE_PYTHONS: True
-
           CIBW_BEFORE_ALL_LINUX: |
             echo "Installing system dependencies with yum"
             yum install -y gcc-c++ libpng-devel libpng
@@ -193,7 +190,6 @@ jobs:
 
           CIBW_BEFORE_ALL_MACOS: |
             python -m pip install cmake ninja setuptools SimpleITK nibabel
-            brew update
             if ! brew list libpng &>/dev/null; then
                 HOMEBREW_NO_AUTO_UPDATE=1 brew install libpng
             fi
@@ -215,7 +211,7 @@ jobs:
 
       - name: Upload debug artifacts on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: debug-${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: |
@@ -224,7 +220,7 @@ jobs:
             ./**/CMakeCache.txt
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
@@ -248,14 +244,14 @@ jobs:
     needs:
       - build_wheels
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         name: Install Python host for cibuildwheel
         with:
           python-version: '3.13'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: downloaded_artifacts
       - name: Move wheels to dist/ root
