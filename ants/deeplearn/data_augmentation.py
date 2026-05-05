@@ -202,14 +202,24 @@ def data_augmentation(input_image_list,
             image = transform_augmentation['simulated_images'][i][j]
             image_range = image.range()
 
-            # Normalize to [0, 1] before applying augmentation
-
+            # Normalize to [0, 1] using robust quantiles (ignoring background and extreme spikes)
             if verbose:
-                print("        Normalizing to [0, 1].")
+                print("        Normalizing to [0, 1] with robust quantiles.")
 
-            image = ants.iMath(image, "Normalize")
+            arr = image.numpy()
+            background = arr.max() * 0.05
+            tissue = arr[arr > background]
 
-            # Noise
+            if len(tissue) > 0:
+                q_min = np.percentile(tissue, 1)
+                q_max = np.percentile(tissue, 99.5)
+            else:
+                q_min, q_max = arr.min(), arr.max()
+
+            arr_clipped = np.clip(arr, q_min, q_max)
+            denominator = (q_max - q_min) if (q_max - q_min) > 0 else 1.0
+            arr_norm = (arr_clipped - q_min) / denominator
+            image = image.new_image_like(arr_norm)
 
             if noise_model is not None:
 
