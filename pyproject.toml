@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core >=0.4.3", "nanobind >=1.3.2,<2.6"]
+requires = ["scikit-build-core >=0.4.3", "packaging >=23.2", "nanobind >=1.3.2,<2.6"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -50,4 +50,3 @@ build-verbosity = 1
 # Run pytest to ensure that the package was correctly built
 test-command = "pytest {project}/tests"
 test-requires = "pytest"
-
