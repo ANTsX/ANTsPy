@@ -1,29 +1,63 @@
-- name: Setup Miniconda
-  uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f
-  with:
-    channels: conda-forge
-    miniforge-version: "26.3.2-1"
-    python-version: ${{ env.python_version }}
-    auto-update-conda: true
-    activate-environment: antspy-env
+name: ci-pytest
 
-- name: Checkout code
-  uses: actions/checkout@v4
-  with:
-    path: antspy-pr
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
 
-- name: Install dependencies and ANTsPy from PR
-  run: |
-    conda info
-    which python
-    python --version
-    python -m pip --version
+env:
+  # Updates or changes to this, or the runner OS or arch will invalidate the cache
+  python_version: "3.12" # Python version to use for testing - update when needed
 
-    conda install -y coverage pip setuptools wheel packaging
-    python -m pip install --upgrade pip setuptools wheel 'packaging>=24'
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    # Default shell needs to be bash for conda
+    # https://github.com/conda-incubator/setup-miniconda?tab=readme-ov-file#important
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f
+        with:
+            channels: conda-forge
+            miniforge-version: latest
+            python-version: ${{ env.python_version }}
+            auto-update-conda: true
+            activate-environment: antspy-env
 
-    python -m pip install SimpleITK nibabel
-    python -m pip install ./antspy-pr
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+            path: antspy-pr
 
-    python -c "import sys, packaging; print(sys.executable); print(packaging.__version__, packaging.__file__)"
-    conda list
+      - name: Install dependencies and ANTsPy from PR
+        run: |
+            conda info
+            which python
+            python --version
+            python -m pip --version
+
+            conda install -y coverage pip setuptools wheel packaging
+            python -m pip install --upgrade pip setuptools wheel 'packaging>=24'
+
+            python -m pip install SimpleITK nibabel
+            python -m pip install ./antspy-pr
+
+            python -c "import sys, packaging; print(sys.executable); print(packaging.__version__, packaging.__file__)"
+            conda list
+
+      - name: Run tests
+        run: |
+          conda activate antspy-env
+          bash antspy-pr/tests/run_tests.sh -c
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          files: antspy-pr/tests/coverage.xml
