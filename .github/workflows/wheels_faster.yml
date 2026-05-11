@@ -162,7 +162,8 @@ jobs:
             ./**/CMakeCache.txt
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v7
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
