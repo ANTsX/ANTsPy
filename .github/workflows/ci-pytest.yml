@@ -23,29 +23,34 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3.2.0, devs recommend using hash
+        uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f
         with:
-          channels: conda-forge
-          miniforge-version: latest
-          python-version: ${{ env.python_version }}
-          auto-update-conda: true
-          activate-environment: "test-env"
+            channels: conda-forge
+            miniforge-version: latest
+            python-version: ${{ env.python_version }}
+            auto-update-conda: true
+            activate-environment: antspy-env
 
       - name: Checkout code
-        uses: actions/checkout@v4 # Checkout PR code to 'antspy-pr'
+        uses: actions/checkout@v4
         with:
-          path: antspy-pr
+            path: antspy-pr
 
       - name: Install dependencies and ANTsPy from PR
         run: |
-          conda info
-          conda create -n antspy-env python=${{ env.python_version }} -y
-          conda activate antspy-env
-          conda install coverage
-          conda info
-          pip install SimpleITK nibabel
-          pip install ./antspy-pr
-          conda list
+            conda info
+            which python
+            python --version
+            python -m pip --version
+
+            conda install -y coverage pip setuptools wheel packaging
+            python -m pip install --upgrade pip setuptools wheel 'packaging>=24'
+
+            python -m pip install SimpleITK nibabel
+            python -m pip install ./antspy-pr
+
+            python -c "import sys, packaging; print(sys.executable); print(packaging.__version__, packaging.__file__)"
+            conda list
 
       - name: Run tests
         run: |
