@@ -211,7 +211,7 @@ jobs:
 
       - name: Upload debug artifacts on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: debug-${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: |
@@ -220,7 +220,8 @@ jobs:
             ./**/CMakeCache.txt
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           path: ./wheelhouse/cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}/*.whl
@@ -228,7 +229,7 @@ jobs:
       - name: Upload release asset
         # Previously was using actions/upload-release-asset@v1 , but this had some
         # errors with large files
-        uses: ncipollo/release-action@v1.11.1
+        uses: ncipollo/release-action@v1.21.0
         if: ${{ github.event_name == 'release' }}
         with:
           allowUpdates: true

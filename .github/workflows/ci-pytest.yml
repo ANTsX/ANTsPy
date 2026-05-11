@@ -23,16 +23,17 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f
+        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5
         with:
             channels: conda-forge
+            conda-remove-defaults: true
             miniforge-version: latest
             python-version: ${{ env.python_version }}
             auto-update-conda: true
             activate-environment: antspy-env
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
             path: antspy-pr
 
