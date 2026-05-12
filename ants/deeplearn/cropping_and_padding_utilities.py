@@ -1,6 +1,7 @@
 __all__ = ["crop_image_center",
            "pad_image_by_factor",
-           "pad_or_crop_image_to_size"]
+           "pad_or_crop_image_to_size",
+           "crop_image_from_center_point"]
 
 import ants
 import numpy as np
@@ -128,3 +129,46 @@ def pad_or_crop_image_to_size(image,
 
     return(cropped_image)
 
+
+def crop_image_from_center_point(image,
+                                 center_point,
+                                 patch_size):
+    
+    """
+    Crop a patch from an image around a center point
+
+    image: ANTsImage
+        Input image
+
+    center_point: tuple
+        Physical space coordinates of center point.
+
+    patch_size: tuple
+        List defining patch size.
+
+    """
+
+    index = np.round(ants.transform_physical_point_to_index(image, center_point))
+    image_shape = image.shape
+
+    for k in range(len(image_shape)):
+        if index[k] < 0:
+            index[k] = 0
+        if index[k] > (image_shape[k] - 1):
+            index[k] = image_shape[k] - 1
+    
+    index_offset = index.copy()
+    for k in range(len(patch_size)):
+        index_offset[k] = index_offset[k] - np.round(0.5 * patch_size[k])
+
+    domain_low = []
+    domain_high = []
+    for k in range(len(image_shape)):
+        domain_low.append(int(index_offset[k] - 1))
+        domain_high.append(int(index_offset[k] + 1))
+    domain = ants.crop_indices(image, tuple(domain_low), tuple(domain_high) )
+
+    patch_image = ants.make_image(patch_size)
+    patch_image = ants.copy_image_info(domain, patch_image)
+
+    return ants.resample_image_to_target(image, patch_image)

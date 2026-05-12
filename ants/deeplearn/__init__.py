@@ -6,6 +6,7 @@ from .regression_match_image import regression_match_image
 from .cropping_and_padding_utilities import crop_image_center
 from .cropping_and_padding_utilities import pad_or_crop_image_to_size
 from .cropping_and_padding_utilities import pad_image_by_factor
+from .cropping_and_padding_utilities import crop_image_from_center_point
 
 from .one_hot_segmentation import segmentation_to_one_hot
 from .one_hot_segmentation import one_hot_to_segmentation
