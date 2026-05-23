@@ -119,7 +119,7 @@ def randomly_transform_image_data(reference_image,
         random_parameters = identity_parameters + random_epsilon
         random_matrix = np.reshape(
             random_parameters[:(len(identity_parameters) - image.dimension)],
-            newshape=(image.dimension, image.dimension))
+            shape=(image.dimension, image.dimension))
         decomposition = ants.polar_decomposition(random_matrix)
 
         if transform_type == "rotation" or transform_type == "rigid":
@@ -130,7 +130,7 @@ def randomly_transform_image_data(reference_image,
             random_matrix = decomposition['P']
 
         random_parameters[:(len(identity_parameters) - image.dimension)] = \
-            np.reshape(random_matrix, newshape=(len(identity_parameters) - image.dimension))
+            np.reshape(random_matrix, shape=(len(identity_parameters) - image.dimension))
         ants.set_ants_transform_parameters(transform, random_parameters)
         return(transform)
 
