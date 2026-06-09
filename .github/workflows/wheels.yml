@@ -169,8 +169,8 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
-          CIBW_MANYLINUX_I686_IMAGE: quay.io/pypa/manylinux2014_i686:latest
+          CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64@sha256:298eccaea20b9e9223dcfbd6af48743dce2dd3dd92ede4aff44e7af2e919db86
+          CIBW_MANYLINUX_I686_IMAGE: quay.io/pypa/manylinux2014_i686@sha256:98c08a483194182c76dd65278a36282878e3db5ac3a3421d5f941b10627e2c72
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           CIBW_TEST_SKIP: "cp*" # We will test during install and test step
 
