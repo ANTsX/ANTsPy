@@ -1,8 +1,8 @@
 # This Dockerfile supports amd64,arm64,ppc64le
 # Note: QEMU emulated ppc64le build might take ~6 hours
 
-# Use conda to resolve dependencies cross-platform
-FROM debian:bookworm as builder
+# Use mamba to resolve dependencies cross-platform
+FROM debian:trixie AS builder
 
 # install libpng to system for cross-architecture support
 # https://github.com/ANTsX/ANTs/issues/1069#issuecomment-681131938
@@ -16,25 +16,24 @@ RUN apt-get update && \
       libpng-dev \
       wget
 
-# install miniconda3
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py310_23.11.0-1-Linux-$(uname -m).sh \
-    && /bin/bash Miniconda3-py310_23.11.0-1-Linux-$(uname -m).sh -b -p /opt/conda \
-    && rm Miniconda3-py310_23.11.0-1-Linux-$(uname -m).sh
+# install miniforge3, which includes mamba
+RUN wget --quiet https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh -O miniforge.sh \
+    && /bin/bash miniforge.sh -b -p /opt/conda \
+    && rm miniforge.sh
 ENV PATH=/opt/conda/bin:$PATH
 
 WORKDIR /usr/local/src
 
 COPY environment.yml .
 
-# Activate the base environment and update it
-RUN . /opt/conda/etc/profile.d/conda.sh && \
-    conda activate base && \
-    conda info && \
+# Update the base environment with mamba
+RUN mamba info && \
     conda config --show-sources && \
-    echo "Updating conda" && \
-    conda env update -n base && \
+    echo "Updating base environment" && \
+    mamba env update -n base -f environment.yml && \
     echo "installing cmake" && \
-    conda install -c conda-forge cmake
+    mamba install -y -n base cmake && \
+    mamba clean -afy
 
 COPY . .
 
@@ -47,6 +46,6 @@ RUN . /opt/conda/etc/profile.d/conda.sh && \
 RUN bash tests/run_tests.sh
 
 # optimize layers
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 COPY --from=builder /opt/conda /opt/conda
 ENV PATH=/opt/conda/bin:$PATH
