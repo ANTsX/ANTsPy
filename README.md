@@ -5,7 +5,7 @@
 [![Nightly Build](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/wheels.yml)
 [![ci-pytest](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml)
 [![ci-docker](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml)
-[![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=master)](https://coveralls.io/github/ANTsX/ANTsPy?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=main)](https://coveralls.io/github/ANTsX/ANTsPy?branch=main)
 <a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
 </a>
 [![docs](https://readthedocs.org/projects/antspy/badge/?version=latest&style=flat)](https://antspy.readthedocs.io/en/latest/)
@@ -60,7 +60,7 @@ python -m pip install .
 ```
 
 Further details about installing ANTsPy or building it from source can be found in the
-[Installation Tutorial](https://github.com/antsx/antspy/blob/master/tutorials/Installation.md).
+[Installation Tutorial](https://github.com/antsx/antspy/blob/main/tutorials/Installation.md).
 
 <br>
 
@@ -103,13 +103,13 @@ ants.plot(img, overlay = img > img.mean())
 
 ## Tutorials
 
-Resources for learning about ANTsPy can be found in the [tutorials](https://github.com/ANTsX/ANTsPy/tree/master/tutorials) folder. A selection of especially useful tutorials is presented below.
+Resources for learning about ANTsPy can be found in the [tutorials](https://github.com/ANTsX/ANTsPy/tree/main/tutorials) folder. A selection of especially useful tutorials is presented below.
 
-- Basic overview [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/tutorial_5min.md)]
-- Composite registrations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/concatenateRegistrations.ipynb)]
-- Multi-metric registration [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/MultiMetricRegistration.ipynb)]
-- Image math operations [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/iMath_help.md)]
-- Wrapping ITK code [[Link](https://github.com/ANTsX/ANTsPy/blob/master/tutorials/UsingITK.md)]
+- Basic overview [[Link](https://github.com/ANTsX/ANTsPy/blob/main/tutorials/tutorial_5min.md)]
+- Composite registrations [[Link](https://github.com/ANTsX/ANTsPy/blob/main/tutorials/concatenateRegistrations.ipynb)]
+- Multi-metric registration [[Link](https://github.com/ANTsX/ANTsPy/blob/main/tutorials/MultiMetricRegistration.ipynb)]
+- Image math operations [[Link](https://github.com/ANTsX/ANTsPy/blob/main/tutorials/iMath_help.md)]
+- Wrapping ITK code [[Link](https://github.com/ANTsX/ANTsPy/blob/main/tutorials/UsingITK.md)]
 
 More tutorials can be found in the [ANTs](https://github.com/ANTsX/ANTs) repository.
 
@@ -117,7 +117,7 @@ More tutorials can be found in the [ANTs](https://github.com/ANTsX/ANTs) reposit
 
 ## Contributing
 
-If you have a question or bug report the best way to get help is by posting an issue on the GitHub page. We welcome any new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/master/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
+If you have a question or bug report the best way to get help is by posting an issue on the GitHub page. We welcome any new contributions and ideas. If you want to add code, the best way to get started is by reading the [contributors guide](https://github.com/ANTsX/ANTsPy/blob/main/CONTRIBUTING.md) that runs through the structure of the project and how we go about wrapping ITK and ANTs code in C++.
 
 You can support our work by starring the repository, citing our methods when relevant, or suggesting new features in the issues tab. These actions help increase the project's visibility and community reach.
 

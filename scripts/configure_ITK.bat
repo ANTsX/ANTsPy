@@ -19,7 +19,7 @@ if not exist itksource\ (
 )
 cd itksource
 if exist .git\ (
-  git checkout master
+  git checkout main
   git checkout %itktag%
   DEL /S /Q .git\
 )

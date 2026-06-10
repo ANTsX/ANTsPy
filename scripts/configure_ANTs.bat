@@ -25,7 +25,7 @@ if not exist "antscore\" (
 
   :: check out right branch
   if exist ".git\" (
-    git checkout master
+    git checkout main
     git pull
     git checkout %antstag%
   )
