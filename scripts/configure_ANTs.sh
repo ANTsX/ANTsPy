@@ -29,7 +29,7 @@ if [[ ! -d antscore ]] ; then
     cd antsrepo # go to antscore
     # check out right branch
     if [[ -d .git ]]; then
-        git checkout master
+        git checkout main
         git pull
         git checkout $antstag
     fi
