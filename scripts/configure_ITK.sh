@@ -27,7 +27,8 @@ if [[ ! -d itksource ]]; then
 fi
 cd itksource
 if [[ -d .git ]]; then
-    git checkout main;
+    git checkout main
+    git pull
     git checkout $itktag
     rm -rf .git
 fi
