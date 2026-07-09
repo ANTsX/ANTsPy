@@ -38,6 +38,11 @@ _npy_to_itk_map = {
 
 class ANTsImage(object):
 
+    # This makes sure that numpy operations (e.g. np.sum(img)) call our __array__ method so that users get a helpful
+    # error message instead of the numpy fallback to an object array
+    __array_priority__ = 10000
+
+
     def __init__(self, pointer):
         """
         Initialize an ANTsImage.
@@ -571,8 +576,20 @@ class ANTsImage(object):
     def __iter__(self):
         # Do not allow iteration on ANTsImage. Builtin iteration, eg sum(), will generally be much slower
         # than using numpy methods. We need to explicitly disallow it to prevent breaking object state.
-        raise TypeError("ANTsImage is not iterable. See docs for available functions, or use numpy.")
+        raise TypeError("ANTsImage is not iterable. See docs for available functions, or convert to numpy.")
 
+    def __array__(self, dtype=None):
+        if dtype is not None and dtype is np.dtype('O'):
+            # Allow conversion to an object array (eg np.array([img1, img2, img3], dtype=object))
+            out = np.empty((), dtype=object)
+            out[()] = self
+            return out
+        else:
+            # Disallow implicit conversion to numeric numpy array. This prevents using ANTsImage objects in numpy functions
+            # as that's complicated to handle correctly. Users should explicitly convert to numpy array using the .numpy()
+            # function
+            raise TypeError("ANTsImage cannot be implicitly converted to a numeric array. Use the .numpy() method to obtain a "
+                        "copy of the image data as a numpy array. If you want a numpy array of ANTsImage objects, use np.array(..., dtype=object).")
 
     def __repr__(self):
         if self.dimension == 3:
