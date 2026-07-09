@@ -11,11 +11,16 @@ jobs:
   build_wheels:
     name: Build wheel for cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
     runs-on: ${{ matrix.os }}
+    env:
+      # This is the python version that runs cibuildwheel, not the target for which wheels are built
+      # The target version is set in the matrix.
+      CIBW_HOST_PYTHON: '3.13'
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Have to specify python version twice so that the same python is used to build and test
+          # cibuildwheel runs on Python 3.13, but each wheel is tested with
+          # the matching target Python version.
           # Need to quote decimal versions as string to avoid the "Norway problem"
 
           # Windows 64-bit
@@ -37,14 +42,6 @@ jobs:
             platform_id: win_amd64
 
           # Linux 64-bit
-          - os: ubuntu-latest
-            python: '3.8'
-            cibw_python: 38
-            platform_id: manylinux_x86_64
-          - os: ubuntu-latest
-            python: '3.9'
-            cibw_python: 39
-            platform_id: manylinux_x86_64
           - os: ubuntu-latest
             python: '3.10'
             cibw_python: 310
@@ -115,7 +112,7 @@ jobs:
       - uses: actions/setup-python@v6
         name: Install Python host for cibuildwheel
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ env.CIBW_HOST_PYTHON }}
 
         # Visual Studio
       - name: Set up MSVC x64
@@ -125,9 +122,7 @@ jobs:
       - name: Install cibuildwheel
         shell: bash
         run: |
-          python -m pip install cibuildwheel==2.23.3 setuptools toml
-          # pin virtualenv version - this depends on cibuildwheel version
-          echo "VIRTUALENV_VERSION=20.30.0" >> $GITHUB_ENV
+          python -m pip install cibuildwheel==4.1.0 setuptools toml
 
       - name: Get package name and version (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
@@ -158,19 +153,9 @@ jobs:
           mkdir -p "${cache_dir}"
           echo "CIBW_CACHE_PATH=${cache_dir}" >> "${GITHUB_ENV}"
 
-      - name: Download virtualenv.pyz for cibuildwheel to cache dir (macOS / Windows)
-        if: ${{ startsWith(matrix.os, 'macos-') || startsWith(matrix.os, 'windows-') }}
-        shell: bash
-        run: |
-          set -euxo pipefail
-          curl -L --retry 5 --retry-delay 5 \
-            -o "${CIBW_CACHE_PATH}/virtualenv-${VIRTUALENV_VERSION}.pyz" \
-            https://bootstrap.pypa.io/virtualenv/${{ matrix.python }}/virtualenv.pyz
-
       - name: Build wheels
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2_28
           CIBW_BUILD: cp${{ matrix.cibw_python }}-${{ matrix.platform_id }}
           CIBW_TEST_SKIP: "cp*" # We will test during install and test step
 
@@ -195,6 +180,11 @@ jobs:
             fi
 
         run: python -m cibuildwheel --output-dir wheelhouse/cp${{ matrix.cibw_python }}-${{matrix.platform_id }}
+
+      - uses: actions/setup-python@v6
+        name: Install Python for wheel testing
+        with:
+          python-version: ${{ matrix.python }}
 
       - name: Install and test (Linux / Mac)
         if: ${{ ! startsWith(matrix.os, 'windows-') }}
@@ -273,4 +263,3 @@ jobs:
           skip-existing: true
           attestations: false
           verbose: true
-
