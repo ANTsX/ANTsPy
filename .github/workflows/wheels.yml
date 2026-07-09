@@ -131,7 +131,7 @@ jobs:
         # Visual Studio
       - name: Set up MSVC x64
         if: matrix.platform_id == 'win_amd64'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: step-security/msvc-dev-cmd@v1
 
       - name: Install cibuildwheel
         shell: bash
