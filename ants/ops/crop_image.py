@@ -7,10 +7,11 @@ __all__ = ['crop_image',
 
 
 import ants
-from ants.decorators import image_method
+from ants.decorators import image_method, components_method
 from ants.internal import get_lib_fn
 
 @image_method
+@components_method
 def crop_image(image, label_image=None, label=1):
     """
     Use a label image to crop a smaller ANTsImage from within a larger ANTsImage
@@ -40,11 +41,7 @@ def crop_image(image, label_image=None, label=1):
     >>> fi2 = ants.merge_channels([fi,fi])
     >>> cropped2 = ants.crop_image(fi2)
     >>> cropped = ants.crop_image(fi, fi, 100 )
-    """
-    if image.has_components:
-        return ants.merge_channels([crop_image(img, label_image, label) for img in ants.split_channels(image)],
-                                   channels_first=image.channels_first)
-        
+    """        
     inpixeltype = image.pixeltype
     ndim = image.dimension
     if image.pixeltype != 'float':
@@ -62,6 +59,7 @@ def crop_image(image, label_image=None, label=1):
 
 
 @image_method
+@components_method
 def crop_indices(image, lowerind, upperind):
     """
     Create a proper ANTsImage sub-image by indexing the image with indices. 
@@ -93,11 +91,7 @@ def crop_indices(image, lowerind, upperind):
     >>> cropped = ants.crop_indices( fi, (10,10), (100,100) )
     >>> cropped = ants.smooth_image( cropped, 5 )
     >>> decropped = ants.decrop_image( cropped, fi )
-    """
-    if image.has_components:
-        return ants.merge_channels([crop_indices(img, lowerind, upperind) for img in ants.split_channels(image)],
-                                   channels_first=image.channels_first)
-        
+    """ 
     inpixeltype = 'float'
     if image.pixeltype != 'float':
         inpixeltype = image.pixeltype
@@ -114,6 +108,7 @@ def crop_indices(image, lowerind, upperind):
     return ants_image
 
 @image_method
+@components_method
 def decrop_image(cropped_image, full_image):
     """
     The inverse function for `ants.crop_image`
