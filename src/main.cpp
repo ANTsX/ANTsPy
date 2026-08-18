@@ -12,6 +12,7 @@
 #include "antsTransform.cxx"
 #include "composeDisplacementFields.cxx"
 #include "cropImage.cxx"
+#include "fitBsplineDisplacementField.cxx"
 #include "fitBsplineDisplacementFieldToScatteredData.cxx"
 #include "fitBsplineObjectToScatteredData.cxx"
 #include "fitThinPlateSplineDisplacementFieldToScatteredData.cxx"
@@ -72,6 +73,7 @@ void local_antsImageToImageMetric(nb::module_ &);
 void local_antsImageUtils(nb::module_ &);
 void local_antsTransform(nb::module_ &);
 void local_cropImage(nb::module_ &);
+void local_fitBsplineDisplacementField(nb::module_ &);
 void local_composeDisplacementFields(nb::module_ &);
 void local_fitBsplineDisplacementFieldToScatteredData(nb::module_ &);
 void local_fitBsplineObjectToScatteredData(nb::module_ &);
@@ -133,6 +135,7 @@ NB_MODULE(lib, m) {
     local_antsTransform(m);
     local_composeDisplacementFields(m);
     local_cropImage(m);
+    local_fitBsplineDisplacementField(m);
     local_fitBsplineDisplacementFieldToScatteredData(m);
     local_fitBsplineObjectToScatteredData(m);
     local_fitThinPlateSplineDisplacementFieldToScatteredData(m);

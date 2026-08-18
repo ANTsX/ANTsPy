@@ -1,31 +1,31 @@
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
 
 #include <exception>
 #include <vector>
 #include <string>
 
 #include "itkImage.h"
+#include "itkCastImageFilter.h"
 #include "itkPointSet.h"
 #include "itkDisplacementFieldToBSplineImageFilter.h"
 
 #include "antsImage.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 template<unsigned int Dimension>
-py::capsule fitBsplineVectorImageHelper(
-  py::capsule displacementField,
-  py::capsule displacementFieldWeightImage,
-  py::array_t<double> displacementOrigins,
-  py::array_t<double> displacements,
+AntsImage<itk::VectorImage<float, Dimension>> fitBsplineVectorImageHelper(
+  AntsImage<itk::VectorImage<float, Dimension>> & displacementField,
+  AntsImage<itk::Image<float, Dimension>> & displacementFieldWeightImage,
+  std::vector<std::vector<double>> displacementOrigins,
+  std::vector<std::vector<double>> displacements,
   std::vector<double> displacementWeights,
-  py::array_t<double> origin,
-  py::array_t<double> spacing,
-  py::array_t<unsigned int> size,
-  py::array_t<double> direction,
+  std::vector<double> origin,
+  std::vector<double> spacing,
+  std::vector<unsigned int> size,
+  std::vector<std::vector<double>> direction,
   unsigned int numberOfFittingLevels,
   std::vector<unsigned int> numberOfControlPoints,
   unsigned int splineOrder,
@@ -54,7 +54,7 @@ py::capsule fitBsplineVectorImageHelper(
   //  Add the inputs (if they are specified)
   //
 
-  ANTsFieldPointerType inputANTsField = as<ANTsFieldType>( displacementField );
+  ANTsFieldPointerType inputANTsField = displacementField.ptr;
 
   typename ITKFieldType::PointType fieldOrigin;
   typename ITKFieldType::SpacingType fieldSpacing;
@@ -96,13 +96,18 @@ py::capsule fitBsplineVectorImageHelper(
   using WeightImageType = typename BSplineFilterType::RealImageType;
   using WeightImagePointerType = typename WeightImageType::Pointer;
 
-  WeightImagePointerType weightImage = as<WeightImageType>( displacementFieldWeightImage );
+  using InputWeightImageType = itk::Image<RealType, Dimension>;
+  using WeightCastFilterType = itk::CastImageFilter<InputWeightImageType, WeightImageType>;
+  typename WeightCastFilterType::Pointer weightCastFilter = WeightCastFilterType::New();
+  weightCastFilter->SetInput( displacementFieldWeightImage.ptr );
+  weightCastFilter->Update();
+  WeightImagePointerType weightImage = weightCastFilter->GetOutput();
   bsplineFilter->SetConfidenceImage( weightImage );
 
-  auto displacementOriginsP = displacementOrigins.unchecked<2>();
-  auto displacementsP = displacements.unchecked<2>();
+  auto displacementOriginsP = displacementOrigins;
+  auto displacementsP = displacements;
 
-  unsigned int numberOfPoints = displacementsP.shape(0);
+  unsigned int numberOfPoints = displacementsP.size();
 
   if( numberOfPoints > 0 )
     {
@@ -115,14 +120,14 @@ py::capsule fitBsplineVectorImageHelper(
       typename PointSetType::PointType point;
       for( unsigned int d = 0; d < Dimension; d++ )
         {
-        point[d] = displacementOriginsP(n, d);
+        point[d] = displacementOriginsP[n][d];
         }
       pointSet->SetPoint( n, point );
 
       VectorType data( 0.0 );
       for( unsigned int d = 0; d < Dimension; d++ )
         {
-        data[d] = displacementsP(n, d);
+        data[d] = displacementsP[n][d];
         }
       pointSet->SetPointData( n, data );
 
@@ -137,12 +142,12 @@ py::capsule fitBsplineVectorImageHelper(
   //  Define the output B-spline field domain
   //
 
-  auto originP = origin.unchecked<1>();
-  auto spacingP = spacing.unchecked<1>();
-  auto sizeP = size.unchecked<1>();
-  auto directionP = direction.unchecked<2>();
+  auto originP = origin;
+  auto spacingP = spacing;
+  auto sizeP = size;
+  auto directionP = direction;
 
-  if( originP.shape(0) == 0 || sizeP.shape(0) == 0 || spacingP.shape(0) == 0 || directionP.shape(0) == 0 )
+  if( originP.size() == 0 || sizeP.size() == 0 || spacingP.size() == 0 || directionP.size() == 0 )
     {
     bsplineFilter->SetUseInputFieldToDefineTheBSplineDomain( true );
     }
@@ -155,12 +160,12 @@ py::capsule fitBsplineVectorImageHelper(
 
     for( unsigned int d = 0; d < Dimension; d++ )
       {
-      fieldOrigin[d] = originP(d);
-      fieldSpacing[d] = spacingP(d);
-      fieldSize[d] = sizeP(d);
+    fieldOrigin[d] = originP[d];
+    fieldSpacing[d] = spacingP[d];
+    fieldSize[d] = sizeP[d];
       for( unsigned int e = 0; e < Dimension; e++ )
         {
-        fieldDirection(d, e) = directionP(d, e);
+      fieldDirection(d, e) = directionP[d][e];
         }
       }
     bsplineFilter->SetBSplineDomain( fieldOrigin, fieldSpacing, fieldSize, fieldDirection );
@@ -206,12 +211,12 @@ py::capsule fitBsplineVectorImageHelper(
     antsField->SetPixel( ItB.GetIndex(), antsVector );
     }
 
-  return wrap< ANTsFieldType >( antsField );
+  AntsImage<ANTsFieldType> out_ants_image = { antsField };
+  return out_ants_image;
 }
 
-PYBIND11_MODULE(fitBsplineDisplacementField, m)
+void local_fitBsplineDisplacementField(nb::module_ &m)
 {
   m.def("fitBsplineDisplacementFieldD2", &fitBsplineVectorImageHelper<2>);
   m.def("fitBsplineDisplacementFieldD3", &fitBsplineVectorImageHelper<3>);
 }
-

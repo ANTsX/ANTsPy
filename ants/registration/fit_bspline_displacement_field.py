@@ -174,6 +174,7 @@ def fit_bspline_displacement_field(displacement_field=None,
 
     if displacement_origins is None:
         displacement_origins = np.empty((0, 0))
+        displacements = np.empty((0, 0))
         displacement_weights = np.empty(0)
     else:
         if displacement_weights is None:
@@ -199,4 +200,3 @@ def fit_bspline_displacement_field(displacement_field=None,
 
     bspline_displacement_field = ants.from_pointer(bspline_field).clone('float')
     return bspline_displacement_field
-
