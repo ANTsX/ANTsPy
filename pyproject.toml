@@ -11,7 +11,7 @@ version = "0.6.4"
 description = "A fast medical imaging analysis library in Python with algorithms for registration, segmentation, and more."
 license = { text = "Apache-2.0" }
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [
     { name = "Brian B. Avants", email = "stnava@gmail.com" }
 ]

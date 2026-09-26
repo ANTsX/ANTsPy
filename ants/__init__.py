@@ -1,5 +1,7 @@
 
-__version__ = '0.6.3'
+from importlib.metadata import version
+
+__version__ = version("antspyx")
 
 from .core import *
 from .label import *
