@@ -369,15 +369,25 @@ class TestModule_multivar(unittest.TestCase):
     def test_example(self):
         image = ants.image_read(ants.get_ants_data("r16"))
         image2 = ants.image_read(ants.get_ants_data("r27"))
-        demonsMetric = ["demons", image, image2, 1, 1]
-        ccMetric = ["CC", image, image2, 2, 1]
-        metrics = list()
-        metrics.append(demonsMetric)
-        reg3 = ants.registration(image, image2, "SyNOnly", multivariate_extras=metrics)
-        metrics.append(ccMetric)
-        reg2 = ants.registration(
-            image, image2, "SyNOnly", multivariate_extras=metrics, verbose=True
-        )
+        image = ants.resample_image(image, (64, 64), 1, 0)
+        image2 = ants.resample_image(image2, (64, 64), 1, 0)
+        metrics = [
+            ["demons", image, image2, 1, 1],
+            ["CC", image, image2, 2, 1],
+        ]
+        for transform in ("SyNOnly", "antsRegistrationSyNQuick[so]"):
+            for singleprecision in (True, False):
+                with self.subTest(transform=transform, singleprecision=singleprecision):
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        result = ants.registration(
+                            image, image2, transform,
+                            multivariate_extras=metrics,
+                            singleprecision=singleprecision,
+                            outprefix=os.path.join(tmpdir, "registration_"),
+                            verbose=True,
+                        )
+                        for key in ("warpedmovout", "warpedfixout"):
+                            self.assertTrue(np.isfinite(result[key].numpy()).all())
 
 class TestModule_random(unittest.TestCase):
     def setUp(self):
