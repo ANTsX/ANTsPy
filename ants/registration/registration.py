@@ -435,10 +435,17 @@ def registration(
     # tempTXfilename = tempfile( fileext = '.mat' )
     # initx = invertAntsrTransform( initialTransform )
     # initx = invertAntsrTransform( initx )
-    # writeAntsrTransform( initx, tempTXfilename )
+    # writeAntsrTransform( initx, tempTXfilename )g
     # initial_transform = tempTXfilename
     moving = moving.clone(output_pixel_type)
     fixed = fixed.clone(output_pixel_type)
+    if multivariate_extras is not None:
+        # Copy each entry to avoid modifying the caller's metrics. This local
+        # list also keeps the cloned images alive through the native call.
+        multivariate_extras = [list(metric) for metric in multivariate_extras]
+        for metric in multivariate_extras:
+            metric[1] = metric[1].clone(output_pixel_type)
+            metric[2] = metric[2].clone(output_pixel_type)
     # NOTE: this may be better for general purpose applications: TBD
 #    moving = ants.iMath( moving.clone("float"), "Normalize" )
 #    fixed = ants.iMath( fixed.clone("float"), "Normalize" )
