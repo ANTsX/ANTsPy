@@ -140,7 +140,7 @@ class TestModule_fsl2antstransform(unittest.TestCase):
 
 class TestModule_interface(unittest.TestCase):
     def setUp(self):
-        self.transform_types = {
+        self.transform_types = (
             "SyNBold",
             "SyNBoldAff",
             "ElasticSyN",
@@ -167,7 +167,7 @@ class TestModule_interface(unittest.TestCase):
             "antsRegistrationSyNQuick[s]",
             "antsRegistrationSyNRepro[s]",
             "antsRegistrationSyN[s]"
-        }
+        )
 
     def tearDown(self):
         pass
@@ -218,7 +218,7 @@ class TestModule_interface(unittest.TestCase):
         mi = ants.resample_image(mi, (60, 60), 1, 0)
 
         for ttype in self.transform_types:
-            print(ttype)
+            print(f"Testing transform type {ttype}")
             mytx = ants.registration(fixed=fi, moving=mi, type_of_transform=ttype)
 
             # with mask
