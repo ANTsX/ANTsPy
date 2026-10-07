@@ -26,7 +26,6 @@ __all__ = ['iMath',
            'iMath_fill_holes',
            'iMath_get_largest_component',
            'iMath_normalize',
-           'iMath_truncate_intensity',
            'iMath_sharpen',
            'iMath_propagate_labels_through_mask']
 
@@ -102,11 +101,18 @@ def iMath(image, operation, *args):
     if image.pixeltype != 'float':
         image = image.clone('float')
     outimage = image.clone()
-    for idx, a in enumerate(args):
-        if isinstance(a, ANTsImage) and a.pixeltype != 'float':
-            args[idx]  = a.clone('float')
-    args = [imagedim, outimage, operation, image] + [a for a in args]
-    processed_args = process_arguments(args)
+
+    # C++ calls operate on float images
+    preprocessed_args = list(args)
+    for idx, a in enumerate(preprocessed_args):
+        if isinstance(a, ANTsImage):
+            # ANTs should probably be changed to use float input consistently, but pending that change
+            # TruncateIntensity is a special case requiring an unsigned int mask
+            required_type = ("unsigned int" if operation == "TruncateIntensity" and idx == 3 else "float")
+            if a.pixeltype != required_type:
+                preprocessed_args[idx] = a.clone(required_type)
+    preprocessed_args = [imagedim, outimage, operation, image] + [a for a in preprocessed_args]
+    processed_args = process_arguments(preprocessed_args)
 
     libfn = get_lib_fn('iMath')
     imath_exit = libfn(processed_args)

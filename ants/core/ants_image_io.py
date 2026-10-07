@@ -381,6 +381,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
                 spacing=img_header.get("spacing", None),
                 direction=np.asarray(img_header.get("direction", None)),
                 has_components=img_header.get("components", 1) > 1,
+                pixeltype=pixeltype
             )
         else:
             img_header = {}

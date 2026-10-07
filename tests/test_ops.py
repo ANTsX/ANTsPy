@@ -9,14 +9,14 @@ import numpy.testing as nptest
 
 
 class Test_iMath(unittest.TestCase):
-    
-    
+
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_functions(self):
         image = ants.image_read(ants.get_data('r16'))
         ants.iMath_canny(image, sigma=2, lower=0, upper=1)
@@ -39,8 +39,21 @@ class Test_iMath(unittest.TestCase):
         ants.iMath_perona_malik(image, conductance=0.25, n_iterations=1)
         ants.iMath_sharpen(image)
         ants.iMath_truncate_intensity(image, lower_q=0.05, upper_q=0.95, n_bins=64)
-    
-    
+
+
+    def test_truncate_intensity_mask(self):
+        # Tests special handling of image types for this function and also general type conversion
+        image = ants.image_read(ants.get_data('r16'), pixeltype='unsigned char')
+        arr = image.numpy()
+        mask_arr = arr > 0
+        quantiles = np.quantile(arr[mask_arr], [0.05, 0.95])
+        mask = ants.new_image_like(image, mask_arr)
+        ants.iMath(image, 'TruncateIntensity', 0.05, 0.95, 64, mask)
+        # compare results, image.min() and image.max() should be similar to the quantiles
+        nptest.assert_allclose(image.min(), quantiles[0], rtol=1)
+        nptest.assert_allclose(image.max(), quantiles[1], rtol=1)
+
+
 class Test_slice_image(unittest.TestCase):
     """
     Test ants.ANTsImage class
@@ -58,22 +71,22 @@ class Test_slice_image(unittest.TestCase):
         image of type DOUBLE
         """
         img = ants.image_read(ants.get_ants_data('r16'))
-        
+
         img2 = ants.slice_image(img, 0, 100)
         self.assertTrue(isinstance(img2, np.ndarray))
-        
+
         img2 = ants.slice_image(img, 1, 100)
         self.assertTrue(isinstance(img2, np.ndarray))
-        
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 2, 100)
-            
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, -3, 100)
-        
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 4, 100)
-            
+
         img2 = ants.slice_image(img, -1, 100)
         img3 = ants.slice_image(img, 1, 100)
         self.assertTrue(np.allclose(img2, img3))
@@ -84,19 +97,19 @@ class Test_slice_image(unittest.TestCase):
 
         img2 = ants.slice_image(img, 0, 100)
         self.assertTrue(isinstance(img2, np.ndarray))
-        
+
         img2 = ants.slice_image(img, 1, 100)
         self.assertTrue(isinstance(img2, np.ndarray))
-        
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 2, 100)
-            
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, -3, 100)
-        
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 4, 100)
-            
+
         img2 = ants.slice_image(img, -1, 100)
         img3 = ants.slice_image(img, 1, 100)
         self.assertTrue(np.allclose(img2, img3))
@@ -108,25 +121,25 @@ class Test_slice_image(unittest.TestCase):
         image of type DOUBLE
         """
         img = ants.image_read(ants.get_ants_data('mni'))
-        
+
         img2 = ants.slice_image(img, 0, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         img2 = ants.slice_image(img, 1, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         img2 = ants.slice_image(img, 2, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         img2 = ants.slice_image(img.clone('unsigned int'), 2, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 3, 100)
-            
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 2, 100, collapse_strategy=23)
-            
+
         img2 = ants.slice_image(img, -1, 100)
         img3 = ants.slice_image(img, 2, 100)
         self.assertTrue(ants.allclose(img2, img3))
@@ -139,25 +152,25 @@ class Test_slice_image(unittest.TestCase):
         """
         img0 = ants.image_read(ants.get_ants_data('mni'))
         img = ants.merge_channels([img0,img0,img0])
-        
+
         img2 = ants.slice_image(img, 0, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         img2 = ants.slice_image(img, 1, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         img2 = ants.slice_image(img, 2, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         img2 = ants.slice_image(img.clone('unsigned int'), 2, 100)
         self.assertEqual(img2.dimension, 2)
-        
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 3, 100)
-            
+
         with self.assertRaises(Exception):
             img2 = ants.slice_image(img, 2, 100, collapse_strategy=23)
-            
+
         img2 = ants.slice_image(img, -1, 100)
         img3 = ants.slice_image(img, 2, 100)
         self.assertTrue(ants.allclose(img2, img3))
