@@ -15,7 +15,8 @@ __all__ = ['ANTsTransform',
 import numpy as np
 
 import ants
-from ants.internal import get_lib_fn, short_ptype
+from ants.internal import get_lib_fn
+from ._pixel_types import short_ptype
 
 
 class ANTsTransform(object):
@@ -179,7 +180,7 @@ class ANTsTransform(object):
         """
         if reference is None:
             reference = image.clone()
-        
+
         interpolation = interpolation.lower()
 
         tform_fn = get_lib_fn('transformImage')

@@ -32,6 +32,7 @@ __all__ = ['iMath',
 
 from ants.internal import get_lib_fn, process_arguments
 from ants.decorators import image_method
+from ants.core import ANTsImage
 
 _iMathOps = {'FillHoles',
             'GetLargestComponent',
@@ -98,13 +99,21 @@ def iMath(image, operation, *args):
         raise ValueError('Operation not recognized')
 
     imagedim = image.dimension
+    if image.pixeltype != 'float':
+        image = image.clone('float')
     outimage = image.clone()
+    for idx, a in enumerate(args):
+        if isinstance(a, ANTsImage) and a.pixeltype != 'float':
+            args[idx]  = a.clone('float')
     args = [imagedim, outimage, operation, image] + [a for a in args]
     processed_args = process_arguments(args)
 
     libfn = get_lib_fn('iMath')
-    libfn(processed_args)
+    imath_exit = libfn(processed_args)
+    if imath_exit != 0:
+        raise RuntimeError('iMath operation failed with exit code %d' % imath_exit)
     return outimage
+
 image_math = iMath
 
 

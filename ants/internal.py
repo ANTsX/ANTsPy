@@ -1,14 +1,6 @@
 import ants
 from ants import lib
 
-short_ptype_map = {"unsigned char": "UC",
-                    "unsigned int": "UI",
-                    "float": "F",
-                    "double": "D"}
-
-def short_ptype(pixeltype):
-    return short_ptype_map[pixeltype]
-
 def get_lib_fn(string):
     return getattr(lib, string)
 

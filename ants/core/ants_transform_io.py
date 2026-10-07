@@ -12,7 +12,8 @@ import os
 import numpy as np
 
 import ants
-from ants.internal import get_lib_fn, short_ptype
+from ants.internal import get_lib_fn
+from ._pixel_types import short_ptype
 
 
 def new_ants_transform(
@@ -392,7 +393,7 @@ def write_transform(transform, filename):
 def fsl2antstransform(matrix, reference, moving):
     """
     Convert an FSL linear transform to an antsrTransform
-    
+
     ANTsR function: `fsl2antsrtransform`
 
     Arguments
@@ -428,11 +429,11 @@ def fsl2antstransform(matrix, reference, moving):
         moving = moving.clone('float')
 
     libfn = get_lib_fn('fsl2antstransformF3')
-    tx_ptr = libfn(list(matrix), 
+    tx_ptr = libfn(list(matrix),
                     reference.pointer,
                     moving.pointer,
                     1)
 
-    return ants.ANTsTransform(precision='float', dimension=reference.dimension, 
+    return ants.ANTsTransform(precision='float', dimension=reference.dimension,
                              transform_type='AffineTransform', pointer=tx_ptr)
 

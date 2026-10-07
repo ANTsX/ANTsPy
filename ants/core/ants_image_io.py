@@ -21,52 +21,21 @@ import numpy as np
 import warnings
 
 import ants
-from ants.internal import get_lib_fn, short_ptype
+from ants.internal import get_lib_fn
 from ants.decorators import image_method
+from ._pixel_types import (
+    short_dtype,
+    short_ptype,
+    _supported_ptypes,
+    _supported_dtypes,
+    _unsupported_ptype_map,
+    _unsupported_dtype_map,
+    _npy_to_itk_map,
+    _itk_to_npy_map,
+)
 
 _supported_pclasses = {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
-_supported_ptypes = {"unsigned char", "unsigned int", "float", "double"}
-_supported_ntypes = {"uint8", "uint32", "float32", "float64"}
-
-# Unsupported_ptypes include "char", "unsigned short", "short", "int".
-# These will be cast if possible, ie if a mapping exists in _unsupported_ptype_map
-
-# Unsupported ntypes include "bool", "int8", "int16", "float16", "uint16", "int32", "int64", "uint64".
-# Unsupported types will be cast if possible, ie if a mapping exists in _unsupported_ntype_map
-
-_unsupported_ptype_map = {
-    "char": "float",
-    "unsigned short": "unsigned int",
-    "short": "float",
-    "int": "double",
-}
-
-_unsupported_ntype_map = {
-        "bool": "uint8",
-        "int8": "float32",
-        "int16": "float32",
-        "int32": "float64",
-        "uint16": "uint32",
-        "float16": "float32"
-}
-
 _image_type_map = {"scalar": "", "vector": "V", "rgb": "RGB", "rgba": "RGBA", "symmetric_second_rank_tensor": "SSRT" }
-_ptype_type_map = {
-    "unsigned char": "UC",
-    "unsigned int": "UI",
-    "float": "F",
-    "double": "D",
-}
-
-_ntype_type_map = {"uint8": "UC", "uint32": "UI", "float32": "F", "float64": "D"}
-# Map of supported numpy dtypes to ITK pixel types
-_npy_to_itk_map = {
-    "uint8": "unsigned char",
-    "uint32": "unsigned int",
-    "float32": "float",
-    "float64": "double",
-}
-_itk_to_npy_map = {v: k for k, v in _npy_to_itk_map.items()}
 
 _image_read_dict = {}
 for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}:
@@ -75,19 +44,22 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
         _image_read_dict[itype][p] = {}
         for d in {2, 3, 4}:
             ita = _image_type_map[itype]
-            pa = _ptype_type_map[p]
+            pa = short_ptype(p)
             _image_read_dict[itype][p][d] = "imageRead%s%s%i" % (ita, pa, d)
 
 
-def from_numpy(
-    data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False, pixeltype='float'
-):
+def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False, pixeltype=None):
     """
     Create an ANTsImage object from a numpy array
 
-    The default pixel type is 'float'. Many antspy functions and library calls use float32
-    internally, even if they return an image with the original pixel type. Therefore, it is
-    recommended to use float32 consistently.
+    The default pixel type is 'None', in which case the pixel type will be inferred from the numpy
+    data pixel type. In general, the pixel type will be retained if supported, otherwise a safe cast
+    to a supported type will be attempted. One exception to this is float64, which will be cast to
+    float32 unless pixeltype is set to 'double'.
+
+    ANTsPy mostly uses float32 for computations. Float64 is not widely supported, but is allowed
+    for :func:`ants.registration` and :func:`ants.apply_transforms`. For other operations, users
+    should scale their data so that it can be represented as float32, before calling this function.
 
     ANTsR function: `as.antsImage`
 
@@ -109,12 +81,15 @@ def from_numpy(
         whether the image has vector components.
 
     is_rgb : boolean
-        whether the image is RGB. This implies has_components=True.
+        whether the data is RGB. This implies has_components=True. Returned images always have type 'unsigned char'.
 
     pixeltype : str
-        A supported pixel type for the returned image. If None, the pixel type will be inferred from the data,
-        and an error is raised if the data cannot be safely cast to a supported type. If specified, the data
-        will be cast to the requested type, which may result in a loss of precision. Options:
+        A supported pixel type for the returned image. If None, the pixel type will be inferred from the data.
+        Where practical, the cast will be performed without loss of precision, however float64 will be cast
+        to float32 by default. Use pixeltype=double to preserve double precision.
+
+        If specified, the data will be cast to the requested type, which may result in a loss of precision.
+        Options:
             'unsigned char' or 'uint8',
             'unsigned int' or 'uint32',
             'float' or 'float32',
@@ -130,30 +105,37 @@ def from_numpy(
     >>> import ants
     >>> import numpy as np
     >>> data = np.random.rand(10, 10)
-    >>> img = from_numpy(data)
-    >>> img = ants.image_read(ants.get_ants_data("r16"))
+    >>> img = from_numpy(data) # float32
+    >>> img = ants.image_read(ants.get_ants_data("r16")) # float32
     >>> img_arr = img.numpy() # float32
-    >>> img2 = ants.from_numpy(img_arr, pixel_type="uint8")
+    >>> img2 = ants.from_numpy(img_arr, pixeltype="uint8")
     """
     if pixeltype is not None:
         requested_numpy_pixel_type = pixeltype
         if pixeltype in _itk_to_npy_map:
             requested_numpy_pixel_type = _itk_to_npy_map[pixeltype]
-        if requested_numpy_pixel_type not in _supported_ntypes:
+        if requested_numpy_pixel_type not in _supported_dtypes:
             raise ValueError(f"Unsupported pixel type: {pixeltype}")
         data = data.astype(requested_numpy_pixel_type)
     else:
         best_dtype = data.dtype.name
 
+        # Convert float64 to float32 unless user sets pixeltype
+        # This was originally intended to be temporary, but many functions now expect it
+        # numpy uses float64 extensively, many instances of unwanted promotion to float64 would
+        # occur if this was removed
+        if best_dtype == 'float64':
+            best_dtype = 'float32'
+
         # if dtype is not supported, cast to best available if possible
-        if best_dtype not in _supported_ntypes:
-            best_dtype = _unsupported_ntype_map.get(best_dtype)
+        if best_dtype not in _supported_dtypes:
+            best_dtype = _unsupported_dtype_map.get(best_dtype)
 
         if best_dtype is None:
             raise ValueError(
                 f"Cannot safely cast numpy type {data.dtype} to a supported ANTsImage pixel type. "
                 f"Convert the data array to a supported numpy type before calling this function. "
-                f"Supported types: {_supported_ntypes}"
+                f"Supported types: {_supported_dtypes}"
             )
         if best_dtype != data.dtype:
             data = data.astype(best_dtype)
@@ -177,7 +159,6 @@ def _from_numpy(
     if has_components:
         ndim -= 1
     dtype = data.dtype.name
-    ptype = _npy_to_itk_map[dtype]
 
     data = np.asarray(data)
 
@@ -188,7 +169,7 @@ def _from_numpy(
     if direction is None:
         direction = np.eye(ndim)
 
-    libfn = get_lib_fn("fromNumpy%s%i" % (_ntype_type_map[dtype], ndim))
+    libfn = get_lib_fn("fromNumpy%s%i" % (short_dtype(dtype), ndim))
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
@@ -380,7 +361,7 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
     """
     if pixeltype is not None:
         # check pixeltype is supported and convert to itk/c++ name if needed
-        if pixeltype not in _supported_ptypes and pixeltype not in _supported_ntypes:
+        if pixeltype not in _supported_ptypes and pixeltype not in _supported_dtypes:
             raise ValueError("Pixel type %s not supported!" % pixeltype)
 
         if pixeltype not in _supported_ptypes:
@@ -577,7 +558,7 @@ def clone(image, pixeltype=None):
 
     if pixeltype not in _supported_ptypes:
         # check if the pixeltype is a numpy type
-        if pixeltype in _supported_ntypes:
+        if pixeltype in _supported_dtypes:
             pixeltype =  _npy_to_itk_map[pixeltype]
         else:
             raise ValueError('Pixeltype %s not supported. Supported types are %s' % (pixeltype, _supported_ptypes))
@@ -601,7 +582,7 @@ copy = clone
 def new_image_like(image, data):
     """
     Create a new ANTsImage with the same header information, but with
-    a new image array. The new image will have 'float' pixel type.
+    a new image array.
 
     Arguments
     ---------

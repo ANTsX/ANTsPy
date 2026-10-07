@@ -78,7 +78,7 @@ def build_template(
         type_of_transform = kwargs.pop("type_of_transform")
 
     if weights is None:
-        weights = np.repeat(1.0 / len(image_list), len(image_list))
+        weights = np.repeat(np.float32(1.0 / len(image_list)), len(image_list))
     weights = [x / sum(weights) for x in weights]
     if initial_template is None:
         initial_template = image_list[0] * 0
@@ -126,7 +126,7 @@ def build_template(
             xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[wavgfn, afffn], whichtoinvert=[0, 1])
         else:
             xavg = ants.apply_transforms(fixed=xavgNew, moving=xavgNew, transformlist=[afffn], whichtoinvert=[1])
-            
+
         if blending_weight is not None:
             xavg = xavg * blending_weight + ants.iMath(xavg, "Sharpen") * (
                 1.0 - blending_weight
