@@ -129,17 +129,20 @@ class Test_bugs(unittest.TestCase):
                       'int16',
                       'int32',
                       'uint16',
-                      'float16')
+                      'float16',
+                      'float64',
+                      'int64')
         arr = np.random.randn(100,100)
 
         for dtype in all_dtypes:
             arr2 = arr.astype(dtype)
             img = ants.from_numpy(arr2)
             self.assertTrue(ants.is_image(img))
+            self.assertTrue(np.allclose(img.numpy(), arr2, rtol=1e-6))
 
         # test unsupported types
         with self.assertRaises(Exception):
-            img = ants.from_numpy(arr.astype('int64'))
+            img = ants.from_numpy(arr.astype('uint64'))
 
         img = ants.from_numpy(arr.astype('int32'), pixeltype='double')
         self.assertTrue(ants.is_image(img))

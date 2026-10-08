@@ -50,12 +50,30 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
 
 def from_numpy(data, origin=None, spacing=None, direction=None, has_components=False, is_rgb=False, pixeltype=None):
     """
-    Create an ANTsImage object from a numpy array
+    Create an ANTsImage object from a numpy array.
 
     The default pixel type is 'None', in which case the pixel type will be inferred from the numpy
-    data pixel type. In general, the pixel type will be retained if supported, otherwise a safe cast
-    to a supported type will be attempted. One exception to this is float64, which will be cast to
-    float32 unless pixeltype is set to 'double'.
+    data pixel type. In general, the pixel type will be retained if supported. One exception to this
+    is float64, which will be cast to float32 unless pixeltype is set to 'double'.
+
+    With ``pixeltype=None`` and ``is_rgb=False``, the conversions are:
+
+    ===================  ====================  ==================  ========================
+    Input NumPy dtype    Output ANTs pixeltype  Output NumPy dtype  Precision
+    ===================  ====================  ==================  ========================
+    bool                 unsigned char         uint8               Exact
+    uint8                unsigned char         uint8               Exact
+    int8                 float                 float32             Exact
+    int16                float                 float32             Exact
+    uint16               unsigned int          uint32              Exact
+    int32                float                 float32             May lose precision
+    uint32               unsigned int          uint32              Exact
+    int64                float                 float32             May lose precision
+    float16              float                 float32             Exact
+    float32              float                 float32             Unchanged
+    float64              float                 float32             May lose range/precision
+    Other (incl. uint64)  ValueError            --                  --
+    ===================  ====================  ==================  ========================
 
     ANTsPy mostly uses float32 for computations. Float64 is not widely supported, but is allowed
     for :func:`ants.registration` and :func:`ants.apply_transforms`. For other operations, users

@@ -12,9 +12,6 @@ _supported_dtypes = ("uint8", "uint32", "float32", "float64")
 # Unsupported_ptypes include "char", "unsigned short", "short", "int".
 # These will be cast if possible, ie if a mapping exists in _unsupported_ptype_map
 
-# Unsupported dtypes "int64", "uint64" will not be automatically cast using these mappings,
-# requiring users to explicitly set the pixel type
-
 _unsupported_ptype_map = {
     "char": "float",
     "unsigned short": "unsigned int",
@@ -29,6 +26,7 @@ _unsupported_dtype_map = {
         "uint16": "uint32",
         "float16": "float32",
         "int32": "float32",
+        "int64": "float32",
 }
 
 # _ptype_type_map = {
