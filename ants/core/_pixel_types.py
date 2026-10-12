@@ -55,8 +55,52 @@ _npy_to_itk_map = {
 }
 _itk_to_npy_map = {v: k for k, v in _npy_to_itk_map.items()}
 
-def short_ptype(pixeltype):
+def _short_ptype(pixeltype):
     return _short_ptype_map[pixeltype]
 
-def short_dtype(dtype):
+
+def _short_dtype(dtype):
     return _short_dtype_map[dtype]
+
+
+def _get_best_supported_dtype(input_dtype):
+    """
+    Get the supported NumPy dtype for a given input dtype. This is not a "safe" cast and takes into account
+    the internal requirements of ANTsPy.
+
+    Input NumPy dtype    Output NumPy dtype  Precision
+    ===================  ==================  ==================
+    bool                 uint8               Exact
+    uint8                uint8               Exact
+    int8                 float32             Exact
+    int16                float32             Exact
+    uint16               uint32              Exact
+    int32                float32             May lose precision
+    uint32               uint32              Exact
+    int64                float32             May lose precision
+    float16              float32             Exact
+    float32              float32             Exact
+    float64              float32             May lose range/precision
+    Other (incl. uint64) None                --
+    ===================  ==================  ===================
+
+    Args:
+        input_dtype (numpy.dtype or str): The input NumPy dtype.
+
+    Returns:
+        str: The best supported NumPy dtype as a string, or None if no supported dtype is found.
+    """
+    best_dtype = str(input_dtype)
+
+    # Convert float64 to float32
+    # This was originally intended to be temporary, but many functions now expect it
+    # numpy uses float64 extensively, many instances of unwanted promotion to float64 would
+    # occur if this was removed
+    if best_dtype == 'float64':
+        best_dtype = 'float32'
+
+    # if dtype is not supported, cast to best available if possible
+    if best_dtype not in _supported_dtypes:
+        best_dtype = _unsupported_dtype_map.get(best_dtype)
+
+    return best_dtype

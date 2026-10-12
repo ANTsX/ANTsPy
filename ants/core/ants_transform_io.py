@@ -13,7 +13,7 @@ import numpy as np
 
 import ants
 from ants.internal import get_lib_fn
-from ._pixel_types import short_ptype
+from ._pixel_types import _short_ptype
 
 
 def new_ants_transform(
@@ -34,7 +34,7 @@ def new_ants_transform(
     >>> tx = ants.new_ants_transform()
     """
     libfn = get_lib_fn(
-        "newAntsTransform%s%i" % (short_ptype(precision), dimension)
+        "newAntsTransform%s%i" % (_short_ptype(precision), dimension)
     )
     itk_tx = libfn(precision, dimension, transform_type)
     ants_tx = ants.ANTsTransform(
@@ -205,7 +205,7 @@ def create_ants_transform(
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     libfn = get_lib_fn(
-        "matrixOffset%s%i" % (short_ptype(precision), dimension)
+        "matrixOffset%s%i" % (_short_ptype(precision), dimension)
     )
     itk_tx = libfn(
         transform_type,
@@ -346,7 +346,7 @@ def read_transform(filename, precision="float"):
     transform_type = libfn2(filename)
 
     libfn3 = get_lib_fn(
-        "readTransform%s%i" % (short_ptype(precision), dimensionUse)
+        "readTransform%s%i" % (_short_ptype(precision), dimensionUse)
     )
     itk_tx = libfn3(filename, dimensionUse, precision)
 

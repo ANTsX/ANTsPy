@@ -24,8 +24,9 @@ import ants
 from ants.internal import get_lib_fn
 from ants.decorators import image_method
 from ._pixel_types import (
-    short_dtype,
-    short_ptype,
+    _get_best_supported_dtype,
+    _short_dtype,
+    _short_ptype,
     _supported_ptypes,
     _supported_dtypes,
     _unsupported_ptype_map,
@@ -44,7 +45,7 @@ for itype in {"scalar", "vector", "rgb", "rgba", "symmetric_second_rank_tensor"}
         _image_read_dict[itype][p] = {}
         for d in {2, 3, 4}:
             ita = _image_type_map[itype]
-            pa = short_ptype(p)
+            pa = _short_ptype(p)
             _image_read_dict[itype][p][d] = "imageRead%s%s%i" % (ita, pa, d)
 
 
@@ -136,27 +137,14 @@ def from_numpy(data, origin=None, spacing=None, direction=None, has_components=F
             raise ValueError(f"Unsupported pixel type: {pixeltype}")
         data = data.astype(requested_numpy_pixel_type)
     else:
-        best_dtype = data.dtype.name
-
-        # Convert float64 to float32 unless user sets pixeltype
-        # This was originally intended to be temporary, but many functions now expect it
-        # numpy uses float64 extensively, many instances of unwanted promotion to float64 would
-        # occur if this was removed
-        if best_dtype == 'float64':
-            best_dtype = 'float32'
-
-        # if dtype is not supported, cast to best available if possible
-        if best_dtype not in _supported_dtypes:
-            best_dtype = _unsupported_dtype_map.get(best_dtype)
-
+        best_dtype = _get_best_supported_dtype(data.dtype)
         if best_dtype is None:
             raise ValueError(
-                f"Cannot safely cast numpy type {data.dtype} to a supported ANTsImage pixel type. "
+                f"Cannot cast numpy type {data.dtype} to a supported ANTsImage pixel type. "
                 f"Convert the data array to a supported numpy type before calling this function. "
                 f"Supported types: {_supported_dtypes}"
             )
-        if best_dtype != data.dtype:
-            data = data.astype(best_dtype)
+        data = data.astype(best_dtype, copy=False)
 
     # Be explicit about ordering of data - needs to be C-contiguous
     img = _from_numpy(data.T.copy(order='C'), origin, spacing, direction, has_components, is_rgb)
@@ -187,7 +175,7 @@ def _from_numpy(
     if direction is None:
         direction = np.eye(ndim)
 
-    libfn = get_lib_fn("fromNumpy%s%i" % (short_dtype(dtype), ndim))
+    libfn = get_lib_fn("fromNumpy%s%i" % (_short_dtype(dtype), ndim))
 
     if not has_components:
         itk_image = libfn(data, data.shape[::-1])
@@ -587,8 +575,8 @@ def clone(image, pixeltype=None):
         comp_imgs_cloned = [comp_img.clone(pixeltype) for comp_img in comp_imgs]
         return ants.merge_channels(comp_imgs_cloned, channels_first=image.channels_first)
     else:
-        p1_short = short_ptype(image.pixeltype)
-        p2_short = short_ptype(pixeltype)
+        p1_short = _short_ptype(image.pixeltype)
+        p2_short = _short_ptype(pixeltype)
         ndim = image.dimension
         fn_suffix = '%s%i' % (p2_short,ndim)
         libfn = get_lib_fn('antsImageClone%s'%fn_suffix)
