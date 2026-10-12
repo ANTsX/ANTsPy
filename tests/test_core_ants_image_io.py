@@ -63,6 +63,57 @@ class TestModule_ants_image_io(unittest.TestCase):
         self.assertEqual(img.components, arr2d_components.shape[-1])
         nptest.assert_allclose(arr2d_components, img.numpy())
 
+    def test_from_numpy_dtypes(self):
+        # Test supported dtypes
+        arr_src = 255.0 * np.random.randn(5, 5)
+        arr_src = arr_src.astype('float32')
+
+        for dtype in ['uint8', 'uint32', 'float32', 'float64']:
+            arr = arr_src
+            if (dtype == 'uint8') or (dtype == 'uint32'):
+                arr = np.abs(arr)
+            arr = arr.astype(dtype)
+            img = ants.from_numpy(arr)
+            if dtype == 'float64':
+                # float64 is cast to float32
+                self.assertEqual(img.dtype, 'float32')
+            else:
+                self.assertEqual(img.dtype, dtype)
+
+            nptest.assert_allclose(img.numpy(), arr)
+
+        # Test unsupported dtypes that can be cast without loss of precision
+        for dtype in ['bool', 'int8', 'int16', 'int32', 'uint16', 'float16']:
+            arr = arr_src
+            if dtype == 'bool':
+                arr = arr > 0
+            elif dtype == 'uint16':
+                arr = np.abs(arr)
+            arr = arr.astype(dtype)
+
+            img = ants.from_numpy(arr)
+            expected_dtype = ants.core._pixel_types._get_best_supported_dtype(dtype)
+            self.assertEqual(img.dtype, expected_dtype)
+            nptest.assert_allclose(img.numpy(), arr.astype(expected_dtype))
+
+        # Test we can get an explictly requested supported dtype
+        for dtype in ['uint8', 'uint32', 'float32', 'float64']:
+            arr = arr_src
+            if (dtype == 'uint8') or (dtype == 'uint32'):
+                arr = np.abs(arr)
+            img = ants.from_numpy(arr, pixeltype=dtype)
+            self.assertEqual(img.dtype, dtype)
+            nptest.assert_allclose(img.numpy(), arr.astype(dtype))
+
+        # Test unsupported dtype that cannot be cast
+        with self.assertRaises(ValueError):
+            arr = np.random.randn(5, 5).astype('complex64')
+            img = ants.from_numpy(arr)
+
+        # Test unsupported explicit type
+        with self.assertRaises(ValueError):
+            img = ants.from_numpy(arr_src, pixeltype='int32')
+
     def test_make_image(self):
         self.setUp()
 

@@ -457,12 +457,15 @@ def registration(
     warpedmovout_str = get_pointer_string(warpedmovout)
     if mask is not None:
         mask_binary = mask != 0
+        # antsRegistration requires masks as unsigned char
+        mask_binary = mask_binary.clone('unsigned char')
         fixed_mask_str = get_pointer_string(mask_binary)
     else:
         fixed_mask_str = "NA"
 
     if moving_mask is not None:
         moving_mask_binary = moving_mask != 0
+        moving_mask_binary = moving_mask_binary.clone('unsigned char')
         moving_mask_str = get_pointer_string(moving_mask_binary)
     else:
         moving_mask_str = "NA"

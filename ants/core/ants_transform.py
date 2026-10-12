@@ -15,7 +15,8 @@ __all__ = ['ANTsTransform',
 import numpy as np
 
 import ants
-from ants.internal import get_lib_fn, short_ptype
+from ants.internal import get_lib_fn
+from ._pixel_types import _short_ptype
 
 
 class ANTsTransform(object):
@@ -42,13 +43,13 @@ class ANTsTransform(object):
         self.type = transform_type
 
         if pointer is None:
-            libfn = get_lib_fn('newAntsTransform%s%i' % (short_ptype(precision), dimension))
+            libfn = get_lib_fn('newAntsTransform%s%i' % (_short_ptype(precision), dimension))
             pointer = libfn(precision, dimension, transform_type)
 
         self.pointer = pointer
 
         # suffix to append to all c++ library function calls
-        self._libsuffix = '%s%i' % (short_ptype(self.precision), self.dimension)
+        self._libsuffix = '%s%i' % (_short_ptype(self.precision), self.dimension)
 
     @property
     def parameters(self):
@@ -179,7 +180,7 @@ class ANTsTransform(object):
         """
         if reference is None:
             reference = image.clone()
-        
+
         interpolation = interpolation.lower()
 
         tform_fn = get_lib_fn('transformImage')

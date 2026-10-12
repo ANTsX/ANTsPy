@@ -12,7 +12,8 @@ import os
 import numpy as np
 
 import ants
-from ants.internal import get_lib_fn, short_ptype
+from ants.internal import get_lib_fn
+from ._pixel_types import _short_ptype
 
 
 def new_ants_transform(
@@ -33,7 +34,7 @@ def new_ants_transform(
     >>> tx = ants.new_ants_transform()
     """
     libfn = get_lib_fn(
-        "newAntsTransform%s%i" % (short_ptype(precision), dimension)
+        "newAntsTransform%s%i" % (_short_ptype(precision), dimension)
     )
     itk_tx = libfn(precision, dimension, transform_type)
     ants_tx = ants.ANTsTransform(
@@ -204,7 +205,7 @@ def create_ants_transform(
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     libfn = get_lib_fn(
-        "matrixOffset%s%i" % (short_ptype(precision), dimension)
+        "matrixOffset%s%i" % (_short_ptype(precision), dimension)
     )
     itk_tx = libfn(
         transform_type,
@@ -345,7 +346,7 @@ def read_transform(filename, precision="float"):
     transform_type = libfn2(filename)
 
     libfn3 = get_lib_fn(
-        "readTransform%s%i" % (short_ptype(precision), dimensionUse)
+        "readTransform%s%i" % (_short_ptype(precision), dimensionUse)
     )
     itk_tx = libfn3(filename, dimensionUse, precision)
 
@@ -392,7 +393,7 @@ def write_transform(transform, filename):
 def fsl2antstransform(matrix, reference, moving):
     """
     Convert an FSL linear transform to an antsrTransform
-    
+
     ANTsR function: `fsl2antsrtransform`
 
     Arguments
@@ -428,11 +429,11 @@ def fsl2antstransform(matrix, reference, moving):
         moving = moving.clone('float')
 
     libfn = get_lib_fn('fsl2antstransformF3')
-    tx_ptr = libfn(list(matrix), 
+    tx_ptr = libfn(list(matrix),
                     reference.pointer,
                     moving.pointer,
                     1)
 
-    return ants.ANTsTransform(precision='float', dimension=reference.dimension, 
+    return ants.ANTsTransform(precision='float', dimension=reference.dimension,
                              transform_type='AffineTransform', pointer=tx_ptr)
 

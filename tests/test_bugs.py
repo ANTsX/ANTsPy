@@ -72,9 +72,9 @@ class Test_bugs(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data("r16"))
         image = ants.resample_image(image, (100, 100), use_voxels=True)
 
-        indices = np.meshgrid(list(range(image.shape[0])), 
+        indices = np.meshgrid(list(range(image.shape[0])),
                                 list(range(image.shape[1])))
-        indices_array = np.stack((indices[1].flatten(), 
+        indices_array = np.stack((indices[1].flatten(),
                                 indices[0].flatten()), axis=0)
 
         image_parametric_values = indices_array.transpose()
@@ -91,7 +91,7 @@ class Test_bugs(unittest.TestCase):
         for d in range(2):
             spacing[d] = (max_parametric_values[d] - min_parametric_values[d]) / (output_size[d] - 1) + bspline_epsilon
 
-        bspline_image = ants.fit_bspline_object_to_scattered_data(scattered_data, parametric_values, 
+        bspline_image = ants.fit_bspline_object_to_scattered_data(scattered_data, parametric_values,
                                                                 parametric_domain_origin=min_parametric_values - bspline_epsilon,
                                                                 parametric_domain_spacing=spacing,
                                                                 parametric_domain_size=output_size,
@@ -128,16 +128,25 @@ class Test_bugs(unittest.TestCase):
                       'int8',
                       'int16',
                       'int32',
-                      'int64',
                       'uint16',
-                      'uint64',
-                      'float16')
+                      'float16',
+                      'float64',
+                      'int64')
         arr = np.random.randn(100,100)
-        
+
         for dtype in all_dtypes:
             arr2 = arr.astype(dtype)
             img = ants.from_numpy(arr2)
             self.assertTrue(ants.is_image(img))
-        
+            self.assertTrue(np.allclose(img.numpy(), arr2, rtol=1e-6))
+
+        # test unsupported types
+        with self.assertRaises(Exception):
+            img = ants.from_numpy(arr.astype('uint64'))
+
+        img = ants.from_numpy(arr.astype('int32'), pixeltype='double')
+        self.assertTrue(ants.is_image(img))
+        self.assertTrue(img.pixeltype == 'double')
+
 if __name__ == '__main__':
     run_tests()
