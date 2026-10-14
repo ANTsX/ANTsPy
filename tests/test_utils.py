@@ -5,6 +5,9 @@ Test utils module
 import os
 import unittest
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
+
+from requests import HTTPError, Response
 
 from common import run_tests
 from copy import deepcopy
@@ -24,6 +27,34 @@ except ImportError:
     nib = None
 
 import ants
+
+
+class TestGetAntsData(unittest.TestCase):
+
+    def test_http_error_does_not_create_cached_file(self):
+        response = Response()
+        response.status_code = 404
+        response._content = b"Not Found"
+        with TemporaryDirectory() as cache_dir:
+            target = os.path.join(cache_dir, "r16.jpg")
+            with patch("requests.get", return_value=response):
+                with self.assertRaises(HTTPError):
+                    ants.get_ants_data("r16", target_file_name=target,
+                                       antsx_cache_directory=cache_dir)
+            self.assertFalse(os.path.exists(target))
+
+    def test_successful_download_writes_response_content(self):
+        response = Response()
+        response.status_code = 200
+        response._content = b"image data"
+        with TemporaryDirectory() as cache_dir:
+            target = os.path.join(cache_dir, "r16.jpg")
+            with patch("requests.get", return_value=response):
+                result = ants.get_ants_data("r16", target_file_name=target,
+                                            antsx_cache_directory=cache_dir)
+            self.assertEqual(result, target)
+            with open(target, "rb") as downloaded:
+                self.assertEqual(downloaded.read(), response.content)
 
 
 class TestModule_iMath(unittest.TestCase):

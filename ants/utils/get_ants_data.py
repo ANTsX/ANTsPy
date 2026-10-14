@@ -100,6 +100,7 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
 
     if not os.path.exists(target_file_name_path):
         r = requests.get(url)
+        r.raise_for_status()
         with open(target_file_name_path, 'wb') as f:
             f.write(r.content)
 
