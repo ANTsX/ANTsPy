@@ -1,5 +1,5 @@
 
- 
+
 
 __all__ = ['threshold_image']
 
@@ -17,23 +17,23 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0,
     ---------
     image : ANTsImage
         Input image to operate on
-    
+
     low_thresh : scalar (optional)
         Lower edge of threshold window
-    
-    hight_thresh : scalar (optional)
+
+    high_thresh : scalar (optional)
         Higher edge of threshold window
-    
+
     inval : scalar
         Output value for image voxels in between lothresh and hithresh
-    
+
     outval : scalar
         Output value for image voxels lower than lothresh or higher than hithresh
 
     binary : boolean
         if true, returns binary thresholded image
         if false, return binary thresholded image multiplied by original image
-    
+
     Returns
     -------
     ANTsImage
@@ -49,7 +49,8 @@ def threshold_image(image, low_thresh=None, high_thresh=None, inval=1, outval=0,
     if low_thresh is None:
         low_thresh = image.min() - 0.01
     dim = image.dimension
-    outimage = image.clone()
+    image = image.clone('float')
+    outimage = image.clone('float')
     args = [dim, image, outimage, low_thresh, high_thresh, inval, outval]
     processed_args = process_arguments(args)
     libfn = get_lib_fn('ThresholdImage')

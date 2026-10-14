@@ -1277,6 +1277,9 @@ def label_image_registration(fixed_label_images,
     Perform pairwise registration using fixed and moving sets of label
     images (and, optionally, sets of corresponding intensity images).
 
+    Label images will be cast to float; integer labels should be representable as float32
+    (this is true for all positive labels up to 2^24).
+
     Arguments
     ---------
     fixed_label_images : single or list of ANTsImage
@@ -1356,18 +1359,33 @@ def label_image_registration(fixed_label_images,
     # Perform validation check on the input
 
     if isinstance(fixed_label_images, ants.ANTsImage):
-        fixed_label_images = [ants.image_clone(fixed_label_images)]
+        fixed_label_images = [ants.image_clone(fixed_label_images, 'float')]
+    else:
+        fixed_label_images = [ants.image_clone(fimg, 'float') for fimg in fixed_label_images]
     if isinstance(moving_label_images, ants.ANTsImage):
-        moving_label_images = [ants.image_clone(moving_label_images)]
+        moving_label_images = [ants.image_clone(moving_label_images, 'float')]
+    else:
+        moving_label_images = [ants.image_clone(mimg, 'float') for mimg in moving_label_images]
 
     if len(fixed_label_images) != len(moving_label_images):
         raise ValueError("The number of fixed and moving label images do not match.")
 
-    if fixed_intensity_images is not None or moving_intensity_images is not None:
+    if fixed_intensity_images is not None:
+        if moving_intensity_images is None:
+            raise ValueError("If fixed_intensity_images is specified, moving_intensity_images must also be specified.")
         if isinstance(fixed_intensity_images, ants.ANTsImage):
-            fixed_intensity_images = [ants.image_clone(fixed_intensity_images)]
+            fixed_intensity_images = [ants.image_clone(fixed_intensity_images, 'float')]
+        else:
+            fixed_intensity_images = [ants.image_clone(fimg, 'float') for fimg in fixed_intensity_images]
+    if moving_intensity_images is not None:
+        if fixed_intensity_images is None:
+            raise ValueError("If moving_intensity_images is specified, fixed_intensity_images must also be specified.")
         if isinstance(moving_intensity_images, ants.ANTsImage):
-            moving_intensity_images = [ants.image_clone(moving_intensity_images)]
+            moving_intensity_images = [ants.image_clone(moving_intensity_images, 'float')]
+        else:
+            moving_intensity_images = [ants.image_clone(mimg, 'float') for mimg in moving_intensity_images]
+
+    if fixed_intensity_images is not None and moving_intensity_images is not None:
         if len(fixed_intensity_images) != len(moving_intensity_images):
             raise ValueError("The number of fixed and moving intensity images do not match.")
 
