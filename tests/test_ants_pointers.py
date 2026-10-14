@@ -88,7 +88,12 @@ class TestANTsPointers(unittest.TestCase):
 
     def test_label_clusters(self):
         # Retain threshold_image's real casts, but skip its executable as well.
-        with patch("ants.ops.threshold_image.get_lib_fn", return_value=Mock(return_value=0)):
+        # Python 3.10 patch resolves dotted targets by looking up attributes first,
+        # finding the exported threshold_image function instead of its module.
+        # Python 3.11+ uses pkgutil.resolve_name, which tries module imports first.
+        # Explicit import + patch.object works consistently on both versions.
+        module = import_module("ants.ops.threshold_image")
+        with patch.object(module, "get_lib_fn", return_value=Mock(return_value=0)):
             self.assert_pointers("ants.label.label_clusters", "LabelClustersUniquely",
                                  ["float", "float"], lambda: ants.label_clusters(self.image))
 
@@ -198,8 +203,11 @@ class TestANTsPointers(unittest.TestCase):
     def test_label_image_registration(self):
         # Geometry is tested above; avoid CSV output and linear transform fitting.
         geometry = pd.DataFrame({"Label": [1]})
+        # Explicitly import the module to avoid Python 3.10's attribute-first
+        # patch lookup (see test_label_clusters).
+        module = import_module("ants.ops.threshold_image")
         with patch.object(ants, "label_geometry_measures", return_value=geometry), \
-             patch("ants.ops.threshold_image.get_lib_fn", return_value=Mock(return_value=0)):
+             patch.object(module, "get_lib_fn", return_value=Mock(return_value=0)):
             for intensities in (self.image, [self.image, self.image]):
                 with self.subTest(multichannel=isinstance(intensities, list)):
                     count = len(intensities) if isinstance(intensities, list) else 1
