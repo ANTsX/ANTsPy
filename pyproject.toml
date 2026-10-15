@@ -42,7 +42,6 @@ minimum-version = "0.4"
 build-dir = "build/{wheel_tag}"
 
 cmake.args = []
-
 wheel.packages = ["ants"]
 
 [tool.cibuildwheel]

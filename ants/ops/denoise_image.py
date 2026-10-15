@@ -55,7 +55,7 @@ def denoise_image(image, mask=None, shrink_factor=1, p=1, r=2, noise_model="Rici
     if mask is None:
         myargs = {
             "d": mydim,
-            "i": image,
+            "i": image.clone("float"),
             "n": noise_model,
             "s": int(shrink_factor),
             "p": p,
@@ -66,7 +66,7 @@ def denoise_image(image, mask=None, shrink_factor=1, p=1, r=2, noise_model="Rici
     else:
         myargs = {
             "d": mydim,
-            "i": image,
+            "i": image.clone("float"),
             "n": noise_model,
             "x": mask.clone("unsigned char"),
             "s": int(shrink_factor),

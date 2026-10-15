@@ -97,8 +97,10 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         i = 'PriorProbabilityImages[%s,%s,%s]' % (str(len(i)), probs, str(priorweight))
 
     if isinstance(a, (list,tuple)):
+        a = [im.clone('float') for im in a]
         outimg = a[0].clone('unsigned int')
     else:
+        a = a.clone('float')
         outimg = a.clone('unsigned int')
 
     mydim = outimg.dimension

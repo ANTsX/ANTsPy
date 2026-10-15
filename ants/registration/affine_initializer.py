@@ -39,8 +39,8 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
 
     Returns
     -------
-    ndarray
-        transformation matrix
+    str
+        Path to affine transform file
 
     Example
     -------
@@ -54,10 +54,14 @@ def affine_initializer(fixed_image, moving_image, search_factor=20,
     if txfn is None:
         txfn = mktemp(suffix='.mat')
 
+    fixed_image = fixed_image.clone('float')
+    moving_image = moving_image.clone('float')
+
     veccer = [fixed_image.dimension, fixed_image, moving_image, txfn,
                 search_factor, radian_fraction, int(use_principal_axis),
                 local_search_iterations]
     if mask is not None:
+        mask = mask.clone('unsigned char')
         veccer.append(mask)
 
     xxx = process_arguments(veccer)

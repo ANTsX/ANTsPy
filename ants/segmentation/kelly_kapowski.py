@@ -64,7 +64,9 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
         s = s.clone('unsigned int')
 
     d = s.dimension
-    outimg = g.clone() * 0.0
+    g = g.clone('float')
+    w = w.clone('float')
+    outimg = g.clone('float') * 0.0
     kellargs = {'d': d,
                 's': "[{},{},{}]".format(get_pointer_string(s),gm_label,wm_label),
                 'g': g,
@@ -74,7 +76,10 @@ def kelly_kapowski(s, g, w, its=45, r=0.025, m=1.5, gm_label=2, wm_label=3, **kw
                 'm': m,
                 'o': outimg}
     for k, v in kwargs.items():
-        kellargs[k] = v
+        if ants.is_image(v):
+            kellargs[k] = v.clone('float')
+        else:
+            kellargs[k] = v
 
     processed_kellargs = process_arguments(kellargs)
 

@@ -28,6 +28,9 @@ $PYCMD test_core_ants_transform.py $@
 $PYCMD test_core_ants_transform_io.py $@
 $PYCMD test_core_ants_metric.py $@
 
+echo "Running ANTs pointer tests"
+$PYCMD test_ants_pointers.py $@
+
 echo "Running learn tests"
 $PYCMD test_learn.py $@
 

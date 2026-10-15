@@ -34,7 +34,9 @@ def label_geometry_measures(label_image, intensity_image=None):
     >>> geom = ants.label_geometry_measures(seg,fi)
     """
     if intensity_image is None:
-        intensity_image = label_image.clone()
+        intensity_image = label_image.clone('float')
+    else:
+        intensity_image = intensity_image.clone('float')
 
     outcsv = mktemp(suffix='.csv')
     # Library function requires unsigned int labels
@@ -42,7 +44,6 @@ def label_geometry_measures(label_image, intensity_image=None):
         label_image_int = label_image.clone('unsigned int')
         if not np.all(label_image.numpy() == label_image_int.numpy()):
             raise ValueError('Input label values must be representable as uint32.')
-        label_image = label_image.clone('unsigned int')
     else:
         label_image_int = label_image
     veccer = [label_image.dimension, label_image_int, intensity_image, outcsv]

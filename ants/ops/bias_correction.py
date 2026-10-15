@@ -1,5 +1,5 @@
 __all__ = ["n3_bias_field_correction",
-           "n3_bias_field_correction2", 
+           "n3_bias_field_correction2",
            "n4_bias_field_correction",
            "abp_n4"]
 
@@ -32,7 +32,10 @@ def n3_bias_field_correction(image, downsample_factor=3):
     >>> image = ants.image_read( ants.get_ants_data('r16') )
     >>> image_n3 = ants.n3_bias_field_correction(image)
     """
-    outimage = image.clone()
+    image = image.clone('float')
+    outimage = image.clone('float')
+    # This calls the positional version of the function, which accepts a mask as an additional argument.
+    # The mask is not supported in this function, but if it were, it would need to be of type 'unsigned char'
     args = [image.dimension, image, outimage, downsample_factor]
     processed_args = process_arguments(args)
     libfn = get_lib_fn("N3BiasFieldCorrection")
@@ -113,6 +116,7 @@ def n3_bias_field_correction2(
     tol = convergence["tol"]
     if mask is None:
         mask = image * 0 + 1
+    mask = mask.clone("float")
     if spline_param is None:
         spline_param = [1] * image.dimension
 
@@ -132,6 +136,7 @@ def n3_bias_field_correction2(
     if weight_mask is not None:
         if not ants.is_image(weight_mask):
             raise ValueError("Weight Image must be an antsImage")
+        weight_mask = weight_mask.clone("float")
 
     outimage = image.clone("float")
     outbiasfield = image.clone("float")
@@ -232,6 +237,7 @@ def n4_bias_field_correction(
 
     if mask is None:
         mask = image * 0 + 1
+    mask = mask.clone("float")
     if spline_param is None:
         spline_param = [1] * image.dimension
 
@@ -251,6 +257,7 @@ def n4_bias_field_correction(
     if weight_mask is not None:
         if not ants.is_image(weight_mask):
             raise ValueError("Weight Image must be an antsImage")
+        weight_mask = weight_mask.clone("float")
 
     outimage = image.clone("float")
     outbiasfield = image.clone("float")

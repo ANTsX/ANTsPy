@@ -144,6 +144,7 @@ def joint_label_fusion(
     >>> pp = ants.joint_label_fusion(ref,refmask,ilist, r_search=2, rad=[r]*ref.dimension)
     """
     segpixtype = "unsigned int"
+    target_image = target_image.clone("float")
     if (label_list is None) or (np.any([l is None for l in label_list])):
         doJif = True
     else:
@@ -244,7 +245,7 @@ def joint_label_fusion(
     kct = len(myargs.keys())
     for k in range(len(atlas_list)):
         kct += 1
-        myargs["g-MULTINAME-%i" % kct] = atlas_list[k]
+        myargs["g-MULTINAME-%i" % kct] = atlas_list[k].clone("float")
         if not doJif:
             kct += 1
             castseg = label_list[k].clone(segpixtype)
