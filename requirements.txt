@@ -1,8 +1,6 @@
 pandas
-pyyaml
 numpy
+scipy
 statsmodels
-webcolors
 matplotlib
-Pillow
 scikit-learn
