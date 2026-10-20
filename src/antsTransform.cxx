@@ -129,11 +129,8 @@ AntsTransform<TransformType> antsTransformFromDisplacementField( AntsImage<Vecto
 
 template <typename TransformType, typename VectorImageType, typename PrecisionType, unsigned int Dimension>
 AntsImage<VectorImageType> antsTransformToDisplacementField( AntsTransform<TransformType> & xfrm,
-                                                             AntsImage<itk::Image<PrecisionType, Dimension>> & ref )
+                                                             AntsImage<itk::Image<PrecisionType, Dimension>> * ref )
 {
-  //typedef itk::Transform<PrecisionType,Dimension,Dimension>                  TransformType;
-  using ImageType = typename itk::Image<PrecisionType, Dimension>;
-  using ImagePointerType = typename ImageType::Pointer;
   using TransformPointerType = typename TransformType::Pointer;
   using DisplacementFieldTransformType = typename itk::DisplacementFieldTransform<PrecisionType, VectorImageType::ImageDimension>;
   using DisplacementFieldTransformPointerType = typename DisplacementFieldTransformType::Pointer;
@@ -143,20 +140,32 @@ AntsImage<VectorImageType> antsTransformToDisplacementField( AntsTransform<Trans
   TransformPointerType itkTransform = xfrm.ptr;
   DisplacementFieldTransformPointerType warp = dynamic_cast<DisplacementFieldTransformType *>( itkTransform.GetPointer() ) ;
 
-  ImagePointerType domainImage = ref.ptr;
+  if (!warp || !warp->GetDisplacementField())
+    {
+    throw std::invalid_argument("Transform must contain a displacement field");
+    }
+  auto displacementField = warp->GetDisplacementField();
 
   typedef typename VectorImageType::Pointer VectorImagePointerType;
   VectorImagePointerType antsrField = VectorImageType::New();
-  antsrField->CopyInformation( domainImage );
-  antsrField->SetRegions( domainImage->GetLargestPossibleRegion() );
+  if (ref)
+    {
+    antsrField->CopyInformation( ref->ptr );
+    antsrField->SetRegions( ref->ptr->GetLargestPossibleRegion() );
+    }
+  else
+    {
+    antsrField->CopyInformation( displacementField );
+    antsrField->SetRegions( displacementField->GetLargestPossibleRegion() );
+    }
   antsrField->SetNumberOfComponentsPerPixel( Dimension );
   antsrField->AllocateInitialized();
 
-  typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
-  IteratorType it( domainImage, domainImage->GetLargestPossibleRegion() );
+  typedef itk::ImageRegionIteratorWithIndex<VectorImageType> IteratorType;
+  IteratorType it( antsrField, antsrField->GetLargestPossibleRegion() );
   while ( !it.IsAtEnd() )
     {
-    VectorType vec = warp->GetDisplacementField()->GetPixel( it.GetIndex() );
+    VectorType vec = displacementField->GetPixel( it.GetIndex() );
     typename VectorImageType::PixelType dvec;
     dvec.SetSize( Dimension );
     for( unsigned int i = 0; i < Dimension; i++ )
@@ -293,8 +302,8 @@ void local_antsTransform(nb::module_ &m) {
 
     m.def("antsTransformFromDisplacementField", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
     m.def("antsTransformFromDisplacementField", &antsTransformFromDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
-    m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>);
-    m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>);
+    m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,2>, itk::VectorImage<float,2>,float,2>, nb::arg("xfrm"), nb::arg("ref").none());
+    m.def("antsTransformToDisplacementField", &antsTransformToDisplacementField<itk::DisplacementFieldTransform<float,3>, itk::VectorImage<float,3>,float,3>, nb::arg("xfrm"), nb::arg("ref").none());
 
 
     nb::class_<AntsTransform<itk::DisplacementFieldTransform<float,2>>>(m, "AntsTransformDF2");

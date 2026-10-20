@@ -11,7 +11,7 @@ import os
 import unittest
 from common import run_tests
 
-from tempfile import mktemp
+from tempfile import mktemp, TemporaryDirectory
 
 import numpy as np
 import numpy.testing as nptest
@@ -129,6 +129,144 @@ class TestModule_ants_transform_io(unittest.TestCase):
     def test_catch_error(self):
         with self.assertRaises(Exception):
             ants.write_transform(123, 'test.mat')
+
+
+class TestTransformFileRoundTrips(unittest.TestCase):
+
+    def make_field(self, dimension):
+        shape = (6,) * dimension
+        indices = np.indices(shape, dtype=np.float32)
+        values = np.moveaxis(indices, 0, -1) * 0.02 + 0.1
+        direction = np.eye(dimension)
+        direction[:2, :2] = [[0, -1], [1, 0]]
+        return ants.from_numpy(values, origin=(3., -5., 7.)[:dimension],
+                               spacing=(1.5, 2., 2.5)[:dimension], direction=direction,
+                               has_components=True)
+
+    def points_in_field(self, field):
+        return [tuple(np.asarray(field.origin) + field.direction @
+                      (np.asarray(index) * field.spacing))
+                for index in [(1.,) * field.dimension, (2.5,) * field.dimension,
+                              (4.,) * field.dimension]]
+
+    def assert_mapping_equal(self, expected, actual, points):
+        self.assertEqual(actual.dimension, expected.dimension)
+        for point in points:
+            nptest.assert_allclose(actual.apply_to_point(point),
+                                   expected.apply_to_point(point), rtol=1e-6, atol=1e-5)
+
+    def test_affine_formats(self):
+        with TemporaryDirectory() as directory:
+            for dimension in (2, 3):
+                for precision in ('float', 'double'):
+                    tx = ants.create_ants_transform(
+                        dimension=dimension, precision=precision,
+                        matrix=np.diag(np.arange(dimension) * 0.1 + 0.9),
+                        translation=np.arange(dimension) + 0.5,
+                        center=np.arange(dimension) + 2.)
+                    for suffix in ('.txt', '.mat', '.h5', '.hdf5'):
+                        with self.subTest(dimension=dimension, precision=precision, suffix=suffix):
+                            path = os.path.join(directory, 'affine' + suffix)
+                            ants.write_transform(tx, path)
+                            restored = ants.read_transform(path, precision=precision)
+                            self.assertEqual(restored.type, 'AffineTransform')
+                            nptest.assert_allclose(restored.parameters, tx.parameters)
+                            nptest.assert_allclose(restored.fixed_parameters, tx.fixed_parameters)
+                            self.assert_mapping_equal(tx, restored, [(0.,) * dimension,
+                                                                    (2.,) * dimension])
+
+    def test_displacement_formats(self):
+        with TemporaryDirectory() as directory:
+            for dimension in (2, 3):
+                field = self.make_field(dimension)
+                tx = ants.transform_from_displacement_field(field)
+                points = self.points_in_field(field)
+                for suffix in ('.nii', '.nii.gz', '.h5', '.hdf5'):
+                    with self.subTest(dimension=dimension, suffix=suffix):
+                        path = os.path.join(directory, 'warp' + suffix)
+                        ants.write_transform(tx, path)
+                        restored = ants.read_transform(path)
+                        self.assert_mapping_equal(tx, restored, points)
+                        if suffix in ('.nii', '.nii.gz'):
+                            restored_field = ants.image_read(path)
+                            nptest.assert_array_equal(restored_field.numpy(), field.numpy())
+                            nptest.assert_allclose(restored_field.origin, field.origin)
+                            nptest.assert_allclose(restored_field.spacing, field.spacing)
+                            nptest.assert_allclose(restored_field.direction, field.direction)
+                            self.assertEqual(restored_field.components, dimension)
+                            self.assert_mapping_equal(
+                                tx, ants.transform_from_displacement_field(restored_field), points)
+                        else:
+                            self.assertEqual(restored.type, 'CompositeTransform')
+
+    def test_composite_hdf5(self):
+        with TemporaryDirectory() as directory:
+            for dimension in (2, 3):
+                field = self.make_field(dimension)
+                warp = ants.transform_from_displacement_field(field)
+                affine = ants.create_ants_transform(dimension=dimension,
+                                                    translation=(0.25,) * dimension)
+                composite = ants.compose_ants_transforms([affine, warp])
+                for suffix in ('.h5', '.hdf5'):
+                    with self.subTest(dimension=dimension, suffix=suffix):
+                        path = os.path.join(directory, 'composite' + suffix)
+                        ants.write_transform(composite, path)
+                        restored = ants.read_transform(path)
+                        self.assertEqual(restored.type, 'CompositeTransform')
+                        self.assert_mapping_equal(composite, restored, self.points_in_field(field))
+
+    def test_nifti_rejects_non_displacement_transforms(self):
+        affine = ants.new_ants_transform(dimension=2)
+        composite = ants.compose_ants_transforms([affine])
+        with TemporaryDirectory() as directory:
+            for tx in (affine, composite):
+                for suffix in ('.nii', '.nii.gz'):
+                    path = os.path.join(directory, 'invalid' + suffix)
+                    with self.assertRaisesRegex(ValueError, 'DisplacementFieldTransform'):
+                        ants.write_transform(tx, path)
+                    self.assertFalse(os.path.exists(path))
+
+
+class TestDisplacementFieldExtraction(unittest.TestCase):
+
+    def test_stored_geometry_and_explicit_reference(self):
+        for dimension in (2, 3):
+            with self.subTest(dimension=dimension):
+                shape = (4, 5) if dimension == 2 else (4, 5, 3)
+                values = np.arange(np.prod(shape) * dimension, dtype=np.float32)
+                values = values.reshape(shape + (dimension,)) / 10
+                direction = np.eye(dimension)
+                direction[:2, :2] = [[0, -1], [1, 0]]
+                field = ants.from_numpy(
+                    values, origin=tuple(range(2, dimension + 2)),
+                    spacing=tuple(1.5 + i for i in range(dimension)),
+                    direction=direction, has_components=True,
+                )
+                tx = ants.transform_from_displacement_field(field)
+                ref = ants.from_numpy(
+                    np.zeros(shape, dtype=np.float32), origin=field.origin,
+                    spacing=field.spacing, direction=field.direction,
+                )
+                for result in (ants.transform_to_displacement_field(tx),
+                               ants.transform_to_displacement_field(tx, None),
+                               ants.transform_to_displacement_field(tx, ref)):
+                    nptest.assert_array_equal(result.numpy(), values)
+                    self.assertEqual(result.shape, field.shape)
+                    self.assertEqual(result.components, dimension)
+                    self.assertEqual(result.pixeltype, "float")
+                    nptest.assert_allclose(result.origin, field.origin)
+                    nptest.assert_allclose(result.spacing, field.spacing)
+                    nptest.assert_allclose(result.direction, field.direction)
+
+                # Explicit references still supply geometry without resampling.
+                ref.set_origin(tuple(20 + i for i in range(dimension)))
+                result = ants.transform_to_displacement_field(tx, ref)
+                nptest.assert_allclose(result.origin, ref.origin)
+                nptest.assert_array_equal(result.numpy(), values)
+
+    def test_rejects_affine_without_reference(self):
+        with self.assertRaisesRegex(ValueError, "DisplacementFieldTransform"):
+            ants.transform_to_displacement_field(ants.new_ants_transform(dimension=2))
 
 
 if __name__ == '__main__':
