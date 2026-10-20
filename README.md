@@ -6,8 +6,6 @@
 [![ci-pytest](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-pytest.yml)
 [![ci-docker](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml/badge.svg)](https://github.com/ANTsX/ANTsPy/actions/workflows/ci-docker.yml)
 [![Coverage Status](https://coveralls.io/repos/github/ANTsX/ANTsPy/badge.svg?branch=main)](https://coveralls.io/github/ANTsX/ANTsPy?branch=main)
-<a href='http://antspyx.readthedocs.io/en/latest/?badge=latest'>
-</a>
 [![docs](https://readthedocs.org/projects/antspy/badge/?version=latest&style=flat)](https://antspy.readthedocs.io/en/latest/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/antsx/antspy.svg)](https://hub.docker.com/repository/docker/antsx/antspy)
 ![Downloads](https://img.shields.io/github/downloads/ANTsX/ANTsPy/total)
