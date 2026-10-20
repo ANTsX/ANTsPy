@@ -20,12 +20,9 @@ classifiers = [
 ]
 dependencies = [
     "pandas",
-    "pyyaml",
     "numpy",
     "statsmodels",
-    "webcolors",
     "matplotlib",
-    "Pillow",
     "requests",
     "scikit-learn"
 ]

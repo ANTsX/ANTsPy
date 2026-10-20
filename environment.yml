@@ -2,11 +2,8 @@
 name: antspy
 dependencies:
   - pandas
-  - pyyaml
   - numpy
+  - scipy
   - statsmodels
   - matplotlib
-  - Pillow
   - pip
-  - pip:
-      - webcolors
