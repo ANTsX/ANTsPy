@@ -9,9 +9,7 @@ __all__ = [
 ]
 
 import os
-from weakref import ref
 import numpy as np
-from yaml import warnings
 
 import ants
 from ants.internal import get_lib_fn
