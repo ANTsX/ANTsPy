@@ -8,10 +8,11 @@ self.assertTrue
 
 """
 
+import json
 import os
 import unittest
 from common import run_tests
-from tempfile import mktemp
+from tempfile import mktemp, TemporaryDirectory
 
 import numpy as np
 
@@ -422,6 +423,91 @@ class TestModule_ants_image_io(unittest.TestCase):
         img = ants.from_numpy(arr)
         self.assertEqual(img.shape, arr.shape)
         nptest.assert_allclose(img.numpy(), arr)
+
+class TestNumpySidecars(unittest.TestCase):
+
+    def setUp(self):
+        self.array = np.arange(24, dtype=np.float32).reshape(2, 3, 4)
+        self.header = dict(origin=(2.5, -1.0, 8.0), spacing=(0.5, 1.25, 2.0),
+                           direction=[[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+
+    def test_npy_sidecar_round_trip(self):
+        for name in ('image.npy', 'image.npy.copy.npy',
+                     'directory.npy/image.npy', 'directory.npy/image.npy.copy.npy'):
+            for has_components in (False, True):
+                with self.subTest(name=name, has_components=has_components), TemporaryDirectory() as tmp:
+                    filename = os.path.join(tmp, name)
+                    os.makedirs(os.path.dirname(filename), exist_ok=True)
+                    array = np.stack((self.array, self.array + 1), axis=-1) if has_components else self.array
+                    image = ants.from_numpy(array, has_components=has_components, **self.header)
+
+                    ants.image_write(image, filename)
+
+                    sidecar = os.path.splitext(filename)[0] + '.json'
+                    self.assertTrue(os.path.isfile(sidecar))
+                    if filename.replace('.npy', '.json') != sidecar:
+                        self.assertFalse(os.path.exists(filename.replace('.npy', '.json')))
+                    restored = ants.image_read(filename)
+                    nptest.assert_array_equal(restored.numpy(), array)
+                    self.assertEqual(restored.origin, image.origin)
+                    self.assertEqual(restored.spacing, image.spacing)
+                    nptest.assert_array_equal(restored.direction, image.direction)
+                    self.assertEqual(restored.components, image.components)
+                    self.assertEqual(restored.dtype, image.dtype)
+
+    def test_read_npy_sidecar_with_npy_in_parent_and_stem(self):
+        with TemporaryDirectory() as tmp:
+            directory = os.path.join(tmp, 'directory.npy')
+            os.mkdir(directory)
+            filename = os.path.join(directory, 'image.npy.copy.npy')
+            np.save(filename, self.array)
+            with open(os.path.join(directory, 'image.npy.copy.json'), 'w') as stream:
+                json.dump(self.header, stream)
+            wrong_directory = os.path.join(tmp, 'directory.json')
+            os.mkdir(wrong_directory)
+            with open(os.path.join(wrong_directory, 'image.json.copy.json'), 'w') as stream:
+                stream.write('not the image metadata')
+
+            restored = ants.image_read(filename)
+
+            nptest.assert_array_equal(restored.numpy(), self.array)
+            self.assertEqual(restored.origin, self.header['origin'])
+            self.assertEqual(restored.spacing, self.header['spacing'])
+            nptest.assert_array_equal(restored.direction, self.header['direction'])
+
+
+    def test_read_legacy_npy_sidecar(self):
+        for name in ('image.npy.copy.npy', 'directory.npy/image.npy.copy.npy'):
+            with self.subTest(name=name), TemporaryDirectory() as tmp:
+                filename = os.path.join(tmp, name)
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
+                np.save(filename, self.array)
+                legacy_sidecar = filename.replace('.npy', '.json')
+                os.makedirs(os.path.dirname(legacy_sidecar), exist_ok=True)
+                with open(legacy_sidecar, 'w') as stream:
+                    json.dump(self.header, stream)
+
+                restored = ants.image_read(filename)
+
+                nptest.assert_array_equal(restored.numpy(), self.array)
+                self.assertEqual(restored.origin, self.header['origin'])
+                self.assertEqual(restored.spacing, self.header['spacing'])
+                nptest.assert_array_equal(restored.direction, self.header['direction'])
+
+    def test_read_npy_without_sidecar(self):
+        for name in ('image.npy', 'directory.npy/image.npy.copy.npy'):
+            with self.subTest(name=name), TemporaryDirectory() as tmp:
+                filename = os.path.join(tmp, name)
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
+                np.save(filename, self.array)
+
+                restored = ants.image_read(filename)
+
+                nptest.assert_array_equal(restored.numpy(), self.array)
+                self.assertEqual(restored.origin, (0.0, 0.0, 0.0))
+                self.assertEqual(restored.spacing, (1.0, 1.0, 1.0))
+                nptest.assert_array_equal(restored.direction, np.eye(3))
+
 
 if __name__ == '__main__':
     run_tests()
