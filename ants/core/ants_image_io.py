@@ -18,7 +18,6 @@ __all__ = [
 import os
 import json
 import numpy as np
-import warnings
 
 import ants
 from ants.internal import get_lib_fn

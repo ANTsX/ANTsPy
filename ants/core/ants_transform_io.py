@@ -269,9 +269,12 @@ def transform_from_displacement_field(field):
     )
 
 
-def transform_to_displacement_field(xfrm, ref):
+def transform_to_displacement_field(xfrm, ref=None):
     """
-    Convert displacement field ANTsTransform to displacement field
+    Convert displacement field ANTsTransform to displacement field.
+
+    The returned displacement field is an ANTsImage, not an ANTsTransform. It can be written with ``ants.image_write`` and read
+    with ``ants.image_read``. To convert back to a transform object, use ``ants.transform_from_displacement_field``.
 
     ANTsR function: `antsrTransformToDisplacementField`
 
@@ -280,7 +283,10 @@ def transform_to_displacement_field(xfrm, ref):
     xfrm : displacement field ANTsTransform
         displacement field ANTsTransform
 
-    ref : ANTs Image
+    ref : ANTsImage, optional, deprecated.
+        Reference geometry and index region. If None, use the stored displacement
+        field geometry and region. An explicit reference copies values by index;
+        it does not resample the field.
 
     Returns
     -------
@@ -296,13 +302,20 @@ def transform_to_displacement_field(xfrm, ref):
     >>> mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
     >>> vec = ants.image_read( mytx['fwdtransforms'][0] )
     >>> atx = ants.transform_from_displacement_field( vec )
-    >>> field = ants.transform_to_displacement_field( atx, fi )
+    >>> field = ants.transform_to_displacement_field( atx )
     """
-
+    if ref is not None:
+        import warnings
+        warnings.warn(
+            "The 'ref' argument is deprecated and will be removed in a "
+            "future release. Omit it to use the transform's stored field geometry.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     if not xfrm.type == 'DisplacementFieldTransform':
         raise ValueError("Transform must be of DisplacementFieldTransform type")
     libfn = get_lib_fn("antsTransformToDisplacementField")
-    field_ptr = libfn(xfrm.pointer, ref.pointer)
+    field_ptr = libfn(xfrm.pointer, None if ref is None else ref.pointer)
     return ants.from_pointer(field_ptr)
 
 
@@ -362,6 +375,16 @@ def write_transform(transform, filename):
     """
     Write ANTsTransform to file
 
+    Matrix transforms should be saved as ".mat" files, though the legacy ".txt" format is also supported.
+
+    Displacement field transforms can be saved as image files, i.e., ".nii" or ".nii.gz" files. In this case, the transform is converted to a displacement field image, and saved as an image. To read it back, use `ants.read_transform` which will
+    convert the displacement field back to an ANTsTransform.
+
+    Affine and composite transforms can also be saved in HDF5 files (".h5" or ".hdf5").
+    Composite transforms retain their component transforms without resampling.
+    Displacement field transforms saved as HDF5 are wrapped in a single-component
+    composite transform and are read back as composites by ``ants.read_transform``.
+
     ANTsR function: `writeAntsrTransform`
 
     Arguments
@@ -385,8 +408,20 @@ def write_transform(transform, filename):
     >>> tx2 = ants.read_transform('~/desktop/tx.mat')
     """
     if not isinstance(transform, ants.ANTsTransform):
-        raise Exception('Only ANTsTransform instances can be written to file. Check that you are not passing in a filepath to a saved transform.')
+        raise Exception('Only ANTsTransform instances can be written to file. Check that you are not passing in a filepath to '
+                        'a saved transform.')
     filename = os.path.expanduser(filename)
+    if filename.endswith('.nii') or filename.endswith('.nii.gz'):
+        if not transform.type == 'DisplacementFieldTransform':
+            raise ValueError('Only DisplacementFieldTransform can be written to NIfTI format')
+        field = transform_to_displacement_field(transform)
+        ants.image_write(field, filename)
+        return
+    if filename.endswith('.h5') or filename.endswith('.hdf5'):
+        if transform.type == 'DisplacementFieldTransform':
+            # The native writer accepts generic transform wrappers, but not DF wrappers.
+            # Composition exposes the field through a supported generic wrapper.
+            transform = ants.compose_ants_transforms([transform])
     libfn = get_lib_fn("writeTransform")
     libfn(transform.pointer, filename)
 
