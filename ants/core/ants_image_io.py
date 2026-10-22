@@ -377,8 +377,9 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         img_array = np.load(filename)
         if pixeltype is not None:
             img_array = img_array.astype(_itk_to_npy_map.get(pixeltype))
-        if os.path.exists(filename.replace(".npy", ".json")):
-            with open(filename.replace(".npy", ".json")) as json_data:
+        header_filename = filename[:-4] + ".json"
+        if os.path.exists(header_filename):
+            with open(header_filename) as json_data:
                 img_header = json.load(json_data)
             ants_image = from_numpy(
                 img_array,
@@ -528,7 +529,7 @@ def image_write(image, filename, ri=False):
         }
 
         np.save(filename, img_array)
-        with open(filename.replace(".npy", ".json"), "w") as outfile:
+        with open(filename[:-4] + ".json", "w") as outfile:
             json.dump(img_header, outfile)
     else:
         image.to_file(filename)
