@@ -74,7 +74,7 @@ namespace nb = nanobind;
 using namespace nb::literals;
 
 
-template <typename TransformType> 
+template <typename TransformType>
 struct AntsTransform {
     typename TransformType::Pointer ptr;
 };
@@ -180,7 +180,12 @@ std::vector< float > transformVector( AntsTransform<TransformType> myTx, std::ve
     typedef typename TransformType::InputVectorType   InputVectorType;
     typedef typename TransformType::OutputVectorType  OutputVectorType;
 
-    TransformPointerType itkTransform = myTx.ptr; 
+    TransformPointerType itkTransform = myTx.ptr;
+
+    if ( !itkTransform->IsLinear() )
+    {
+        throw std::invalid_argument("transformToVector() is only supported for linear transforms.");
+    }
 
     InputVectorType inItkVector;
     for (unsigned int i = 0; i < InputVectorType::Dimension; i++)
@@ -203,7 +208,7 @@ template <typename TransformType, typename ReturnTransformType>
 AntsTransform<ReturnTransformType> inverseTransform( AntsTransform<TransformType> & myTx )
 {
     typedef typename TransformType::Pointer  TransformPointerType;
-    TransformPointerType itkTransform = myTx.ptr; 
+    TransformPointerType itkTransform = myTx.ptr;
 
     if ( !itkTransform->IsLinear() )
     {
@@ -216,8 +221,8 @@ AntsTransform<ReturnTransformType> inverseTransform( AntsTransform<TransformType
 }
 
 template <typename TransformType, typename ImageType>
-AntsImage<ImageType> transformImage( AntsTransform<TransformType> & myTx, 
-                            AntsImage<ImageType> & image, 
+AntsImage<ImageType> transformImage( AntsTransform<TransformType> & myTx,
+                            AntsImage<ImageType> & image,
                             AntsImage<ImageType> & ref, std::string interp)
 {
     typedef typename TransformType::Pointer          TransformPointerType;
@@ -347,8 +352,8 @@ AntsImage<ImageType> transformImage( AntsTransform<TransformType> & myTx,
 // need nb:list instead of std::vector<AntsTransform<TransformBaseType>> in order
 // to support a mix of standard itk transform and itk displacementfieldtransform types
 template <typename TransformBaseType, typename PrecisionType, unsigned int Dimension>
-AntsTransform<TransformBaseType> composeTransforms( nb::list tformlist, 
-                                                    std::string precision, 
+AntsTransform<TransformBaseType> composeTransforms( nb::list tformlist,
+                                                    std::string precision,
                                                     unsigned int dimension)
 {
     typedef typename itk::DisplacementFieldTransform<PrecisionType, Dimension> DisplacementTransformType;
@@ -360,7 +365,7 @@ AntsTransform<TransformBaseType> composeTransforms( nb::list tformlist,
 
     for ( nb::handle_t<AntsTransform<TransformBaseType>> h: tformlist )
     {
-        PyObject * a_py = h.ptr(); 
+        PyObject * a_py = h.ptr();
         AntsTransform<TransformBaseType> mytx;
         bool res = nb::try_cast<AntsTransform<TransformBaseType> &>(h, mytx);
         if (res == false) {
@@ -379,7 +384,7 @@ template <typename TransformBaseType, class PrecisionType, unsigned int Dimensio
 AntsTransform<TransformBaseType> readTransform( std::string filename, unsigned int dimension, std::string precision )
 {
     register_transforms();
-    
+
     typedef typename TransformBaseType::Pointer               TransformBasePointerType;
     typedef typename itk::CompositeTransform<PrecisionType, Dimension> CompositeTransformType;
 

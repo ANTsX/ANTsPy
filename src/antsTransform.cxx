@@ -202,6 +202,8 @@ void local_antsTransform(nb::module_ &m) {
     m.def("getTransformFixedParameters", &getTransformFixedParameters<itk::Transform<double,2, 2>>);
     m.def("getTransformFixedParameters", &getTransformFixedParameters<itk::Transform<double,3, 3>>);
     m.def("getTransformFixedParameters", &getTransformFixedParameters<itk::Transform<double,4, 4>>);
+    m.def("getTransformFixedParameters", &getTransformFixedParameters<itk::DisplacementFieldTransform<float, 2>>);
+    m.def("getTransformFixedParameters", &getTransformFixedParameters<itk::DisplacementFieldTransform<float, 3>>);
 
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<float, 2, 2>>);
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<float, 3, 3>>);
@@ -209,7 +211,8 @@ void local_antsTransform(nb::module_ &m) {
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<double,2, 2>>);
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<double,3, 3>>);
     m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::Transform<double,4, 4>>);
-
+    m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::DisplacementFieldTransform<float, 2>>);
+    m.def("setTransformFixedParameters", &setTransformFixedParameters<itk::DisplacementFieldTransform<float, 3>>);
 
     m.def("transformPoint", &transformPoint<itk::DisplacementFieldTransform<float, 2>>);
     m.def("transformPoint", &transformPoint<itk::DisplacementFieldTransform<float, 3>>);
