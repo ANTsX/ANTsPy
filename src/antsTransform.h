@@ -101,11 +101,18 @@ template <typename TransformType>
 void setTransformParameters( AntsTransform<TransformType> & myTx, std::vector<float> new_parameters )
 {
     typename TransformType::Pointer itkTransform = myTx.ptr;
+    const auto expected = itkTransform->GetNumberOfParameters();
+    if (new_parameters.size() != expected)
+    {
+        throw std::invalid_argument("Expected " + std::to_string(expected) +
+                                    " transform parameters, received " +
+                                    std::to_string(new_parameters.size()));
+    }
 
     typename TransformType::ParametersType itkParameters;
-    itkParameters.SetSize( itkTransform->GetNumberOfParameters() );
+    itkParameters.SetSize( expected );
 
-    for (unsigned int i = 0; i < itkTransform->GetNumberOfParameters(); i++)
+    for (unsigned int i = 0; i < expected; i++)
     {
         itkParameters[i] = new_parameters[i];
     }
@@ -133,11 +140,18 @@ template <typename TransformType>
 void setTransformFixedParameters( AntsTransform<TransformType>& myTx, std::vector<float> new_parameters )
 {
     typename TransformType::Pointer itkTransform = myTx.ptr;
+    const auto expected = itkTransform->GetNumberOfFixedParameters();
+    if (new_parameters.size() != expected)
+    {
+        throw std::invalid_argument("Expected " + std::to_string(expected) +
+                                    " transform fixed parameters, received " +
+                                    std::to_string(new_parameters.size()));
+    }
 
     typename TransformType::FixedParametersType itkParameters;
-    itkParameters.SetSize( itkTransform->GetNumberOfFixedParameters() );
+    itkParameters.SetSize( expected );
 
-    for (unsigned int i = 0; i < itkTransform->GetNumberOfFixedParameters(); i++)
+    for (unsigned int i = 0; i < expected; i++)
     {
         itkParameters[i] = new_parameters[i];
     }

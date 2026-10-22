@@ -320,6 +320,23 @@ class TestDisplacementFieldFixedParameters(unittest.TestCase):
                                spacing=(1.5, 2, 2.5)[:dimension],
                                direction=direction, has_components=True)
 
+    def test_invalid_fixed_parameter_lengths_preserve_field(self):
+        for dimension in (2, 3):
+            field = self.make_field(dimension)
+            tx = ants.transform_from_displacement_field(field)
+            before = tx.fixed_parameters.copy()
+            expected = len(before)
+            for received in (0, expected - 1, expected + 1):
+                with self.subTest(dimension=dimension, received=received):
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        f'^Expected {expected} transform fixed parameters, received {received}$',
+                    ):
+                        tx.set_fixed_parameters(np.zeros(received))
+                    nptest.assert_array_equal(tx.fixed_parameters, before)
+                    nptest.assert_array_equal(
+                        ants.transform_to_displacement_field(tx).numpy(), field.numpy())
+
     def test_get_fixed_parameters(self):
         for dimension in (2, 3):
             with self.subTest(dimension=dimension):
@@ -365,6 +382,41 @@ class TestDisplacementFieldFixedParameters(unittest.TestCase):
                         nptest.assert_array_equal(field.numpy(), np.zeros(shape + (dimension,)))
                         point = np.asarray(origin) + direction @ np.asarray(spacing)
                         nptest.assert_allclose(tx.apply_to_point(point), point)
+
+
+class TestTransformParameterLengths(unittest.TestCase):
+
+    def test_invalid_lengths_leave_transform_unchanged(self):
+        for dimension in (2, 3):
+            for precision in ('float', 'double'):
+                tx = ants.create_ants_transform(
+                    dimension=dimension, precision=precision,
+                    translation=(0.5,) * dimension, center=(2.,) * dimension)
+                for attribute, setter, label in (
+                    ('parameters', tx.set_parameters, 'parameters'),
+                    ('fixed_parameters', tx.set_fixed_parameters, 'fixed parameters'),
+                ):
+                    expected = len(getattr(tx, attribute))
+                    for received in (0, expected - 1, expected + 1):
+                        with self.subTest(dimension=dimension, precision=precision,
+                                          attribute=attribute, received=received):
+                            before_parameters = tx.parameters.copy()
+                            before_fixed = tx.fixed_parameters.copy()
+                            point = (1.,) * dimension
+                            before_point = tx.apply_to_point(point)
+                            with self.assertRaisesRegex(
+                                ValueError,
+                                f'^Expected {expected} transform {label}, received {received}$',
+                            ):
+                                setter(np.zeros(received))
+                            nptest.assert_array_equal(tx.parameters, before_parameters)
+                            nptest.assert_array_equal(tx.fixed_parameters, before_fixed)
+                            nptest.assert_array_equal(tx.apply_to_point(point), before_point)
+                    # Correctly sized input remains accepted after rejected calls.
+                    values = getattr(tx, attribute).copy()
+                    values[-1] += 0.25
+                    setter(values)
+                    nptest.assert_allclose(getattr(tx, attribute), values)
 
 
 if __name__ == '__main__':
