@@ -25,6 +25,7 @@ More resources:
    :caption: Package Reference
 
    core
+   npy_sidecars
    registration
    segmentation
    learn

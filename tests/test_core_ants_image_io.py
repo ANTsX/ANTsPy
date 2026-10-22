@@ -476,7 +476,7 @@ class TestNumpySidecars(unittest.TestCase):
             nptest.assert_array_equal(restored.direction, self.header['direction'])
 
 
-    def test_read_legacy_npy_sidecar(self):
+    def test_read_ignores_legacy_npy_sidecar(self):
         for name in ('image.npy.copy.npy', 'directory.npy/image.npy.copy.npy'):
             with self.subTest(name=name), TemporaryDirectory() as tmp:
                 filename = os.path.join(tmp, name)
@@ -490,9 +490,9 @@ class TestNumpySidecars(unittest.TestCase):
                 restored = ants.image_read(filename)
 
                 nptest.assert_array_equal(restored.numpy(), self.array)
-                self.assertEqual(restored.origin, self.header['origin'])
-                self.assertEqual(restored.spacing, self.header['spacing'])
-                nptest.assert_array_equal(restored.direction, self.header['direction'])
+                self.assertEqual(restored.origin, (0.0, 0.0, 0.0))
+                self.assertEqual(restored.spacing, (1.0, 1.0, 1.0))
+                nptest.assert_array_equal(restored.direction, np.eye(3))
 
     def test_read_npy_without_sidecar(self):
         for name in ('image.npy', 'directory.npy/image.npy.copy.npy'):

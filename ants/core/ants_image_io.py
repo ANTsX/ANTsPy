@@ -378,8 +378,6 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
         if pixeltype is not None:
             img_array = img_array.astype(_itk_to_npy_map.get(pixeltype))
         header_filename = filename[:-4] + ".json"
-        if not os.path.exists(header_filename):
-            header_filename = filename.replace(".npy", ".json")
         if os.path.exists(header_filename):
             with open(header_filename) as json_data:
                 img_header = json.load(json_data)
