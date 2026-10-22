@@ -1,17 +1,10 @@
-"""
-Test ants_image.py
-
-nptest.assert_allclose
-self.assertEqual
-self.assertTrue
-
-"""
+"""Check transform construction, serialization, and displacement field conversion."""
 
 import os
 import unittest
 from common import run_tests
 
-from tempfile import mktemp, TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 import numpy as np
 import numpy.testing as nptest
@@ -53,59 +46,88 @@ class TestModule_ants_transform_io(unittest.TestCase):
 
         # initialize w/ params
         tx = ants.new_ants_transform(parameters=params)
+        nptest.assert_array_equal(tx.parameters, params)
+        nptest.assert_allclose(tx.apply_to_point((1, 2, 3)), (2, 4, 6))
 
     def test_create_ants_transform(self):
         for mtype in self.matrix_offset_types:
             for ptype in {'float', 'double'}:
                 for ndim in {2, 3}:
-                    ants.create_ants_transform(transform_type=mtype, precision=ptype, dimension=ndim)
+                    with self.subTest(transform_type=mtype, precision=ptype, dimension=ndim):
+                        tx = ants.create_ants_transform(transform_type=mtype, precision=ptype, dimension=ndim)
+                        self.assertEqual(tx.type, mtype)
+                        self.assertEqual(tx.precision, ptype)
+                        expected_dimension = ndim
+                        if '2D' in mtype:
+                            expected_dimension = 2
+                        elif '3D' in mtype or mtype == 'QuaternionRigidTransform':
+                            expected_dimension = 3
+                        self.assertEqual(tx.dimension, expected_dimension)
+                        nptest.assert_allclose(tx.apply_to_point((1,) * tx.dimension),
+                                               (1,) * tx.dimension)
 
         # supported types
         tx = ants.create_ants_transform(supported_types=True)
+        self.assertEqual(tx, set(self.matrix_offset_types) | {'DisplacementFieldTransform'})
 
         # input params
         translation = (3,4,5)
         tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation )
+        nptest.assert_allclose(tx.apply_to_point((1, 2, 3)), (4, 6, 8))
 
-        #translation = np.array([3,4,5])
+        translation = np.array([3, 4, 5])
         tx = ants.create_ants_transform( transform_type='Euler3DTransform', translation=translation )
+        nptest.assert_allclose(tx.apply_to_point((1, 2, 3)), (4, 6, 8))
 
         # invalid dimension
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             ants.create_ants_transform(dimension=5)
 
         # unsupported type
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             ants.create_ants_transform(transform_type='unsupported-type')
 
         # bad param arg
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             ants.create_ants_transform( transform_type='Euler3DTransform', translation=ants.image_read(ants.get_ants_data('r16')) )
 
         # bad precision
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             ants.create_ants_transform(precision='unsigned int')
 
     def test_read_write_transform(self):
-        for tx in self.txs:
-            filename = mktemp(suffix='.mat')
-            ants.write_transform(tx, filename)
-            tx2 = ants.read_transform(filename, precision='float')
+        with TemporaryDirectory() as directory:
+            for tx in self.txs:
+                tx.set_parameters(np.r_[2 * np.eye(tx.dimension).ravel(),
+                                        np.arange(tx.dimension) + 1])
+                tx.set_fixed_parameters(np.arange(tx.dimension) + 0.5)
+                filename = os.path.join(directory, 'transform.mat')
+                ants.write_transform(tx, filename)
+                tx2 = ants.read_transform(filename, precision='float')
+                self.assertEqual(tx2.type, tx.type)
+                self.assertEqual(tx2.dimension, tx.dimension)
+                nptest.assert_allclose(tx2.parameters, tx.parameters)
+                nptest.assert_allclose(tx2.fixed_parameters, tx.fixed_parameters)
+                nptest.assert_allclose(tx2.apply_to_point(np.ones(tx.dimension)),
+                                       np.full(tx.dimension, 2.5))
 
         # file doesnt exist
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             ants.read_transform('blah-blah.mat')
 
     def test_from_displacement_components(self):
-        vec_np = np.ndarray((2,2,3), dtype=np.float32)
+        vec_np = np.zeros((2,2,3), dtype=np.float32)
         vec = ants.from_numpy(vec_np, origin=(0,0), spacing=(1,1), has_components=True)
         # should get ValueError here because the 2D vector field has 3 components
         with self.assertRaises(ValueError):
             ants.transform_from_displacement_field(vec)
-        vec_np = np.ndarray((2,2,2,3), dtype=np.float32)
+        vec_np = np.full((2,2,2,3), 0.25, dtype=np.float32)
         vec = ants.from_numpy(vec_np, origin=(0,0,0), spacing=(1,1,1), has_components=True)
         # should work here because the 3D vector field has 3 components
         tx = ants.transform_from_displacement_field(vec)
+        self.assertEqual(tx.type, 'DisplacementFieldTransform')
+        self.assertEqual(tx.dimension, 3)
+        nptest.assert_allclose(tx.apply_to_point((0.5, 0.5, 0.5)), (0.75, 0.75, 0.75))
 
     def test_from_displacement(self):
         fi = ants.image_read(ants.get_ants_data('r16') )
@@ -115,6 +137,9 @@ class TestModule_ants_transform_io(unittest.TestCase):
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
         # read transform, which calls transform_from_displacement_field
         atx = ants.read_transform( mytx['fwdtransforms'][0] )
+        self.assertEqual(atx.type, 'DisplacementFieldTransform')
+        expected = ants.image_read(mytx['fwdtransforms'][0])
+        nptest.assert_allclose(ants.transform_to_displacement_field(atx).numpy(), expected.numpy())
 
     def test_to_displacement(self):
         fi = ants.image_read(ants.get_ants_data('r16') )
@@ -124,10 +149,16 @@ class TestModule_ants_transform_io(unittest.TestCase):
         mytx = ants.registration(fixed=fi, moving=mi, type_of_transform = ('SyN') )
         vec = ants.image_read( mytx['fwdtransforms'][0] )
         atx = ants.transform_from_displacement_field( vec )
-        field = ants.transform_to_displacement_field( atx, fi )
+        with self.assertWarnsRegex(DeprecationWarning, "ref.*deprecated"):
+            field = ants.transform_to_displacement_field(atx, fi)
+        nptest.assert_allclose(field.numpy(), vec.numpy())
+        nptest.assert_allclose(field.origin, fi.origin)
+        nptest.assert_allclose(field.spacing, fi.spacing)
+        nptest.assert_allclose(field.direction, fi.direction)
+        self.assertEqual(field.shape, fi.shape)
 
     def test_catch_error(self):
-        with self.assertRaises(Exception):
+        with self.assertRaisesRegex(Exception, 'Only ANTsTransform instances'):
             ants.write_transform(123, 'test.mat')
 
 
@@ -247,9 +278,11 @@ class TestDisplacementFieldExtraction(unittest.TestCase):
                     np.zeros(shape, dtype=np.float32), origin=field.origin,
                     spacing=field.spacing, direction=field.direction,
                 )
+                with self.assertWarnsRegex(DeprecationWarning, "ref.*deprecated"):
+                    field_with_reference = ants.transform_to_displacement_field(tx, ref)
                 for result in (ants.transform_to_displacement_field(tx),
                                ants.transform_to_displacement_field(tx, None),
-                               ants.transform_to_displacement_field(tx, ref)):
+                               field_with_reference):
                     nptest.assert_array_equal(result.numpy(), values)
                     self.assertEqual(result.shape, field.shape)
                     self.assertEqual(result.components, dimension)
@@ -260,7 +293,8 @@ class TestDisplacementFieldExtraction(unittest.TestCase):
 
                 # Explicit references still supply geometry without resampling.
                 ref.set_origin(tuple(20 + i for i in range(dimension)))
-                result = ants.transform_to_displacement_field(tx, ref)
+                with self.assertWarnsRegex(DeprecationWarning, "ref.*deprecated"):
+                    result = ants.transform_to_displacement_field(tx, ref)
                 nptest.assert_allclose(result.origin, ref.origin)
                 nptest.assert_array_equal(result.numpy(), values)
 

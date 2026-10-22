@@ -54,11 +54,15 @@ class ANTsTransform(object):
     @property
     def parameters(self):
         """ Get parameters of transform """
+        if self.transform_type == "DisplacementFieldTransform":
+            raise NotImplementedError('parameters property is not supported for DisplacementFieldTransform. Use ants.transform_to_displacement_field() to get the displacement field as ANTsImage.')
         libfn = get_lib_fn('getTransformParameters')
         return np.asarray(libfn(self.pointer), order='F')#.reshape((self.dimension, self.dimension+1), order='F')
 
     def set_parameters(self, parameters):
         """ Set parameters of transform """
+        if self.transform_type == "DisplacementFieldTransform":
+            raise NotImplementedError('parameters property is not supported for DisplacementFieldTransform. Use ants.transform_from_displacement_field() to create a new transform from a displacement field.')
         if not isinstance(parameters, np.ndarray):
             parameters = np.asarray(parameters)
 
@@ -85,6 +89,10 @@ class ANTsTransform(object):
 
     def invert(self):
         """ Invert the transform """
+        if self.transform_type == "DisplacementFieldTransform":
+            # raise error here because there's no C++ binding for this transform type
+            raise NotImplementedError("invert() is only supported for linear transforms.")
+        # Other nonlinear transforms will throw an exception in the C++ code if they are not invertible
         libfn = get_lib_fn('inverseTransform')
         inv_tx_ptr = libfn(self.pointer)
 
@@ -142,6 +150,10 @@ class ANTsTransform(object):
         -------
         list : transformed vector
         """
+        if self.transform_type == "DisplacementFieldTransform":
+            # raise error here because there's no C++ binding for this transform type
+            raise NotImplementedError("apply_to_vector() is only supported for linear transforms.")
+        # Other nonlinear transforms will produce a similar error message in the C++ code
         if isinstance(vector, np.ndarray):
             vector = vector.tolist()
 
