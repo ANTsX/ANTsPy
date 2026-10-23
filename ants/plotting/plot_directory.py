@@ -90,10 +90,9 @@ def plot_directory(
         for fname in fnames:
             if fnmatch.fnmatch(fname, regex) and has_acceptable_suffix(fname):
                 load_fname = os.path.join(root, fname)
-                fname = fname.replace(".".join(fname.split(".")[1:]), "png")
-                fname = fname.replace(".png", "%s.png" % save_suffix)
-                fname = "%s%s" % (save_prefix, fname)
-                save_fname = os.path.join(root, fname)
+                stem = fname[:-len(".nii.gz")]
+                save_stem = os.path.join(root, "%s%s%s" % (save_prefix, stem, save_suffix))
+                save_fname = save_stem + ".png"
                 img = ants.image_read(load_fname)
 
                 if axis is None:
@@ -103,7 +102,7 @@ def plot_directory(
 
                 if img.dimension > 2:
                     for axis_idx in axis_range:
-                        filename = save_fname.replace(".png", "_axis%i.png" % axis_idx)
+                        filename = save_stem + "_axis%i.png" % axis_idx
                         ncol = int(math.sqrt(img.shape[axis_idx]))
                         ants.plot(
                             img,
