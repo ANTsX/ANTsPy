@@ -201,7 +201,7 @@ def create_ants_transform(
     if displacement_field is not None:
         # raise ValueError('Displacement field transform not currently supported')
         itk_tx = transform_from_displacement_field(displacement_field)
-        return ants.ants_transform(itk_tx)
+        return itk_tx
 
     # Transforms that derive from itk::MatrixOffsetTransformBase
     libfn = get_lib_fn(

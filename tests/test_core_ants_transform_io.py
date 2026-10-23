@@ -162,6 +162,53 @@ class TestModule_ants_transform_io(unittest.TestCase):
             ants.write_transform(123, 'test.mat')
 
 
+class TestCreateTransformFromDisplacementField(unittest.TestCase):
+
+    def test_constant_displacement_fields(self):
+        for dimension in (2, 3):
+            with self.subTest(dimension=dimension):
+                values = np.full((4,) * dimension + (dimension,),
+                                 0.25, dtype=np.float32)
+                field = ants.from_numpy(values, has_components=True)
+                expected = ants.transform_from_displacement_field(field)
+                transform = ants.create_ants_transform(
+                    displacement_field=field, dimension=dimension)
+
+                self.assertIsInstance(transform, ants.ANTsTransform)
+                self.assertEqual(transform.type, 'DisplacementFieldTransform')
+                self.assertEqual(transform.dimension, dimension)
+                self.assertEqual(transform.precision, expected.precision)
+                point = (1.0,) * dimension
+                nptest.assert_allclose(transform.apply_to_point(point),
+                                       (1.25,) * dimension)
+                nptest.assert_allclose(transform.apply_to_point(point),
+                                       expected.apply_to_point(point))
+                nptest.assert_array_equal(field.numpy(), values)
+
+    def test_invalid_displacement_fields(self):
+        for dimension, components in ((2, 3), (3, 2), (4, 4)):
+            with self.subTest(dimension=dimension, components=components):
+                field = ants.from_numpy(
+                    np.zeros((2,) * dimension + (components,), dtype=np.float32),
+                    has_components=True)
+                with self.assertRaises(ValueError):
+                    ants.create_ants_transform(
+                        displacement_field=field, dimension=dimension)
+
+    def test_affine_precision_and_translation(self):
+        for dimension in (2, 3):
+            for precision in ('float', 'double'):
+                with self.subTest(dimension=dimension, precision=precision):
+                    transform = ants.create_ants_transform(
+                        dimension=dimension, precision=precision,
+                        translation=(0.25,) * dimension)
+                    self.assertEqual(transform.type, 'AffineTransform')
+                    self.assertEqual(transform.precision, precision)
+                    nptest.assert_allclose(
+                        transform.apply_to_point((1.0,) * dimension),
+                        (1.25,) * dimension)
+
+
 class TestTransformFileRoundTrips(unittest.TestCase):
 
     def make_field(self, dimension):
