@@ -57,6 +57,68 @@ class TestGetAntsData(unittest.TestCase):
                 self.assertEqual(downloaded.read(), response.content)
 
 
+    def test_default_file_names_use_cache_directory(self):
+        for file_id, filename in (('r16', 'r16slice.jpg'), ('mni', 'mni.nii.gz'),
+                                  ('pcasl', 'pcasl.nii.gz')):
+            for trailing_separator in (False, True):
+                with self.subTest(file_id=file_id, trailing_separator=trailing_separator):
+                    with TemporaryDirectory() as directory:
+                        cache_dir = os.path.join(directory, 'cache')
+                        requested_cache = cache_dir + os.sep if trailing_separator else cache_dir
+                        response = Response()
+                        response.status_code = 200
+                        response._content = b'image data'
+                        with patch('requests.get', return_value=response) as get:
+                            result = ants.get_ants_data(
+                                file_id, antsx_cache_directory=requested_cache)
+                        self.assertEqual(result, os.path.join(cache_dir, filename))
+                        get.assert_called_once()
+                        with open(result, 'rb') as downloaded:
+                            self.assertEqual(downloaded.read(), response.content)
+                        self.assertFalse(os.path.exists(os.path.join(directory, 'cache' + filename)))
+
+    def test_existing_default_file_skips_download(self):
+        for file_id, filename in (('r16', 'r16slice.jpg'), ('mni', 'mni.nii.gz'),
+                                  ('pcasl', 'pcasl.nii.gz')):
+            for trailing_separator in (False, True):
+                with self.subTest(file_id=file_id, trailing_separator=trailing_separator):
+                    with TemporaryDirectory() as directory:
+                        cache_dir = os.path.join(directory, 'cache')
+                        os.mkdir(cache_dir)
+                        target = os.path.join(cache_dir, filename)
+                        with open(target, 'wb') as cached:
+                            cached.write(b'cached image data')
+                        requested_cache = cache_dir + os.sep if trailing_separator else cache_dir
+                        with patch('requests.get', side_effect=AssertionError('Unexpected download')) as get:
+                            result = ants.get_ants_data(
+                                file_id, antsx_cache_directory=requested_cache)
+                        get.assert_not_called()
+                        self.assertEqual(result, target)
+                        with open(result, 'rb') as cached:
+                            self.assertEqual(cached.read(), b'cached image data')
+
+    def test_explicit_target_overrides_cache_directory(self):
+        for file_id in ('r16', 'mni', 'pcasl'):
+            with self.subTest(file_id=file_id):
+                with TemporaryDirectory() as directory:
+                    cache_dir = os.path.join(directory, 'cache')
+                    target = os.path.join(directory, 'explicit-image.bin')
+                    response = Response()
+                    response.status_code = 200
+                    response._content = b'explicit image data'
+                    with patch('requests.get', return_value=response) as get:
+                        first = ants.get_ants_data(
+                            file_id, target_file_name=target, antsx_cache_directory=cache_dir)
+                        second = ants.get_ants_data(
+                            file_id, target_file_name=target, antsx_cache_directory=cache_dir)
+                    get.assert_called_once()
+                    self.assertEqual(first, target)
+                    self.assertEqual(second, target)
+                    with open(target, 'rb') as downloaded:
+                        self.assertEqual(downloaded.read(), response.content)
+                    self.assertEqual(os.listdir(cache_dir), [])
+
+
 class TestModule_iMath(unittest.TestCase):
 
     def setUp(self):
