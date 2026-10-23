@@ -721,6 +721,15 @@ class TestModule_mask_image(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_mask_image_numpy_scalar_levels(self):
+        image = ants.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
+        mask = ants.from_numpy(np.array([[1, 2], [1, 0]], dtype=np.float32))
+
+        for level in (np.int64(1), np.float32(1)):
+            with self.subTest(level_type=type(level).__name__):
+                result = ants.mask_image(image, mask, level=level)
+                nptest.assert_array_equal(result.numpy(), [[1, 0], [3, 0]])
+
     def test_mask_image_example(self):
         myimage = ants.image_read(ants.get_ants_data("r16"))
         mask = ants.get_mask(myimage)

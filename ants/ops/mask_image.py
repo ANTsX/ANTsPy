@@ -44,7 +44,7 @@ def mask_image(image, mask, level=1, binarize=False):
     leveluse = level
     if type(leveluse) is np.ndarray:
         leveluse = level.tolist()
-    if type(leveluse) is int or type(leveluse) is float:
+    if np.isscalar(leveluse):
         leveluse = [level]
     image_out = image.clone() * 0
     mask_float = ants.image_clone(mask, 'float')
