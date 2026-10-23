@@ -1,5 +1,6 @@
 import ants
 from ants import lib
+import numpy as np
 
 def get_lib_fn(string):
     return getattr(lib, string)
@@ -51,3 +52,11 @@ def process_arguments(args):
                 p_arg = str(arg)
             p_args.append(p_arg)
     return p_args
+
+def is_real_scalar(value):
+    '''
+    Check if a value is a real scalar (int or float, but not bool). Works for both Python built-in types and NumPy scalar types.
+    '''
+    return (
+        isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_))
+    )
