@@ -82,15 +82,15 @@ def get_data(file_id=None, target_file_name=None, antsx_cache_directory=None):
 
     if target_file_name == None:
         if file_id == "pcasl":
-            target_file_name = antsx_cache_directory + "pcasl.nii.gz"
+            target_file_name = os.path.join(antsx_cache_directory, "pcasl.nii.gz")
         else:
             extension = ".jpg"
             if file_id == "ch2" or file_id == "mni" or file_id == "surf":
                 extension = ".nii.gz"
             if extension == ".jpg":
-                target_file_name = antsx_cache_directory + file_id + "slice" + extension
+                target_file_name = os.path.join(antsx_cache_directory, file_id + "slice" + extension)
             else:
-                target_file_name = antsx_cache_directory + file_id + extension
+                target_file_name = os.path.join(antsx_cache_directory, file_id + extension)
 
     target_file_name_path = target_file_name
     if target_file_name == None:
