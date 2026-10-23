@@ -179,7 +179,6 @@ def joint_label_fusion(
 
 #    osegfn = NamedTemporaryFile(prefix="antsr", suffix="myseg.nii.gz",delete=False).name
     osegfn = mktemp(prefix="antsr", suffix="myseg.nii.gz")
-    # segdir = osegfn.replace(os.path.basename(osegfn),'')
 
     if os.path.exists(osegfn):
         os.remove(osegfn)
@@ -188,7 +187,7 @@ def joint_label_fusion(
 #        probs = NamedTemporaryFile(prefix="antsr", suffix="prob%02d.nii.gz",delete=False).name
         probs = mktemp(prefix="antsr", suffix="prob%02d.nii.gz")
         probsbase = os.path.basename(probs)
-        tdir = probs.replace(probsbase, "")
+        tdir = os.path.dirname(probs)
         searchpattern = probsbase.replace("%02d", "*")
 
     if output_prefix is not None:
@@ -196,7 +195,7 @@ def joint_label_fusion(
         probpath = Path(probs).parent
         Path(probpath).mkdir(parents=True, exist_ok=True)
         probsbase = os.path.basename(probs)
-        tdir = probs.replace(probsbase, "")
+        tdir = os.path.dirname(probs)
         searchpattern = probsbase.replace("%02d", "*")
 
     mydim = target_image_mask.dimension

@@ -81,7 +81,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
     >>> seg2 = ants.atropos( a = img, m = '[0.2,1x1]', c = '[2,0]', i = seg['probabilityimages'], x = mask, priorweight=0.25 )
     """
     probs = mktemp(prefix='antsr', suffix='prob%02d.nii.gz')
-    tdir = probs.replace(os.path.basename(probs),'')
+    tdir = os.path.dirname(probs)
     probsbase = os.path.basename(probs)
     searchpattern = probsbase.replace('%02d', '*')
 
@@ -91,7 +91,7 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
             probchar = str(ct+1)
             if ct < 9:
                 probchar = '0%s' % probchar
-            tempfn = probs.replace('%02d', probchar)
+            tempfn = os.path.join(tdir, probsbase.replace('%02d', probchar))
             ants.image_write(i[ct], tempfn)
             ct += 1
         i = 'PriorProbabilityImages[%s,%s,%s]' % (str(len(i)), probs, str(priorweight))

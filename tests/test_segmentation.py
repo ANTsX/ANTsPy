@@ -28,14 +28,51 @@ class TestModule_geo_seg(unittest.TestCase):
 
 
 import os
+import importlib
 import unittest
 from common import run_tests
-from tempfile import mktemp
+from tempfile import mktemp, TemporaryDirectory
+from unittest.mock import Mock, patch
 
 import numpy as np
 import numpy.testing as nptest
 
 import ants
+
+class TestSegmentationFilenames(unittest.TestCase):
+
+    def test_atropos_prior_preserves_placeholder_in_directory(self):
+        module = importlib.import_module('ants.segmentation.atropos')
+        image = ants.from_numpy(np.ones((4, 4), dtype=np.float32))
+        with TemporaryDirectory(suffix='%02d') as directory:
+            template = os.path.join(directory, 'antsrtestprob%02d.nii.gz')
+            native = Mock(return_value=0)
+            with patch.object(module, 'mktemp', return_value=template), \
+                    patch.object(module, 'get_lib_fn', return_value=native):
+                result = ants.atropos(image, image, i=[image, image])
+            native.assert_called_once()
+            for number in (1, 2):
+                self.assertTrue(os.path.isfile(os.path.join(
+                    directory, 'antsrtestprob%02d.nii.gz' % number)))
+            self.assertEqual(len(result['probabilityimages']), 2)
+
+    def test_joint_fusion_preserves_basename_in_directory(self):
+        module = importlib.import_module('ants.segmentation.joint_label_fusion')
+        image = ants.from_numpy(np.ones((4, 4), dtype=np.float32))
+        with TemporaryDirectory() as directory:
+            output_directory = os.path.join(directory, 'prob%02d.nii.gz', 'run')
+            os.makedirs(output_directory)
+            for number in (1, 2):
+                ants.image_write(image, os.path.join(output_directory, 'prob%02d.nii.gz' % number))
+            native = Mock(return_value=0)
+            with patch.object(module, 'get_lib_fn', return_value=native):
+                result = ants.joint_label_fusion(
+                    image, image, [image, image], label_list=[image, image * 2],
+                    output_prefix=output_directory + os.sep)
+            native.assert_called_once()
+            self.assertEqual(len(result['probabilityimages']), 2)
+            self.assertEqual(result['segmentation_numbers'], [1, 2])
+
 
 class TestModule_atropos(unittest.TestCase):
 

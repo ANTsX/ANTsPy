@@ -9,7 +9,8 @@ self.assertTrue
 import os
 import unittest
 from common import run_tests
-from tempfile import mktemp
+from tempfile import mktemp, TemporaryDirectory
+from unittest.mock import patch
 
 # Prevent displaying figures
 import matplotlib as mpl
@@ -20,6 +21,31 @@ import numpy as np
 import numpy.testing as nptest
 
 import ants
+
+
+class TestPlotDirectoryFilenames(unittest.TestCase):
+
+    def test_preserves_directory_stem_prefix_and_suffix(self):
+        with TemporaryDirectory(suffix='.png') as directory:
+            for dimension in (2, 3):
+                image = ants.from_numpy(np.ones((4,) * dimension, dtype=np.float32))
+                for stem in ('subject', 'subject.session', 'subject.npy.copy',
+                             'subject.png.copy', 'nii.gz'):
+                    with self.subTest(dimension=dimension, stem=stem):
+                        filename = os.path.join(directory, stem + '.nii.gz')
+                        ants.image_write(image, filename)
+                        try:
+                            with patch.object(ants, 'plot') as plot:
+                                ants.plot_directory(directory, regex=stem + '.nii.gz',
+                                                    save_prefix='qc.png_',
+                                                    save_suffix='.png_review', axis=0)
+                            axis_suffix = '_axis0' if dimension == 3 else ''
+                            expected = os.path.join(directory, 'qc.png_' + stem +
+                                                    '.png_review' + axis_suffix + '.png')
+                            plot.assert_called_once()
+                            self.assertEqual(plot.call_args.kwargs['filename'], expected)
+                        finally:
+                            os.remove(filename)
 
 
 class TestModule_plot(unittest.TestCase):
