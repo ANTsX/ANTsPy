@@ -721,6 +721,44 @@ class TestModule_mask_image(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def assert_single_level_output(self, level):
+        values = np.array([[1, 2], [3, 4]], dtype=np.float32)
+        labels = np.array([[1, 2], [1, 0]], dtype=np.float32)
+        geometry = dict(origin=(2.5, -1.0), spacing=(1.5, 2.0),
+                        direction=np.array([[0., -1.], [1., 0.]]))
+        image = ants.from_numpy(values, **geometry)
+        mask = ants.from_numpy(labels, **geometry)
+        for binarize in (False, True):
+            with self.subTest(binarize=binarize):
+                result = ants.mask_image(image, mask, level=level, binarize=binarize)
+                expected = [[1, 0], [1, 0]] if binarize else [[1, 0], [3, 0]]
+                nptest.assert_array_equal(result.numpy(), expected)
+                self.assertEqual(result.origin, image.origin)
+                self.assertEqual(result.spacing, image.spacing)
+                nptest.assert_array_equal(result.direction, image.direction)
+                nptest.assert_array_equal(image.numpy(), values)
+                nptest.assert_array_equal(mask.numpy(), labels)
+
+    def test_numpy_numeric_scalar_levels(self):
+        for scalar_type in (np.int32, np.int64, np.uint32, np.uint64,
+                            np.float32, np.float64):
+            with self.subTest(scalar_type=scalar_type.__name__):
+                self.assert_single_level_output(scalar_type(1))
+
+    def test_scalar_and_sequence_level_controls(self):
+        for level in (1, 1.0, np.array(1), np.array(1.0), [1], (1,), np.array([1])):
+            with self.subTest(level=repr(level)):
+                self.assert_single_level_output(level)
+
+    def test_numpy_scalar_level_image_method(self):
+        image = ants.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
+        mask = ants.from_numpy(np.array([[1, 2], [1, 0]], dtype=np.float32))
+        for binarize in (False, True):
+            with self.subTest(binarize=binarize):
+                result = image.mask_image(mask, level=np.int64(1), binarize=binarize)
+                expected = [[1, 0], [1, 0]] if binarize else [[1, 0], [3, 0]]
+                nptest.assert_array_equal(result.numpy(), expected)
+
     def test_mask_image_example(self):
         myimage = ants.image_read(ants.get_ants_data("r16"))
         mask = ants.get_mask(myimage)
