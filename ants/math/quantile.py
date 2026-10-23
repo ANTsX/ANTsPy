@@ -201,7 +201,22 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
 def quantile(image, q, nonzero=True):
     """
     Get the quantile values from an ANTsImage
-    
+
+    Parameters
+    ----------
+    image : ANTsImage
+        Input image.
+    q : float or tuple of floats
+        Quantile(s) to compute. Either between 0 and 1 for quantiles, or between 0 and 100 for percentiles.
+        Input is treated as quantiles if all values are between 0 and 1, otherwise as percentiles.
+    nonzero : bool
+        If True, only consider non-zero values in the computation.
+
+    Returns
+    -------
+    float or tuple of floats
+        The computed quantile(s).
+
     Examples
     --------
     >>> img = ants.image_read(ants.get_data('r16'))
@@ -209,18 +224,21 @@ def quantile(image, q, nonzero=True):
     >>> ants.quantile(img, (0.5, 0.75))
     """
     img_arr = image.numpy()
+    if nonzero:
+        img_arr = img_arr[img_arr!=0]
     if isinstance(q, (list,tuple)):
-        q = [qq*100. if qq <= 1. else qq for qq in q]
-        if nonzero:
-            img_arr = img_arr[img_arr>0]
+        if all(qq <= 1. for qq in q):
+            q = [qq*100. for qq in q]
+        if any(qq < 0. or qq > 100. for qq in q):
+            raise ValueError('Quantiles must be between 0 and 1 or percentiles between 0 and 100')
         vals = [np.percentile(img_arr, qq) for qq in q]
         return tuple(vals)
     elif isinstance(q, (float,int)):
         if q <= 1.:
             q = q*100.
-        if nonzero:
-            img_arr = img_arr[img_arr>0]
-        return np.percentile(img_arr[img_arr>0], q)
+        if q < 0. or q > 100.:
+            raise ValueError('Quantiles must be between 0 and 1 or percentiles between 0 and 100')
+        return np.percentile(img_arr, q)
     else:
         raise ValueError('q argument must be list/tuple or float/int')
 

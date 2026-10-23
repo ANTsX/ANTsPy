@@ -1033,6 +1033,47 @@ class TestRandom(unittest.TestCase):
         ants.quantile(img, 0.5)
         ants.quantile(img, (0.5, 0.75))
 
+    def test_quantile_mixed_scale_input_uses_percentiles(self):
+        values = np.arange(1, 101, dtype=np.float32).reshape(10, 10)
+        image = ants.from_numpy(values)
+        for q in ((0.5, 1, 10), [0.5, 1, 10]):
+            with self.subTest(q=q):
+                result = ants.quantile(image, q)
+                nptest.assert_allclose(result, np.percentile(values, q))
+
+    def test_quantile_unit_interval_input_uses_quantiles(self):
+        values = np.arange(1, 101, dtype=np.float32).reshape(10, 10)
+        image = ants.from_numpy(values)
+        for q in ((0, 0.5, 1), [0, 0.5, 1]):
+            with self.subTest(q=q):
+                result = ants.quantile(image, q)
+                nptest.assert_allclose(result, np.quantile(values, q))
+
+    def test_quantile_out_of_bounds(self):
+        image = ants.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
+        for q in (-0.1, 100.1, (-0.1, 0.5), [0.5, -0.1],
+                  (-1, 50), [50, -1], (50, 100.1), [100.1, 50]):
+            with self.subTest(q=q):
+                with self.assertRaises(ValueError):
+                    ants.quantile(image, q)
+
+    def test_quantile_percentile_boundaries(self):
+        image = ants.from_numpy(np.array([[1, 2], [3, 4]], dtype=np.float32))
+        for q, expected in ((0, 1), (1, 4), (100, 4),
+                            ((0, 100), (1, 4)), ([0, 100], (1, 4))):
+            with self.subTest(q=q):
+                nptest.assert_allclose(ants.quantile(image, q), expected)
+
+    def test_quantile_scalar_respects_nonzero(self):
+        values = np.array([[0, 0], [10, 20]], dtype=np.float32)
+        image = ants.from_numpy(values)
+        for q in (0.5, 50):
+            for nonzero in (False, True):
+                with self.subTest(q=q, nonzero=nonzero):
+                    result = ants.quantile(image, q, nonzero=nonzero)
+                    expected = 15.0 if nonzero else 5.0
+                    self.assertEqual(result, expected)
+
     def test_bandpass(self):
         brainSignal = np.random.randn( 400, 1000 )
         tr = 1
