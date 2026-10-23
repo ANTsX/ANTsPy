@@ -521,6 +521,8 @@ def image_write(image, filename, ri=False):
     """
     if filename.endswith(".npy"):
         img_array = image.numpy()
+        if image.has_components and image.channels_first:
+            img_array = np.moveaxis(img_array, 0, -1)
         img_header = {
             "origin": image.origin,
             "spacing": image.spacing,
@@ -595,8 +597,8 @@ def new_image_like(image, data):
     ---------
     data : ndarray or py::capsule
         New array or pointer for the image.
-        It must have the same shape as the current
-        image data.
+        It must have the same shape and component-axis order as
+        ``image.numpy()``.
 
     Returns
     -------
@@ -604,6 +606,8 @@ def new_image_like(image, data):
     """
     if not isinstance(data, np.ndarray):
         raise ValueError('data must be a numpy array')
+    if image.has_components and image.channels_first:
+        data = np.moveaxis(data, 0, -1)
     if not image.has_components:
         if data.shape != image.shape:
             raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, image.shape))
@@ -611,9 +615,11 @@ def new_image_like(image, data):
         if (data.shape[-1] != image.components) or (data.shape[:-1] != image.shape):
             raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], image.shape))
 
-    return from_numpy(data, origin=image.origin,
+    new_image = from_numpy(data, origin=image.origin,
         spacing=image.spacing, direction=image.direction,
         has_components=image.has_components)
+    new_image.channels_first = image.channels_first
+    return new_image
 
 def from_numpy_like(data, image):
     return new_image_like(image, data)
