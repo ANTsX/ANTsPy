@@ -1064,15 +1064,30 @@ class TestRandom(unittest.TestCase):
             with self.subTest(q=q):
                 nptest.assert_allclose(ants.quantile(image, q), expected)
 
-    def test_quantile_scalar_respects_nonzero(self):
-        values = np.array([[0, 0], [10, 20]], dtype=np.float32)
+    def test_quantile_positive_and_nonzero(self):
+        values = np.array([[-10, 0], [10, 20]], dtype=np.float32)
         image = ants.from_numpy(values)
-        for q in (0.5, 50):
-            for nonzero in (False, True):
-                with self.subTest(q=q, nonzero=nonzero):
-                    result = ants.quantile(image, q, nonzero=nonzero)
-                    expected = 15.0 if nonzero else 5.0
-                    self.assertEqual(result, expected)
+        cases = (
+            (True, True, (10, 15, 20)),
+            (True, False, (10, 15, 20)),
+            (False, True, (-10, 10, 20)),
+            (False, False, (-10, 5, 20)),
+        )
+        for positive, nonzero, expected in cases:
+            for q in (0.5, 50, (0, 0.5, 1), [0, 0.5, 1],
+                      (0, 50, 100), [0, 50, 100]):
+                with self.subTest(q=q, positive=positive, nonzero=nonzero):
+                    result = ants.quantile(image, q, positive=positive, nonzero=nonzero)
+                    expected_result = expected if isinstance(q, (list, tuple)) else expected[1]
+                    nptest.assert_allclose(result, expected_result)
+
+    def test_quantile_filter_defaults(self):
+        image = ants.from_numpy(np.array([[-10, 0], [10, 20]], dtype=np.float32))
+        for kwargs, expected in (({}, 15), ({"nonzero": False}, 15),
+                                 ({"positive": False}, 10)):
+            with self.subTest(kwargs=kwargs):
+                self.assertEqual(ants.quantile(image, 0.5, **kwargs), expected)
+                self.assertEqual(image.quantile(0.5, **kwargs), expected)
 
     def test_bandpass(self):
         brainSignal = np.random.randn( 400, 1000 )

@@ -198,7 +198,7 @@ def ilr( data_frame, voxmats, ilr_formula, verbose = False ):
 
 
 @image_method
-def quantile(image, q, nonzero=True):
+def quantile(image, q, positive=True, nonzero=True):
     """
     Get the quantile values from an ANTsImage
 
@@ -209,6 +209,8 @@ def quantile(image, q, nonzero=True):
     q : float or tuple of floats
         Quantile(s) to compute. Either between 0 and 1 for quantiles, or between 0 and 100 for percentiles.
         Input is treated as quantiles if all values are between 0 and 1, otherwise as percentiles.
+    positive : bool
+        If True, only consider positive values in the computation (implies nonzero=True).
     nonzero : bool
         If True, only consider non-zero values in the computation.
 
@@ -225,7 +227,9 @@ def quantile(image, q, nonzero=True):
     """
     img_arr = image.numpy()
     if nonzero:
-        img_arr = img_arr[img_arr!=0]
+        img_arr = img_arr[img_arr != 0]
+    if positive:
+        img_arr = img_arr[img_arr > 0]
     if isinstance(q, (list,tuple)):
         if all(qq <= 1. for qq in q):
             q = [qq*100. for qq in q]
