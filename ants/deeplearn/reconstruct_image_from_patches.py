@@ -62,7 +62,8 @@ def reconstruct_image_from_patches(patches,
         if len(patch_dimension) > dimensionality + 1:
             number_of_image_components = patch_dimension[dimensionality + 1]
 
-    mid_patch_index = tuple(np.int_(np.subtract(np.round(0.5 * (np.array(patch_size))), 1)))
+    # Odd patches use the central voxel; even patches use the lower central voxel.
+    mid_patch_index = tuple((np.asarray(patch_size) - 1) // 2)
 
     image_array = np.zeros((*image_size, number_of_image_components))
     count_array = np.zeros((*image_size, number_of_image_components))
@@ -115,13 +116,6 @@ def reconstruct_image_from_patches(patches,
 
             image_array[count_array>0] = image_array[count_array>0] / count_array[count_array>0]
 
-            if not domain_image_is_mask:
-                for i in range(image_size[0]):
-                    for j in range(image_size[1]):
-                        factor = (min(i + 1, patch_size[0], image_size[0] - i) *
-                                  min(j + 1, patch_size[1], image_size[1] - j))
-
-                        image_array[i, j, :] /= factor
         else:
             for i in range(0, image_size[0] - patch_size[0] + 1, stride_length_tuple[0]):
                 for j in range(0, image_size[1] - patch_size[1] + 1, stride_length_tuple[1]):
@@ -192,15 +186,6 @@ def reconstruct_image_from_patches(patches,
             image_array[count_array>0] = image_array[count_array>0] / count_array[count_array>0]
 
 
-            if not domain_image_is_mask:
-                for i in range(image_size[0] + 1):
-                    for j in range(image_size[1] + 1):
-                        for k in range(image_size[2] + 1):
-                            factor = (min(i + 1, patch_size[0], image_size[0] - i) *
-                                      min(j + 1, patch_size[1], image_size[1] - j) *
-                                      min(k + 1, patch_size[2], image_size[2] - k))
-
-                            image_array[i, j, k, :] /= factor
         else:
             for i in range(0, image_size[0] - patch_size[0] + 1, stride_length_tuple[0]):
                 for j in range(0, image_size[1] - patch_size[1] + 1, stride_length_tuple[1]):
@@ -232,12 +217,8 @@ def reconstruct_image_from_patches(patches,
             for i in range(number_of_image_components):
                 image_array[:, :, :, i] /= count_array[:,:,:,0]
 
-    if dimensionality == 2:
-        image_array = np.transpose(image_array, [2, 0, 1])
-    else:
-        image_array = np.transpose(image_array, [3, 0, 1, 2])
-
-    image_array = np.squeeze(image_array)
+    if number_of_image_components == 1:
+        image_array = image_array[..., 0]
 
     reconstructed_image = ants.from_numpy(image_array,
                                           origin=domain_image.origin,

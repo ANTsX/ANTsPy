@@ -144,7 +144,8 @@ def crop_image_from_center_point(image,
         Physical space coordinates of center point.
 
     patch_size: tuple
-        List defining patch size.
+        List defining patch size. For even sizes, center_point corresponds
+        to the lower of the two central voxels.
 
     """
 
@@ -157,18 +158,10 @@ def crop_image_from_center_point(image,
         if index[k] > (image_shape[k] - 1):
             index[k] = image_shape[k] - 1
     
-    index_offset = index.copy()
-    for k in range(len(patch_size)):
-        index_offset[k] = index_offset[k] - np.round(0.5 * patch_size[k])
-
-    domain_low = []
-    domain_high = []
-    for k in range(len(image_shape)):
-        domain_low.append(int(index_offset[k] - 1))
-        domain_high.append(int(index_offset[k] + 1))
-    domain = ants.crop_indices(image, tuple(domain_low), tuple(domain_high) )
-
+    # For even sizes, use the lower of the two central voxels.
+    start_index = index.astype(int) - (np.asarray(patch_size) - 1) // 2
     patch_image = ants.make_image(patch_size)
-    patch_image = ants.copy_image_info(domain, patch_image)
-
+    patch_image.set_spacing(image.spacing)
+    patch_image.set_direction(image.direction)
+    patch_image.set_origin(tuple(ants.transform_index_to_physical_point(image, start_index)))
     return ants.resample_image_to_target(image, patch_image)

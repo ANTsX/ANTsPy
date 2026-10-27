@@ -165,16 +165,16 @@ def randomly_transform_image_data(reference_image,
     simulated_transforms = list()
 
     for i in range(number_of_simulations):
-        single_subject_image_list = input_image_list[random_indices[i]]
+        single_subject_image_list = list(input_image_list[random_indices[i]])
         single_subject_segmentation_image = None
         if segmentation_image_list is not None:
             single_subject_segmentation_image = segmentation_image_list[random_indices[i]]
 
         if ants.image_physical_space_consistency(reference_image, single_subject_image_list[0]) is False:
             for j in range(len(single_subject_image_list)):
-                single_subject_image_list.append(
-                    ants.resample_image_to_target(single_subject_image_list[j], reference_image,
-                        interp_type=input_image_interpolator))
+                single_subject_image_list[j] = ants.resample_image_to_target(
+                    single_subject_image_list[j], reference_image,
+                    interp_type=input_image_interpolator)
             if single_subject_segmentation_image is not None:
                 single_subject_segmentation_image = \
                     ants.resample_image_to_target(single_subject_segmentation_image, reference_image,

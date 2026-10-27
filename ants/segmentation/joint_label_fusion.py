@@ -158,7 +158,7 @@ def joint_label_fusion(
                 target_image_mask[label == 0] = 0
         inlabs = set()
         for label in label_list:
-            values = np.unique(label[target_image_mask != 0 and label != 0])
+            values = np.unique(label[(target_image_mask != 0) * (label != 0)])
             inlabs = inlabs.union(values)
         inlabs = sorted(inlabs)
         maxLab = max(inlabs)
@@ -201,7 +201,7 @@ def joint_label_fusion(
     mydim = target_image_mask.dimension
     if not doJif:
         # not sure if these should be allocated or what their size should be
-        outimg = label_list[1].clone(segpixtype)
+        outimg = label_list[0].clone(segpixtype)
         outimgi = target_image * 0
 
         outimg_ptr = get_pointer_string(outimg)
@@ -285,6 +285,8 @@ def joint_label_fusion(
             temp = str.split(probsout[i], "prob")
             segnum = temp[len(temp) - 1].split(".nii.gz")[0]
             finalsegvec2[finalsegvec == i] = segnum
+        # Zero total foreground probability means background, not the first label.
+        finalsegvec2[segmat.sum(axis=0) == 0] = 0
         outimg = ants.make_image(target_image_mask, finalsegvec2)
 
         return {
