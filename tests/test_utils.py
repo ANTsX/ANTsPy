@@ -1751,10 +1751,12 @@ class TestModule_nibabel_to_ants(unittest.TestCase):
 
 
 class TestImageMaskingAndLabelMorphology(unittest.TestCase):
-    def test_binarize_mask_preserves_negative_and_small_nonzero_values(self):
-        image = ants.from_numpy(np.array([[-2., 0., .1, 1.]], dtype='float32'))
-        mask = ants.from_numpy(np.ones((1, 4), dtype='float32'))
-        np.testing.assert_array_equal(ants.mask_image(image, mask, binarize=True).numpy(), [[1, 0, 1, 1]])
+    def test_binarize_mask_uses_strict_probability_threshold(self):
+        values = np.array([[0., .1, .49, .5, .51, 1., 1.]], dtype='float32')
+        image = ants.from_numpy(values)
+        mask = ants.from_numpy(np.array([[1., 1., 1., 1., 1., 1., 0.]], dtype='float32'))
+        result = ants.mask_image(image, mask, binarize=True)
+        np.testing.assert_array_equal(result.numpy(), [[0, 0, 0, 0, 1, 1, 0]])
 
     def test_label_morphology_preserves_labels_and_honors_single_label_list(self):
         data = np.zeros((15, 15), dtype='float32')

@@ -25,8 +25,9 @@ def mask_image(image, mask, level=1, binarize=False):
         Level(s) at which to threshold the mask. Can be a single value or an iterable of values.
 
     binarize : boolean
-        whether to binarize the output image. This computes an intersection between (image != 0) and (mask == i), for
-        all i in level.
+        Whether to binarize the masked output using a probability threshold.
+        Values greater than 0.5 are foreground (1); values less than or equal
+        to 0.5 are background (0).
 
     Returns
     -------
@@ -54,7 +55,7 @@ def mask_image(image, mask, level=1, binarize=False):
 
     if binarize:
         image_out_b = image_out * 0.0
-        image_out_b[ image_out != 0 ] = 1.0
+        image_out_b[ image_out > 0.5 ] = 1.0
         return image_out_b
 
     return image_out
