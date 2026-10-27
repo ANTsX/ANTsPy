@@ -6,6 +6,9 @@ self.assertEqual
 self.assertTrue
 """
 
+import importlib
+from unittest.mock import patch
+
 import os
 import unittest
 from common import run_tests
@@ -649,6 +652,38 @@ class TestModule_random(unittest.TestCase):
         dot = np.abs(np.dot(vecR, expected_vec))
         assert math.isclose(dot, 1.0, abs_tol=1e-3), f"Vector {vecR}, expected {expected_vec}"
 
+
+
+
+class TestSyNMetricParameters(unittest.TestCase):
+    def test_syn_presets_honor_explicit_metric_parameters(self):
+        module = importlib.import_module('ants.registration.registration')
+        image = ants.from_numpy(np.ones((8, 8), dtype='float32'))
+        for transform, radius in [('antsRegistrationSyNQuickRepro[so]', '2'), ('antsRegistrationSyNQuickRepro[so,5]', '5'), ('antsRegistrationSyN[so,4]', '4'), ('antsRegistrationSyNQuick[so,17]', '17')]:
+            calls = []
+            def capture(args):
+                calls.extend(args)
+                raise RuntimeError('captured')
+            with patch.object(module, 'get_lib_fn', return_value=capture):
+                with self.assertRaisesRegex(RuntimeError, 'captured'):
+                    ants.registration(image, image, type_of_transform=transform)
+            metric = next(a for a in calls if a.startswith(('CC[', 'MI[')))
+            self.assertTrue(metric.endswith(',' + radius + ']'), metric)
+
+    def test_registration_reads_current_deterministic_setting(self):
+        image = ants.from_numpy(np.ones((8, 8), dtype='float32'))
+        previous_threads = os.environ.get("ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS")
+        previous = (ants.config._deterministic, ants.config._random_seed)
+        try:
+            ants.config.set_ants_deterministic(True)
+            with self.assertRaisesRegex(ValueError, 'not deterministic'):
+                ants.registration(image, image, type_of_transform='Rigid')
+        finally:
+            ants.config._deterministic, ants.config._random_seed = previous
+            if previous_threads is None:
+                os.environ.pop("ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS", None)
+            else:
+                os.environ["ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"] = previous_threads
 
 if __name__ == "__main__":
     run_tests()

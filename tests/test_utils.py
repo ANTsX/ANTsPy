@@ -1748,5 +1748,27 @@ class TestModule_nibabel_to_ants(unittest.TestCase):
         self.assertTrue(np.allclose(nib_img_vec.affine, ants_img_back.affine, atol=1e-5))
 
 
+
+
+class TestImageMaskingAndLabelMorphology(unittest.TestCase):
+    def test_binarize_mask_preserves_negative_and_small_nonzero_values(self):
+        image = ants.from_numpy(np.array([[-2., 0., .1, 1.]], dtype='float32'))
+        mask = ants.from_numpy(np.ones((1, 4), dtype='float32'))
+        np.testing.assert_array_equal(ants.mask_image(image, mask, binarize=True).numpy(), [[1, 0, 1, 1]])
+
+    def test_label_morphology_preserves_labels_and_honors_single_label_list(self):
+        data = np.zeros((15, 15), dtype='float32')
+        data[3:6, 3:6] = 1
+        data[9:12, 9:12] = 3
+        image = ants.from_numpy(data)
+        for op in ('MD', 'MC'):
+            result = ants.multi_label_morphology(image, op, 1).numpy()
+            np.testing.assert_array_equal(result[data != 0], data[data != 0])
+        result = ants.multi_label_morphology(image, 'MD', 1, label_list=[1]).numpy()
+        np.testing.assert_array_equal(result == 3, data == 3)
+        self.assertGreater(np.sum(result == 1), np.sum(data == 1))
+        result = ants.multi_label_morphology(image, 'MD', 1, dilation_mask=image * 0 + 1).numpy()
+        np.testing.assert_array_equal(result[data != 0], data[data != 0])
+
 if __name__ == "__main__":
     run_tests()

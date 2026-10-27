@@ -148,5 +148,63 @@ class TestModule_one_hot(unittest.TestCase):
         one_hot_c_inv = ants.one_hot_to_segmentation(one_hot_c, seg,
                                                      channel_first_ordering=True)        
 
+
+
+class TestImagePatchesAndAugmentation(unittest.TestCase):
+    def test_extract_reconstruct_roundtrip_scalar_and_multicomponent(self):
+        for dim in (2, 3):
+            shape = (9,) * dim
+            data = np.arange(np.prod(shape), dtype='float32').reshape(shape)
+            for components in (False, True):
+                values = np.stack((data, data + 100), axis=-1) if components else data
+                image = ants.from_numpy(values, has_components=components)
+                for stride in (1, 2):
+                    for as_array in (False, True):
+                        patches = ants.extract_image_patches(image, (3,) * dim, stride_length=stride, return_as_array=as_array)
+                        result = ants.reconstruct_image_from_patches(patches, image, stride_length=stride)
+                        np.testing.assert_allclose(result.numpy(), values)
+
+    def test_masked_patches_include_all_valid_edges(self):
+        for dim in (2, 3):
+            shape = (9,) * dim
+            data = np.arange(np.prod(shape), dtype='float32').reshape(shape)
+            image = ants.from_numpy(data)
+            mask = image * 0 + 1
+            for size in (2, 3, 4, 5, 6, 7):
+                patches = ants.extract_image_patches(image, (size,) * dim, max_number_of_patches=10000, mask_image=mask, randomize=False)
+                self.assertEqual(len(patches), (10 - size) ** dim)
+                self.assertTrue(all(p.shape == (size,) * dim for p in patches))
+                result = ants.reconstruct_image_from_patches(patches, mask, domain_image_is_mask=True)
+                np.testing.assert_allclose(result.numpy(), data)
+
+    def test_odd_patches_center_on_sparse_mask_voxels(self):
+        image = ants.from_numpy(np.arange(81, dtype='float32').reshape(9, 9))
+        for size in (3, 5, 7):
+            offset = (size - 1) // 2
+            mask_data = np.zeros((9, 9), dtype='float32')
+            mask_data[offset, offset] = 1
+            mask_data[8 - offset, 8 - offset] = 1
+            mask = ants.from_numpy(mask_data)
+            patches = ants.extract_image_patches(image, (size, size), max_number_of_patches=10, mask_image=mask, randomize=False)
+            self.assertEqual(len(patches), 2)
+            np.testing.assert_array_equal(patches[0], image.numpy()[:size, :size])
+            np.testing.assert_array_equal(patches[1], image.numpy()[-size:, -size:])
+
+    def test_crop_from_physical_center_with_rotated_direction(self):
+        data = np.arange(400, dtype='float32').reshape(20, 20)
+        image = ants.from_numpy(data, origin=(3, 8), spacing=(2, 3), direction=np.array([[0., -1.], [1., 0.]]))
+        center = ants.transform_index_to_physical_point(image, (9, 9))
+        result = ants.crop_image_from_center_point(image, center, (3, 3))
+        np.testing.assert_allclose(result.numpy(), data[8:11, 8:11])
+
+    def test_random_transforms_preserve_input_image_lists(self):
+        reference = ants.from_numpy(np.ones((8, 8), dtype='float32'))
+        moving = ants.from_numpy(np.ones((6, 6), dtype='float32'))
+        images = [[moving, moving]]
+        result = ants.randomly_transform_image_data(reference, images, number_of_simulations=3, transform_type='translation', sd_affine=0)
+        self.assertEqual(len(images[0]), 2)
+        self.assertIs(images[0][0], moving)
+        self.assertTrue(all(len(sample) == 2 for sample in result['simulated_images']))
+
 if __name__ == "__main__":
     run_tests()

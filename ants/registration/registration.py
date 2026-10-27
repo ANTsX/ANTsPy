@@ -14,8 +14,8 @@ import itertools
 import os
 
 import ants
+import ants.config
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
-from ants.config import _deterministic
 
 def registration(
     fixed,
@@ -426,7 +426,7 @@ def registration(
         raise ValueError(f'{type_of_transform} does not exist')
 
     # Perform Repro checking if set_ants_deterministic is True
-    if _deterministic and not "Repro" in type_of_transform:
+    if ants.config._deterministic and not "Repro" in type_of_transform:
         raise ValueError(f'{type_of_transform} is not deterministic/reproducible.')
 
     if isinstance(initial_transform, str):
@@ -896,7 +896,7 @@ def registration(
 
         subtype_of_transform = "s"
         spline_distance = 26
-        metric_parameter = 32 if do_quick else 2
+        metric_parameter = 32 if do_quick and not do_repro else 2
         linear_metric = "GC[%s,%s,1,1,Regular,0.25]" if do_repro else "MI[%s,%s,1,32,Regular,0.25]"
 
         rigid_shrink_factors = "8x4x2x1"
@@ -926,16 +926,13 @@ def registration(
             affine_convergence = "[1000x500x250x0,1e-6,10]"
             syn_convergence = "[100x70x50x0,1e-6,10]"
             if do_repro:
-                metric_parameter = 2
                 syn_metric = "CC[%s,%s,1,%s]" % (fixed_str, moving_str, metric_parameter)
             else:
-                metric_parameter = 32
                 syn_metric = "MI[%s,%s,1,%s]" % (fixed_str, moving_str, metric_parameter)
         else:
             rigid_convergence = "[1000x500x250x100,1e-6,10]"
             affine_convergence = "[1000x500x250x100,1e-6,10]"
             syn_convergence = "[100x70x50x20,1e-6,10]"
-            metric_parameter = 2
             syn_metric = "CC[%s,%s,1,%s]" % (fixed_str, moving_str, metric_parameter)
         syn_shrink_factors = "8x4x2x1"
         syn_smoothing_sigmas = "3x2x1x0vox"

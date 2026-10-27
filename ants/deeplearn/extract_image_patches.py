@@ -73,14 +73,15 @@ def extract_image_patches(image,
     if len(image_size) != len(patch_size):
         raise ValueError("Mismatch between the image size and the specified patch size.")
 
-    if tuple(patch_size) > image_size:
+    if any(p < 1 or p > size for p, size in zip(patch_size, image_size)):
         raise ValueError("Patch size is greater than the image size.")
 
     image_array = image.numpy()
 
     patch_list = []
     patch_array = np.empty([1, 1])
-    mid_patch_index = tuple(np.int_(np.subtract(np.round(0.5 * (np.array(patch_size))), 1)))
+    # Odd patches use the central voxel; even patches use the lower central voxel.
+    mid_patch_index = tuple((np.asarray(patch_size) - 1) // 2)
 
     number_of_extracted_patches = max_number_of_patches
 
@@ -170,8 +171,8 @@ def extract_image_patches(image,
                 shifted_mask_indices = np.subtract(mask_indices[:, d], mid_patch_index[d])
                 outside_indices = np.where(shifted_mask_indices < 0)
                 mask_indices = np.delete(mask_indices, outside_indices, axis=0)
-                shifted_mask_indices = np.add(mask_indices[:, d], mid_patch_index[d])
-                outside_indices = np.where(shifted_mask_indices >= image_size[d] - 1)
+                shifted_mask_indices = mask_indices[:, d] - mid_patch_index[d]
+                outside_indices = np.where(shifted_mask_indices + patch_size[d] > image_size[d])
                 mask_indices = np.delete(mask_indices, outside_indices, axis=0)
 
             # After pruning the mask indices, which were originally defined in terms of the
