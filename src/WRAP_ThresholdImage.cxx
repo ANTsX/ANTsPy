@@ -15,5 +15,5 @@ int ThresholdImage( std::vector<std::string> instring )
 }
 
 void wrap_ThresholdImage(nb::module_ &m) {
-  m.def("ThresholdImage", &ThresholdImage);
+  m.def("ThresholdImage", &ThresholdImage, nb::call_guard<nb::gil_scoped_release>());
 }

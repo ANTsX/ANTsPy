@@ -15,5 +15,5 @@ int antsJointFusion( std::vector<std::string> instring )
 }
 
 void wrap_antsJointFusion(nb::module_ &m) {
-  m.def("antsJointFusion", &antsJointFusion);
+  m.def("antsJointFusion", &antsJointFusion, nb::call_guard<nb::gil_scoped_release>());
 }

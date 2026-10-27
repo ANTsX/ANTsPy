@@ -15,5 +15,5 @@ int AverageAffineTransformNoRigid( StrVector instring )
 }
 
 void wrap_AverageAffineTransformNoRigid(nb::module_ &m) {
-  m.def("AverageAffineTransformNoRigid", &AverageAffineTransformNoRigid);
+  m.def("AverageAffineTransformNoRigid", &AverageAffineTransformNoRigid, nb::call_guard<nb::gil_scoped_release>());
 }

@@ -15,5 +15,5 @@ int iMath( StrVector instring )
 }
 
 void wrap_iMath(nb::module_ &m) {
-  m.def("iMath", &iMath);
+  m.def("iMath", &iMath, nb::call_guard<nb::gil_scoped_release>());
 }
