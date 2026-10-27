@@ -275,10 +275,12 @@ class TestNativeThreading(unittest.TestCase):
         # source checkouts whose compiled extension lives outside ants/.
         source = str(Path(__file__).resolve())
         native = str(Path(importlib.import_module("ants.lib").__file__).resolve())
-        package_root = str(Path(ants.__file__).resolve().parent.parent)
+        # Preserve the parent import order. Moving site-packages to the front
+        # can let obsolete backports (such as typing) shadow the standard library.
+        import_paths = list(sys.path)
         bootstrap = (
             'import importlib.util, runpy, sys\n'
-            f'sys.path.insert(0, {package_root!r})\n'
+            f'sys.path[:] = {import_paths!r}\n'
             f'spec = importlib.util.spec_from_file_location("ants.lib", {native!r})\n'
             'module = importlib.util.module_from_spec(spec)\n'
             'spec.loader.exec_module(module)\n'
