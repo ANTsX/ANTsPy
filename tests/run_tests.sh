@@ -55,6 +55,9 @@ $PYCMD test_bugs.py $@
 echo "Running deeplearn tests"
 $PYCMD test_deeplearn.py $@
 
+echo "Running native threading tests (opt-in: ANTSPY_TEST_THREADING=1)"
+$PYCMD test_threading.py $@
+
 if [[ $COVERAGE -eq 1 ]]; then
     coverage combine
     coverage xml
