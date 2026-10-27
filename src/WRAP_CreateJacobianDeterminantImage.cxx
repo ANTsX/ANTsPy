@@ -15,5 +15,5 @@ int CreateJacobianDeterminantImage( StrVector instring )
 }
 
 void wrap_CreateJacobianDeterminantImage(nb::module_ &m) {
-  m.def("CreateJacobianDeterminantImage", &CreateJacobianDeterminantImage);
+  m.def("CreateJacobianDeterminantImage", &CreateJacobianDeterminantImage, nb::call_guard<nb::gil_scoped_release>());
 }

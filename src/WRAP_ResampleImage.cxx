@@ -15,5 +15,5 @@ int ResampleImage( StrVector instring )
 }
 
 void wrap_ResampleImage(nb::module_ &m) {
-  m.def("ResampleImage", &ResampleImage);
+  m.def("ResampleImage", &ResampleImage, nb::call_guard<nb::gil_scoped_release>());
 }

@@ -15,5 +15,5 @@ int KellyKapowski( StrVector instring )
 }
 
 void wrap_KellyKapowski(nb::module_ &m) {
-  m.def("KellyKapowski", &KellyKapowski);
+  m.def("KellyKapowski", &KellyKapowski, nb::call_guard<nb::gil_scoped_release>());
 }

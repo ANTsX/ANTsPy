@@ -15,6 +15,6 @@ int antsRegistration( StrVector instring )
 }
 
 void wrap_antsRegistration(nb::module_ &m) {
-  m.def("antsRegistration", &antsRegistration);
+  m.def("antsRegistration", &antsRegistration, nb::call_guard<nb::gil_scoped_release>());
 }
 
