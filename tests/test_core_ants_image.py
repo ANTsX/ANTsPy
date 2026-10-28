@@ -697,5 +697,50 @@ class TestModule_ants_image(unittest.TestCase):
         self.assertTrue(rgb_img.dtype == 'uint8')
 
 
+class TestComponentLayout(unittest.TestCase):
+
+    def setUp(self):
+        self.images = []
+        for shape in ((3, 4), (3, 4, 5)):
+            dimension = len(shape)
+            array = np.arange(np.prod(shape), dtype=np.float32).reshape(shape)
+            scalar = ants.from_numpy(array, origin=tuple(range(dimension)),
+                                     spacing=tuple(range(2, dimension + 2)),
+                                     direction=np.flipud(np.eye(dimension)))
+            for channels_first in (False, True):
+                self.images.append(ants.merge_channels(
+                    [scalar, scalar + 5], channels_first=channels_first))
+
+    def assert_same_geometry(self, image, result):
+        self.assertEqual(result.shape, image.shape)
+        self.assertEqual(result.components, image.components)
+        self.assertEqual(result.origin, image.origin)
+        self.assertEqual(result.spacing, image.spacing)
+        nptest.assert_array_equal(result.direction, image.direction)
+
+    def test_new_image_like_component_layout(self):
+        for image in self.images:
+            for operation in (lambda img: img.new_image_like(img.numpy() * 2),
+                              lambda img: img * 2):
+                with self.subTest(shape=image.shape, channels_first=image.channels_first,
+                                  operation=operation):
+                    result = operation(image)
+                    self.assert_same_geometry(image, result)
+                    self.assertEqual(result.channels_first, image.channels_first)
+                    nptest.assert_array_equal(result.numpy(), image.numpy() * 2)
+
+    def test_pickle_component_layout(self):
+        import pickle
+        for image in self.images:
+            with self.subTest(shape=image.shape, channels_first=image.channels_first):
+                result = pickle.loads(pickle.dumps(image))
+                self.assert_same_geometry(image, result)
+                self.assertFalse(result.channels_first)
+                expected = image.numpy()
+                if image.channels_first:
+                    expected = np.moveaxis(expected, 0, -1)
+                nptest.assert_array_equal(result.numpy(), expected)
+
+
 if __name__ == '__main__':
     run_tests()
