@@ -147,7 +147,7 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
     if not isinstance(fixed, str):
         if ants.is_image(fixed) and ants.is_image(moving):
             inpixeltype = fixed.pixeltype
-            warpedmovout = moving.clone()
+            warpedmovout = moving.clone('float')
             f = fixed.clone('float')
             m = moving.clone('float')
             if (moving.dimension == 4) and (fixed.dimension==3) and (imagetype==0):

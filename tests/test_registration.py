@@ -328,6 +328,21 @@ class TestModule_resample_image(unittest.TestCase):
         resampled = ants.resample_image_to_target(fi2mm, fi, verbose=True)
         self.assertTrue(ants.image_physical_space_consistency(fi, resampled, 0.0001, datatype=True))
 
+    def test_resample_image_to_target_pixeltypes(self):
+        # antsApplyTransforms writes a float image, so the result must not depend on the input pixel type
+        fi = ants.image_read(ants.get_ants_data("r16"))
+        fi2mm = ants.resample_image(fi, (2, 2), use_voxels=0, interp_type=1)
+        mask = fi > fi.mean()
+        self.assertEqual(mask.pixeltype, "unsigned char")
+        # the 2 mm voxel centres fall on every second 1 mm voxel centre
+        expected = mask.numpy()[::2, ::2]
+        for pixeltype in ("unsigned char", "unsigned int", "float", "double"):
+            for interp_type in ("nearestNeighbor", "genericLabel"):
+                with self.subTest(pixeltype=pixeltype, interp_type=interp_type):
+                    resampled = ants.resample_image_to_target(mask.clone(pixeltype), fi2mm, interp_type=interp_type)
+                    self.assertEqual(resampled.pixeltype, fi2mm.pixeltype)
+                    nptest.assert_array_equal(resampled.numpy(), expected)
+
 
 class TestModule_symmetrize_image(unittest.TestCase):
     def setUp(self):
