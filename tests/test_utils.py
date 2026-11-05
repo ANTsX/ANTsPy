@@ -1507,7 +1507,7 @@ class TestModule_nifti_utils(unittest.TestCase):
         self.assertTrue(np.allclose(shear, [0.0, -0.0001, 0.0], atol=1e-5))
 
 
-    def get_nifti_spatial_transform_from_metadata(self):
+    def test_get_nifti_spatial_transform_from_metadata(self):
         # Should be identical to mni
         xform = ants.get_nifti_spatial_transform_from_metadata(self.mni_metadata)
         self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
@@ -1535,7 +1535,7 @@ class TestModule_nifti_utils(unittest.TestCase):
         srow_x[1] = str('-0.0001')
         mni_metadata_shear['srow_x'] = ' '.join(srow_x)
         info = ants.get_nifti_sform_spatial_info(mni_metadata_shear, deshear_threshold=0)
-        self.assertTrue(np.allclose(info['original_shear'], [-0.0001, 0.0, 0.0], atol=1e-6))
+        self.assertTrue(np.allclose(info['original_shear'], [0.0001, 0.0, 0.0], atol=1e-6))
 
         xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_shear, deshear_threshold=0, max_angle_deviation=1)
         self.assertTrue(np.allclose(xform['direction'], self.mni.direction, atol=1e-5))
@@ -1548,6 +1548,24 @@ class TestModule_nifti_utils(unittest.TestCase):
         self.assertTrue(np.allclose(xform['origin'], self.mni.origin, atol=1e-5))
         self.assertTrue(np.allclose(xform['spacing'], self.mni.spacing, atol=1e-5))
         self.assertTrue(xform['transform_source'] == 'qform')
+
+
+    def test_get_nifti_spatial_transform_from_metadata_verbose(self):
+        # verbose should only print, not change which transform is used
+        mni_metadata_flip = deepcopy(self.mni_metadata)
+        srow_x = self.mni_metadata['srow_x'].split()
+        srow_x = [str(-float(v)) for v in srow_x]
+        mni_metadata_flip['srow_x'] = ' '.join(srow_x)
+
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_flip, verbose=True)
+        self.assertTrue(xform['transform_source'] == 'sform')
+        self.assertTrue(np.allclose(xform['origin'][0], -self.mni.origin[0], atol=1e-5))
+
+        # sform only
+        mni_metadata_flip['qform_code'] = '0'
+        xform = ants.get_nifti_spatial_transform_from_metadata(mni_metadata_flip, verbose=True)
+        self.assertTrue(xform['transform_source'] == 'sform')
+        self.assertTrue(np.allclose(xform['origin'][0], -self.mni.origin[0], atol=1e-5))
 
 
     def test_set_nifti_spatial_transform_from_metadata(self):
