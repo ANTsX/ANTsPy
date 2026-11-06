@@ -15,5 +15,5 @@ int antsApplyTransforms( std::vector<std::string> instring )
 }
 
 void wrap_antsApplyTransforms(nb::module_ &m) {
-  m.def("antsApplyTransforms", &antsApplyTransforms);
+  m.def("antsApplyTransforms", &antsApplyTransforms, nb::call_guard<nb::gil_scoped_release>());
 }

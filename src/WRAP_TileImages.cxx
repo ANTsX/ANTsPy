@@ -15,5 +15,5 @@ int TileImages( StrVector instring )
 }
 
 void wrap_TileImages(nb::module_ &m) {
-  m.def("TileImages", &TileImages);
+  m.def("TileImages", &TileImages, nb::call_guard<nb::gil_scoped_release>());
 }

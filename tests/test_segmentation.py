@@ -277,5 +277,34 @@ class TestModule_random(unittest.TestCase):
         mask = ants.get_mask(img)
         mask_aa = ants.anti_alias(mask)
 
+
+
+class TestJointLabelFusionMaskAndBackground(unittest.TestCase):
+    def test_joint_fusion_respects_target_mask_and_preserves_background(self):
+        import tempfile
+        from pathlib import Path
+        module = importlib.import_module('ants.segmentation.joint_label_fusion')
+        image = ants.from_numpy(np.ones((5, 5), dtype='float32'))
+        mask_data = np.zeros((5, 5), dtype='float32')
+        mask_data[1:4, 1:4] = 1
+        mask = ants.from_numpy(mask_data)
+        labels = np.zeros((5, 5), dtype='float32')
+        labels[2, 2] = 2
+        labels[0, 0] = 9  # Outside the target mask; must not set the background code.
+        foreground = ants.from_numpy((labels == 2).astype('float32'))
+        for background_code in (False, True):
+            label = ants.from_numpy(labels)
+            with tempfile.TemporaryDirectory() as directory:
+                prefix = str(Path(directory) / 'fusion_')
+                def fuse(args):
+                    ants.image_write(foreground, prefix + 'prob02.nii.gz')
+                    if background_code:
+                        self.assertEqual(label[1, 1], 3)
+                        ants.image_write(1 - foreground, prefix + 'prob03.nii.gz')
+                    return 0
+                with patch.object(module, 'process_arguments', side_effect=lambda args: args), patch.object(module, 'get_lib_fn', return_value=fuse):
+                    result = ants.joint_label_fusion(image, mask, [image], label_list=[label], output_prefix=prefix, max_lab_plus_one=background_code)
+                np.testing.assert_array_equal(result['segmentation'].numpy(), foreground.numpy() * 2)
+
 if __name__ == '__main__':
     run_tests()

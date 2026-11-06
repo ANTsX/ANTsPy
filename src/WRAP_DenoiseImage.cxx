@@ -15,5 +15,5 @@ int DenoiseImage( StrVector instring )
 }
 
 void wrap_DenoiseImage(nb::module_ &m) {
-  m.def("DenoiseImage", &DenoiseImage);
+  m.def("DenoiseImage", &DenoiseImage, nb::call_guard<nb::gil_scoped_release>());
 }

@@ -431,7 +431,7 @@ def get_nifti_spatial_transform_from_metadata(metadata, prefer_sform=True, deshe
                 max_angle_deviation=max_angle_deviation,
             )
             if verbose:
-                print(f"[sform] spacing={info_s['spacing']} origin={info_s['origin']} (desheared={info_s['desheared']})")
+                print(f"[sform] spacing={info_s['transform_spacing']} origin={info_s['origin']} (desheared={info_s['desheared']})")
             # Verify spacing vs pixdim
             if not _spacing_matches(info_s['transform_spacing'], pixdims):
                 warnings.warn(

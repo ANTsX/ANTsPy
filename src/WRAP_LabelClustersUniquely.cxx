@@ -15,5 +15,5 @@ int LabelClustersUniquely( StrVector instring )
 }
 
 void wrap_LabelClustersUniquely(nb::module_ &m) {
-  m.def("LabelClustersUniquely", &LabelClustersUniquely);
+  m.def("LabelClustersUniquely", &LabelClustersUniquely, nb::call_guard<nb::gil_scoped_release>());
 }

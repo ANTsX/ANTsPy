@@ -15,5 +15,5 @@ int N4BiasFieldCorrection( StrVector instring )
 }
 
 void wrap_N4BiasFieldCorrection(nb::module_ &m) {
-  m.def("N4BiasFieldCorrection", &N4BiasFieldCorrection);
+  m.def("N4BiasFieldCorrection", &N4BiasFieldCorrection, nb::call_guard<nb::gil_scoped_release>());
 }

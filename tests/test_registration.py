@@ -6,6 +6,9 @@ self.assertEqual
 self.assertTrue
 """
 
+import importlib
+from unittest.mock import patch
+
 import os
 import unittest
 from common import run_tests
@@ -280,6 +283,22 @@ class TestModule_reorient_image(unittest.TestCase):
         mni = ants.image_read(ants.get_data('mni'))
         mni2 = mni.reorient_image2()
 
+    def test_reorient_image_orientation_codes(self):
+        # unrecognised codes used to give RIP without an error
+        img = ants.resample_image(ants.image_read(ants.get_data('mni')), (4, 4, 4), use_voxels=False, interp_type=1)
+        for orientation in ants.get_possible_orientations():
+            with self.subTest(orientation=orientation):
+                reoriented = img.reorient_image2(orientation)
+                self.assertEqual(ants.get_orientation(reoriented), orientation)
+                lower = img.reorient_image2(orientation.lower())
+                nptest.assert_array_equal(lower.numpy(), reoriented.numpy())
+                nptest.assert_array_equal(lower.direction, reoriented.direction)
+        for orientation in ['XYZ', 'RA', 'RRR', '', None]:
+            with self.subTest(orientation=orientation):
+                with self.assertRaises(ValueError):
+                    img.reorient_image2(orientation)
+        self.assertEqual(ants.get_orientation(ants.image_read(ants.get_data('mni'), reorient='lpi')), 'LPI')
+
     def test_get_center_of_mass(self):
         fi = ants.image_read(ants.get_ants_data("r16"))
         com = ants.get_center_of_mass(fi)
@@ -324,6 +343,21 @@ class TestModule_resample_image(unittest.TestCase):
         fi2mm = ants.resample_image(fi, (2, 2), use_voxels=0, interp_type=1)
         resampled = ants.resample_image_to_target(fi2mm, fi, verbose=True)
         self.assertTrue(ants.image_physical_space_consistency(fi, resampled, 0.0001, datatype=True))
+
+    def test_resample_image_to_target_pixeltypes(self):
+        # antsApplyTransforms writes a float image, so the result must not depend on the input pixel type
+        fi = ants.image_read(ants.get_ants_data("r16"))
+        fi2mm = ants.resample_image(fi, (2, 2), use_voxels=0, interp_type=1)
+        mask = fi > fi.mean()
+        self.assertEqual(mask.pixeltype, "unsigned char")
+        # the 2 mm voxel centres fall on every second 1 mm voxel centre
+        expected = mask.numpy()[::2, ::2]
+        for pixeltype in ("unsigned char", "unsigned int", "float", "double"):
+            for interp_type in ("nearestNeighbor", "genericLabel"):
+                with self.subTest(pixeltype=pixeltype, interp_type=interp_type):
+                    resampled = ants.resample_image_to_target(mask.clone(pixeltype), fi2mm, interp_type=interp_type)
+                    self.assertEqual(resampled.pixeltype, fi2mm.pixeltype)
+                    nptest.assert_array_equal(resampled.numpy(), expected)
 
 
 class TestModule_symmetrize_image(unittest.TestCase):
@@ -649,6 +683,38 @@ class TestModule_random(unittest.TestCase):
         dot = np.abs(np.dot(vecR, expected_vec))
         assert math.isclose(dot, 1.0, abs_tol=1e-3), f"Vector {vecR}, expected {expected_vec}"
 
+
+
+
+class TestSyNMetricParameters(unittest.TestCase):
+    def test_syn_presets_honor_explicit_metric_parameters(self):
+        module = importlib.import_module('ants.registration.registration')
+        image = ants.from_numpy(np.ones((8, 8), dtype='float32'))
+        for transform, radius in [('antsRegistrationSyNQuickRepro[so]', '2'), ('antsRegistrationSyNQuickRepro[so,5]', '5'), ('antsRegistrationSyN[so,4]', '4'), ('antsRegistrationSyNQuick[so,17]', '17')]:
+            calls = []
+            def capture(args):
+                calls.extend(args)
+                raise RuntimeError('captured')
+            with patch.object(module, 'get_lib_fn', return_value=capture):
+                with self.assertRaisesRegex(RuntimeError, 'captured'):
+                    ants.registration(image, image, type_of_transform=transform)
+            metric = next(a for a in calls if a.startswith(('CC[', 'MI[')))
+            self.assertTrue(metric.endswith(',' + radius + ']'), metric)
+
+    def test_registration_reads_current_deterministic_setting(self):
+        image = ants.from_numpy(np.ones((8, 8), dtype='float32'))
+        previous_threads = os.environ.get("ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS")
+        previous = (ants.config._deterministic, ants.config._random_seed)
+        try:
+            ants.config.set_ants_deterministic(True)
+            with self.assertRaisesRegex(ValueError, 'not deterministic'):
+                ants.registration(image, image, type_of_transform='Rigid')
+        finally:
+            ants.config._deterministic, ants.config._random_seed = previous
+            if previous_threads is None:
+                os.environ.pop("ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS", None)
+            else:
+                os.environ["ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"] = previous_threads
 
 if __name__ == "__main__":
     run_tests()

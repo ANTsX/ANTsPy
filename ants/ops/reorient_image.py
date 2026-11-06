@@ -56,12 +56,25 @@ def get_orientation(image):
 def reorient_image2(image, orientation='RAS'):
      """
      Reorient an image.
+
+     Arguments
+     ---------
+     image : ANTsImage
+         3D image to reorient
+
+     orientation : string
+         one of ants.get_possible_orientations(), in upper or lower case
+
      Example
      -------
      >>> import ants
      >>> mni = ants.image_read(ants.get_data('mni'))
      >>> mni2 = mni.reorient_image2()
      """
+     if not isinstance(orientation, str) or orientation.upper() not in _possible_orientations:
+         raise ValueError(f"orientation must be one of ants.get_possible_orientations(), got {orientation!r}")
+     orientation = orientation.upper()
+
      if image.has_components:
          return ants.merge_channels([img.reorient_image2(orientation) for img in ants.split_channels(image)],
                                     channels_first=image.channels_first)

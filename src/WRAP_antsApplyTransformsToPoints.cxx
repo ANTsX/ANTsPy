@@ -15,5 +15,5 @@ int antsApplyTransformsToPoints( std::vector<std::string> instring )
 }
 
 void wrap_antsApplyTransformsToPoints(nb::module_ &m) {
-  m.def("antsApplyTransformsToPoints", &antsApplyTransformsToPoints);
+  m.def("antsApplyTransformsToPoints", &antsApplyTransformsToPoints, nb::call_guard<nb::gil_scoped_release>());
 }

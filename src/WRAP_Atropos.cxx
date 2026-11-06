@@ -15,6 +15,6 @@ int Atropos( StrVector instring )
 }
 
 void wrap_Atropos(nb::module_ &m) {
-  m.def("Atropos", &Atropos);
+  m.def("Atropos", &Atropos, nb::call_guard<nb::gil_scoped_release>());
 }
 

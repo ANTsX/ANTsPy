@@ -220,6 +220,10 @@ class TestANTsPointers(unittest.TestCase):
                             fixed_mask=self.image, moving_mask=self.image,
                             initial_transforms="identity", output_prefix=self.output_prefix))
 
+    def test_resample_image_to_target(self):
+        self.assert_pointers("ants.ops.resample_image", "antsApplyTransforms", ["float"] * 3,
+                             lambda: ants.resample_image_to_target(self.image, self.image))
+
 
 if __name__ == "__main__":
     unittest.main()

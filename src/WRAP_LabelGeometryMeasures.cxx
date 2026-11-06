@@ -15,5 +15,5 @@ int LabelGeometryMeasures( StrVector instring )
 }
 
 void wrap_LabelGeometryMeasures(nb::module_ &m) {
-  m.def("LabelGeometryMeasures", &LabelGeometryMeasures);
+  m.def("LabelGeometryMeasures", &LabelGeometryMeasures, nb::call_guard<nb::gil_scoped_release>());
 }

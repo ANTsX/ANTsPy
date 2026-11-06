@@ -59,15 +59,12 @@ def multi_label_morphology(image, operation, radius, dilation_mask=None, label_l
     >>> # label N should have mean N and 0 variance
     >>> print(ants.label_stats(labels_dilated, labels))
     """
-    if (label_list is None) or (len(label_list) == 1):
+    if label_list is None:
         label_list = np.sort(np.unique(image[image > 0]))
         if (len(label_list) > 200) and (not force):
             raise ValueError('More than 200 labels... Make sure the image is discrete'
                              ' and call this function again with `force=True` if you'
                              ' really want to do this.')
-
-    image_binary = image.clone()
-    image_binary[image_binary > 1] = 1
 
     # Erosion / opening is simply a case of looping over the input labels
     if (operation == 'ME') or (operation == 'MO'):
@@ -85,15 +82,11 @@ def multi_label_morphology(image, operation, radius, dilation_mask=None, label_l
     output = image.clone()
     for current_label in label_list:
         current_label_region = image.threshold_image(current_label, current_label)
-        other_labels = output - current_label_region
         clab_binary_morphed = current_label_region.iMath(operation, radius, 1)
-
+        # Only add new voxels; preserve original labels and earlier expansions.
+        clab_binary_morphed_nooverlap = clab_binary_morphed * (output == 0)
         if (operation == 'MD') and (dilation_mask is not None):
-            clab_binary_morphed_nooverlap = current_label_region + dilation_mask * clab_binary_morphed - other_labels
-            clab_binary_morphed_nooverlap = clab_binary_morphed_nooverlap.threshold_image(1, 2)
-        else:
-            clab_binary_morphed_nooverlap = clab_binary_morphed - other_labels
-            clab_binary_morphed_nooverlap = clab_binary_morphed_nooverlap.threshold_image(1, 1)
+            clab_binary_morphed_nooverlap = clab_binary_morphed_nooverlap * dilation_mask
 
         output = output + clab_binary_morphed_nooverlap * current_label
 

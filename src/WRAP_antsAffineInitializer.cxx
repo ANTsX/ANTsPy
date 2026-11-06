@@ -15,6 +15,6 @@ int antsAffineInitializer( StrVector instring )
 }
 
 void wrap_antsAffineInitializer(nb::module_ &m) {
-  m.def("antsAffineInitializer", &antsAffineInitializer);
+  m.def("antsAffineInitializer", &antsAffineInitializer, nb::call_guard<nb::gil_scoped_release>());
 }
 

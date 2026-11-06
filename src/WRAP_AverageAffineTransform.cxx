@@ -16,5 +16,5 @@ int AverageAffineTransform( StrVector instring )
 }
 
 void wrap_AverageAffineTransform(nb::module_ &m) {
-  m.def("AverageAffineTransform", &AverageAffineTransform);
+  m.def("AverageAffineTransform", &AverageAffineTransform, nb::call_guard<nb::gil_scoped_release>());
 }
