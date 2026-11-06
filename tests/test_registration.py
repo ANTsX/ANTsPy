@@ -283,6 +283,22 @@ class TestModule_reorient_image(unittest.TestCase):
         mni = ants.image_read(ants.get_data('mni'))
         mni2 = mni.reorient_image2()
 
+    def test_reorient_image_orientation_codes(self):
+        # unrecognised codes used to give RIP without an error
+        img = ants.resample_image(ants.image_read(ants.get_data('mni')), (4, 4, 4), use_voxels=False, interp_type=1)
+        for orientation in ants.get_possible_orientations():
+            with self.subTest(orientation=orientation):
+                reoriented = img.reorient_image2(orientation)
+                self.assertEqual(ants.get_orientation(reoriented), orientation)
+                lower = img.reorient_image2(orientation.lower())
+                nptest.assert_array_equal(lower.numpy(), reoriented.numpy())
+                nptest.assert_array_equal(lower.direction, reoriented.direction)
+        for orientation in ['XYZ', 'RA', 'RRR', '', None]:
+            with self.subTest(orientation=orientation):
+                with self.assertRaises(ValueError):
+                    img.reorient_image2(orientation)
+        self.assertEqual(ants.get_orientation(ants.image_read(ants.get_data('mni'), reorient='lpi')), 'LPI')
+
     def test_get_center_of_mass(self):
         fi = ants.image_read(ants.get_ants_data("r16"))
         com = ants.get_center_of_mass(fi)
