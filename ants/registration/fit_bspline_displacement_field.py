@@ -3,7 +3,7 @@ __all__ = ["fit_bspline_displacement_field"]
 import numpy as np
 
 import ants
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_integer
 
 
 def fit_bspline_displacement_field(displacement_field=None,
@@ -142,7 +142,7 @@ def fit_bspline_displacement_field(displacement_field=None,
         else:
             displacement_weights = np.ones(displacement_origins.shape[0])
 
-    if isinstance(mesh_size, int) == False and len(mesh_size) != dimensionality:
+    if is_integer(mesh_size) == False and len(mesh_size) != dimensionality:
         raise ValueError("Incorrect specification for mesh_size.")
 
     if origin is not None and len(origin) != dimensionality:

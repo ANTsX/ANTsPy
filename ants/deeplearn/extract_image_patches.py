@@ -3,6 +3,8 @@ __all__ = ["extract_image_patches"]
 import numpy as np
 import random
 
+from ants.internal import is_integer
+
 def extract_image_patches(image,
                           patch_size,
                           max_number_of_patches='all',
@@ -86,11 +88,19 @@ def extract_image_patches(image,
 
     if isinstance(max_number_of_patches, str) and max_number_of_patches.lower() == 'all':
         stride_length_tuple = stride_length
-        if isinstance(stride_length, int):
+        if is_integer(stride_length):
             stride_length_tuple = tuple(np.multiply(np.ones_like(patch_size), stride_length))
-        elif len(stride_length) != dimensionality:
+        elif isinstance(stride_length, np.ndarray):
+            stride_length_tuple = tuple(stride_length.tolist())
+        elif isinstance(stride_length, (list, tuple)):
+            stride_length_tuple = tuple(stride_length)
+        else:
+            raise ValueError("stride_length must be a scalar or vector of length dimensionality.")
+
+        if len(stride_length_tuple) != dimensionality:
             raise ValueError("stride_length is not a scalar or vector of length dimensionality.")
-        elif np.any(np.less(stride_length, 1)):
+
+        if np.any(np.less(stride_length_tuple, 1)):
             raise ValueError("stride_length elements must be positive integers.")
 
         number_of_extracted_patches = 1

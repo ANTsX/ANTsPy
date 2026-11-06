@@ -5,6 +5,8 @@ import numpy as np
 
 import ants
 
+from ants.internal import is_integer
+
 def fuzzy_spatial_cmeans_segmentation(image,
                                       mask=None,
                                       number_of_clusters=4,
@@ -92,7 +94,7 @@ def fuzzy_spatial_cmeans_segmentation(image,
     for i in range(cc):
         xx[i,:] = x
 
-    if isinstance(radius, int):
+    if is_integer(radius):
         radius = tuple(np.zeros((image.dimension,), dtype=int) + radius)
 
     segmentation = ants.image_clone(image) * 0

@@ -14,7 +14,7 @@ import itertools
 import os
 
 import ants
-from ants.internal import get_lib_fn, get_pointer_string, process_arguments
+from ants.internal import get_lib_fn, get_pointer_string, is_real_scalar, process_arguments
 from ants.config import _deterministic
 
 def registration(
@@ -1390,8 +1390,8 @@ def label_image_registration(fixed_label_images,
             raise ValueError("The number of fixed and moving intensity images do not match.")
 
     label_image_weights = list()
-    if isinstance(label_image_weighting, (int, float)):
-        label_image_weights = [label_image_weighting] * len(fixed_label_images)
+    if is_real_scalar(label_image_weighting):
+        label_image_weights = [float(label_image_weighting)] * len(fixed_label_images)
     else:
         label_image_weights = tuple(label_image_weighting)
         if len(fixed_label_images) != len(label_image_weights):

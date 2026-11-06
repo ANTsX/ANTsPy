@@ -53,6 +53,7 @@ def process_arguments(args):
             p_args.append(p_arg)
     return p_args
 
+
 def is_real_scalar(value):
     '''
     Check if a value is a real scalar (int or float, but not bool). Works for both Python built-in types and NumPy scalar types.
@@ -60,3 +61,10 @@ def is_real_scalar(value):
     return (
         isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_))
     )
+
+
+def is_integer(value):
+    '''
+    Check if a value is an integer (int or np.integer, but not bool). Works for both Python built-in types and NumPy scalar types.
+    '''
+    return isinstance(value, (int, np.integer)) and not isinstance(value, (bool, np.bool_))

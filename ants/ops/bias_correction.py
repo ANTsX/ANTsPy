@@ -6,6 +6,7 @@ __all__ = ["n3_bias_field_correction",
 import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn, get_pointer_string, process_arguments
+import numpy as np
 
 @image_method
 def n3_bias_field_correction(image, downsample_factor=3):
@@ -122,7 +123,11 @@ def n3_bias_field_correction2(
 
     N3_CONVERGENCE_1 = "[%i,%.10f]" % (iters, tol)
     N3_SHRINK_FACTOR_1 = str(shrink_factor)
-    if (not isinstance(spline_param, (list, tuple))) or (len(spline_param) == 1):
+    if isinstance(spline_param, np.ndarray):
+        spline_param = spline_param.tolist()
+    if isinstance(spline_param, (list, tuple)) and len(spline_param) == 1:
+        spline_param = spline_param[0]
+    if not isinstance(spline_param, (list, tuple)):
         N3_BSPLINE_PARAMS = "[%i,%i]" % (spline_param, number_of_fitting_levels)
     elif (isinstance(spline_param, (list, tuple))) and (
         len(spline_param) == image.dimension
@@ -243,7 +248,11 @@ def n4_bias_field_correction(
 
     N4_CONVERGENCE_1 = "[%s, %.10f]" % ("x".join([str(it) for it in iters]), tol)
     N4_SHRINK_FACTOR_1 = str(shrink_factor)
-    if (not isinstance(spline_param, (list, tuple))) or (len(spline_param) == 1):
+    if isinstance(spline_param, np.ndarray):
+        spline_param = spline_param.tolist()
+    if isinstance(spline_param, (list, tuple)) and len(spline_param) == 1:
+        spline_param = spline_param[0]
+    if not isinstance(spline_param, (list, tuple)):
         N4_BSPLINE_PARAMS = "[%i]" % spline_param
     elif (isinstance(spline_param, (list, tuple))) and (
         len(spline_param) == image.dimension
@@ -317,6 +326,8 @@ def abp_n4(image, intensity_truncation=(0.025, 0.975, 256), mask=None, usen3=Fal
     >>> image = ants.image_read(ants.get_ants_data('r16'))
     >>> image2 = ants.abp_n4(image)
     """
+    if isinstance(intensity_truncation, np.ndarray):
+        intensity_truncation = intensity_truncation.tolist()
     if (not isinstance(intensity_truncation, (list, tuple))) or (
         len(intensity_truncation) != 3
     ):

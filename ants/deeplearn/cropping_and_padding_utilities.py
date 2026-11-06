@@ -7,6 +7,8 @@ import ants
 import numpy as np
 import math
 
+from ants.internal import is_integer
+
 def crop_image_center(image,
                       crop_size):
     """
@@ -74,11 +76,18 @@ def pad_image_by_factor(image,
     """
 
     factor_vector = factor
-    if isinstance(factor, int):
+    if is_integer(factor):
         factor_vector = np.repeat(factor, image.dimension)
+    if isinstance(factor_vector, np.ndarray):
+        factor_vector = factor_vector.tolist()
+    if not isinstance(factor_vector, (list, tuple)):
+        raise ValueError("factor must be positive integer or an n-D tuple of positive integers for image dimension D.")
 
     if len(factor_vector) != image.dimension:
-        raise ValueError("factor must be scalar or the length of the image dimension.")
+        raise ValueError("factor must be positive integer or an n-D tuple of positive integers for image dimension D.")
+
+    if not all([is_integer(f) and f > 0 for f in factor_vector]):
+        raise ValueError("factor must be positive integer or an n-D tuple of positive integersfor image dimension D.")
 
     image_size = np.array(image.shape)
     delta_size = image_size % factor_vector
@@ -133,7 +142,6 @@ def pad_or_crop_image_to_size(image,
 def crop_image_from_center_point(image,
                                  center_point,
                                  patch_size):
-    
     """
     Crop a patch from an image around a center point
 
@@ -156,7 +164,7 @@ def crop_image_from_center_point(image,
             index[k] = 0
         if index[k] > (image_shape[k] - 1):
             index[k] = image_shape[k] - 1
-    
+
     index_offset = index.copy()
     for k in range(len(patch_size)):
         index_offset[k] = index_offset[k] - np.round(0.5 * patch_size[k])

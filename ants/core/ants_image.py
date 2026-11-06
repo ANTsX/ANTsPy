@@ -20,7 +20,7 @@ from functools import partialmethod
 import inspect
 
 import ants
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_integer
 
 from ._pixel_types import (
     _supported_ptypes,
@@ -125,6 +125,8 @@ class ANTsImage(object):
         -------
         None
         """
+        if isinstance(new_spacing, np.ndarray):
+            new_spacing = new_spacing.tolist()
         if not isinstance(new_spacing, (tuple, list)):
             raise ValueError('arg must be tuple or list')
         if len(new_spacing) != self.dimension:
@@ -157,6 +159,8 @@ class ANTsImage(object):
         -------
         None
         """
+        if isinstance(new_origin, np.ndarray):
+            new_origin = new_origin.tolist()
         if not isinstance(new_origin, (tuple, list)):
             raise ValueError('arg must be tuple or list')
         if len(new_origin) != self.dimension:
@@ -533,7 +537,7 @@ class ANTsImage(object):
                 if stops[i] < starts[i]:
                     raise ValueError('Reverse indexing is not supported.')
 
-            elif isinstance(ti, int):
+            elif is_integer(ti):
                 starts[i] = ti
                 sizes[i] = 0
 

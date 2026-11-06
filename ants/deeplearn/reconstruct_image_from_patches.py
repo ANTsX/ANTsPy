@@ -3,6 +3,8 @@ __all__ = ["reconstruct_image_from_patches"]
 import ants
 import numpy as np
 
+from ants.internal import is_integer
+
 def reconstruct_image_from_patches(patches,
                                    domain_image,
                                    stride_length=1,
@@ -47,7 +49,7 @@ def reconstruct_image_from_patches(patches,
     if dimensionality != 2 and dimensionality != 3:
         raise ValueError("Unsupported dimensionality.")
 
-    is_list_patches = isinstance(patches, list)
+    is_list_patches = isinstance(patches, (list, np.ndarray))
 
     patch_size = ()
     number_of_image_components = 1
@@ -68,11 +70,18 @@ def reconstruct_image_from_patches(patches,
     count_array = np.zeros((*image_size, number_of_image_components))
 
     stride_length_tuple = stride_length
-    if isinstance(stride_length, int):
+    if is_integer(stride_length):
         stride_length_tuple = tuple(np.multiply(np.ones_like(patch_size), stride_length))
-    elif len(stride_length) != dimensionality:
+    elif isinstance(stride_length, np.ndarray):
+        stride_length_tuple = tuple(stride_length.tolist())
+    elif isinstance(stride_length_tuple, (list, tuple)):
+        stride_length_tuple = tuple(stride_length_tuple)
+    else:
         raise ValueError("stride_length is not a scalar or vector of length dimensionality.")
-    elif np.any(np.less(stride_length, 1)):
+
+    if len(stride_length_tuple) != dimensionality:
+        raise ValueError("stride_length is not a scalar or vector of length dimensionality.")
+    if np.any(np.less(stride_length_tuple, 1)):
         raise ValueError("stride_length elements must be positive integers.")
 
     if domain_image_is_mask:

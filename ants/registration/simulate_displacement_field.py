@@ -4,13 +4,13 @@ import numpy as np
 
 
 import ants
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_integer
 
 
 
-def simulate_displacement_field(domain_image, 
-                                field_type="bspline", 
-                                number_of_random_points=1000, 
+def simulate_displacement_field(domain_image,
+                                field_type="bspline",
+                                number_of_random_points=1000,
                                 sd_noise=10.0,
                                 enforce_stationary_boundary=True,
                                 number_of_fitting_levels=4,
@@ -46,7 +46,7 @@ def simulate_displacement_field(domain_image,
 
     sd_smoothing : float
         Standard deviation of the Gaussian smoothing in mm (exponential only).
-        
+
     Returns
     -------
     ANTs vector image.
@@ -64,27 +64,24 @@ def simulate_displacement_field(domain_image,
     image_dimension = domain_image.dimension
 
     if field_type == 'bspline':
-        if isinstance(mesh_size, int) == False and len(mesh_size) != image_dimension:
+        if is_integer(mesh_size) == False and len(mesh_size) != image_dimension:
             raise ValueError("Incorrect specification for mesh_size.")
 
         spline_order = 3
-        number_of_control_points = mesh_size + spline_order
-
-        if isinstance(number_of_control_points, int) == True:
-            number_of_control_points = np.repeat(number_of_control_points, image_dimension)
+        number_of_control_points = np.array(mesh_size) + np.repeat(spline_order, image_dimension)
 
         libfn = get_lib_fn("simulateBsplineDisplacementField%iD" % image_dimension)
-        field = libfn(domain_image.pointer, number_of_random_points, sd_noise, 
+        field = libfn(domain_image.pointer, number_of_random_points, sd_noise,
                       enforce_stationary_boundary, number_of_fitting_levels, number_of_control_points)
         bspline_field = ants.from_pointer(field).clone('float')
         return bspline_field
 
     elif field_type == 'exponential':
         libfn = get_lib_fn("simulateExponentialDisplacementField%iD" % image_dimension)
-        field = libfn(domain_image.pointer, number_of_random_points, sd_noise, 
+        field = libfn(domain_image.pointer, number_of_random_points, sd_noise,
                       enforce_stationary_boundary, sd_smoothing)
         exp_field = ants.from_pointer(field).clone('float')
         return exp_field
 
-    else:  
+    else:
         raise ValueError("Unrecognized field type.")
