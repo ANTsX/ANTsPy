@@ -309,9 +309,11 @@ def plot_ortho(
     if image.components == 1:
 
         # potentially find dynamic range
-        if scale == True:
+        if isinstance(scale, (bool, np.bool_)) and scale == True:
             vmin, vmax = image.quantile((0.05, 0.95))
-        elif isinstance(scale, (list, tuple)):
+        elif isinstance(scale, (list, tuple, np.ndarray)):
+            if isinstance(scale, np.ndarray):
+                scale = scale.tolist()
             if len(scale) != 2:
                 raise ValueError(
                     "scale argument must be boolean or list/tuple with two values"

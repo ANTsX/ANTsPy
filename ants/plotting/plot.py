@@ -24,6 +24,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 import ants
 from ants.decorators import image_method
+from ants.internal import is_integer, is_real_scalar
 
 @image_method
 def plot(
@@ -111,11 +112,12 @@ def plot(
     ncol : integer
         Number of columns to have on the plot if image is 3D.
 
-    slice_buffer : integer
+    slice_buffer : integer, 2-tuple, or None
         how many slices to buffer when finding the non-zero slices of
         a 3D images. So, if slice_buffer = 10, then the first slice
         in a 3D image will be the first non-zero slice index plus 10 more
-        slices.
+        slices. If None, defaults to 10% of the image size in each dimension.
+        Only used if `slices` is None.
 
     black_bg : boolean
         if True, the background of the image(s) will be black.
@@ -279,9 +281,11 @@ def plot(
                 overlay = overlay.crop_image(plotmask)
 
         # potentially find dynamic range
-        if scale == True:
+        if isinstance(scale, (bool, np.bool_)) and scale == True:
             vmin, vmax = image.quantile((0.05, 0.95))
-        elif isinstance(scale, (list, tuple)):
+        elif isinstance(scale, (list, tuple, np.ndarray)):
+            if isinstance(scale, np.ndarray):
+                scale = scale.tolist()
             if len(scale) != 2:
                 raise ValueError(
                     "scale argument must be boolean or list/tuple with two values"
@@ -358,14 +362,18 @@ def plot(
                 ov_arr = np.rollaxis(ov_arr, axis)
 
             if slices is None:
-                if not isinstance(slice_buffer, (list, tuple)):
-                    if slice_buffer is None:
-                        slice_buffer = (
-                            int(img_arr.shape[1] * 0.1),
-                            int(img_arr.shape[2] * 0.1),
-                        )
-                    else:
-                        slice_buffer = (slice_buffer, slice_buffer)
+                if slice_buffer is None:
+                    slice_buffer = (
+                        int(img_arr.shape[1] * 0.1),
+                        int(img_arr.shape[2] * 0.1),
+                    )
+                elif isinstance(slice_buffer, np.ndarray):
+                    slice_buffer = slice_buffer.tolist()
+                elif is_integer(slice_buffer):
+                    slice_buffer = (slice_buffer, slice_buffer)
+
+                if not isinstance(slice_buffer, (list, tuple)) or len(slice_buffer) != 2:
+                        raise ValueError("slice_buffer argument must be one of None, integer or a 2-tuple")
                 nonzero = np.where(img_arr.sum(axis=(1, 2)) > 0.01)[0]
                 min_idx = nonzero[0] + slice_buffer[0]
                 max_idx = nonzero[-1] - slice_buffer[1]
@@ -381,8 +389,13 @@ def plot(
                 if reverse:
                     slice_idxs = np.array(list(reversed(slice_idxs)))
             else:
-                if isinstance(slices, (int, float)):
+                if is_real_scalar(slices):
                     slices = [slices]
+                elif isinstance(slices, (list, tuple, np.ndarray)):
+                    if isinstance(slices, np.ndarray):
+                        slices = slices.tolist()
+                else:
+                    raise ValueError("slices argument must be a scalar or a list/tuple of scalars")
                 # if all slices are less than 1, infer that they are relative slices
                 if sum([s > 1 for s in slices]) == 0:
                     slices = [int(s * img_arr.shape[0]) for s in slices]
