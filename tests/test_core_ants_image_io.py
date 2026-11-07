@@ -431,6 +431,29 @@ class TestNumpySidecars(unittest.TestCase):
         self.header = dict(origin=(2.5, -1.0, 8.0), spacing=(0.5, 1.25, 2.0),
                            direction=[[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
+    def test_npy_component_layout(self):
+        for array in (self.array[0], self.array):
+            dimension = array.ndim
+            data = np.stack((array, array + 5), axis=-1)
+            image = ants.from_numpy(data, has_components=True,
+                                    origin=self.header['origin'][:dimension],
+                                    spacing=self.header['spacing'][:dimension],
+                                    direction=np.asarray(self.header['direction'])[:dimension, :dimension])
+            for channels_first in (False, True):
+                image.channels_first = channels_first
+                with self.subTest(shape=array.shape, channels_first=channels_first), TemporaryDirectory() as tmp:
+                    filename = os.path.join(tmp, 'image.npy')
+                    ants.image_write(image, filename)
+                    nptest.assert_array_equal(np.load(filename), data)
+                    result = ants.image_read(filename)
+                    self.assertEqual(result.shape, image.shape)
+                    self.assertEqual(result.components, image.components)
+                    self.assertEqual(result.origin, image.origin)
+                    self.assertEqual(result.spacing, image.spacing)
+                    nptest.assert_array_equal(result.direction, image.direction)
+                    nptest.assert_array_equal(result.numpy(), data)
+                    self.assertFalse(result.channels_first)
+
     def test_npy_sidecar_round_trip(self):
         for name in ('image.npy', 'image.npy.copy.npy',
                      'directory.npy/image.npy', 'directory.npy/image.npy.copy.npy'):

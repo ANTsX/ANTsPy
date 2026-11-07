@@ -595,7 +595,10 @@ class ANTsImage(object):
         img += 10
         print(img.mean(), img3.mean())
         """
-        return self.numpy(), self.origin, self.spacing, self.direction, self.has_components, self.is_rgb
+        data = self.numpy()
+        if self.has_components and self.channels_first:
+            data = np.moveaxis(data, 0, -1)
+        return data, self.origin, self.spacing, self.direction, self.has_components, self.is_rgb
 
     def __setstate__(self, state):
         data, origin, spacing, direction, has_components, is_rgb = state
