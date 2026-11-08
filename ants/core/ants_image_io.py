@@ -389,6 +389,8 @@ def image_read(filename, dimension=None, pixeltype="float", reorient=False):
                 has_components=img_header.get("components", 1) > 1,
                 pixeltype=pixeltype
             )
+            if ants_image.has_components:
+                ants_image.channels_first = bool(img_header.get("channels_first", False))
         else:
             img_header = {}
             ants_image = from_numpy(img_array, pixeltype=pixeltype) # Still does type conversion if pixeltype=None
@@ -529,6 +531,8 @@ def image_write(image, filename, ri=False):
             "direction": image.direction.tolist(),
             "components": image.components,
         }
+        if image.has_components and image.channels_first:
+            img_header["channels_first"] = True
 
         np.save(filename, img_array)
         with open(filename[:-4] + ".json", "w") as outfile:
@@ -606,14 +610,15 @@ def new_image_like(image, data):
     """
     if not isinstance(data, np.ndarray):
         raise ValueError('data must be a numpy array')
+    expected_shape = image.shape
+    if image.has_components:
+        expected_shape = ((image.components,) + image.shape if image.channels_first
+                          else image.shape + (image.components,))
+    if data.shape != expected_shape:
+        raise ValueError('given array shape %s does not match image.numpy() shape %s' %
+                         (data.shape, expected_shape))
     if image.has_components and image.channels_first:
         data = np.moveaxis(data, 0, -1)
-    if not image.has_components:
-        if data.shape != image.shape:
-            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape, image.shape))
-    else:
-        if (data.shape[-1] != image.components) or (data.shape[:-1] != image.shape):
-            raise ValueError('given array shape (%s) and image array shape (%s) do not match' % (data.shape[1:], image.shape))
 
     new_image = from_numpy(data, origin=image.origin,
         spacing=image.spacing, direction=image.direction,

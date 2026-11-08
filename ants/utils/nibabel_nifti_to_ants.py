@@ -148,6 +148,8 @@ def to_nibabel_nifti( ants_image, header=None):
 
     if ants_image.has_components:
         # nibabel expects components in the 5th dimension, so array has to have dims (x,y,z,1,components)
+        if ants_image.channels_first:
+            data = np.moveaxis(data, 0, -1)
         data = np.expand_dims(data, axis=3)
 
     spacing = ants_image.spacing

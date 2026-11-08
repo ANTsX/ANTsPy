@@ -445,14 +445,17 @@ class TestNumpySidecars(unittest.TestCase):
                     filename = os.path.join(tmp, 'image.npy')
                     ants.image_write(image, filename)
                     nptest.assert_array_equal(np.load(filename), data)
+                    with open(filename[:-4] + '.json') as stream:
+                        sidecar = json.load(stream)
+                    self.assertEqual(sidecar.get('channels_first', False), channels_first)
                     result = ants.image_read(filename)
                     self.assertEqual(result.shape, image.shape)
                     self.assertEqual(result.components, image.components)
                     self.assertEqual(result.origin, image.origin)
                     self.assertEqual(result.spacing, image.spacing)
                     nptest.assert_array_equal(result.direction, image.direction)
-                    nptest.assert_array_equal(result.numpy(), data)
-                    self.assertFalse(result.channels_first)
+                    nptest.assert_array_equal(result.numpy(), image.numpy())
+                    self.assertEqual(result.channels_first, channels_first)
 
     def test_npy_sidecar_round_trip(self):
         for name in ('image.npy', 'image.npy.copy.npy',

@@ -598,11 +598,20 @@ class ANTsImage(object):
         data = self.numpy()
         if self.has_components and self.channels_first:
             data = np.moveaxis(data, 0, -1)
-        return data, self.origin, self.spacing, self.direction, self.has_components, self.is_rgb
+        state = (data, self.origin, self.spacing, self.direction, self.has_components, self.is_rgb)
+        # Keep the six-item state for existing images and retain the component
+        # presentation only when it differs from the default.
+        if self.has_components and self.channels_first:
+            return state + (True,)
+        return state
 
     def __setstate__(self, state):
-        data, origin, spacing, direction, has_components, is_rgb = state
+        if len(state) not in (6, 7):
+            raise ValueError('ANTsImage pickle state must contain 6 or 7 items')
+        data, origin, spacing, direction, has_components, is_rgb = state[:6]
+        channels_first = bool(state[6]) if len(state) == 7 else False
         image = ants.from_numpy(np.copy(data), origin=origin, spacing=spacing, direction=direction, has_components=has_components, is_rgb=is_rgb)
+        image.channels_first = channels_first if has_components else False
         self.__dict__ = image.__dict__
 
 def copy_image_info(reference, target):

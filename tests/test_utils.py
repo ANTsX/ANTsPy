@@ -1691,6 +1691,23 @@ class TestModule_nibabel_to_ants(unittest.TestCase):
         self.assertTrue(np.allclose(nib_img_vec.get_fdata(), ants_img_back.get_fdata(), atol=1e-5))
         self.assertTrue(np.allclose(nib_img_vec.affine, ants_img_back.affine, atol=1e-5))
 
+    def test_multicomponent_channels_first(self):
+        scalar_data = np.arange(4 * 5 * 6, dtype=np.float32).reshape(4, 5, 6)
+        scalar = ants.from_numpy(scalar_data)
+        expected = np.stack((scalar_data, scalar_data + 10, scalar_data * 2), axis=-1)
+        for channels_first in (False, True):
+            with self.subTest(channels_first=channels_first):
+                image = ants.merge_channels(
+                    [scalar, scalar + 10, scalar * 2], channels_first=channels_first)
+                nifti = ants.to_nibabel_nifti(image)
+                self.assertEqual(nifti.shape, (4, 5, 6, 1, 3))
+                nptest.assert_array_equal(np.asanyarray(nifti.dataobj), expected[:, :, :, None, :])
+
+                restored = ants.from_nibabel_nifti(nifti)
+                self.assertEqual(restored.shape, image.shape)
+                self.assertEqual(restored.components, image.components)
+                nptest.assert_array_equal(restored.numpy(), expected)
+
 
 if __name__ == "__main__":
     run_tests()
