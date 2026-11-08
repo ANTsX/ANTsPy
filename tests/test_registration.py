@@ -569,6 +569,34 @@ class TestModule_random(unittest.TestCase):
                                              fixed_intensity_images=fi,
                                              moving_intensity_images=mi)
 
+    def test_label_image_registration_without_initial_transforms(self):
+        # no initial transform, as for 'identity': the label images still drive the deformable stage
+        fi = ants.resample_image(ants.image_read(ants.get_ants_data('r16')), (60, 60), 1, 0)
+        mi = ants.resample_image(ants.image_read(ants.get_ants_data('r64')), (60, 60), 1, 0)
+        fi_seg = ants.threshold_image(fi, "Kmeans", 3) - 1
+        mi_seg = ants.threshold_image(mi, "Kmeans", 3) - 1
+        module = importlib.import_module('ants.registration.registration')
+        def label_metrics(initial_transforms):
+            calls = []
+            def capture(args):
+                calls.extend(args)
+                raise RuntimeError('captured')
+            with patch.object(module, 'get_lib_fn', return_value=capture):
+                with self.assertRaisesRegex(RuntimeError, 'captured'):
+                    ants.label_image_registration([fi_seg], [mi_seg], fixed_intensity_images=fi,
+                                                  moving_intensity_images=mi, initial_transforms=initial_transforms)
+            return [a for a in calls if a.startswith('MSQ[')]
+        xfrm_file = os.path.join(tempfile.mkdtemp(), 'identity.mat')
+        ants.write_transform(ants.create_ants_transform(dimension=2), xfrm_file)
+        n = len(label_metrics('identity'))
+        self.assertGreater(n, 0)
+        self.assertEqual(len(label_metrics(None)), n)
+        self.assertEqual(len(label_metrics([xfrm_file])), n)
+        # without intensity images, the label metrics are the only ones
+        reg = ants.label_image_registration([fi_seg], [mi_seg], initial_transforms=None)
+        self.assertEqual(len(reg['fwdtransforms']), 1)
+        self.assertTrue(os.path.exists(reg['fwdtransforms'][0]))
+
 
     def test_tensor_reorient(self):
         fa = 0.75
