@@ -84,6 +84,42 @@ class TestModule_apply_transforms(unittest.TestCase):
                 interpolator="unsupported-interp",
             )
 
+    def test_invert_affine_transform_files(self):
+        # an affine can be inverted whether it is stored as .mat, .txt, .tfm or .h5
+        fixed = ants.image_read(ants.get_ants_data("r16"))
+        moving = ants.image_read(ants.get_ants_data("r64"))
+        tx = ants.create_ants_transform(dimension=2, matrix=[[1.05, 0.1], [0.0, 0.95]],
+                                        translation=(3.0, -2.0), center=(128.0, 128.0))
+        pts = pd.DataFrame({"x": [10.0, 100.0, 200.0], "y": [20.0, 128.0, 50.0]})
+        with tempfile.TemporaryDirectory() as tmpdir:
+            inverse_fn = os.path.join(tmpdir, "inverse.mat")
+            ants.write_transform(tx.invert(), inverse_fn)
+            expected_image = ants.apply_transforms(fixed, moving, [inverse_fn]).numpy()
+            expected_points = ants.apply_transforms_to_points(2, pts, [inverse_fn])[["x", "y"]].values
+            results = {}
+            for ext in (".mat", ".txt", ".tfm", ".h5"):
+                fn = os.path.join(tmpdir, "affine" + ext)
+                ants.write_transform(tx, fn)
+                image = ants.apply_transforms(fixed, moving, [fn], whichtoinvert=[True]).numpy()
+                points = ants.apply_transforms_to_points(2, pts, [fn], whichtoinvert=[True])[["x", "y"]].values
+                # tx.invert() is computed in single precision, antsApplyTransforms inverts in double
+                nptest.assert_allclose(image, expected_image, atol=1e-2)
+                nptest.assert_allclose(points, expected_points, atol=1e-4)
+                results[ext] = image, points
+            for ext in (".txt", ".tfm", ".h5"):
+                nptest.assert_array_equal(results[ext][0], results[".mat"][0])
+                nptest.assert_array_equal(results[ext][1], results[".mat"][1])
+
+            # a composite transform with a displacement field cannot be inverted, whatever the extension
+            field = ants.from_numpy(np.zeros((256, 256, 2), dtype="float32"), has_components=True)
+            composite = ants.compose_ants_transforms([tx, ants.transform_from_displacement_field(field)])
+            composite_fn = os.path.join(tmpdir, "composite.txt")
+            ants.write_transform(composite, composite_fn)
+            with self.assertRaises(ValueError):
+                ants.apply_transforms(fixed, moving, [composite_fn], whichtoinvert=[True])
+            with self.assertRaises(ValueError):
+                ants.apply_transforms_to_points(2, pts, [composite_fn], whichtoinvert=[True])
+
 
 class TestModule_create_jacobian_determinant_image(unittest.TestCase):
     def setUp(self):
