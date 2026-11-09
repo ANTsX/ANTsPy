@@ -45,6 +45,10 @@ jobs:
             python: '3.13'
             cibw_python: 313
             platform_id: win_amd64
+          - os: windows-latest
+            python: '3.14'
+            cibw_python: 314
+            platform_id: win_amd64
 
           # Linux 64-bit
           - os: ubuntu-latest
@@ -72,6 +76,10 @@ jobs:
             python: '3.13'
             cibw_python: 313
             platform_id: manylinux_x86_64
+          - os: ubuntu-latest
+            python: '3.14'
+            cibw_python: 314
+            platform_id: manylinux_x86_64
 
           # macOS on Intel 64-bit
           - os: macos-15-intel
@@ -92,6 +100,11 @@ jobs:
           - os: macos-15-intel
             python: '3.13'
             cibw_python: 313
+            arch: x86_64
+            platform_id: macosx_x86_64
+          - os: macos-15-intel
+            python: '3.14'
+            cibw_python: 314
             arch: x86_64
             platform_id: macosx_x86_64
 
@@ -117,6 +130,11 @@ jobs:
             cibw_python: 313
             arch: arm64
             platform_id: macosx_arm64
+          - os: macos-14
+            python: '3.14'
+            cibw_python: 314
+            arch: arm64
+            platform_id: macosx_arm64
 
           # Linux ARM64 (aarch64) via native ARM runner
           - os: ubuntu-24.04-arm
@@ -137,6 +155,11 @@ jobs:
           - os: ubuntu-24.04-arm
             python: '3.13'
             cibw_python: 313
+            arch: aarch64
+            platform_id: manylinux_aarch64
+          - os: ubuntu-24.04-arm
+            python: '3.14'
+            cibw_python: 314
             arch: aarch64
             platform_id: manylinux_aarch64
 
