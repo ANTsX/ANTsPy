@@ -1470,7 +1470,7 @@ def label_image_registration(fixed_label_images,
         ants.write_transform(linear_xfrm, linear_xfrm_file)
         initial_xfrm_files.append(linear_xfrm_file)
 
-    elif initial_transforms is not None or initial_transforms == 'identity':
+    else:
 
         if do_deformable:
             for i in range(len(common_label_ids)):
@@ -1482,7 +1482,7 @@ def label_image_registration(fixed_label_images,
                                                         moving_single_label_image,
                                                         label_image_weights[i], 0])
 
-        if initial_transforms != 'identity':
+        if initial_transforms is not None and initial_transforms != 'identity':
             if not isinstance(initial_transforms, list):
                 initial_transforms = [initial_transforms]
             for i in range(len(initial_transforms)):
