@@ -139,8 +139,6 @@ def fit_bspline_displacement_field(displacement_field=None,
     if displacement_origins is not None:
         if displacement_weights is not None and (len(displacement_weights) != displacement_origins.shape[0]):
             raise ValueError("Length of displacement weights must match the number of displacement points.")
-        else:
-            displacement_weights = np.ones(displacement_origins.shape[0])
 
     if isinstance(mesh_size, int) == False and len(mesh_size) != dimensionality:
         raise ValueError("Incorrect specification for mesh_size.")

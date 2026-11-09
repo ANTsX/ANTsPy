@@ -1009,6 +1009,20 @@ class TestRandom(unittest.TestCase):
         direction=np.array([[-1, 0], [0, -1]]),
         number_of_fitting_levels=4, mesh_size=(1, 1))
 
+    def test_bspline_field_displacement_weights(self):
+        # two nearby points with opposite displacements: the field between them follows the heavier one
+        origins = np.array([[30.0, 32.0], [34.0, 32.0]])
+        deltas = np.array([[6.0, 0.0], [-6.0, 0.0]])
+        def u_x(weights):
+            field = ants.fit_bspline_displacement_field(
+                displacement_origins=origins, displacements=deltas, displacement_weights=weights,
+                origin=[0.0, 0.0], spacing=[1.0, 1.0], size=[64, 64], direction=np.eye(2),
+                number_of_fitting_levels=3, mesh_size=1, enforce_stationary_boundary=False)
+            return field.numpy()[32, 32, 0]
+        self.assertGreater(u_x(np.array([1.0, 1e-3])), 1)
+        self.assertLess(u_x(np.array([1e-3, 1.0])), -1)
+        self.assertAlmostEqual(u_x(None), u_x(np.ones(2)))
+
     def test_quantile(self):
         img = ants.image_read(ants.get_data('r16'))
         ants.rank_intensity(img)
