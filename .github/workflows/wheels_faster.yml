@@ -25,7 +25,7 @@ jobs:
             platform_id: win_amd64
 
           # Linux 64-bit
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             python: '3.13'
             cibw_python: 313
             platform_id: manylinux_x86_64
@@ -38,7 +38,7 @@ jobs:
             platform_id: macosx_x86_64
 
           # macOS on Apple M1 64-bit, supported for Python 3.10 and later
-          - os: macos-14
+          - os: macos-15
             python: '3.13'
             cibw_python: 313
             arch: arm64
