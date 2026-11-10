@@ -492,9 +492,10 @@ class ANTsImage(object):
 
     def __getitem__(self, idx):
         if self.has_components:
-            return ants.merge_channels([
-                img[idx] for img in ants.split_channels(self)
-            ])
+            return ants.merge_channels(
+                [img[idx] for img in ants.split_channels(self)],
+                channels_first=self.channels_first,
+            )
 
         if isinstance(idx, ANTsImage):
             if not ants.image_physical_space_consistency(self, idx):

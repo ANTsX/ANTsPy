@@ -59,20 +59,21 @@ def resample_image(image, resample_params, use_voxels=False, interp_type=1):
         outimage = outimage.clone(image.pixeltype)
         return outimage
     else:
+        channels_first = image.channels_first
         images = ants.split_channels(image)
         new_images = []
-        for image in images:
-            inimage = image.clone('float')
-            outimage = image.clone('float')
+        for component_image in images:
+            inimage = component_image.clone('float')
+            outimage = component_image.clone('float')
             rsampar = 'x'.join([str(rp) for rp in resample_params])
 
-            args = [image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
+            args = [component_image.dimension, inimage, outimage, rsampar, int(use_voxels), interp_type]
             processed_args = process_arguments(args)
             libfn = get_lib_fn('ResampleImage')
             libfn(processed_args)
-            outimage = outimage.clone(image.pixeltype)
+            outimage = outimage.clone(component_image.pixeltype)
             new_images.append(outimage)
-        outimage = ants.merge_channels(new_images, channels_first=image.channels_first)
+        outimage = ants.merge_channels(new_images, channels_first=channels_first)
         return outimage
 
 @image_method

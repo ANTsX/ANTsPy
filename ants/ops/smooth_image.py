@@ -64,10 +64,11 @@ def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, m
         ants_outimage = ants.from_pointer(outimage)
         return ants_outimage
     else:
+        channels_first = image.channels_first
         imagelist = ants.split_channels(image)
         newimages = []
-        for image in imagelist:
-            newimage = smooth_image(image, sigma, sigma_in_physical_coordinates, FWHM, max_kernel_width)
+        for component_image in imagelist:
+            newimage = smooth_image(component_image, sigma, sigma_in_physical_coordinates, FWHM, max_kernel_width)
             newimages.append(newimage)
-        return ants.merge_channels(newimages)
+        return ants.merge_channels(newimages, channels_first=channels_first)
 
