@@ -13,9 +13,8 @@ import pandas as pd
 import itertools
 import os
 
-import ants
-from ants.internal import get_lib_fn, get_pointer_string, is_real_scalar, process_arguments
-from ants.config import _deterministic
+import ants.config
+from ants.internal import get_lib_fn, get_pointer_string, is_integer, is_real_scalar, process_arguments
 
 def registration(
     fixed,
@@ -1517,9 +1516,9 @@ def label_image_registration(fixed_label_images,
 
             if (len(type_of_deformable_transform) != 7 or
                 not isinstance(type_of_deformable_transform[0], str) or
-                not isinstance(type_of_deformable_transform[1], float) or
+                not is_real_scalar(type_of_deformable_transform[1]) or
                 not isinstance(type_of_deformable_transform[2], str) or
-                not isinstance(type_of_deformable_transform[3], int) or
+                not is_integer(type_of_deformable_transform[3]) or
                 not isinstance(type_of_deformable_transform[4], tuple) or
                 not isinstance(type_of_deformable_transform[5], tuple) or
                 not isinstance(type_of_deformable_transform[6], tuple)):

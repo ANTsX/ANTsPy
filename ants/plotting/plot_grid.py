@@ -178,16 +178,19 @@ def plot_grid(
 
     if slices is None:
         one_slice = True
-    if is_integer(slices):
-        one_slice = True
-    if isinstance(slices, np.ndarray):
-        slices = slices.tolist()
-    if isinstance(slices, list):
-        one_slice = False
-        if not isinstance(slices[0], list):
-            slices = [slices]
-        nslicerow = len(slices)
-        nslicecol = len(slices[0])
+    else:
+        if isinstance(slices, np.ndarray):
+            slices = slices.tolist()
+        if is_integer(slices):
+            one_slice = True
+        elif isinstance(slices, list):
+            one_slice = False
+            if not isinstance(slices[0], list):
+                slices = [slices]
+            nslicerow = len(slices)
+            nslicecol = len(slices[0])
+        else:
+            raise ValueError("slices argument must be of type list or integer")
 
     nrow = len(images)
     ncol = len(images[0])

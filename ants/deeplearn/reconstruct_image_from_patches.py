@@ -70,13 +70,13 @@ def reconstruct_image_from_patches(patches,
     image_array = np.zeros((*image_size, number_of_image_components))
     count_array = np.zeros((*image_size, number_of_image_components))
 
-    stride_length_tuple = stride_length
+    if isinstance(stride_length, np.ndarray):
+        stride_length = stride_length.tolist()
+
     if is_integer(stride_length):
         stride_length_tuple = tuple(np.multiply(np.ones_like(patch_size), stride_length))
-    elif isinstance(stride_length, np.ndarray):
-        stride_length_tuple = tuple(stride_length.tolist())
-    elif isinstance(stride_length_tuple, (list, tuple)):
-        stride_length_tuple = tuple(stride_length_tuple)
+    elif isinstance(stride_length, (list, tuple)):
+        stride_length_tuple = tuple(stride_length)
     else:
         raise ValueError("stride_length is not a scalar or vector of length dimensionality.")
 

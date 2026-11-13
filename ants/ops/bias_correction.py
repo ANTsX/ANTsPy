@@ -5,7 +5,7 @@ __all__ = ["n3_bias_field_correction",
 
 import ants
 from ants.decorators import image_method
-from ants.internal import get_lib_fn, get_pointer_string, process_arguments
+from ants.internal import get_lib_fn, get_pointer_string, is_real_scalar, process_arguments
 import numpy as np
 
 @image_method
@@ -127,16 +127,14 @@ def n3_bias_field_correction2(
         spline_param = spline_param.tolist()
     if isinstance(spline_param, (list, tuple)) and len(spline_param) == 1:
         spline_param = spline_param[0]
-    if not isinstance(spline_param, (list, tuple)):
+    if is_real_scalar(spline_param):
         N3_BSPLINE_PARAMS = "[%i,%i]" % (spline_param, number_of_fitting_levels)
     elif (isinstance(spline_param, (list, tuple))) and (
         len(spline_param) == image.dimension
     ):
         N3_BSPLINE_PARAMS = "[%s,%i]" % (("x".join([str(sp) for sp in spline_param])), number_of_fitting_levels)
     else:
-        raise ValueError(
-            "Length of splineParam must either be 1 or dimensionality of image"
-        )
+        raise ValueError("spline_param must be numeric or an n-D tuple of numeric for image dimension D.")
 
     if weight_mask is not None:
         if not ants.is_image(weight_mask):
@@ -252,16 +250,15 @@ def n4_bias_field_correction(
         spline_param = spline_param.tolist()
     if isinstance(spline_param, (list, tuple)) and len(spline_param) == 1:
         spline_param = spline_param[0]
-    if not isinstance(spline_param, (list, tuple)):
+    if is_real_scalar(spline_param):
         N4_BSPLINE_PARAMS = "[%i]" % spline_param
     elif (isinstance(spline_param, (list, tuple))) and (
         len(spline_param) == image.dimension
     ):
         N4_BSPLINE_PARAMS = "[%s]" % ("x".join([str(sp) for sp in spline_param]))
     else:
-        raise ValueError(
-            "Length of splineParam must either be 1 or dimensionality of image"
-        )
+        raise ValueError("spline_param must be numeric or an n-D tuple of numeric for image dimension D.")
+
 
     if weight_mask is not None:
         if not ants.is_image(weight_mask):
@@ -308,7 +305,7 @@ def abp_n4(image, intensity_truncation=(0.025, 0.975, 256), mask=None, usen3=Fal
         image to correct and truncate
 
     intensity_truncation : 3-tuple
-        quantiles for intensity truncation
+        intensity truncation quantile params (lower, upper, nbins)
 
     mask : ANTsImage (optional)
         mask for bias correction

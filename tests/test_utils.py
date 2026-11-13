@@ -7,10 +7,9 @@ import unittest
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from matplotlib import image
 from requests import HTTPError, Response
 
-from common import run_tests, assert_same_image, assert_same_image_space
+from common import run_tests, assert_same_image
 from copy import deepcopy
 
 import math

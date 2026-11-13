@@ -62,7 +62,7 @@ def pad_image_by_factor(image,
         Input image
 
     factor: scalar or n-D tuple
-        Padding factor
+        Padding factor, a positive integer or an n-D tuple of positive integers for image dimension D.
 
     Returns
     -------
@@ -76,10 +76,10 @@ def pad_image_by_factor(image,
     """
 
     factor_vector = factor
-    if is_integer(factor):
-        factor_vector = np.repeat(factor, image.dimension)
     if isinstance(factor_vector, np.ndarray):
         factor_vector = factor_vector.tolist()
+    if is_integer(factor):
+        factor_vector = np.repeat(factor, image.dimension).tolist()
     if not isinstance(factor_vector, (list, tuple)):
         raise ValueError("factor must be positive integer or an n-D tuple of positive integers for image dimension D.")
 
@@ -87,7 +87,7 @@ def pad_image_by_factor(image,
         raise ValueError("factor must be positive integer or an n-D tuple of positive integers for image dimension D.")
 
     if not all([is_integer(f) and f > 0 for f in factor_vector]):
-        raise ValueError("factor must be positive integer or an n-D tuple of positive integersfor image dimension D.")
+        raise ValueError("factor must be positive integer or an n-D tuple of positive integers for image dimension D.")
 
     image_size = np.array(image.shape)
     delta_size = image_size % factor_vector

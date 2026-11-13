@@ -48,10 +48,10 @@ def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, m
     """
     if image.components == 1:
         outimage = image.clone()
+        if isinstance(sigma, np.ndarray):
+            sigma = sigma.tolist()
         if is_real_scalar(sigma):
             sigma = [sigma]
-        elif isinstance(sigma, np.ndarray):
-            sigma = sigma.tolist()
         elif not isinstance(sigma, (tuple, list)):
             raise ValueError('sigma must be a scalar or a tuple/list of scalars')
 

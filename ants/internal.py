@@ -58,9 +58,10 @@ def is_real_scalar(value):
     '''
     Check if a value is a real scalar (int or float, but not bool). Works for both Python built-in types and NumPy scalar types.
     '''
-    return (
-        isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_))
-    )
+    if isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, (bool, np.bool_)):
+        return np.isfinite(value)
+    else:
+        return False
 
 
 def is_integer(value):

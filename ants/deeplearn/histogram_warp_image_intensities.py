@@ -63,17 +63,17 @@ def histogram_warp_image_intensities(image,
     if not is_integer(break_points):
         parametric_points = break_points
         number_of_nonzero_displacements = len(break_points)
-        if clamp_end_points[0] is True:
+        if clamp_end_points[0]:
             parametric_points = (0, *parametric_points)
-        if clamp_end_points[1] is True:
+        if clamp_end_points[1]:
             parametric_points = (*parametric_points, 1)
     else:
         total_number_of_break_points = break_points
         if total_number_of_break_points < 1:
             raise ValueError("break_points must be a positive integer or a vector of values in the range [0, 1]")
-        if clamp_end_points[0] is True:
+        if clamp_end_points[0]:
             total_number_of_break_points += 1
-        if clamp_end_points[1] is True:
+        if clamp_end_points[1]:
             total_number_of_break_points += 1
         parametric_points = np.linspace(0, 1, total_number_of_break_points)
         number_of_nonzero_displacements = break_points

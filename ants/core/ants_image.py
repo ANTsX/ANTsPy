@@ -513,6 +513,8 @@ class ANTsImage(object):
 
         if len(idx) > ndim:
             raise ValueError('Too many indices for image')
+        if any(not isinstance(ti, slice) and not is_integer(ti) for ti in idx):
+            raise TypeError('Image indices must be integers or slices')
         if len(idx) < ndim:
             # If not all dimensions are indexed, assume the rest are full slices
             # eg im[10] -> im[10, :, :]

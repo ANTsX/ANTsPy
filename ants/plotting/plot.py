@@ -281,19 +281,20 @@ def plot(
                 overlay = overlay.crop_image(plotmask)
 
         # potentially find dynamic range
-        if isinstance(scale, (bool, np.bool_)) and scale == True:
-            vmin, vmax = image.quantile((0.05, 0.95))
+        vmin = None
+        vmax = None
+
+        if isinstance(scale, (bool, np.bool_)):
+            if scale == True:
+                vmin, vmax = image.quantile((0.05, 0.95))
         elif isinstance(scale, (list, tuple, np.ndarray)):
             if isinstance(scale, np.ndarray):
-                scale = scale.tolist()
+                scale = np.atleast_1d(scale).tolist()
             if len(scale) != 2:
-                raise ValueError(
-                    "scale argument must be boolean or list/tuple with two values"
-                )
+                raise ValueError("scale argument must be boolean or list/tuple with two values")
             vmin, vmax = image.quantile(scale)
         else:
-            vmin = None
-            vmax = None
+            raise ValueError("scale argument must be boolean or list/tuple with two values")
 
         # Plot 2D image
         if image.dimension == 2:
@@ -369,7 +370,7 @@ def plot(
                     )
                 elif isinstance(slice_buffer, np.ndarray):
                     slice_buffer = slice_buffer.tolist()
-                elif is_integer(slice_buffer):
+                if is_integer(slice_buffer):
                     slice_buffer = (slice_buffer, slice_buffer)
 
                 if not isinstance(slice_buffer, (list, tuple)) or len(slice_buffer) != 2:
@@ -389,12 +390,11 @@ def plot(
                 if reverse:
                     slice_idxs = np.array(list(reversed(slice_idxs)))
             else:
+                if isinstance(slices, np.ndarray):
+                    slices = slices.tolist()
                 if is_real_scalar(slices):
                     slices = [slices]
-                elif isinstance(slices, (list, tuple, np.ndarray)):
-                    if isinstance(slices, np.ndarray):
-                        slices = slices.tolist()
-                else:
+                elif not isinstance(slices, (tuple, list)):
                     raise ValueError("slices argument must be a scalar or a list/tuple of scalars")
                 # if all slices are less than 1, infer that they are relative slices
                 if sum([s > 1 for s in slices]) == 0:

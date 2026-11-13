@@ -89,10 +89,10 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
         raise ValueError('image must be ANTsImage type')
     if not ants.is_image(mask):
         raise ValueError('mask must be ANTsImage type')
+    if isinstance(radius, np.ndarray):
+        radius = radius.tolist()
     if is_real_scalar(radius):
         radius = [radius]*image.dimension
-    elif isinstance(radius, np.ndarray):
-        radius = radius.tolist()
 
     if (not isinstance(radius, (tuple,list))) or (len(radius) != image.dimension):
         raise ValueError('radius must be tuple or list with length == image.dimension')
