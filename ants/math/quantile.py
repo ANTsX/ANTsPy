@@ -20,6 +20,7 @@ import statsmodels.formula.api as smf
 
 import ants
 from ants.decorators import image_method
+from ants.internal import is_real_scalar
 
 def rank_intensity( x, mask=None, get_mask=True, method='max',  ):
     """
@@ -230,6 +231,8 @@ def quantile(image, q, positive=True, nonzero=True):
         img_arr = img_arr[img_arr != 0]
     if positive:
         img_arr = img_arr[img_arr > 0]
+    if isinstance(q, np.ndarray):
+        q = q.tolist()
     if isinstance(q, (list,tuple)):
         if all(qq <= 1. for qq in q):
             q = [qq*100. for qq in q]
@@ -237,7 +240,7 @@ def quantile(image, q, positive=True, nonzero=True):
             raise ValueError('Quantiles must be between 0 and 1 or percentiles between 0 and 100')
         vals = [np.percentile(img_arr, qq) for qq in q]
         return tuple(vals)
-    elif isinstance(q, (float,int)):
+    elif is_real_scalar(q):
         if q <= 1.:
             q = q*100.
         if q < 0. or q > 100.:

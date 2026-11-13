@@ -24,6 +24,8 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import numpy as np
 
+from ants.internal import is_integer, is_real_scalar
+
 
 def plot_grid(
     images,
@@ -176,16 +178,19 @@ def plot_grid(
 
     if slices is None:
         one_slice = True
-    if isinstance(slices, int):
-        one_slice = True
-    if isinstance(slices, np.ndarray):
-        slices = slices.tolist()
-    if isinstance(slices, list):
-        one_slice = False
-        if not isinstance(slices[0], list):
-            slices = [slices]
-        nslicerow = len(slices)
-        nslicecol = len(slices[0])
+    else:
+        if isinstance(slices, np.ndarray):
+            slices = slices.tolist()
+        if is_integer(slices):
+            one_slice = True
+        elif isinstance(slices, list):
+            one_slice = False
+            if not isinstance(slices[0], list):
+                slices = [slices]
+            nslicerow = len(slices)
+            nslicecol = len(slices[0])
+        else:
+            raise ValueError("slices argument must be of type list or integer")
 
     nrow = len(images)
     ncol = len(images[0])
@@ -227,14 +232,14 @@ def plot_grid(
         right=1 - 0.5 / (ncol + 1),
     )
 
-    if isinstance(vmin, (int, float)):
+    if is_real_scalar(vmin):
         vmins = [vmin] * nrow
     elif vmin is None:
         vmins = [None] * nrow
     else:
         vmins = vmin
 
-    if isinstance(vmax, (int, float)):
+    if is_real_scalar(vmax):
         vmaxs = [vmax] * nrow
     elif vmax is None:
         vmaxs = [None] * nrow
@@ -318,7 +323,7 @@ def plot_grid(
                 tmpaxis = axes
             else:
                 tmpaxis = axes[rowidx][colidx]
-            
+
             if tmpimg.dimension == 2:
                 tmpslice = tmpimg.numpy()
                 tmpslice = reorient_slice(tmpslice, tmpaxis)
@@ -328,7 +333,7 @@ def plot_grid(
                     sliceidx = math.ceil(tmpimg.shape[tmpaxis] / 2)
                 tmpslice = slice_image(tmpimg, tmpaxis, sliceidx)
                 tmpslice = reorient_slice(tmpslice, tmpaxis)
-            
+
             im = ax.imshow(tmpslice, cmap=rcmap, aspect="auto", vmin=rvmin, vmax=rvmax)
             ax.axis("off")
 

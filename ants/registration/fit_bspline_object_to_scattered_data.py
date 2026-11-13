@@ -3,7 +3,7 @@ __all__ = ["fit_bspline_object_to_scattered_data"]
 import numpy as np
 
 import ants
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_integer
 
 
 def fit_bspline_object_to_scattered_data(scattered_data,
@@ -99,7 +99,7 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     >>> scattered_data = numpy.column_stack((x, y))
     >>> parametric_data = numpy.expand_dims(u, axis=-1)
     >>> spacing = 1/(len(x)-1) * 1.0;
-    >>> bspline_curve = ants.fit_bspline_object_to_scattered_data(scattered_data, 
+    >>> bspline_curve = ants.fit_bspline_object_to_scattered_data(scattered_data,
     >>>    parametric_data,
     >>>   parametric_domain_origin=[0.0], parametric_domain_spacing=[spacing],
     >>>   parametric_domain_size=[len(x)], is_parametric_dimension_closed=None,
@@ -144,16 +144,16 @@ def fit_bspline_object_to_scattered_data(scattered_data,
     if is_parametric_dimension_closed is None:
         is_parametric_dimension_closed = np.repeat(False, parametric_dimension)
 
-    if isinstance(is_parametric_dimension_closed, bool):
-        is_parametric_dimension_closed = np.repeat(is_parametric_dimension_closed, parametric_dimension)    
+    if isinstance(is_parametric_dimension_closed, (bool, np.bool_)):
+        is_parametric_dimension_closed = np.repeat(is_parametric_dimension_closed, parametric_dimension)
 
     if len(is_parametric_dimension_closed) != parametric_dimension:
         raise ValueError("Closed is not of length parametric_dimension.")
 
-    if isinstance(mesh_size, int) == False and len(mesh_size) != parametric_dimension:
+    if is_integer(mesh_size) == False and len(mesh_size) != parametric_dimension:
         raise ValueError("Incorrect specification for mesh_size.")
 
-    if isinstance(mesh_size, int):
+    if is_integer(mesh_size):
         number_of_control_points = np.repeat(mesh_size + spline_order, parametric_dimension)
     else:
         number_of_control_points = np.array(mesh_size) + np.repeat(spline_order, parametric_dimension)
@@ -170,14 +170,14 @@ def fit_bspline_object_to_scattered_data(scattered_data,
         raise ValueError("Spacing is not of length parametric_dimension.")
 
     if len(parametric_domain_size) != parametric_dimension:
-        raise ValueError("Size is not of length parametric_dimension.")    
+        raise ValueError("Size is not of length parametric_dimension.")
 
     if parametric_data.shape[0] != scattered_data.shape[0]:
         raise ValueError("The number of points is not equal to the number of scattered data values.")
 
     if data_weights is None:
         data_weights = np.repeat(1.0, parametric_data.shape[0])
-    
+
     if data_weights.ndim == 2:
         data_weights = np.squeeze(data_weights)
 

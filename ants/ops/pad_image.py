@@ -7,6 +7,8 @@ import ants
 from ants.decorators import image_method
 from ants.internal import get_lib_fn
 
+import numpy as np
+
 @image_method
 def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False):
     """
@@ -63,6 +65,8 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
         lower_pad_vals = []
         upper_pad_vals = []
         for p in pad_width:
+            if isinstance(p, np.ndarray):
+                p = p.tolist()
             if isinstance(p, (list, tuple)):
                 lower_pad_vals.append(p[0])
                 upper_pad_vals.append(p[1])

@@ -6,7 +6,7 @@ import numpy as np
 
 import ants
 from ants.decorators import image_method
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_integer
 
 
 @image_method
@@ -53,7 +53,7 @@ def histogram_match_image(source_image, reference_image, number_of_histogram_bin
     return new_image
 
 @image_method
-def histogram_match_image2(source_image, reference_image, 
+def histogram_match_image2(source_image, reference_image,
                            source_mask=None, reference_mask=None,
                            match_points=64,
                            transform_domain_size=255):
@@ -75,11 +75,11 @@ def histogram_match_image2(source_image, reference_image,
 
     reference_mask : ANTsImage
         reference mask
-                
+
     match_points : integer or tuple
-        Parametric points at which the intensity transform displacements are 
-        specified between [0, 1], i.e. quantiles.  Alternatively, a single number 
-        can be given and the sequence is linearly spaced in [0, 1]. 
+        Parametric points at which the intensity transform displacements are
+        specified between [0, 1], i.e. quantiles.  Alternatively, a single number
+        can be given and the sequence is linearly spaced in [0, 1].
 
     transform_domain_size : integer
         Defines the sampling resolution of the B-spline warping.
@@ -96,9 +96,20 @@ def histogram_match_image2(source_image, reference_image,
     >>> src_ref = ants.histogram_match_image2(src_img, ref_img)
     """
 
-    if not isinstance(match_points, int):
-        if any(b < 0 for b in match_points) and any(b > 1 for b in match_points):
+    if is_integer(match_points):
+        if match_points < 1:
+            raise ValueError("If specifying match_points as an integer, it must be greater than 0.")
+        match_points = np.linspace(0, 1, match_points)
+    elif isinstance(match_points, np.ndarray):
+        if np.any(match_points < 0) or np.any(match_points > 1):
             raise ValueError("If specifying match_points as a vector, values must be in the range [0, 1]")
+    elif isinstance(match_points, (list, tuple)):
+        if any(b < 0 for b in match_points) or any(b > 1 for b in match_points):
+            raise ValueError("If specifying match_points as a vector, values must be in the range [0, 1]")
+        # Need a numpy array to do elementwise operations below
+        match_points = np.array(match_points)
+    else:
+        raise ValueError("match_points must be an integer or a tuple of values in the range [0, 1]")
 
     # Use entire image if mask isn't specified
     if source_mask is None:
@@ -114,25 +125,19 @@ def histogram_match_image2(source_image, reference_image,
     reference_array = reference_image.numpy()
     reference_mask_array = reference_mask.numpy()
 
-    parametric_points = None
-    if not isinstance(match_points, int):
-        parametric_points = match_points
-    else:
-        parametric_points = np.linspace(0, 1, match_points)
-
-    source_intensity_quantiles = np.quantile(source_array[source_mask_array != 0], parametric_points)
-    reference_intensity_quantiles = np.quantile(reference_array[reference_mask_array != 0], parametric_points)
+    source_intensity_quantiles = np.quantile(source_array[source_mask_array != 0], match_points)
+    reference_intensity_quantiles = np.quantile(reference_array[reference_mask_array != 0], match_points)
     displacements = reference_intensity_quantiles - source_intensity_quantiles
 
     scattered_data = np.reshape(displacements, (len(displacements), 1))
-    parametric_data = np.reshape(parametric_points * (source_masked_max - source_masked_min) + source_masked_min, (len(parametric_points), 1))
+    parametric_data = np.reshape(match_points * (source_masked_max - source_masked_min) + source_masked_min, (len(match_points), 1))
 
     transform_domain_origin = source_masked_min
     transform_domain_spacing = (source_masked_max - transform_domain_origin) / (transform_domain_size - 1)
 
     bspline_histogram_transform = ants.fit_bspline_object_to_scattered_data(scattered_data,
         parametric_data, [transform_domain_origin], [transform_domain_spacing], [transform_domain_size],
-        data_weights=None, is_parametric_dimension_closed=None, number_of_fitting_levels=8, 
+        data_weights=None, is_parametric_dimension_closed=None, number_of_fitting_levels=8,
         mesh_size=1, spline_order=3)
 
     transform_domain = np.linspace(source_masked_min, source_masked_max, transform_domain_size)

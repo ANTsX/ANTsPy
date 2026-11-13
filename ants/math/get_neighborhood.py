@@ -6,7 +6,7 @@ import numpy as np
 
 import ants
 
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_real_scalar
 from ants.decorators import image_method
 
 @image_method
@@ -14,38 +14,38 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
                             boundary_condition=None, spatial_info=False, get_gradient=False):
     """
     Get neighborhoods for voxels within mask.
-    
-    This converts a scalar image to a matrix with rows that contain neighbors 
+
+    This converts a scalar image to a matrix with rows that contain neighbors
     around a center voxel
-    
+
     ANTsR function: `getNeighborhoodInMask`
 
     Arguments
     ---------
     image : ANTsImage
         image to get values from
-    
+
     mask : ANTsImage
-        image indicating which voxels to examine. Each voxel > 0 will be used as the 
+        image indicating which voxels to examine. Each voxel > 0 will be used as the
         center of a neighborhood
-    
+
     radius : tuple/list
         array of values for neighborhood radius (in voxels)
-    
+
     physical_coordinates : boolean
         whether voxel indices and offsets should be in voxel or physical coordinates
-    
+
     boundary_condition : string (optional)
         how to handle voxels in a neighborhood, but not in the mask.
             None : fill values with `NaN`
             `image` : use image value, even if not in mask
             `mean` : use mean of all non-NaN values for that neighborhood
-    
+
     spatial_info : boolean
         whether voxel locations and neighborhood offsets should be returned along with pixel values.
-    
+
     get_gradient : boolean
-        whether a matrix of gradients (at the center voxel) should be returned in 
+        whether a matrix of gradients (at the center voxel) should be returned in
         addition to the value matrix (WIP)
 
     Returns
@@ -53,23 +53,23 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
     if spatial_info is False:
         if get_gradient is False:
             ndarray
-                an array of pixel values where the number of rows is the size of the 
+                an array of pixel values where the number of rows is the size of the
                 neighborhood and there is a column for each voxel
 
         else if get_gradient is True:
             dictionary w/ following key-value pairs:
                 values : ndarray
-                    array of pixel values where the number of rows is the size of the 
+                    array of pixel values where the number of rows is the size of the
                     neighborhood and there is a column for each voxel.
 
                 gradients : ndarray
-                    array providing the gradients at the center voxel of each 
+                    array providing the gradients at the center voxel of each
                     neighborhood
-        
+
     else if spatial_info is True:
         dictionary w/ following key-value pairs:
             values : ndarray
-                array of pixel values where the number of rows is the size of the 
+                array of pixel values where the number of rows is the size of the
                 neighborhood and there is a column for each voxel.
 
             indices : ndarray
@@ -89,8 +89,11 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
         raise ValueError('image must be ANTsImage type')
     if not ants.is_image(mask):
         raise ValueError('mask must be ANTsImage type')
-    if isinstance(radius, (int, float)):
+    if isinstance(radius, np.ndarray):
+        radius = radius.tolist()
+    if is_real_scalar(radius):
         radius = [radius]*image.dimension
+
     if (not isinstance(radius, (tuple,list))) or (len(radius) != image.dimension):
         raise ValueError('radius must be tuple or list with length == image.dimension')
 
@@ -99,12 +102,12 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
         boundary = 1
     elif boundary_condition == 'mean':
         boundary = 2
-    
+
     libfn = get_lib_fn('getNeighborhoodMatrix%s' % image._libsuffix)
-    retvals = libfn(image.pointer, 
-                    mask.pointer, 
+    retvals = libfn(image.pointer,
+                    mask.pointer,
                     list(radius),
-                    int(physical_coordinates), 
+                    int(physical_coordinates),
                     int(boundary),
                     int(spatial_info),
                     int(get_gradient))
@@ -125,25 +128,25 @@ def get_neighborhood_in_mask(image, mask, radius, physical_coordinates=False,
 @image_method
 def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False):
     """
-    Get a hypercube neighborhood at a voxel. Get the values in a local 
+    Get a hypercube neighborhood at a voxel. Get the values in a local
     neighborhood of an image.
-    
+
     ANTsR function: `getNeighborhoodAtVoxel`
 
     Arguments
     ---------
     image : ANTsImage
         image to get values from.
-    
+
     center : tuple/list
         indices for neighborhood center
-    
+
     kernel : tuple/list
-        either a collection of values for neighborhood radius (in voxels) or 
+        either a collection of values for neighborhood radius (in voxels) or
         a binary collection of the same dimension as the image, specifying the shape of the neighborhood to extract
-    
+
     physical_coordinates : boolean
-        whether voxel indices and offsets should be in voxel 
+        whether voxel indices and offsets should be in voxel
         or physical coordinates
 
     Returns
@@ -166,19 +169,23 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
     if not ants.is_image(image):
         raise ValueError('image must be ANTsImage type')
 
+    if isinstance(center, np.ndarray):
+        center = center.tolist()
     if (not isinstance(center, (tuple,list))) or (len(center) != image.dimension):
         raise ValueError('center must be tuple or list with length == image.dimension')
 
+    if isinstance(kernel, np.ndarray):
+        kernel = kernel.tolist()
     if (not isinstance(kernel, (tuple,list))) or (len(kernel) != image.dimension):
         raise ValueError('kernel must be tuple or list with length == image.dimension')
 
     radius = [int((k-1)/2) for k in kernel]
 
     libfn = get_lib_fn('getNeighborhood%s' % image._libsuffix)
-    retvals = libfn(image.pointer, 
-                    list(center), 
-                    list(kernel), 
-                    list(radius), 
+    retvals = libfn(image.pointer,
+                    list(center),
+                    list(kernel),
+                    list(radius),
                     int(physical_coordinates))
     for k in retvals.keys():
         retvals[k] = np.asarray(retvals[k])
