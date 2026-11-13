@@ -61,7 +61,8 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         usually 0 (priors used for initialization only), 0.25 or 0.5.
 
     kwargs : keyword arguments
-        more parameters, see Atropos help in ANTs
+        more parameters, see Atropos help in ANTs. Options set via function arguments
+        should not be repeated in kwargs.
 
     Returns
     -------
@@ -111,31 +112,31 @@ def atropos(a, x, i='Kmeans[3]', m='[0.2,1x1]', c='[5,0]',
         myargs = {
             'd': mydim,
             'a': a,
-            'm-MULTINAME-0': m,
             'o': outs,
             'c': c,
-            'm-MULTINAME-1': m,
+            'm': m,
             'i': i,
             'x': mymask
         }
-        for k, v in kwargs.items():
-            myargs[k] = v
-
     elif isinstance(a, (list, tuple)):
         if len(a) > 6:
             print('more than 6 input images not really supported, using first 6')
             a = a[:6]
         myargs = {
             'd': mydim,
-            'm-MULTINAME-0': m,
             'o': outs,
             'c': c,
-            'm-MULTINAME-1': m,
+            'm': m,
             'i': i,
             'x': mymask
         }
         for aa_idx, aa in enumerate(a):
             myargs['a-MULTINAME-%i'%aa_idx] = aa
+    else:
+        raise ValueError('atropos: a must be an ANTsImage or list/tuple of ANTsImage types')
+
+    for k, v in kwargs.items():
+        myargs[k] = v
 
     processed_args = process_arguments(myargs)
     libfn = get_lib_fn('Atropos')

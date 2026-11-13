@@ -76,6 +76,22 @@ class TestSegmentationFilenames(unittest.TestCase):
 
 class TestModule_atropos(unittest.TestCase):
 
+    def test_kwargs_forwarded_for_single_and_multiple_inputs(self):
+        module = importlib.import_module('ants.segmentation.atropos')
+        image = ants.from_numpy(np.ones((4, 4), dtype=np.float32))
+        for inputs in (image, [image], (image,), [image, image], (image, image)):
+            count = len(inputs) if isinstance(inputs, (list, tuple)) else 1
+            with self.subTest(container=type(inputs).__name__, count=count):
+                native = Mock(side_effect=RuntimeError('stop before native execution'))
+                with patch.object(module, 'get_lib_fn', return_value=native):
+                    with self.assertRaisesRegex(RuntimeError, 'stop before native execution'):
+                        ants.atropos(inputs, image, v=1, **{'likelihood-model': 'Gaussian'})
+                args = native.call_args.args[0]
+                self.assertIn('-v', args)
+                self.assertEqual(args[args.index('-v') + 1], '1')
+                self.assertIn('--likelihood-model', args)
+                self.assertEqual(args[args.index('--likelihood-model') + 1], 'Gaussian')
+
     def setUp(self):
         pass
 
