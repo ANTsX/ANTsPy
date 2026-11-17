@@ -424,6 +424,24 @@ class TestModule_ants_image_io(unittest.TestCase):
         self.assertEqual(img.shape, arr.shape)
         nptest.assert_allclose(img.numpy(), arr)
 
+class TestImagesToMatrix(unittest.TestCase):
+
+    def test_resamples_different_shapes(self):
+        for shape in [(2, 3), (2, 3, 4)]:
+            for target_prefix in [(3, 2), (3, 3), (2, 3)]:
+                target_shape = target_prefix + shape[2:]
+                with self.subTest(shape=shape, target_shape=target_shape):
+                    values = np.arange(np.prod(shape), dtype='float32').reshape(shape)
+                    image = ants.from_numpy(values)
+                    mask = ants.from_numpy(np.ones(target_shape, dtype='float32'))
+                    expected = np.zeros(target_shape, dtype='float32')
+                    expected[:2, :min(3, target_shape[1])] = values[:2, :target_shape[1]]
+
+                    result = ants.images_to_matrix([image, image * 2], mask=mask)
+
+                    nptest.assert_array_equal(result, [expected.ravel(), 2 * expected.ravel()])
+
+
 class TestNumpySidecars(unittest.TestCase):
 
     def setUp(self):

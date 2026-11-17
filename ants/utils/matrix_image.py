@@ -159,7 +159,7 @@ def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     for i, img in enumerate(image_list):
         if do_smooth:
             img = ants.smooth_image(img, sigma, sigma_in_physical_coordinates=True)
-        if np.sum(np.array(img.shape) - np.array(mask_thresh.shape)) != 0:
+        if img.shape != mask_thresh.shape:
             img = ants.resample_image_to_target(img, mask_thresh, 2)
         data_matrix[i, :] = img[mask_thresh]
     return data_matrix
