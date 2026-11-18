@@ -8,6 +8,22 @@ import os
 import ants
 from ants.internal import get_lib_fn, process_arguments
 
+# linear transforms that antsApplyTransforms can invert
+_LINEAR_TRANSFORMS = {
+    'AffineTransform', 'MatrixOffsetTransformBase', 'CenteredAffineTransform',
+    'Euler2DTransform', 'Euler3DTransform', 'CenteredEuler3DTransform',
+    'Rigid2DTransform', 'Rigid3DTransform', 'CenteredRigid2DTransform', 'QuaternionRigidTransform',
+    'Similarity2DTransform', 'CenteredSimilarity2DTransform', 'Similarity3DTransform',
+}
+
+
+def _is_linear_transform_file(filename):
+    """Whether filename holds a single linear transform, in any format ITK reads (.txt, .tfm, .h5, ...)."""
+    try:
+        return get_lib_fn('getTransformNameFromFile')(filename) in _LINEAR_TRANSFORMS
+    except Exception:
+        return False
+
 
 def apply_transforms(fixed, moving, transformlist,
                      interpolator='linear', imagetype=0,
@@ -159,6 +175,8 @@ def apply_transforms(fixed, moving, transformlist,
                 ismat = False
                 if '.mat' in transformlist[i]:
                     ismat = True
+                elif whichtoinvert[i]:
+                    ismat = _is_linear_transform_file(transformlist[i])
                 if whichtoinvert[i] and (not ismat):
                     raise ValueError('Cannot invert transform %i (%s) because it is not a matrix' % (i, transformlist[i]))
                 if whichtoinvert[i]:
@@ -303,6 +321,8 @@ def apply_transforms_to_points( dim, points, transformlist,
         ismat = False
         if '.mat' in transformlist[i]:
             ismat = True
+        elif whichtoinvert[i]:
+            ismat = _is_linear_transform_file(transformlist[i])
         if whichtoinvert[i] and (not ismat):
             raise ValueError('Cannot invert transform %i (%s) because it is not a matrix' % (i, transformlist[i]))
         if whichtoinvert[i]:
