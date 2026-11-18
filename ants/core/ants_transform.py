@@ -462,7 +462,7 @@ def transform_index_to_physical_point(image, index):
         index = index.tolist()
 
     if not isinstance(index, (tuple,list)):
-        raise ValueError('index must be tuple or list')
+        raise ValueError('index must be tuple, list or np.ndarray')
 
     if len(index) != image.dimension:
         raise ValueError('len(index) != image.dimension')

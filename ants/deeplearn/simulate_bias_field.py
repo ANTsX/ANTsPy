@@ -3,6 +3,8 @@ __all__ = ["simulate_bias_field"]
 import ants
 import numpy as np
 
+from ants.internal import is_integer
+
 def simulate_bias_field(domain_image,
                         number_of_points=10,
                         sd_bias_field=1.0,
@@ -63,7 +65,7 @@ def simulate_bias_field(domain_image,
         parametric_data[:,d] = np.random.uniform(low=min_spatial_domain[d],
             high=max_spatial_domain[d], size=number_of_points)
 
-    if isinstance(mesh_size, int):
+    if is_integer(mesh_size):
         mesh_size = np.tile(mesh_size, dimension)
 
     bias_field = ants.fit_bspline_object_to_scattered_data(scattered_data,

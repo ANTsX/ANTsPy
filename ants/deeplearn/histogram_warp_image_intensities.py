@@ -3,6 +3,8 @@ __all__ = ["histogram_warp_image_intensities"]
 import ants
 import numpy as np
 
+from ants.internal import is_integer
+
 def histogram_warp_image_intensities(image,
                                      break_points=(0.25, 0.5, 0.75),
                                      displacements=None,
@@ -21,8 +23,8 @@ def histogram_warp_image_intensities(image,
 
     break_points : integer or tuple
         Parametric points at which the intensity transform displacements
-        are specified between [0, 1].  Alternatively, a single number can
-        be given and the sequence is linearly spaced in [0, 1].
+        are specified between [0, 1].  Alternatively, a single integer n can
+        be given and the sequence is linearly spaced into n intervales in [0, 1].
 
     displacements : tuple
         displacements to define intensity warping.  Length must be equal to the
@@ -52,24 +54,26 @@ def histogram_warp_image_intensities(image,
     if not len(clamp_end_points) == 2:
         raise ValueError("clamp_end_points must be a boolean tuple of length 2.")
 
-    if not isinstance(break_points, int):
+    if not is_integer(break_points):
         if any(b < 0 for b in break_points) or any(b > 1 for b in break_points):
             raise ValueError("If specifying break_points as a vector, values must be in the range [0, 1]")
 
     parametric_points = None
     number_of_nonzero_displacements = 1
-    if not isinstance(break_points, int):
+    if not is_integer(break_points):
         parametric_points = break_points
         number_of_nonzero_displacements = len(break_points)
-        if clamp_end_points[0] is True:
+        if clamp_end_points[0]:
             parametric_points = (0, *parametric_points)
-        if clamp_end_points[1] is True:
+        if clamp_end_points[1]:
             parametric_points = (*parametric_points, 1)
     else:
         total_number_of_break_points = break_points
-        if clamp_end_points[0] is True:
+        if total_number_of_break_points < 1:
+            raise ValueError("break_points must be a positive integer or a vector of values in the range [0, 1]")
+        if clamp_end_points[0]:
             total_number_of_break_points += 1
-        if clamp_end_points[1] is True:
+        if clamp_end_points[1]:
             total_number_of_break_points += 1
         parametric_points = np.linspace(0, 1, total_number_of_break_points)
         number_of_nonzero_displacements = break_points
@@ -96,7 +100,7 @@ def histogram_warp_image_intensities(image,
 
     bspline_histogram_transform = ants.fit_bspline_object_to_scattered_data(scattered_data,
         parametric_data, [transform_domain_origin], [transform_domain_spacing], [transform_domain_size],
-        data_weights=weights, is_parametric_dimension_closed=None, number_of_fitting_levels=4, 
+        data_weights=weights, is_parametric_dimension_closed=None, number_of_fitting_levels=4,
         mesh_size=1, spline_order=3)
 
     transform_domain = np.linspace(0, 1, transform_domain_size)

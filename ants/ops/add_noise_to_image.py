@@ -3,7 +3,7 @@ __all__ = ["add_noise_to_image"]
 
 import ants
 from ants.decorators import image_method
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_real_scalar
 
 @image_method
 def add_noise_to_image(image,
@@ -61,7 +61,7 @@ def add_noise_to_image(image,
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
     elif noise_model == 'shot':
-        if not isinstance(noise_parameters, (int, float)):
+        if not is_real_scalar(noise_parameters):
             raise ValueError("Incorrect parameter specification.")
 
         libfn = get_lib_fn("shotNoiseF%i" % image_dimension)
@@ -69,7 +69,7 @@ def add_noise_to_image(image,
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
     elif noise_model == 'speckle':
-        if not isinstance(noise_parameters, (int, float)):
+        if not is_real_scalar(noise_parameters):
             raise ValueError("Incorrect parameter specification.")
 
         libfn = get_lib_fn("speckleNoiseF%i" % image_dimension)
@@ -77,4 +77,4 @@ def add_noise_to_image(image,
         output_image = ants.from_pointer(noise).clone('float')
         return output_image
     else:
-        raise ValueError("Unknown noise model.")    
+        raise ValueError("Unknown noise model.")

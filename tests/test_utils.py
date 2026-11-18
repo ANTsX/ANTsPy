@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from requests import HTTPError, Response
 
-from common import run_tests
+from common import run_tests, assert_same_image
 from copy import deepcopy
 
 import math
@@ -929,6 +929,18 @@ class TestModule_smooth_image(unittest.TestCase):
         image = ants.image_read(ants.get_ants_data("r16"))
         simage = ants.smooth_image(image, (1.2, 1.5))
 
+    def test_smooth_image_sigma_types(self):
+        image = ants.image_read(ants.get_ants_data("r16"))
+        expected = ants.smooth_image(image, 1.25, sigma_in_physical_coordinates=True)
+        for sigma in [np.float32(1.25), [1.25], (1.25,) * image.dimension, [1.25] * image.dimension,
+                      np.full(image.dimension, 1.25)]:
+            assert_same_image(ants.smooth_image(image, sigma, sigma_in_physical_coordinates=True), expected)
+
+        # Set spacing so that sigma in physical coordinates is different from sigma in voxel coordinates
+        image.set_spacing((2.0, 3.0))
+        physical = ants.smooth_image(image, 1.25, sigma_in_physical_coordinates=True)
+        voxel = ants.smooth_image(image, 1.25, sigma_in_physical_coordinates=False)
+        self.assertFalse(np.allclose(physical.numpy(), voxel.numpy()))
 
 class TestModule_threshold_image(unittest.TestCase):
     def setUp(self):
@@ -1119,6 +1131,15 @@ class TestRandom(unittest.TestCase):
         src_img = ants.image_read(ants.get_data('r16'))
         ref_img = ants.image_read(ants.get_data('r64'))
         src_ref = ants.histogram_match_image2(src_img, ref_img)
+
+        # vary match points
+        expected = ants.histogram_match_image2(src_img, ref_img, match_points=10)
+        points = np.linspace(0, 1, 10)
+        for match_points in [np.int64(10), points, tuple(points), list(points)]:
+            actual = ants.histogram_match_image2(src_img, ref_img, match_points=match_points)
+            assert_same_image(actual, expected)
+
+
 
     def test_averaging(self):
         x0=[ ants.get_data('r16'), ants.get_data('r27'), ants.get_data('r62'), ants.get_data('r64') ]

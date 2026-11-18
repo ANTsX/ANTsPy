@@ -1,15 +1,16 @@
 
- 
+
 
 __all__ = ['smooth_image']
 
 import math
 
 from ants.decorators import image_method
-from ants.internal import get_lib_fn
+from ants.internal import get_lib_fn, is_real_scalar
 
 import ants
 
+import numpy as np
 
 @image_method
 def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, max_kernel_width=32):
@@ -20,25 +21,25 @@ def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, m
 
     Arguments
     ---------
-    image   
+    image
         Image to smooth
-    
-    sigma   
+
+    sigma
         Smoothing factor. Can be scalar, in which case the same sigma is applied to each dimension, or a vector of length dim(inimage) to specify a unique smoothness for each dimension.
-    
-    sigma_in_physical_coordinates : boolean  
+
+    sigma_in_physical_coordinates : boolean
         If true, the smoothing factor is in millimeters; if false, it is in pixels.
-    
-    FWHM : boolean    
+
+    FWHM : boolean
         If true, sigma is interpreted as the full-width-half-max (FWHM) of the filter, not the sigma of a Gaussian kernel.
-    
-    max_kernel_width : scalar    
+
+    max_kernel_width : scalar
         Maximum kernel width
-    
+
     Returns
     -------
     ANTsImage
-    
+
     Example
     -------
     >>> import ants
@@ -47,10 +48,14 @@ def smooth_image(image, sigma, sigma_in_physical_coordinates=True, FWHM=False, m
     """
     if image.components == 1:
         outimage = image.clone()
-        if not isinstance(sigma, (tuple,list)):
+        if isinstance(sigma, np.ndarray):
+            sigma = sigma.tolist()
+        if is_real_scalar(sigma):
             sigma = [sigma]
+        elif not isinstance(sigma, (tuple, list)):
+            raise ValueError('sigma must be a scalar or a tuple/list of scalars')
 
-        if isinstance(sigma, (tuple, list)) and ((len(sigma) != image.dimension) and (len(sigma) != 1)):
+        if (len(sigma) != image.dimension) and (len(sigma) != 1):
             raise ValueError('Length of sigma must be either 1 or the dimensionality of input image')
 
         image_float = image.clone('float')

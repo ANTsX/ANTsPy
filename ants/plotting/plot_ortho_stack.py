@@ -205,14 +205,19 @@ def plot_ortho_stack(
             raise Exception('The domain_image_map must be an ants image.')
 
     # potentially find dynamic range
-    if scale == True:
-        vmins = []
-        vmaxs = []
-        for i in range(n_images):
-            vmin, vmax = images[i].quantile((0.05, 0.95))
-            vmins.append(vmin)
-            vmaxs.append(vmax)
-    elif isinstance(scale, (list, tuple)):
+    vmins = []
+    vmaxs = []
+    vmin = None
+    vmax = None
+    if isinstance(scale, (bool, np.bool_)):
+        if scale == True:
+            for i in range(n_images):
+                vmin, vmax = images[i].quantile((0.05, 0.95))
+                vmins.append(vmin)
+                vmaxs.append(vmax)
+    elif isinstance(scale, (list, tuple, np.ndarray)):
+        if isinstance(scale, np.ndarray):
+            scale = np.atleast_1d(scale).tolist()
         if len(scale) != 2:
             raise ValueError(
                 "scale argument must be boolean or list/tuple with two values"
@@ -224,8 +229,7 @@ def plot_ortho_stack(
             vmins.append(vmin)
             vmaxs.append(vmax)
     else:
-        vmin = None
-        vmax = None
+        raise ValueError("scale argument must be boolean or list/tuple with two values")
 
     if not transpose:
         nrow = n_images

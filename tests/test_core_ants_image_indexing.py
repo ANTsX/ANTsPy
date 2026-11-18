@@ -75,6 +75,34 @@ class TestClass_AntsImageIndexing(unittest.TestCase):
         # acts like a mask
         img2 = img[idx]
 
+    def test_invalid_index_types(self):
+        invalid_indices = (
+            True, False, np.bool_(True), np.bool_(False),
+            5.0, np.float32(1), np.float64(1),
+            '1', None, Ellipsis, [1], np.array([1]),
+        )
+        for shape in ((4, 5), (4, 5, 6)):
+            img = ants.from_numpy(np.zeros(shape, dtype=np.float32))
+            for invalid in invalid_indices:
+                # Cover both native image extraction and paths that would
+                # otherwise delegate to NumPy after integer indexing.
+                for idx in (invalid, (slice(None), invalid), (1, invalid)):
+                    with self.subTest(shape=shape, idx=repr(idx)):
+                        with self.assertRaisesRegex(TypeError, 'integers or slices'):
+                            img[idx]
+
+    def test_image_mask_selection_and_assignment(self):
+        for shape in ((4, 5), (4, 5, 6)):
+            data = np.arange(np.prod(shape), dtype=np.float32).reshape(shape)
+            img = ants.from_numpy(data.copy())
+            mask = img > 10
+
+            nptest.assert_array_equal(img[mask], data[data > 10])
+            img[mask] = -1
+            expected = data.copy()
+            expected[data > 10] = -1
+            nptest.assert_array_equal(img.numpy(), expected)
+
     def test_3d(self):
         img = ants.image_read(ants.get_data('mni'))
 

@@ -7,7 +7,7 @@ __all__ = ['resample_image',
 import os
 
 from ants.decorators import image_method
-from ants.internal import get_lib_fn, process_arguments
+from ants.internal import get_lib_fn, is_integer, process_arguments
 
 import ants
 
@@ -132,7 +132,8 @@ def resample_image_to_target(image, target, interp_type='linear', imagetype=0, v
     interpolator = interp_type
 
     interpolator_oldoptions = ("linear", "nearestNeighbor", "gaussian", "cosineWindowedSinc", "bSpline")
-    if isinstance(interp_type, int):
+    if is_integer(interp_type):
+        interp_type = int(interp_type)
         interpolator = interpolator_oldoptions[interp_type]
 
     accepted_interpolators = {"linear", "nearestNeighbor", "multiLabel", "gaussian",
