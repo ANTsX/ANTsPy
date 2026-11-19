@@ -697,5 +697,80 @@ class TestModule_ants_image(unittest.TestCase):
         self.assertTrue(rgb_img.dtype == 'uint8')
 
 
+class TestComponentLayout(unittest.TestCase):
+
+    def setUp(self):
+        self.images = []
+        for shape in ((3, 4), (3, 4, 5)):
+            dimension = len(shape)
+            array = np.arange(np.prod(shape), dtype=np.float32).reshape(shape)
+            scalar = ants.from_numpy(array, origin=tuple(range(dimension)),
+                                     spacing=tuple(range(2, dimension + 2)),
+                                     direction=np.flipud(np.eye(dimension)))
+            for channels_first in (False, True):
+                self.images.append(ants.merge_channels(
+                    [scalar, scalar + 5], channels_first=channels_first))
+
+    def assert_same_geometry(self, image, result):
+        self.assertEqual(result.shape, image.shape)
+        self.assertEqual(result.components, image.components)
+        self.assertEqual(result.origin, image.origin)
+        self.assertEqual(result.spacing, image.spacing)
+        nptest.assert_array_equal(result.direction, image.direction)
+
+    def test_new_image_like_component_layout(self):
+        for image in self.images:
+            for operation in (lambda img: img.new_image_like(img.numpy() * 2),
+                              lambda img: img * 2,
+                              lambda img: img + img):
+                with self.subTest(shape=image.shape, channels_first=image.channels_first,
+                                  operation=operation):
+                    result = operation(image)
+                    self.assert_same_geometry(image, result)
+                    self.assertEqual(result.channels_first, image.channels_first)
+                    nptest.assert_array_equal(result.numpy(), image.numpy() * 2)
+
+    def test_new_image_like_invalid_component_layout(self):
+        for image in self.images:
+            # Supply the opposite component-axis order to check that the error
+            # reports the original shape, not the internally moved shape.
+            wrong_shape = (image.shape + (image.components,) if image.channels_first
+                           else (image.components,) + image.shape)
+            data = np.zeros(wrong_shape, dtype=np.float32)
+            with self.subTest(shape=image.shape, channels_first=image.channels_first):
+                with self.assertRaises(ValueError) as raised:
+                    image.new_image_like(data)
+                self.assertIn(str(wrong_shape), str(raised.exception))
+                self.assertIn(str(image.numpy().shape), str(raised.exception))
+
+    def test_pickle_component_layout(self):
+        import pickle
+        from copy import deepcopy
+        for image in self.images:
+            expected_length = 7 if image.channels_first else 6
+            self.assertEqual(len(image.__getstate__()), expected_length)
+            for operation in (lambda img: pickle.loads(pickle.dumps(img)), deepcopy):
+                with self.subTest(shape=image.shape, channels_first=image.channels_first,
+                                  operation=operation):
+                    result = operation(image)
+                    self.assert_same_geometry(image, result)
+                    self.assertEqual(result.channels_first, image.channels_first)
+                    nptest.assert_array_equal(result.numpy(), image.numpy())
+
+    def test_legacy_six_item_pickle_state(self):
+        for image in self.images:
+            with self.subTest(shape=image.shape, channels_first=image.channels_first):
+                # Prior versions always stored components last in six items.
+                legacy_state = image.__getstate__()[:6]
+                restored = ants.ANTsImage.__new__(ants.ANTsImage)
+                restored.__setstate__(legacy_state)
+                self.assert_same_geometry(image, restored)
+                self.assertFalse(restored.channels_first)
+                expected = image.numpy()
+                if image.channels_first:
+                    expected = np.moveaxis(expected, 0, -1)
+                nptest.assert_array_equal(restored.numpy(), expected)
+
+
 if __name__ == '__main__':
     run_tests()
