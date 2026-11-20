@@ -703,12 +703,36 @@ class TestModule_label_image_centroids(unittest.TestCase):
         labels = ants.label_image_centroids(image)
         self.assertTrue(len(labels['labels']) == 2)
         self.assertTrue(labels['labels'][1] == 5)
-        self.assertTrue(np.allclose(labels['vertices'][0], [0.5 , 0.5 , 0.25], atol=1e-5))
+        # label 2 is at [0,0,1], [0,1,0], [0,1,1] and [1,0,0]
+        self.assertTrue(np.allclose(labels['vertices'][0], [0.25, 0.5, 0.5], atol=1e-5))
         # With convex = False, the centroid position should change
         labels = ants.label_image_centroids(image, convex=False)
-        self.assertTrue(np.allclose(labels['vertices'][0], [1.0, 1.0, 0.0], atol=1e-5))
-        # single point unchanged
-        self.assertTrue(np.allclose(labels['vertices'][1], [0.0, 1.0, 1.0], atol=1e-5))
+        self.assertTrue(np.allclose(labels['vertices'][0], [0.0, 1.0, 1.0], atol=1e-5))
+        # single point unchanged: label 5 is at [1,1,0]
+        self.assertTrue(np.allclose(labels['vertices'][1], [1.0, 1.0, 0.0], atol=1e-5))
+
+    def test_label_image_centroids_match_label_stats(self):
+        arr = np.zeros((10, 12, 14), dtype="float32")
+        arr[1:3, 2:5, 9:12] = 1
+        arr[6:9, 8:11, 0:2] = 2
+        image = ants.from_numpy(arr)
+        labels = ants.label_image_centroids(image)
+        nptest.assert_allclose(labels['vertices'], [[1.5, 3.0, 10.0], [7.0, 9.0, 0.5]])
+
+        image.set_spacing((2.0, 3.0, 4.0))
+        image.set_origin((10.0, 20.0, 30.0))
+        image.set_direction(np.diag([-1.0, 1.0, -1.0]))
+        stats = ants.label_stats(image, image)
+        stats = stats[stats['LabelValue'] > 0]
+        labels = ants.label_image_centroids(image, physical=True)
+        nptest.assert_allclose(labels['vertices'], stats[['x', 'y', 'z']].to_numpy())
+
+    def test_label_image_centroids_2d(self):
+        arr = np.zeros((6, 9), dtype="float32")
+        arr[1:3, 4:9] = 3
+        labels = ants.label_image_centroids(ants.from_numpy(arr))
+        nptest.assert_allclose(labels['labels'], [3])
+        nptest.assert_allclose(labels['vertices'], [[1.5, 6.0]])
 
 
 class TestModule_label_overlap_measures(unittest.TestCase):

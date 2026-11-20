@@ -17,7 +17,7 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
     Arguments
     ---------
     image : ANTsImage
-        image of integer labels
+        image of integer labels (2D, 3D or 4D)
 
     physical : boolean
         whether you want physical space coordinates or not
@@ -32,8 +32,10 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
         `labels` : 1D-ndarray
             array of label values
 
-        `vertices` : pd.DataFrame
-            coordinates of label centroids
+        `vertices` : ndarray
+            coordinates of label centroids, one row per label, in voxel
+            index order (matching ``image.numpy()``), or in physical space
+            if ``physical=True``
 
     Example
     -------
@@ -42,53 +44,29 @@ def label_image_centroids(image, physical=False, convex=True, verbose=False):
     >>> image = ants.from_numpy(np.asarray([[[0,2],[1,3]],[[4,6],[5,7]]]).astype('float32'))
     >>> labels = ants.label_image_centroids(image)
     """
-    d = image.shape
-    if len(d) != 3:
-        raise ValueError('image must be 3 dimensions')
-
-    xcoords = np.asarray(np.arange(d[0]).tolist()*(d[1]*d[2]))
-    ycoords = np.asarray(np.repeat(np.arange(d[1]),d[0]).tolist()*d[2])
-    zcoords = np.asarray(np.repeat(np.arange(d[1]), d[0]*d[2]))
-
     labels = image.numpy()
     mylabels = np.sort(np.unique(labels[labels > 0])).astype('int')
     n_labels = len(mylabels)
-    xc = np.zeros(n_labels)
-    yc = np.zeros(n_labels)
-    zc = np.zeros(n_labels)
 
-    if convex:
-        for lab_idx, label_intensity in enumerate(mylabels):
-            idx = (labels == label_intensity).flatten()
-            xc[lab_idx] = np.mean(xcoords[idx])
-            yc[lab_idx] = np.mean(ycoords[idx])
-            zc[lab_idx] = np.mean(zcoords[idx])
-    else:
-        for lab_idx, label_intensity in enumerate(mylabels):
-            idx = (labels == label_intensity).flatten()
-            xci = xcoords[idx]
-            yci = ycoords[idx]
-            zci = zcoords[idx]
-            dist = np.zeros(len(xci))
+    centroids = np.zeros((n_labels, image.dimension))
+    for lab_idx, label_intensity in enumerate(mylabels):
+        # voxel indices, in the same (x, y, z) order as image.numpy()
+        coords = np.argwhere(labels == label_intensity).astype('float64')
+        if convex:
+            centroids[lab_idx] = coords.mean(axis=0)
+        else:
+            dist = np.zeros(len(coords))
+            for j in range(len(coords)):
+                dist[j] = np.mean(np.sqrt(np.sum((coords[j] - coords)**2, axis=1)))
+            centroids[lab_idx] = coords[np.argmin(dist)]
 
-            for j in range(len(xci)):
-                dist[j] = np.mean(np.sqrt((xci[j] - xci)**2 + (yci[j] - yci)**2 + (zci[j] - zci)**2))
-
-            mid = np.argmin(dist)
-            xc[lab_idx] = xci[mid]
-            yc[lab_idx] = yci[mid]
-            zc[lab_idx] = zci[mid]
-
-    centroids = np.vstack([xc,yc,zc]).T
-
-    #if physical:
-    #    centroids = ants.transform_index_to_physical_point(image, centroids)
+    if physical and n_labels > 0:
+        spacing = np.asarray(image.spacing)
+        origin = np.asarray(image.origin)
+        direction = np.asarray(image.direction)
+        centroids = origin + (centroids * spacing) @ direction.T
 
     return {
         'labels': mylabels,
         'vertices': centroids
     }
-
-
-
-
