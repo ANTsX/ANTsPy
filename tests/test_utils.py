@@ -775,6 +775,25 @@ class TestModule_make_points_image(unittest.TestCase):
         with self.assertRaises(Exception):
             points_image = ants.make_points_image(image, points, radius=3)
 
+    def test_make_points_image_nearest_voxel(self):
+        image = ants.make_image((10, 10), 0)
+        image.set_spacing((2.0, 3.0))
+        image.set_origin((10.0, -5.0))
+        # continuous indices (3.55, 3.2), (-0.15, 2), (-0.55, 5), (4.8, 9.6)
+        points = np.array([[17.1, 4.6], [9.7, 1.0], [8.9, 10.0], [19.6, 23.8]])
+        points_image = ants.make_points_image(points, image, radius=0)
+        arr = points_image.numpy()
+        self.assertEqual(arr[4, 3], 1)
+        # inside the first voxel, which covers continuous index [-0.5, 0.5)
+        self.assertEqual(arr[0, 2], 2)
+        # outside the image: dropped instead of clamped to the edge
+        self.assertEqual(np.count_nonzero(arr), 2)
+
+    def test_make_points_image_4d(self):
+        image = ants.make_image((5, 5, 5, 5), 0)
+        points_image = ants.make_points_image(np.array([[1.0, 2.0, 3.0, 4.0]]), image, radius=0)
+        nptest.assert_array_equal(np.argwhere(points_image.numpy() > 0), [[1, 2, 3, 4]])
+
 
 class TestModule_mask_image(unittest.TestCase):
     def setUp(self):

@@ -49,13 +49,10 @@ def make_points_image(pts, target, radius=5):
 
     for r in range(npts):
         pt = pts[r,:]
-        idx = ants.transform_physical_point_to_index(target, pt.tolist() ).astype(int)
-        in_image=True
-        for kk in range(target.dimension):
-            in_image = in_image and idx[kk] >= 0 and idx[kk] < target.shape[kk]
-        if ( in_image == True ):
-            if (dim == 3):
-                lblimg[idx[0],idx[1],idx[2]] = r + 1
-            elif (dim == 2):
-                lblimg[idx[0],idx[1]] = r + 1
+        # nearest voxel, rounding halves up like ITK's TransformPhysicalPointToIndex
+        cidx = ants.transform_physical_point_to_index(target, pt.tolist())
+        idx = np.floor(cidx + 0.5).astype(int)
+        in_image = all(0 <= idx[kk] < target.shape[kk] for kk in range(dim))
+        if in_image:
+            lblimg[tuple(idx)] = r + 1
     return ants.morphology( lblimg, 'dilate', radius, 'grayscale' )
