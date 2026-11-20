@@ -112,15 +112,16 @@ images_from_matrix = matrix_to_images
 
 def images_to_matrix(image_list, mask=None, sigma=None, epsilon=0.5):
     """
-    Read images into rows of a matrix, given a mask - much faster for
-    large datasets as it is based on C++ implementations.
+    Read images into rows of a matrix, given a mask. 
 
     ANTsR function: `imagesToMatrix`
 
     Arguments
     ---------
     image_list : list of ANTsImage types
-        images to convert to ndarray
+        images to convert to ndarray. If these have a different shape to the mask
+        (eg, the mask is downsampled) then they will be resampled onto the mask grid.
+        Otherwise, they are expected to be in the same physical space as the mask.
 
     mask : ANTsImage (optional)
         Mask image, voxels in the mask (>= epsilon) are placed in the matrix. If None,
