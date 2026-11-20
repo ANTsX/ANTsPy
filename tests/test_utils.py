@@ -357,6 +357,23 @@ class TestModule_crop_image(unittest.TestCase):
         # full image not float
         cropped = ants.crop_image(fi, mask.clone("unsigned int"), 1)
 
+    def test_decrop_image_multichannel(self):
+        fi = ants.image_read(ants.get_ants_data("r16"))
+        fi2 = ants.merge_channels([fi, fi * 2])
+        cropped = ants.crop_indices(fi2, (10, 10), (100, 100))
+        for full in (fi2, fi):
+            decropped = ants.decrop_image(cropped, full)
+            self.assertTrue(decropped.has_components)
+            self.assertEqual(decropped.components, 2)
+            self.assertEqual(decropped.shape, fi.shape)
+            for k, channel in enumerate(ants.split_channels(decropped)):
+                full_channel = full if not full.has_components else ants.split_channels(full)[k]
+                expected = ants.decrop_image(ants.split_channels(cropped)[k], full_channel)
+                nptest.assert_allclose(channel.numpy(), expected.numpy())
+
+        with self.assertRaises(ValueError):
+            ants.decrop_image(cropped, ants.merge_channels([fi, fi, fi]))
+
 class TestModule_pad_image(unittest.TestCase):
     def setUp(self):
         self.img2d = ants.image_read(ants.get_ants_data("r16"))
@@ -393,6 +410,23 @@ class TestModule_pad_image(unittest.TestCase):
         padded = ants.pad_image(img, pad_width=[(0,4),(0,8),(0,12)])
         self.assertSequenceEqual(padded.shape, (img.shape[0] + 4, img.shape[1] + 8, img.shape[2] + 12))
         self.assertSequenceEqual(img.origin, padded.origin)
+
+    def test_pad_image_multichannel(self):
+        img = self.img2d.clone()
+        img2 = ants.merge_channels([img, img * 2])
+        padded = ants.pad_image(img2, pad_width=[(1, 2), (3, 4)])
+        self.assertTrue(padded.has_components)
+        self.assertEqual(padded.components, 2)
+        self.assertEqual(padded.shape, (img.shape[0] + 3, img.shape[1] + 7))
+        expected = ants.pad_image(img, pad_width=[(1, 2), (3, 4)])
+        self.assertSequenceEqual(padded.origin, expected.origin)
+        for k, channel in enumerate(ants.split_channels(padded)):
+            nptest.assert_allclose(channel.numpy(), expected.numpy() * (k + 1))
+
+        padded, lower, upper = ants.pad_image(img2, shape=(300, 300), return_padvals=True)
+        self.assertEqual(padded.shape, (300, 300))
+        self.assertEqual(lower, [22, 22])
+        self.assertEqual(upper, [22, 22])
 
 
 class TestModule_denoise_image(unittest.TestCase):

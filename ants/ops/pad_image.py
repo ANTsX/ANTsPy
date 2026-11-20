@@ -46,6 +46,14 @@ def pad_image(image, shape=None, pad_width=None, value=0.0, return_padvals=False
     >>> mni3 = ants.pad_image(mni, pad_width=[(0,4),(0,4),(0,4)])
     >>> mni4 = ants.pad_image(mni, pad_width=(4,4,4))
     """
+    if image.has_components:
+        padded = [pad_image(img, shape=shape, pad_width=pad_width, value=value, return_padvals=True)
+                  for img in ants.split_channels(image)]
+        new_image = ants.merge_channels([p[0] for p in padded], channels_first=image.channels_first)
+        if return_padvals:
+            return new_image, padded[0][1], padded[0][2]
+        return new_image
+
     inpixeltype = image.pixeltype
     ndim = image.dimension
     if image.pixeltype != 'float':
