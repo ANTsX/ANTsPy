@@ -3,6 +3,7 @@ Test utils module
 """
 
 import os
+import sys
 import unittest
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -1801,6 +1802,276 @@ class TestModule_nibabel_to_ants(unittest.TestCase):
         self.assertTrue(np.allclose(nib_img_vec.affine, ants_img_back.affine, atol=1e-5))
 
 
+
+
+@unittest.skipIf(nib is None, "nibabel is not installed")
+class TestModule_convert_nibabel(unittest.TestCase):
+    """Tests for the short `ants.to_nibabel` / `ants.from_nibabel` names (#693).
+
+    Same oblique-geometry fixture as TestModule_nibabel_to_ants, exercised
+    through the short names. The sform/qform tests pin down the affine
+    convention: nibabel's `.affine` is the sform when `sform_code > 0`,
+    otherwise the qform, and ANTsPy (ITK, LPS+) flips the sign of the
+    first two world axes relative to nibabel (NIfTI, RAS+).
+    """
+
+    def setUp(self):
+        # Voxel spacing
+        self.spacing = np.array((0.5, 1.25, 2.0))
+
+        # Rotation: oblique axes
+        rx, ry, rz = np.deg2rad([5.0, -10.0, 15.0])
+
+        Rx = np.array([
+            [1, 0, 0],
+            [0, np.cos(rx), -np.sin(rx)],
+            [0, np.sin(rx),  np.cos(rx)]
+        ])
+
+        Ry = np.array([
+            [ np.cos(ry), 0, np.sin(ry)],
+            [ 0,          1, 0         ],
+            [-np.sin(ry), 0, np.cos(ry)]
+        ])
+
+        Rz = np.array([
+            [np.cos(rz), -np.sin(rz), 0],
+            [np.sin(rz),  np.cos(rz), 0],
+            [0,           0,          1]
+        ])
+
+        self.direction = Rz @ Ry @ Rx  # intrinsic rotations
+
+        # Direction x spacing
+        M = self.direction @ np.diag(self.spacing)
+
+        # Translation
+        origin = np.array((1.2, 5.7, -3.4))
+        # Full affine
+        self.affine_mat = np.eye(4)
+        self.affine_mat[:3, :3] = M
+        self.affine_mat[:3, 3] = origin
+
+        # A second, different rigid affine with the SAME zooms (so the
+        # header pixdim check in from_nibabel still passes) to use as
+        # the qform in the sform-vs-qform tests.
+        rx2, ry2, rz2 = np.deg2rad([-3.0, 8.0, -25.0])
+        Rx2 = np.array([
+            [1, 0, 0],
+            [0, np.cos(rx2), -np.sin(rx2)],
+            [0, np.sin(rx2),  np.cos(rx2)]
+        ])
+        Ry2 = np.array([
+            [ np.cos(ry2), 0, np.sin(ry2)],
+            [ 0,          1, 0           ],
+            [-np.sin(ry2), 0, np.cos(ry2)]
+        ])
+        Rz2 = np.array([
+            [np.cos(rz2), -np.sin(rz2), 0],
+            [np.sin(rz2),  np.cos(rz2), 0],
+            [0,           0,           1]
+        ])
+        self.qform_affine = np.eye(4)
+        self.qform_affine[:3, :3] = (Rz2 @ Ry2 @ Rx2) @ np.diag(self.spacing)
+        self.qform_affine[:3, 3] = np.array((-7.0, 3.0, 11.0))
+
+        # Image
+        self.shape = (32, 24, 16)
+        data = np.arange(np.prod(self.shape), dtype=float).reshape(self.shape)
+
+        self.img = nib.nifti1.Nifti1Image(data, affine=self.affine_mat)
+        self.img.header['descrip'] = 'nib_ants_test'
+        self.img.header.set_xyzt_units('mm', 'sec')  # required to set pixdims correctly
+
+        # ANTs spatial info in LPS+ coordinates
+        self.ants_affine = ants.nifti_utils._ras_to_lps_affine(self.affine_mat)
+        _, self.ants_direction = ants.nifti_utils._spacing_and_dirs_from_affine(self.ants_affine[:3, :3])
+
+    def tearDown(self):
+        pass
+
+    def test_short_names_exist(self):
+        # The names requested in #693, missing from the 0.5.3 API
+        self.assertTrue(callable(ants.to_nibabel))
+        self.assertTrue(callable(ants.from_nibabel))
+        self.assertEqual(ants.to_nibabel.__module__, "ants.utils.convert_nibabel")
+        self.assertEqual(ants.from_nibabel.__module__, "ants.utils.convert_nibabel")
+
+    def test_roundtrip_3d(self):
+        ants_img = ants.from_nibabel(self.img)
+        nib_img = ants.to_nibabel(ants_img)
+
+        self.assertTrue(np.allclose(self.img.get_fdata(), nib_img.get_fdata(), atol=1e-5))
+        self.assertTrue(np.allclose(self.img.affine, nib_img.affine, atol=1e-5))
+
+        # And back again: geometry must be stable across round-trips
+        ants_img2 = ants.from_nibabel(nib_img)
+        self.assertTrue(np.allclose(ants_img.spacing, ants_img2.spacing, atol=1e-5))
+        self.assertTrue(np.allclose(ants_img.origin, ants_img2.origin, atol=1e-5))
+        self.assertTrue(np.allclose(ants_img.direction, ants_img2.direction, atol=1e-5))
+
+    def test_affine_ras_lps_convention(self):
+        # RAS+ (nibabel) -> LPS+ (ANTsPy): x and y world axes flip sign
+        ants_img = ants.from_nibabel(self.img)
+
+        self.assertTrue(np.allclose(ants_img.spacing, self.img.header.get_zooms(), atol=1e-5))
+        self.assertAlmostEqual(ants_img.origin[0], -1.0 * self.affine_mat[0, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[1], -1.0 * self.affine_mat[1, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[2], self.affine_mat[2, 3], places=5)
+        self.assertTrue(np.allclose(ants_img.direction, self.ants_direction, atol=1e-5))
+
+    def test_sform_preferred_over_qform(self):
+        # sform and qform disagree: nibabel's .affine (and therefore
+        # from_nibabel) must follow the sform when sform_code > 0.
+        # NOTE: use the image-level setters -- setting the transform
+        # on the header alone does not update nibabel's cached .affine.
+        img = nib.nifti1.Nifti1Image(self.img.get_fdata(), affine=self.affine_mat)
+        img.header.set_xyzt_units('mm', 'sec')
+        img.set_qform(self.qform_affine)
+
+        # nibabel writes the sform with code 2 ('aligned')
+        self.assertEqual(img.header['sform_code'], 2)
+        self.assertTrue(np.allclose(img.affine, self.affine_mat, atol=1e-5))
+        self.assertFalse(np.allclose(img.affine, self.qform_affine, atol=1e-5))
+
+        ants_img = ants.from_nibabel(img)
+        self.assertTrue(np.allclose(ants_img.spacing, self.img.header.get_zooms(), atol=1e-5))
+        self.assertAlmostEqual(ants_img.origin[0], -1.0 * self.affine_mat[0, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[1], -1.0 * self.affine_mat[1, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[2], self.affine_mat[2, 3], places=5)
+        self.assertTrue(np.allclose(ants_img.direction, self.ants_direction, atol=1e-5))
+
+    def test_qform_used_when_sform_absent(self):
+        # sform_code == 0: nibabel's .affine falls back to the qform,
+        # and from_nibabel must follow it.
+        # NOTE: use the image-level setters -- setting the transform
+        # on the header alone does not update nibabel's cached .affine.
+        img = nib.nifti1.Nifti1Image(self.img.get_fdata(), affine=self.affine_mat)
+        img.header.set_xyzt_units('mm', 'sec')
+        img.set_sform(None, code=0)
+        img.set_qform(self.qform_affine)
+
+        self.assertEqual(img.header['sform_code'], 0)
+        self.assertTrue(np.allclose(img.affine, self.qform_affine, atol=1e-5))
+
+        ants_img = ants.from_nibabel(img)
+        q_lps = ants.nifti_utils._ras_to_lps_affine(self.qform_affine)
+        _, q_direction = ants.nifti_utils._spacing_and_dirs_from_affine(q_lps[:3, :3])
+        self.assertTrue(np.allclose(ants_img.spacing, self.spacing, atol=1e-5))
+        self.assertAlmostEqual(ants_img.origin[0], -1.0 * self.qform_affine[0, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[1], -1.0 * self.qform_affine[1, 3], places=5)
+        self.assertAlmostEqual(ants_img.origin[2], self.qform_affine[2, 3], places=5)
+        self.assertTrue(np.allclose(ants_img.direction, q_direction, atol=1e-5))
+
+    def test_to_nibabel_writes_sform(self):
+        ants_img = ants.from_nibabel(self.img)
+        nib_img = ants.to_nibabel(ants_img)
+
+        # The geometry is written as the sform (code 2, 'aligned') ...
+        self.assertEqual(nib_img.header['sform_code'], 2)
+        self.assertTrue(np.allclose(nib_img.get_sform(), nib_img.affine, atol=1e-5))
+        # ... with a matching qform derived from it (quaternion fields
+        # are float32, so allow a looser tolerance here).
+        self.assertTrue(np.allclose(nib_img.get_qform(), nib_img.affine, atol=1e-4))
+
+    def test_orientation_roundtrip(self):
+        # A permuted / flipped (but proper, det +1) orientation must
+        # round-trip exactly through the short names.
+        R_perm = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]], dtype=float)
+        self.assertAlmostEqual(np.linalg.det(R_perm), 1.0, places=5)
+        affine_perm = np.eye(4)
+        affine_perm[:3, :3] = R_perm @ np.diag(self.spacing)
+        affine_perm[:3, 3] = np.array((4.0, -2.0, 9.0))
+
+        img = nib.nifti1.Nifti1Image(self.img.get_fdata(), affine=affine_perm)
+        img.header.set_xyzt_units('mm', 'sec')
+
+        ants_img = ants.from_nibabel(img)
+        nib_img = ants.to_nibabel(ants_img)
+
+        self.assertTrue(np.allclose(img.get_fdata(), nib_img.get_fdata(), atol=1e-5))
+        self.assertTrue(np.allclose(img.affine, nib_img.affine, atol=1e-5))
+
+    def test_timeseries_roundtrip(self):
+        data = np.stack([self.img.get_fdata()] * 3, axis=-1)
+        nib_img_ts = nib.nifti1.Nifti1Image(data, self.img.affine)
+        nib_img_ts.header.set_xyzt_units('mm', 'sec')
+        time_origin = 2.0
+        nib_img_ts.header['toffset'] = time_origin
+
+        ants_img = ants.from_nibabel(nib_img_ts)
+        self.assertEqual(ants_img.dimension, 4)
+        self.assertAlmostEqual(ants_img.origin[-1], time_origin, places=5)
+
+        nib_img2 = ants.to_nibabel(ants_img)
+        self.assertEqual(nib_img2.ndim, 4)
+        self.assertTrue(np.allclose(nib_img_ts.get_fdata(), nib_img2.get_fdata(), atol=1e-5))
+        self.assertTrue(np.allclose(nib_img_ts.affine, nib_img2.affine, atol=1e-5))
+        self.assertTrue(np.allclose(nib_img2.header['toffset'], time_origin, atol=1e-5))
+
+
+class _FakeNiftiHeader:
+    """Minimal stand-in for a nibabel header (no nibabel import needed)."""
+
+    def __init__(self, zooms):
+        self._zooms = tuple(zooms)
+
+    def get_xyzt_units(self):
+        return ("mm", "sec")
+
+    def set_xyzt_units(self, *args):
+        pass
+
+    def get_zooms(self):
+        return self._zooms
+
+    def __getitem__(self, key):
+        raise KeyError(key)
+
+
+class _FakeNiftiImage:
+    """Minimal stand-in for a nibabel image (no nibabel import needed)."""
+
+    def __init__(self, data, affine, zooms):
+        self._data = np.asarray(data, dtype=float)
+        self.affine = np.asarray(affine, dtype=float)
+        self.header = _FakeNiftiHeader(zooms)
+        self.ndim = 3
+
+    def get_fdata(self, dtype=None):
+        return self._data.astype(dtype) if dtype is not None else self._data
+
+
+class TestModule_convert_nibabel_no_nibabel(unittest.TestCase):
+    """from_nibabel works with no nibabel installed; to_nibabel fails cleanly.
+
+    Deliberately NOT skipped when nibabel is missing: these tests prove
+    nibabel is an optional dependency for this module.
+    """
+
+    def test_from_nibabel_needs_no_nibabel_import(self):
+        data = np.arange(24, dtype=float).reshape((2, 3, 4))
+        affine = np.diag([2.0, 2.0, 2.0, 1.0])
+        affine[:3, 3] = [10.0, -20.0, 30.0]
+        fake = _FakeNiftiImage(data, affine, zooms=(2.0, 2.0, 2.0))
+
+        # Hide nibabel entirely: from_nibabel must not import it.
+        with patch.dict(sys.modules, {"nibabel": None, "nibabel.nifti1": None}):
+            ants_img = ants.from_nibabel(fake)
+
+        self.assertTrue(np.allclose(ants_img.numpy(), data, atol=1e-5))
+        self.assertTrue(np.allclose(ants_img.spacing, [2.0, 2.0, 2.0], atol=1e-5))
+        # RAS+ -> LPS+: x and y origin flip sign
+        self.assertTrue(np.allclose(ants_img.origin, [-10.0, 20.0, 30.0], atol=1e-5))
+
+    def test_to_nibabel_without_nibabel_raises_helpful_error(self):
+        ants_img = ants.from_numpy(np.zeros((4, 4, 4), dtype="float32"))
+
+        with patch.dict(sys.modules, {"nibabel": None, "nibabel.nifti1": None}):
+            with self.assertRaises(ImportError) as ctx:
+                ants.to_nibabel(ants_img)
+
+        self.assertIn("pip install nibabel", str(ctx.exception))
 
 
 class TestImageMaskingAndLabelMorphology(unittest.TestCase):

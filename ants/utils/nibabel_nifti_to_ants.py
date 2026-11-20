@@ -138,8 +138,13 @@ def to_nibabel_nifti( ants_image, header=None):
     -------
         nib_image: NiftiImage from nibabel
     """
-    import nibabel as nib
-    from nibabel.nifti1 import Nifti1Image
+    try:
+        from nibabel.nifti1 import Nifti1Image
+    except ImportError as e:
+        raise ImportError(
+            "nibabel is required to convert an ANTsImage to a nibabel image. "
+            "Install it with `pip install nibabel`."
+        ) from e
 
     if ants_image.dimension < 3 or ants_image.dimension > 5:
         raise ValueError("Conversion only supported for 3D, 4D, or 5D images")
