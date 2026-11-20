@@ -141,6 +141,17 @@ def decrop_image(cropped_image, full_image):
     >>> cropped = ants.smooth_image(cropped, 1)
     >>> decropped = ants.decrop_image(cropped, fi)
     """
+    if cropped_image.has_components:
+        cropped_channels = ants.split_channels(cropped_image)
+        if full_image.has_components:
+            full_channels = ants.split_channels(full_image)
+            if len(full_channels) != len(cropped_channels):
+                raise ValueError('cropped_image and full_image must have the same number of components')
+        else:
+            full_channels = [full_image] * len(cropped_channels)
+        return ants.merge_channels([decrop_image(c, f) for c, f in zip(cropped_channels, full_channels)],
+                                   channels_first=cropped_image.channels_first)
+
     inpixeltype = 'float'
     if cropped_image.pixeltype != 'float':
         inpixeltype= cropped_image.pixeltype
