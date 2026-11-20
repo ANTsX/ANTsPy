@@ -636,6 +636,56 @@ class TestModule_get_neighborhood(unittest.TestCase):
         with self.assertRaises(Exception):
             ants.get_neighborhood_at_voxel(img, center, (2, 2, 2, 2))
 
+    def test_get_neighborhood_at_voxel_radius(self):
+        img = ants.image_read(ants.get_ants_data("r16"))
+        arr = img.numpy()
+        # center is 1-based, so (100, 100) is arr[99, 99]
+        retval = ants.get_neighborhood_at_voxel(img, (100, 100), (1, 2))
+        self.assertEqual(retval["values"].shape, (15,))
+        self.assertEqual(retval["indices"].shape, (15, 2))
+        nptest.assert_allclose(retval["values"],
+                               arr[98:101, 97:102].flatten(order="F"))
+        nptest.assert_allclose(retval["indices"][0], [99, 98])
+        nptest.assert_allclose(retval["indices"][-1], [101, 102])
+
+        # numpy radius and zero radius
+        retval = ants.get_neighborhood_at_voxel(img, (100, 100), np.array([0, 0]))
+        nptest.assert_allclose(retval["values"], [arr[99, 99]])
+
+        img3d = ants.image_read(ants.get_ants_data("mni"))
+        retval = ants.get_neighborhood_at_voxel(img3d, (50, 60, 70), (1, 1, 1))
+        nptest.assert_allclose(retval["values"],
+                               img3d.numpy()[48:51, 58:61, 68:71].flatten(order="F"))
+
+        with self.assertRaises(ValueError):
+            ants.get_neighborhood_at_voxel(img, (100, 100), (-1, 1))
+        with self.assertRaises(ValueError):
+            ants.get_neighborhood_at_voxel(img, (100, 100), (1.5, 1))
+
+    def test_get_neighborhood_at_voxel_kernel_array(self):
+        img = ants.image_read(ants.get_ants_data("r16"))
+        arr = img.numpy()
+        # cross-shaped kernel: center plus its 4-neighbors
+        kernel = np.zeros((3, 3))
+        kernel[1, :] = 1
+        kernel[:, 1] = 1
+        retval = ants.get_neighborhood_at_voxel(img, (100, 100), kernel)
+        expected = {(98, 99), (100, 99), (99, 98), (99, 100), (99, 99)}
+        got = {tuple(int(i) - 1 for i in idx) for idx in retval["indices"]}
+        self.assertEqual(got, expected)
+        for value, idx in zip(retval["values"], retval["indices"]):
+            self.assertEqual(value, arr[int(idx[0]) - 1, int(idx[1]) - 1])
+
+        # asymmetric kernel picks the voxel along the first axis
+        kernel = np.zeros((3, 3))
+        kernel[2, 1] = 1
+        retval = ants.get_neighborhood_at_voxel(img, (100, 100), kernel)
+        nptest.assert_allclose(retval["indices"], [[101, 100]])
+        nptest.assert_allclose(retval["values"], [arr[100, 99]])
+
+        with self.assertRaises(ValueError):
+            ants.get_neighborhood_at_voxel(img, (100, 100), np.ones((2, 3)))
+
 
 class TestModule_image_similarity(unittest.TestCase):
     def setUp(self):

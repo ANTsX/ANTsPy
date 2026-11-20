@@ -139,11 +139,14 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
         image to get values from.
 
     center : tuple/list
-        indices for neighborhood center
+        indices for neighborhood center. As in ANTsR, these are 1-based, and
+        the returned indices are 1-based as well.
 
-    kernel : tuple/list
-        either a collection of values for neighborhood radius (in voxels) or
-        a binary collection of the same dimension as the image, specifying the shape of the neighborhood to extract
+    kernel : tuple/list/ndarray
+        either a collection of values for neighborhood radius (in voxels),
+        one per image dimension, or a binary array with the same number of
+        dimensions as the image and an odd size along each axis, specifying
+        the shape of the neighborhood to extract
 
     physical_coordinates : boolean
         whether voxel indices and offsets should be in voxel
@@ -174,12 +177,27 @@ def get_neighborhood_at_voxel(image, center, kernel, physical_coordinates=False)
     if (not isinstance(center, (tuple,list))) or (len(center) != image.dimension):
         raise ValueError('center must be tuple or list with length == image.dimension')
 
-    if isinstance(kernel, np.ndarray):
-        kernel = kernel.tolist()
-    if (not isinstance(kernel, (tuple,list))) or (len(kernel) != image.dimension):
-        raise ValueError('kernel must be tuple or list with length == image.dimension')
+    if isinstance(kernel, (tuple, list, np.ndarray)):
+        kernel_array = np.asarray(kernel, dtype=float)
+    else:
+        kernel_array = None
 
-    radius = [int((k-1)/2) for k in kernel]
+    if kernel_array is not None and kernel_array.ndim == image.dimension:
+        # binary neighborhood shape; the C++ side walks the neighborhood with
+        # the first axis fastest, so flatten in Fortran order
+        if any(s % 2 == 0 for s in kernel_array.shape):
+            raise ValueError('kernel array must have an odd size along each axis')
+        radius = [(s - 1) // 2 for s in kernel_array.shape]
+        kernel = kernel_array.flatten(order='F').tolist()
+    elif kernel_array is not None and kernel_array.ndim == 1 and len(kernel_array) == image.dimension:
+        # neighborhood radius: extract the full (2*radius+1) hypercube
+        if np.any(kernel_array < 0) or np.any(kernel_array != np.round(kernel_array)):
+            raise ValueError('kernel radius values must be non-negative integers')
+        radius = [int(r) for r in kernel_array]
+        kernel = [1.0] * int(np.prod([2 * r + 1 for r in radius]))
+    else:
+        raise ValueError('kernel must be a radius with length == image.dimension '
+                         'or an array with image.dimension dimensions')
 
     libfn = get_lib_fn('getNeighborhood%s' % image._libsuffix)
     retvals = libfn(image.pointer,
