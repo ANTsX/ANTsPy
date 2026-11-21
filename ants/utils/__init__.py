@@ -17,3 +17,4 @@ from .convergence_monitoring import convergence_monitoring
 from .polar_decomposition import polar_decomposition
 from .nifti_utils import (deshear_nifti_sform, get_nifti_sform_shear, get_nifti_qform_spatial_info, get_nifti_sform_spatial_info,
                           get_nifti_spatial_transform_from_metadata, set_nifti_spatial_transform_from_metadata)
+from .utils import set_itk_default_num_threads, get_itk_default_num_threads

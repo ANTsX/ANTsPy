@@ -1823,5 +1823,20 @@ class TestImageMaskingAndLabelMorphology(unittest.TestCase):
         result = ants.multi_label_morphology(image, 'MD', 1, dilation_mask=image * 0 + 1).numpy()
         np.testing.assert_array_equal(result[data != 0], data[data != 0])
 
+
+class TestModule_utils_threads(unittest.TestCase):
+    def setUp(self):
+        self.start_threads = ants.get_itk_default_num_threads()
+
+    def tearDown(self):
+        ants.set_itk_default_num_threads(self.start_threads)
+
+    def test_ndimage_to_list(self):
+        ants.set_itk_default_num_threads(2)
+        self.assertEqual(2, ants.get_itk_default_num_threads())
+        ants.set_itk_default_num_threads(3)
+        self.assertEqual(3, ants.get_itk_default_num_threads())
+
+
 if __name__ == "__main__":
     run_tests()
