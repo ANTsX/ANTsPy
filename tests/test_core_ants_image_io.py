@@ -434,12 +434,20 @@ class TestImagesToMatrix(unittest.TestCase):
                     values = np.arange(np.prod(shape), dtype='float32').reshape(shape)
                     image = ants.from_numpy(values)
                     mask = ants.from_numpy(np.ones(target_shape, dtype='float32'))
-                    expected = np.zeros(target_shape, dtype='float32')
-                    expected[:2, :min(3, target_shape[1])] = values[:2, :target_shape[1]]
+                    images = [image, image * 2]
+                    expected_images = images
+                    if shape != target_shape:
+                        target = mask >= 0.5
+                        expected_images = [
+                            ants.resample_image_to_target(img, target, interp_type='gaussian')
+                            for img in images
+                        ]
 
-                    result = ants.images_to_matrix([image, image * 2], mask=mask)
+                    result = ants.images_to_matrix(images, mask=mask)
 
-                    nptest.assert_array_equal(result, [expected.ravel(), 2 * expected.ravel()])
+                    nptest.assert_array_equal(
+                        result, [img.numpy().ravel() for img in expected_images]
+                    )
 
 
 class TestNumpySidecars(unittest.TestCase):
