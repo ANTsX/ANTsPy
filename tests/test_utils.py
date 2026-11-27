@@ -809,7 +809,20 @@ class TestModule_mni2tal(unittest.TestCase):
         pass
 
     def test_mni2tal_example(self):
-        ants.mni2tal((10, 12, 14))
+        res = ants.mni2tal((10, 12, 14))
+        np.testing.assert_allclose(res, [-9.9, -10.9816, 13.4466], atol=1e-12)
+
+    def test_mni2tal_below_ac(self):
+        res = ants.mni2tal((10, 12, -14))
+        np.testing.assert_allclose(res, [-9.9, -12.2136, -11.164], atol=1e-12)
+
+    def test_mni2tal_no_double_transform_near_zero_z(self):
+        # LPS (10, -100, 1) -> RAS (-10, 100, 1), where z >= 0 initially
+        # but transformed z is negative (-3.9311). Must not enter the z < 0 branch.
+        xin = [10, -100, 1]
+        res = ants.mni2tal(xin)
+        np.testing.assert_allclose(res, [-9.9, 96.926, -3.9311], atol=1e-12)
+        self.assertEqual(xin, [10, -100, 1])
 
 
 class TestModule_morphology(unittest.TestCase):
